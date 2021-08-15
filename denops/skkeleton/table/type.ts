@@ -1,1 +1,1 @@
-export type SKKTable = [from: string, result: [to: string, feed: string]][];
+export type KanaTable = [from: string, result: [to: string, feed: string]][];
