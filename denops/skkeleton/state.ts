@@ -1,4 +1,4 @@
-import { KanaTable } from "./table/type.ts";
+import { KanaTable } from "./kana/type.ts";
 
 export type State = InputState
  
