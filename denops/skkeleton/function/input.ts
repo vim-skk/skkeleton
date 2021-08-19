@@ -2,8 +2,23 @@ import type { Context } from "../context.ts";
 import type { PreEdit } from "../preedit.ts";
 import type { InputState } from "../state.ts";
 
-function kakutei(preEdit: PreEdit, state: InputState, kana: string, feed: string) {
-  preEdit.kakutei += kana;
+function kakutei(
+  preEdit: PreEdit,
+  state: InputState,
+  kana: string,
+  feed: string,
+) {
+  switch (state.mode) {
+    case "direct":
+      preEdit.doKakutei(kana);
+      break;
+    case "henkan":
+      state.henkanFeed += kana;
+      break;
+    case "okuri":
+      state.okuriFeed += kana;
+      break;
+  }
   state.feed = feed;
 }
 

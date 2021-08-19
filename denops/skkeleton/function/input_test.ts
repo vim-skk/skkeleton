@@ -13,6 +13,6 @@ Deno.test({
       kanaInput(context, c);
     }
 
-    assertEquals(context.preEdit.kakutei, "にほんごうっていき");
+    assertEquals(context.preEdit.output(""), "にほんごうっていき");
   },
 });

@@ -14,4 +14,20 @@ export class Context {
     okuriFeed: "",
   };
   preEdit = new PreEdit();
+
+  toString(): string {
+    if(this.state.type === "input") {
+      const state = this.state;
+      let ret = "";
+      if(state.mode === "henkan" || state.mode === "okuri") {
+        ret = "▽" + state.henkanFeed;
+      }
+      if(state.mode === "okuri") {
+        ret += "*" + state.okuriFeed;
+      }
+      return ret + state.feed;
+    }
+    return "";
+  }
 }
+
