@@ -13,5 +13,4 @@ export class PreEdit {
     this.#kakutei = "";
     return ret;
   }
-
 }

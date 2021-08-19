@@ -12,7 +12,7 @@ Deno.test({
     assertEquals(preEdit.output("hoge"), "\x08\x08\x08hoge");
     assertEquals(preEdit.output("piyo"), "\x08\x08\x08\x08piyo");
     // output kakutei before new string
-    preEdit.doKakutei('bar');
+    preEdit.doKakutei("bar");
     assertEquals(preEdit.output("baz"), "\x08\x08\x08\x08barbaz");
   },
 });
