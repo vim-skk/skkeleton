@@ -43,3 +43,46 @@ export function kanaInput(context: Context, char: string) {
     kakutei(context.preEdit, state, found[0][1][0], found[0][1][1]);
   }
 }
+
+const henkanPointTransition: Record<string, "direct" | "henkan" | "okuri"> = {
+  "direct": "henkan",
+  "henkan": "okuri",
+  "okuri": "okuri",
+};
+
+export function henkanPoint(context: Context, _: string) {
+  // TODO: ちゃんと確定する
+  if (context.state.type !== "input") {
+    return;
+  }
+  const state = context.state;
+  // don't transition to okuri mode when henkan str is empty
+  if(state.mode === "henkan" && state.henkanFeed.length === 0) {
+    return;
+  }
+  state.mode = henkanPointTransition[state.mode];
+}
+
+export function deleteChar(context: Context, _: string) {
+  if (context.state.type !== "input") {
+    return;
+  }
+  const state = context.state;
+  if (state.feed) {
+    state.feed = state.feed.slice(0, -1);
+  } else if (state.mode === "okuri") {
+    if (state.okuriFeed) {
+      state.okuriFeed = state.okuriFeed.slice(0, -1);
+    } else {
+      state.mode = "henkan";
+    }
+  } else if (state.mode === "henkan") {
+    if (state.henkanFeed) {
+      state.henkanFeed = state.henkanFeed.slice(0, -1);
+    } else {
+      state.mode = "direct";
+    }
+  } else {
+    context.preEdit.doKakutei("\x08");
+  }
+}
