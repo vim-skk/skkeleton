@@ -16,7 +16,11 @@ function kakutei(
       state.henkanFeed += kana;
       break;
     case "okuri":
-      state.okuriFeed += kana;
+      if(feed) {
+        state.okuriFeed += kana;
+      } else {
+        // TODO: 変換を行う
+      }
       break;
   }
   state.feed = feed;

@@ -29,17 +29,13 @@ Deno.test({
     const tests = [
       [";", "▽"],
       [";", "▽"],
-      ["h", "▽h"],
-      ["o", "▽ほ"],
-      ["g", "▽ほg"],
-      ["e", "▽ほげ"],
-      [";", "▽ほげ*"],
-      [";", "▽ほげ*"],
-      ["p", "▽ほげ*p"],
-      ["i", "▽ほげ*ぴ"],
-      ["y", "▽ほげ*ぴy"],
-      ["o", "▽ほげ*ぴよ"],
-      [";", "▽ほげ*ぴよ"],
+      ["y", "▽y"],
+      ["a", "▽や"],
+      [";", "▽や*"],
+      [";", "▽や*"],
+      ["t", "▽や*t"],
+      ["t", "▽や*っt"],
+      [";", "▽や*っt"],
     ];
     for (const test of tests) {
       inputChar(context, test[0]);
@@ -52,7 +48,7 @@ Deno.test({
   name: "delete char",
   fn() {
     const context = new Context();
-    for (const c of ";hoge;piyo;ch") {
+    for (const c of ";ya;tt") {
       inputChar(context, c);
     }
     let result = context.toString();
