@@ -1,6 +1,6 @@
-import type { SKKTable } from "./type.ts";
+import type { KanaTable } from "./type.ts";
 
-export const romToHira: SKKTable = [
+export const romToHira: KanaTable = [
   ["a", ["あ", ""]],
   ["bb", ["っ", "b"]],
   ["ba", ["ば", ""]],
