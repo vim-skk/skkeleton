@@ -1,6 +1,6 @@
 import type { Context } from "../context.ts";
 import type { PreEdit } from "../preedit.ts";
-import type { InputState } from "../state.ts";
+import type { InputMode, InputState } from "../state.ts";
 
 function kakutei(
   preEdit: PreEdit,
@@ -16,7 +16,7 @@ function kakutei(
       state.henkanFeed += kana;
       break;
     case "okuri":
-      if(feed) {
+      if (feed) {
         state.okuriFeed += kana;
       } else {
         // TODO: 変換を行う
@@ -48,7 +48,7 @@ export function kanaInput(context: Context, char: string) {
   }
 }
 
-const henkanPointTransition: Record<string, "direct" | "henkan" | "okuri"> = {
+const henkanPointTransition: Record<string, InputMode> = {
   "direct": "henkan",
   "henkan": "okuri",
   "okuri": "okuri",
@@ -61,7 +61,7 @@ export function henkanPoint(context: Context, _: string) {
   }
   const state = context.state;
   // don't transition to okuri mode when henkan str is empty
-  if(state.mode === "henkan" && state.henkanFeed.length === 0) {
+  if (state.mode === "henkan" && state.henkanFeed.length === 0) {
     return;
   }
   state.mode = henkanPointTransition[state.mode];
