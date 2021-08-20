@@ -95,3 +95,14 @@ export function deleteChar(context: Context, _?: string) {
     context.preEdit.doKakutei("\b");
   }
 }
+
+export function inputCancel(context: Context, _?: string) {
+  const state = context.state;
+  if (state.type !== "input") {
+    return;
+  }
+  state.mode = "direct";
+  state.feed = "";
+  state.henkanFeed = "";
+  state.okuriFeed = "";
+}
