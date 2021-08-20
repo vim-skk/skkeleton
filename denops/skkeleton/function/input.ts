@@ -4,7 +4,7 @@ import type { InputMode, InputState } from "../state.ts";
 import { config } from "../config.ts";
 import { undoPoint } from "../util.ts";
 
-function kakutei(
+async function kakutei(
   preEdit: PreEdit,
   state: InputState,
   kana: string,
@@ -22,13 +22,14 @@ function kakutei(
         state.okuriFeed += kana;
       } else {
         // TODO: 変換を行う
+        await Promise.resolve();
       }
       break;
   }
   state.feed = feed;
 }
 
-export function kanaInput(context: Context, char: string) {
+export async function kanaInput(context: Context, char: string) {
   // TODO: as InputState
   const state = context.state as InputState;
 
@@ -40,13 +41,13 @@ export function kanaInput(context: Context, char: string) {
 
   if (found.length === 0) {
     if (current) {
-      kakutei(context.preEdit, state, current[1][0], char);
+      await kakutei(context.preEdit, state, current[1][0], char);
     } else {
       // kakutei previous feed
-      kakutei(context.preEdit, state, state.feed, "");
+      await kakutei(context.preEdit, state, state.feed, "");
     }
   } else if (found.length === 1 && found[0][0] === state.feed) {
-    kakutei(context.preEdit, state, found[0][1][0], found[0][1][1]);
+    await kakutei(context.preEdit, state, found[0][1][0], found[0][1][1]);
   }
 }
 

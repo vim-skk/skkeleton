@@ -4,27 +4,27 @@ import { assertEquals } from "../deps/std/testing.ts";
 
 Deno.test({
   name: "kana input",
-  fn() {
+  async fn() {
     const context = new Context();
     for (const c of "nihongoutteiki") {
-      kanaInput(context, c);
+      await kanaInput(context, c);
     }
 
     assertEquals(context.preEdit.output(""), "にほんごうっていき");
   },
 });
 
-function inputChar(context: Context, char: string) {
+async function inputChar(context: Context, char: string) {
   if (char === ";") {
     henkanPoint(context);
   } else {
-    kanaInput(context, char);
+    await kanaInput(context, char);
   }
 }
 
 Deno.test({
   name: "henkan point",
-  fn() {
+  async fn() {
     const context = new Context();
     const tests = [
       [";", "▽"],
@@ -38,7 +38,7 @@ Deno.test({
       [";", "▽や*っt"],
     ];
     for (const test of tests) {
-      inputChar(context, test[0]);
+      await inputChar(context, test[0]);
       assertEquals(context.toString(), test[1]);
     }
   },
@@ -46,10 +46,10 @@ Deno.test({
 
 Deno.test({
   name: "delete char",
-  fn() {
+  async fn() {
     const context = new Context();
     for (const c of ";ya;tt") {
-      inputChar(context, c);
+      await inputChar(context, c);
     }
     let result = context.toString();
     do {
@@ -62,9 +62,9 @@ Deno.test({
 
 Deno.test({
   name: "undo point",
-  fn() {
+  async fn() {
     const context = new Context();
-    inputChar(context, "a");
+    await inputChar(context, "a");
     henkanPoint(context);
     assertEquals(context.preEdit.output(context.toString()), "あ\x07u▽");
   },
