@@ -1,6 +1,6 @@
 import { KanaTable } from "./kana/type.ts";
 
-export type State = InputState | AState;
+export type State = InputState | EscapeState;
 
 export type InputMode = "direct" | "henkan" | "okuri";
 
@@ -13,7 +13,6 @@ export type InputState = {
   okuriFeed: string;
 };
 
-// 型検査のチェック用ダミーステート
-export type AState = {
-  type: "a";
+export type EscapeState = {
+  type: "escape";
 };
