@@ -16,7 +16,7 @@ Deno.test({
 
 function inputChar(context: Context, char: string) {
   if (char === ";") {
-    henkanPoint(context, "");
+    henkanPoint(context);
   } else {
     kanaInput(context, char);
   }
@@ -53,9 +53,19 @@ Deno.test({
     }
     let result = context.toString();
     do {
-      deleteChar(context, "");
+      deleteChar(context);
       result = result.slice(0, -1);
       assertEquals(context.toString(), result);
     } while (result);
+  },
+});
+
+Deno.test({
+  name: "undo point",
+  fn() {
+    const context = new Context();
+    inputChar(context, "a");
+    henkanPoint(context);
+    assertEquals(context.preEdit.output(context.toString()), "あ\x07u▽");
   },
 });

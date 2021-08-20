@@ -1,6 +1,8 @@
 import type { Context } from "../context.ts";
 import type { PreEdit } from "../preedit.ts";
 import type { InputMode, InputState } from "../state.ts";
+import { config } from "../config.ts";
+import { undoPoint } from "../util.ts";
 
 function kakutei(
   preEdit: PreEdit,
@@ -60,6 +62,9 @@ export function henkanPoint(context: Context, _?: string) {
     return;
   }
   const state = context.state;
+  if (state.mode === "direct" && config.setUndoPoint) {
+    context.preEdit.doKakutei(undoPoint);
+  }
   // don't transition to okuri mode when henkan str is empty
   if (state.mode === "henkan" && state.henkanFeed.length === 0) {
     return;
