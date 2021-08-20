@@ -1,12 +1,13 @@
+import { Library } from "./jisyo.ts";
 import { assertEquals } from "./deps/std/testing.ts";
-import { dirname } from "./deps/std/path.ts";
-import { ensureJisyo } from "./jisyo.ts";
 import { decodeJisyo } from "./jisyo.ts";
+import { dirname } from "./deps/std/path.ts";
 import { encodeJisyo } from "./jisyo.ts";
+import { ensureJisyo } from "./jisyo.ts";
 import { fromFileUrl } from "./deps/std/path.ts";
 import { join } from "./deps/std/path.ts";
+import { load } from "./jisyo.ts";
 import { loadJisyo } from "./jisyo.ts";
-import { Library } from "./jisyo.ts";
 
 const jisyoPath = join(
   dirname(fromFileUrl(import.meta.url)),
@@ -55,28 +56,58 @@ Deno.test({
   name: "global/local jisyo interop",
   async fn() {
     const jisyo = await loadJisyo(jisyoPath, "utf-8");
-    const manager = new Library(jisyo);
-    manager.registerCandidate("okurinasi", "てすと", "test");
+    const library = new Library(jisyo);
+    library.registerCandidate("okurinasi", "てすと", "test");
 
     // remove dup
-    const nasi = manager.getCandidates("okurinasi", "てすと");
+    const nasi = library.getCandidates("okurinasi", "てすと");
     assertEquals(["test", "テスト"], nasi);
 
     // new candidate
     // user candidates priority is higher than global
-    manager.registerCandidate("okurinasi", "てすと", "てすと");
-    const nasi2 = manager.getCandidates("okurinasi", "てすと");
+    library.registerCandidate("okurinasi", "てすと", "てすと");
+    const nasi2 = library.getCandidates("okurinasi", "てすと");
     assertEquals(["てすと", "test", "テスト"], nasi2);
+  },
+});
+
+Deno.test({
+  name: "encode/decode skk jisyo",
+  async fn() {
+    const data = await Deno.readTextFile(jisyoPath);
+    const jisyo = decodeJisyo(data);
+    const redata = encodeJisyo(jisyo);
+    assertEquals(redata, data);
   },
 });
 
 Deno.test({
   name: "read/write skk jisyo",
   async fn() {
-    const data = await Deno.readTextFile(jisyoPath);
-    const jisyo = decodeJisyo(data);
-    const redata = encodeJisyo(jisyo);
-    await Deno.writeTextFile("/tmp/a.txt", redata);
-    assertEquals(redata, data);
+    const tmp = await Deno.makeTempFile();
+    try {
+      const library = await load("", tmp);
+      await Deno.writeTextFile(
+        tmp,
+        `
+;; okuri-ari entries.
+;; okuri-nasi entries.
+あ /あ/
+      `,
+      );
+
+      // load
+      await library.loadJisyo();
+      assertEquals(library.getCandidates("okurinasi", "あ"), ["あ"]);
+
+      //save
+      library.registerCandidate("okurinasi", "あ", "亜");
+      await library.saveJisyo();
+      const data = await Deno.readTextFile(tmp);
+      const line = data.split("\n").find((value) => value.startsWith("あ"));
+      assertEquals(line, "あ /亜/あ/");
+    } finally {
+      await Deno.remove(tmp);
+    }
   },
 });
