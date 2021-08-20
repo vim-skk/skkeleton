@@ -54,7 +54,7 @@ const henkanPointTransition: Record<string, InputMode> = {
   "okuri": "okuri",
 };
 
-export function henkanPoint(context: Context, _: string) {
+export function henkanPoint(context: Context, _?: string) {
   // TODO: ちゃんと確定する
   if (context.state.type !== "input") {
     return;
@@ -67,7 +67,7 @@ export function henkanPoint(context: Context, _: string) {
   state.mode = henkanPointTransition[state.mode];
 }
 
-export function deleteChar(context: Context, _: string) {
+export function deleteChar(context: Context, _?: string) {
   if (context.state.type !== "input") {
     return;
   }
@@ -87,6 +87,6 @@ export function deleteChar(context: Context, _: string) {
       state.mode = "direct";
     }
   } else {
-    context.preEdit.doKakutei("\x08");
+    context.preEdit.doKakutei("\b");
   }
 }

@@ -7,12 +7,11 @@ Deno.test({
     const preEdit = new PreEdit();
     // `PreEdit` remembers previous string length
     // return value is remove current string and new string
-    // "\x08" = "\<C-h>"
     assertEquals(preEdit.output("foo"), "foo");
-    assertEquals(preEdit.output("hoge"), "\x08\x08\x08hoge");
-    assertEquals(preEdit.output("piyo"), "\x08\x08\x08\x08piyo");
+    assertEquals(preEdit.output("hoge"), "\b\b\bhoge");
+    assertEquals(preEdit.output("piyo"), "\b\b\b\bpiyo");
     // output kakutei before new string
     preEdit.doKakutei("bar");
-    assertEquals(preEdit.output("baz"), "\x08\x08\x08\x08barbaz");
+    assertEquals(preEdit.output("baz"), "\b\b\b\bbarbaz");
   },
 });
