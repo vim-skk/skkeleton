@@ -36,6 +36,7 @@ export async function kanaInput(context: Context, char: string) {
   // 「ん」に関するパターンの処理に必要
   const current = state.table.find((e) => e[0] === state.feed);
 
+  const previousFeed = state.feed;
   state.feed += char;
   const found = state.table.filter((e) => e[0].startsWith(state.feed));
 
@@ -44,7 +45,7 @@ export async function kanaInput(context: Context, char: string) {
       await kakutei(context.preEdit, state, current[1][0], char);
     } else {
       // kakutei previous feed
-      await kakutei(context.preEdit, state, state.feed, "");
+      await kakutei(context.preEdit, state, previousFeed, char);
     }
   } else if (found.length === 1 && found[0][0] === state.feed) {
     await kakutei(context.preEdit, state, found[0][1][0], found[0][1][1]);

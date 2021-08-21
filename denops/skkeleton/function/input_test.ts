@@ -9,8 +9,20 @@ Deno.test({
     for (const c of "nihongoutteiki") {
       await kanaInput(context, c);
     }
-
     assertEquals(context.preEdit.output(""), "にほんごうっていき");
+  },
+});
+
+Deno.test({
+  name: "kana input with illegal key",
+  async fn() {
+    const context = new Context();
+    console.log();
+    for (const c of "n n n n ") {
+      await kanaInput(context, c);
+    }
+    // the last space isn't decision yet.
+    assertEquals(context.preEdit.output(""), "ん ん ん ん");
   },
 });
 
