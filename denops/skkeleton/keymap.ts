@@ -6,11 +6,12 @@ import {
   kanaInput,
 } from "./function/input.ts";
 import {
+  henkanBackward,
   henkanFirst,
   henkanForward,
-  henkanBackward,
 } from "./function/henkan.ts";
 import { disable, escape } from "./function/disable.ts";
+import { keyToNotation } from "./notation.ts";
 
 type KeyHandler = (context: Context, char: string) => void | Promise<void>;
 
@@ -23,11 +24,11 @@ const input: KeyMap = {
   default: kanaInput,
   map: {
     ";": henkanPoint,
-    "<BS>": deleteChar,
-    "<C-g>": inputCancel,
-    "<C-h>": deleteChar,
-    "<Esc>": escape,
-    "<Space>": henkanFirst,
+    "<bs>": deleteChar,
+    "<c-g>": inputCancel,
+    "<c-h>": deleteChar,
+    "<esc>": escape,
+    "<space>": henkanFirst,
     "l": disable,
   },
 };
@@ -35,7 +36,7 @@ const input: KeyMap = {
 const henkan: KeyMap = {
   default: kanaInput,
   map: {
-    " ": henkanForward,
+    "<space>": henkanForward,
     "x": henkanBackward,
   },
 };
@@ -45,11 +46,13 @@ const keyMaps: Record<string, KeyMap> = {
   "henkan": henkan,
 };
 
-export async function handleKey(context: Context, keyNotation: string, key: string) {
+export async function handleKey(context: Context, key: string) {
   const keyMap = keyMaps[context.state.type];
   if (!keyMap) {
     throw new Error("Illegal State: " + context.state.type);
   }
-  await ((keyMap.map[keyNotation] ?? keyMap.default)(context, key) ??
-    Promise.resolve());
+  await ((keyMap.map[keyToNotation[key] ?? key] ?? keyMap.default)(
+    context,
+    key,
+  ) ?? Promise.resolve());
 }

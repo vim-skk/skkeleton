@@ -3,6 +3,7 @@ import { Cell } from "./util.ts";
 import { Context } from "./context.ts";
 import { autocmd, Denops, ensureString, fn, vars } from "./deps.ts";
 import { handleKey } from "./keymap.ts";
+import { receiveNotation } from "./notation.ts";
 
 export const currentContext = new Cell(new Context());
 
@@ -25,7 +26,10 @@ async function init(denops: Denops) {
     Deno.env.get("HOME") + "/.skkeleton",
   );
   ensureString(userJisyo);
-  jisyo.currentLibrary.set(await jisyo.load(globalJisyo, userJisyo, globalJisyoEncoding));
+  jisyo.currentLibrary.set(
+    await jisyo.load(globalJisyo, userJisyo, globalJisyoEncoding),
+  );
+  await receiveNotation(denops);
 }
 
 export async function main(denops: Denops) {
@@ -46,11 +50,10 @@ export async function main(denops: Denops) {
         return "";
       }
     },
-    async handleKey(keyNotation: unknown, key: unknown): Promise<string> {
-      ensureString(keyNotation);
+    async handleKey(key: unknown): Promise<string> {
       ensureString(key);
       const context = currentContext.get();
-      await handleKey(context, keyNotation, key);
+      await handleKey(context, key);
       return context.preEdit.output(context.toString());
     },
   };
