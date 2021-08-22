@@ -9,6 +9,7 @@ import {
   henkanBackward,
   henkanFirst,
   henkanForward,
+  henkanInput,
 } from "./function/henkan.ts";
 import { disable, escape } from "./function/disable.ts";
 import { keyToNotation } from "./notation.ts";
@@ -34,7 +35,7 @@ const input: KeyMap = {
 };
 
 const henkan: KeyMap = {
-  default: kanaInput,
+  default: henkanInput,
   map: {
     "<space>": henkanForward,
     "x": henkanBackward,

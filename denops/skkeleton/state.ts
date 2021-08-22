@@ -20,11 +20,13 @@ export function asInputState(astate: State, initialize = true): InputState {
   state.type = "input";
   if (initialize) {
     state.table = getKanaTable();
+    state.mode = "direct";
     state.feed = "";
     state.henkanFeed = "";
     state.okuriFeed = "";
   } else {
     state.table ??= getKanaTable();
+    state.mode ??= "direct";
     state.feed ??= "";
     state.henkanFeed ??= "";
     state.okuriFeed ??= "";
