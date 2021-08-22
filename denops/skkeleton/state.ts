@@ -1,6 +1,6 @@
-import { KanaTable } from "./kana/type.ts";
 import type { HenkanType } from "./jisyo.ts";
 import { getKanaTable } from "./kana.ts";
+import { KanaTable } from "./kana/type.ts";
 
 export type State = InputState | HenkanState | EscapeState;
 

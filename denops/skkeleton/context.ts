@@ -1,7 +1,7 @@
 import type { Denops } from "./deps.ts";
-import type { State } from "./state.ts";
-import { PreEdit } from "./preedit.ts";
 import { romToHira } from "./kana/rom_hira.ts";
+import { PreEdit } from "./preedit.ts";
+import type { State } from "./state.ts";
 
 export class Context {
   denops?: Denops;

@@ -1,12 +1,12 @@
-import type { Context } from "../context.ts";
-import { getOkuriStr } from "../okuri.ts";
-import type { HenkanState } from "../state.ts";
-import { currentLibrary } from "../jisyo.ts";
-import { kanaInput } from "./input.ts";
-import { undoPoint } from "../util.ts";
 import { config } from "../config.ts";
-import { asInputState } from "../state.ts";
+import type { Context } from "../context.ts";
+import { currentLibrary } from "../jisyo.ts";
 import { handleKey } from "../keymap.ts";
+import { getOkuriStr } from "../okuri.ts";
+import { asInputState } from "../state.ts";
+import type { HenkanState } from "../state.ts";
+import { undoPoint } from "../util.ts";
+import { kanaInput } from "./input.ts";
 
 export async function henkanFirst(context: Context, key: string) {
   if (context.state.type !== "input") {

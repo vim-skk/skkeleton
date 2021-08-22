@@ -1,13 +1,13 @@
-import { Library } from "./jisyo.ts";
+import { dirname, fromFileUrl, join } from "./deps/std/path.ts";
 import { assertEquals } from "./deps/std/testing.ts";
-import { decodeJisyo } from "./jisyo.ts";
-import { dirname } from "./deps/std/path.ts";
-import { encodeJisyo } from "./jisyo.ts";
-import { ensureJisyo } from "./jisyo.ts";
-import { fromFileUrl } from "./deps/std/path.ts";
-import { join } from "./deps/std/path.ts";
-import { load } from "./jisyo.ts";
-import { loadJisyo } from "./jisyo.ts";
+import {
+  decodeJisyo,
+  encodeJisyo,
+  ensureJisyo,
+  Library,
+  load,
+  loadJisyo,
+} from "./jisyo.ts";
 
 const jisyoPath = join(
   dirname(fromFileUrl(import.meta.url)),

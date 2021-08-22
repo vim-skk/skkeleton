@@ -1,17 +1,17 @@
 import type { Context } from "./context.ts";
-import {
-  deleteChar,
-  henkanPoint,
-  inputCancel,
-  kanaInput,
-} from "./function/input.ts";
+import { disable, escape } from "./function/disable.ts";
 import {
   henkanBackward,
   henkanFirst,
   henkanForward,
   henkanInput,
 } from "./function/henkan.ts";
-import { disable, escape } from "./function/disable.ts";
+import {
+  deleteChar,
+  henkanPoint,
+  inputCancel,
+  kanaInput,
+} from "./function/input.ts";
 import { keyToNotation } from "./notation.ts";
 
 type KeyHandler = (context: Context, char: string) => void | Promise<void>;

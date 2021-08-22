@@ -1,7 +1,7 @@
+import { config } from "../config.ts";
 import type { Context } from "../context.ts";
 import type { PreEdit } from "../preedit.ts";
 import type { InputMode, InputState } from "../state.ts";
-import { config } from "../config.ts";
 import { undoPoint } from "../util.ts";
 
 async function kakutei(

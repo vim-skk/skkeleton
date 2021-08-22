@@ -1,6 +1,6 @@
 import { Context } from "../context.ts";
-import { deleteChar, henkanPoint, kanaInput } from "./input.ts";
 import { assertEquals } from "../deps/std/testing.ts";
+import { deleteChar, henkanPoint, kanaInput } from "./input.ts";
 
 Deno.test({
   name: "kana input",

@@ -1,5 +1,5 @@
-import { PreEdit } from "./preedit.ts";
 import { assertEquals } from "./deps/std/testing.ts";
+import { PreEdit } from "./preedit.ts";
 
 Deno.test({
   name: "preedit test",

@@ -1,9 +1,9 @@
-import * as jisyo from "./jisyo.ts";
-import { Cell } from "./util.ts";
 import { Context } from "./context.ts";
 import { autocmd, Denops, ensureString, fn, vars } from "./deps.ts";
+import * as jisyo from "./jisyo.ts";
 import { handleKey } from "./keymap.ts";
 import { receiveNotation } from "./notation.ts";
+import { Cell } from "./util.ts";
 
 export const currentContext = new Cell(new Context());
 

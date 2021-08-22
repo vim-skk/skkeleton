@@ -1,5 +1,5 @@
-import type { KanaTable } from "./kana/type.ts";
 import { romToHira } from "./kana/rom_hira.ts";
+import type { KanaTable } from "./kana/type.ts";
 
 const tables: Record<string, KanaTable> = {
   "romToHira": romToHira,
