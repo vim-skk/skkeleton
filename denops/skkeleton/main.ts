@@ -40,6 +40,7 @@ export async function main(denops: Denops) {
         await denops.call("skkeleton#map");
         // ノーマルモード等ではsetlocal、挿入モード等では<C-^>が必要
         await denops.cmd("setlocal iminsert=1");
+        await vars.b.set(denops, "keymap_name", "skkeleton");
         // とりあえず雑にコンテキスト生成
         // TODO: 後で直す
         const context = new Context();
