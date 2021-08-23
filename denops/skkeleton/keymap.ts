@@ -11,6 +11,7 @@ import {
   henkanPoint,
   inputCancel,
   kanaInput,
+  katakana,
 } from "./function/input.ts";
 import { keyToNotation } from "./notation.ts";
 
@@ -31,6 +32,7 @@ const input: KeyMap = {
     "<esc>": escape,
     "<space>": henkanFirst,
     "l": disable,
+    "q": katakana,
   },
 };
 

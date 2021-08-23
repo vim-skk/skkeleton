@@ -1,5 +1,7 @@
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
+import { hiraToKata } from "../kana/hira_kata.ts";
+import { asInputState } from "../state.ts";
 import type { InputMode, InputState } from "../state.ts";
 import { undoPoint } from "../util.ts";
 import { henkanFirst } from "./henkan.ts";
@@ -99,6 +101,20 @@ export function deleteChar(context: Context, _?: string) {
   } else {
     context.preEdit.doKakutei("\b");
   }
+}
+
+export function katakana(context: Context, _?: string) {
+  if (context.state.type !== "input") {
+    return;
+  }
+  const state = context.state;
+  if (state.mode === "direct") {
+    // TODO: change to katakana mode
+    return;
+  }
+  const result = hiraToKata(state.henkanFeed + state.okuriFeed);
+  context.preEdit.doKakutei(result);
+  asInputState(state);
 }
 
 export function inputCancel(context: Context, _?: string) {
