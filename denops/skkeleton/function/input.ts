@@ -1,15 +1,18 @@
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
-import type { PreEdit } from "../preedit.ts";
 import type { InputMode, InputState } from "../state.ts";
 import { undoPoint } from "../util.ts";
+import { henkanFirst } from "./henkan.ts";
 
 async function kakutei(
-  preEdit: PreEdit,
-  state: InputState,
+  context: Context,
   kana: string,
   feed: string,
 ) {
+  const { preEdit, state } = context;
+  if (state.type !== "input") {
+    return;
+  }
   switch (state.mode) {
     case "direct":
       preEdit.doKakutei(kana);
@@ -18,11 +21,11 @@ async function kakutei(
       state.henkanFeed += kana;
       break;
     case "okuri":
+      state.okuriFeed += kana;
       if (feed) {
-        state.okuriFeed += kana;
+        state.feed += kana;
       } else {
-        // TODO: 変換を行う
-        await Promise.resolve();
+        await henkanFirst(context, "");
       }
       break;
   }
@@ -42,13 +45,13 @@ export async function kanaInput(context: Context, char: string) {
 
   if (found.length === 0) {
     if (current) {
-      await kakutei(context.preEdit, state, current[1][0], char);
+      await kakutei(context, current[1][0], char);
     } else {
       // kakutei previous feed
-      await kakutei(context.preEdit, state, previousFeed, char);
+      await kakutei(context, previousFeed, char);
     }
   } else if (found.length === 1 && found[0][0] === state.feed) {
-    await kakutei(context.preEdit, state, found[0][1][0], found[0][1][1]);
+    await kakutei(context, found[0][1][0], found[0][1][1]);
   }
 }
 

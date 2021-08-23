@@ -1,5 +1,6 @@
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
+import type { Denops } from "../deps.ts";
 import { currentLibrary } from "../jisyo.ts";
 import { handleKey } from "../keymap.ts";
 import { getOkuriStr } from "../okuri.ts";
@@ -75,7 +76,6 @@ export async function henkanBackward(context: Context, _?: string) {
   }
 }
 
-import type { Denops } from "../deps.ts";
 async function showCandidates(denops: Denops, state: HenkanState) {
   const idx = state.candidateIndex;
   const candidates = state.candidates.slice(idx, idx + 7);
