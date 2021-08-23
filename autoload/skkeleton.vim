@@ -132,14 +132,14 @@ function! s:popup(candidates) abort
           \ 'style': 'minimal'
           \ }
     let win = nvim_open_win(buf, 0, opts)
-    execute printf('autocmd CursorMovedI <buffer> ++once call nvim_win_close(%d, v:true)', win)
+    execute printf('autocmd CursorMovedI,TextChangedI,InsertLeave <buffer> ++once call nvim_win_close(%d, v:true)', win)
   else
     let id = popup_create(a:candidates, {
           \ "pos": 'topleft',
           \ "line": 'cursor+1',
           \ "col": 'cursor',
           \ })
-    execute printf('autocmd CursorMovedI <buffer> ++once call popup_close(%d)', id)
+    execute printf('autocmd CursorMovedI,TextChangedI,InsertLeave <buffer> ++once call popup_close(%d)', id)
   endif
 endfunction
 
