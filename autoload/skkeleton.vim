@@ -117,3 +117,14 @@ function! skkeleton#get_key_notations() abort
   endfor
   return keys
 endfunction
+
+function! s:popup(candidates) abort
+  let co = &completeopt
+  set completeopt=menu,noinsert
+  call complete(col("."), a:candidates)
+  let &completeopt = co
+endfunction
+
+function! skkeleton#show_candidates(candidates) abort
+  call timer_start(1, {id->s:popup(a:candidates)})
+endfunction

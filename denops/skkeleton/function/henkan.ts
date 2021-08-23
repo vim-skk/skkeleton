@@ -38,22 +38,53 @@ export async function henkanForward(context: Context, _?: string) {
   if (state.type !== "henkan") {
     return;
   }
-  state.candidateIndex++;
+  if (state.candidateIndex >= config.showCandidatesCount) {
+    state.candidateIndex += 7;
+  } else {
+    state.candidateIndex++;
+  }
   if (state.candidates.length <= state.candidateIndex) {
     // TODO: 辞書登録
+    return;
+  }
+  if (state.candidateIndex >= config.showCandidatesCount) {
+    await showCandidates(context.denops!, state);
   }
   await Promise.resolve();
 }
 
-export function henkanBackward(context: Context, _?: string) {
+export async function henkanBackward(context: Context, _?: string) {
   const state = context.state;
   if (state.type !== "henkan") {
     return;
   }
-  state.candidateIndex--;
-  if (state.candidateIndex === -1) {
-    // TODO: 戻す
+  if (state.candidateIndex >= config.showCandidatesCount) {
+    state.candidateIndex = Math.max(
+      state.candidateIndex - 7,
+      config.showCandidatesCount - 1,
+    );
+  } else {
+    state.candidateIndex--;
   }
+  if (state.candidateIndex < 0) {
+    // TODO: 戻す
+    return;
+  }
+  if (state.candidateIndex >= config.showCandidatesCount) {
+    await showCandidates(context.denops!, state);
+  }
+}
+
+import type { Denops } from "../deps.ts";
+async function showCandidates(denops: Denops, state: HenkanState) {
+  const idx = state.candidateIndex;
+  const candidates = state.candidates.slice(idx, idx + 7);
+  const list = [" "].concat(
+    candidates.map((c, i) =>
+      `${config.selectCandidateKeys[i]}: ${c.replace(/;.*/, "")}`
+    ),
+  );
+  await denops.call("skkeleton#show_candidates", list);
 }
 
 export function kakutei(context: Context, _?: string) {

@@ -1,5 +1,5 @@
 import { Context } from "./context.ts";
-import { autocmd, Denops, ensureString, fn, vars } from "./deps.ts";
+import { Denops, ensureString, vars } from "./deps.ts";
 import * as jisyo from "./jisyo.ts";
 import { handleKey } from "./keymap.ts";
 import { receiveNotation } from "./notation.ts";
