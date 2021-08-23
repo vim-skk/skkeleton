@@ -27,6 +27,7 @@ async function kakutei(
       if (feed) {
         state.feed += kana;
       } else {
+        state.feed = "";
         await henkanFirst(context, "");
       }
       break;

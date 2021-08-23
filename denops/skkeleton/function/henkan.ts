@@ -14,9 +14,24 @@ export async function henkanFirst(context: Context, key: string) {
     return;
   }
 
-  if (context.state.mode === "direct") {
+  const inputState = context.state;
+
+  if (inputState.mode === "direct") {
     await kanaInput(context, key);
     return;
+  }
+
+  const feed = inputState.feed;
+  const queueAsKana = inputState.table.find((e) => e[0] === feed)?.[1][0];
+  if (queueAsKana) {
+    switch (inputState.mode) {
+      case "henkan":
+        inputState.henkanFeed += queueAsKana;
+        break;
+      case "okuri":
+        inputState.okuriFeed += queueAsKana;
+        break;
+    }
   }
 
   const state = context.state as unknown as HenkanState;
