@@ -79,10 +79,8 @@ import type { Denops } from "../deps.ts";
 async function showCandidates(denops: Denops, state: HenkanState) {
   const idx = state.candidateIndex;
   const candidates = state.candidates.slice(idx, idx + 7);
-  const list = [" "].concat(
-    candidates.map((c, i) =>
-      `${config.selectCandidateKeys[i]}: ${c.replace(/;.*/, "")}`
-    ),
+  const list = candidates.map((c, i) =>
+    `${config.selectCandidateKeys[i]}: ${c.replace(/;.*/, "")}`
   );
   await denops.call("skkeleton#show_candidates", list);
 }

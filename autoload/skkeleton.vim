@@ -119,10 +119,28 @@ function! skkeleton#get_key_notations() abort
 endfunction
 
 function! s:popup(candidates) abort
-  let co = &completeopt
-  set completeopt=menu,noinsert
-  call complete(col("."), a:candidates)
-  let &completeopt = co
+  if has('nvim')
+    let buf = nvim_create_buf(v:false, v:true)
+    call nvim_buf_set_lines(buf, 0, -1, v:true, a:candidates)
+    let opts = {
+          \ 'relative': 'cursor',
+          \ 'width': max(map(copy(a:candidates), 'strwidth(v:val)')),
+          \ 'height': len(a:candidates),
+          \ 'col': 0,
+          \ 'row': 1,
+          \ 'anchor': 'NW',
+          \ 'style': 'minimal'
+          \ }
+    let win = nvim_open_win(buf, 0, opts)
+    execute printf('autocmd CursorMovedI <buffer> ++once call nvim_win_close(%d, v:true)', win)
+  else
+    let id = popup_create(a:candidates, {
+          \ "pos": 'topleft',
+          \ "line": 'cursor+1',
+          \ "col": 'cursor',
+          \ })
+    execute printf('autocmd CursorMovedI <buffer> ++once call popup_close(%d)', id)
+  endif
 endfunction
 
 function! skkeleton#show_candidates(candidates) abort
