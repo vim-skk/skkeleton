@@ -22,10 +22,10 @@ async function init(denops: Denops) {
   const userJisyo = await vars.g.get(
     denops,
     "skkeleton#user_jisyo",
-    Deno.env.get("HOME") + "/.skke-jisyo.json",
+    Deno.env.get("HOME") + "/.skkeleton",
   );
   ensureString(userJisyo);
-  // await jisyo.load(globalJisyo, userJisyo, globalJisyoEncoding);
+  jisyo.currentLibrary.set(await jisyo.load(globalJisyo, userJisyo, globalJisyoEncoding));
 }
 
 export async function main(denops: Denops) {
@@ -33,7 +33,6 @@ export async function main(denops: Denops) {
   denops.dispatcher = {
     async enable(): Promise<string> {
       if (await denops.eval("&l:iminsert") !== 1) {
-        await denops.call("pumvisible");
         await denops.call("skkeleton#map");
         // ノーマルモード等ではsetlocal、挿入モード等では<C-^>が必要
         await denops.cmd("setlocal iminsert=1");
@@ -47,10 +46,11 @@ export async function main(denops: Denops) {
         return "";
       }
     },
-    async handleKey(key: unknown): Promise<string> {
+    async handleKey(keyNotation: unknown, key: unknown): Promise<string> {
+      ensureString(keyNotation);
       ensureString(key);
       const context = currentContext.get();
-      await handleKey(context, key);
+      await handleKey(context, keyNotation, key);
       return context.preEdit.output(context.toString());
     },
   };

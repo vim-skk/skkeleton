@@ -1,4 +1,5 @@
 import { isArray, isObject, isString } from "./deps.ts";
+import { Cell } from "./util.ts";
 
 const okuriAriMarker = ";; okuri-ari entries.";
 const okuriNasiMarker = ";; okuri-nasi entries.";
@@ -161,3 +162,5 @@ export async function load(
   }
   return new Library(globalJisyo, userJisyo, userJisyoPath);
 }
+
+export const currentLibrary = new Cell(new Library());

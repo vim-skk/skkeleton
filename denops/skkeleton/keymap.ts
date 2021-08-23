@@ -5,6 +5,11 @@ import {
   inputCancel,
   kanaInput,
 } from "./function/input.ts";
+import {
+  henkanFirst,
+  henkanForward,
+  henkanBackward,
+} from "./function/henkan.ts";
 import { disable, escape } from "./function/disable.ts";
 
 type KeyHandler = (context: Context, char: string) => void | Promise<void>;
@@ -22,19 +27,29 @@ const input: KeyMap = {
     "<C-g>": inputCancel,
     "<C-h>": deleteChar,
     "<Esc>": escape,
+    "<Space>": henkanFirst,
     "l": disable,
+  },
+};
+
+const henkan: KeyMap = {
+  default: kanaInput,
+  map: {
+    " ": henkanForward,
+    "x": henkanBackward,
   },
 };
 
 const keyMaps: Record<string, KeyMap> = {
   "input": input,
+  "henkan": henkan,
 };
 
-export async function handleKey(context: Context, char: string) {
+export async function handleKey(context: Context, keyNotation: string, key: string) {
   const keyMap = keyMaps[context.state.type];
   if (!keyMap) {
     throw new Error("Illegal State: " + context.state.type);
   }
-  await ((keyMap.map[char] ?? keyMap.default)(context, char) ??
+  await ((keyMap.map[keyNotation] ?? keyMap.default)(context, key) ??
     Promise.resolve());
 }

@@ -28,6 +28,10 @@ export class Context {
         }
         return ret + state.feed;
       }
+      case "henkan":
+        return "▼" +
+          (this.state.candidates[this.state.candidateIndex] ?? "error") +
+          this.state.okuriFeed;
       case "escape":
         return "\x1b";
       default:

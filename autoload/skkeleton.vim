@@ -34,7 +34,7 @@ endfunction "}}}
 
 function! skkeleton#map() abort
   for c in skkeleton#get_default_mapped_keys()
-    execute printf('lnoremap <buffer> <expr> %s denops#request("skkeleton", "handleKey", ["%s"])', c, substitute(c, '<', '<lt>', 'g'))
+    execute printf('lnoremap <buffer> <expr> %s denops#request("skkeleton", "handleKey", ["%s", "%s"])', c, substitute(c, '<', '<lt>', 'g'), c)
   endfor
 endfunction
 
