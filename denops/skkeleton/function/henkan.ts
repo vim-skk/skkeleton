@@ -89,8 +89,10 @@ export function kakutei(context: Context, _?: string) {
   const state = context.state;
   switch (state.type) {
     case "henkan": {
-      const ret = (state.candidates[state.candidateIndex] ?? "error") +
-        state.okuriFeed + (config.setUndoPoint ? undoPoint : "");
+      const candidate =
+        state.candidates[state.candidateIndex]?.replace(/;.*/, "") ?? "error";
+      const ret = candidate + state.okuriFeed +
+        (config.setUndoPoint ? undoPoint : "");
       context.preEdit.doKakutei(ret);
       asInputState(state);
       return;
