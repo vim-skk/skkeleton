@@ -1,5 +1,6 @@
 export const config = {
+  selectCandidateKeys: "asdfjkl",
   setUndoPoint: true,
   showCandidatesCount: 4,
-  selectCandidateKeys: "asdfjkl",
+  usePopup: true,
 };

@@ -1,4 +1,5 @@
 import { config } from "../config.ts";
+import { fn } from "../deps.ts";
 import type { Context } from "../context.ts";
 import type { Denops } from "../deps.ts";
 import { currentLibrary } from "../jisyo.ts";
@@ -64,7 +65,11 @@ export async function henkanForward(context: Context, _?: string) {
     return;
   }
   if (state.candidateIndex >= config.showCandidatesCount) {
-    await showCandidates(context.denops!, state);
+    if(config.usePopup && await fn.mode(context.denops!) === "i") {
+      await showCandidates(context.denops!, state);
+    } else {
+      await selectCandidates(context);
+    }
   }
   await Promise.resolve();
 }
@@ -88,6 +93,40 @@ export async function henkanBackward(context: Context, _?: string) {
   }
   if (state.candidateIndex >= config.showCandidatesCount) {
     await showCandidates(context.denops!, state);
+  }
+}
+
+async function selectCandidates(context: Context) {
+  const state = context.state as HenkanState;
+  const denops = context.denops!;
+  await Promise.resolve();
+  const count = config.showCandidatesCount;
+  const keys = config.selectCandidateKeys;
+  let index = 0;
+  while(index >= 0) {
+    const start = count + index * keys.length;
+    if(start >= state.candidates.length) {
+      // TODO: 辞書登録
+      throw new Error("jisyo touroku");
+    }
+    const candidates = state.candidates.slice(start, start + keys.length);
+    const msg = candidates.map((c, i) =>
+      `${keys[i]}: ${c.replace(/;.*/, "")}`
+    ).join(" ");
+    const keyCode = await denops.call("skkeleton#getchar", msg) as number;
+    const key = String.fromCharCode(keyCode);
+    if(key === " ") {
+      index += 1;
+    } else if(key === "x") {
+      index -= 1;
+    } else {
+      const candIndex = keys.indexOf(key);
+      if(candIndex !== -1) {
+        state.candidateIndex = start + candIndex;
+        kakutei(context, key);
+        return;
+      }
+    }
   }
 }
 
@@ -121,6 +160,17 @@ export function kakutei(context: Context, _?: string) {
 }
 
 export async function henkanInput(context: Context, key: string) {
+  const state = context.state as HenkanState;
+  await context.denops!.call("skkeleton#close_candidates");
+  if (state.candidateIndex >= config.showCandidatesCount) {
+    const candIdx = config.selectCandidateKeys.indexOf(key);
+    if(candIdx !== -1) {
+      state.candidateIndex += candIdx;
+      kakutei(context);
+      return;
+    }
+  }
+
   kakutei(context, key);
   await handleKey(context, key);
 }

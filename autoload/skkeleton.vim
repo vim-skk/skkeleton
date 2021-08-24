@@ -1,3 +1,17 @@
+augroup skkeleton
+  autocmd!
+  autocmd User skkeleton :
+augroup END
+
+function! s:doautocmd() abort
+  doautocmd <nomodeline> User skkeleton
+endfunction
+
+function! skkeleton#doautocmd() abort
+  call timer_start(1, {id->s:doautocmd()})
+  return ""
+endfunction
+
 " copied from eskk.vim
 function! skkeleton#get_default_mapped_keys() abort "{{{
     return split(
@@ -34,7 +48,7 @@ endfunction "}}}
 
 function! skkeleton#map() abort
   for c in skkeleton#get_default_mapped_keys()
-    execute printf('lnoremap <buffer> <expr> %s denops#request("skkeleton", "handleKey", ["%s"])', c, c)
+    execute printf('lnoremap <buffer> <expr> %s denops#request("skkeleton", "handleKey", ["%s"]) .. skkeleton#doautocmd()', c, c)
   endfor
 endfunction
 
@@ -118,6 +132,8 @@ function! skkeleton#get_key_notations() abort
   return keys
 endfunction
 
+let s:windows = []
+
 function! s:popup(candidates) abort
   if has('nvim')
     let buf = nvim_create_buf(v:false, v:true)
@@ -132,17 +148,41 @@ function! s:popup(candidates) abort
           \ 'style': 'minimal'
           \ }
     let win = nvim_open_win(buf, 0, opts)
-    execute printf('autocmd CursorMovedI,TextChangedI,InsertLeave <buffer> ++once call nvim_win_close(%d, v:true)', win)
+    call add(s:windows, win)
   else
     let id = popup_create(a:candidates, {
           \ "pos": 'topleft',
           \ "line": 'cursor+1',
           \ "col": 'cursor',
           \ })
-    execute printf('autocmd CursorMovedI,TextChangedI,InsertLeave <buffer> ++once call popup_close(%d)', id)
+    call add(s:windows, id)
   endif
+  autocmd User skkeleton ++once call s:close()
+endfunction
+
+function s:close()
+  if has('nvim')
+    for i in s:windows
+      call nvim_win_close(i, v:true)
+    endfor
+  else
+    for i in s:windows
+      call popup_close(i)
+    endfor
+  endif
+  let s:windows = []
 endfunction
 
 function! skkeleton#show_candidates(candidates) abort
-  call timer_start(1, {id->s:popup(a:candidates)})
+  let s:candidates = a:candidates
+  autocmd User skkeleton ++once call s:popup(s:candidates)
+endfunction
+
+function! skkeleton#close_candidates() abort
+  autocmd User skkeleton ++once call s:close()
+endfunction
+
+function! skkeleton#getchar(msg) abort
+  echo a:msg
+  return getchar()
 endfunction
