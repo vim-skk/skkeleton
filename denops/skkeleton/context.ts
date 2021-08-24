@@ -20,10 +20,10 @@ export class Context {
       case "input": {
         const state = this.state;
         let ret = "";
-        if (state.mode === "henkan" || state.mode === "okuri") {
+        if (state.mode === "okurinasi" || state.mode === "okuriari") {
           ret = "▽" + state.henkanFeed;
         }
-        if (state.mode === "okuri") {
+        if (state.mode === "okuriari") {
           ret += "*" + state.okuriFeed;
         }
         return ret + state.feed;

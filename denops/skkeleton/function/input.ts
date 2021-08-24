@@ -19,10 +19,10 @@ async function kakutei(
     case "direct":
       preEdit.doKakutei(kana);
       break;
-    case "henkan":
+    case "okurinasi":
       state.henkanFeed += kana;
       break;
-    case "okuri":
+    case "okuriari":
       state.okuriFeed += kana;
       if (feed) {
         state.feed += kana;
@@ -59,9 +59,9 @@ export async function kanaInput(context: Context, char: string) {
 }
 
 const henkanPointTransition: Record<string, InputMode> = {
-  "direct": "henkan",
-  "henkan": "okuri",
-  "okuri": "okuri",
+  "direct": "okurinasi",
+  "okurinasi": "okuriari",
+  "okuriari": "okuriari",
 };
 
 export function henkanPoint(context: Context, _?: string) {
@@ -74,7 +74,7 @@ export function henkanPoint(context: Context, _?: string) {
     context.preEdit.doKakutei(undoPoint);
   }
   // don't transition to okuri mode when henkan str is empty
-  if (state.mode === "henkan" && state.henkanFeed.length === 0) {
+  if (state.mode === "okurinasi" && state.henkanFeed.length === 0) {
     return;
   }
   state.mode = henkanPointTransition[state.mode];
@@ -87,13 +87,13 @@ export function deleteChar(context: Context, _?: string) {
   const state = context.state;
   if (state.feed) {
     state.feed = state.feed.slice(0, -1);
-  } else if (state.mode === "okuri") {
+  } else if (state.mode === "okuriari") {
     if (state.okuriFeed) {
       state.okuriFeed = state.okuriFeed.slice(0, -1);
     } else {
-      state.mode = "henkan";
+      state.mode = "okurinasi";
     }
-  } else if (state.mode === "henkan") {
+  } else if (state.mode === "okurinasi") {
     if (state.henkanFeed) {
       state.henkanFeed = state.henkanFeed.slice(0, -1);
     } else {

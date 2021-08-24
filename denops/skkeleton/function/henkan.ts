@@ -1,6 +1,6 @@
 import { config } from "../config.ts";
-import { fn } from "../deps.ts";
 import type { Context } from "../context.ts";
+import { fn } from "../deps.ts";
 import type { Denops } from "../deps.ts";
 import { currentLibrary } from "../jisyo.ts";
 import { handleKey } from "../keymap.ts";
@@ -26,10 +26,10 @@ export async function henkanFirst(context: Context, key: string) {
   const queueAsKana = inputState.table.find((e) => e[0] === feed)?.[1][0];
   if (queueAsKana) {
     switch (inputState.mode) {
-      case "henkan":
+      case "okurinasi":
         inputState.henkanFeed += queueAsKana;
         break;
-      case "okuri":
+      case "okuriari":
         inputState.okuriFeed += queueAsKana;
         break;
     }
@@ -37,16 +37,14 @@ export async function henkanFirst(context: Context, key: string) {
 
   const state = context.state as unknown as HenkanState;
   state.type = "henkan";
-  const mode = context.state.mode === "henkan" ? "okurinasi" : "okuriari";
-  state.mode = mode;
   state.candidates = [];
   state.candidateIndex = -1;
 
   const lib = currentLibrary.get();
-  const word = mode === "okurinasi"
+  const word = state.mode === "okurinasi"
     ? state.henkanFeed
     : getOkuriStr(state.henkanFeed, state.okuriFeed);
-  state.candidates = lib.getCandidates(mode, word);
+  state.candidates = lib.getCandidates(state.mode, word);
   await henkanForward(context, key);
 }
 
@@ -65,7 +63,7 @@ export async function henkanForward(context: Context, _?: string) {
     return;
   }
   if (state.candidateIndex >= config.showCandidatesCount) {
-    if(config.usePopup && await fn.mode(context.denops!) === "i") {
+    if (config.usePopup && await fn.mode(context.denops!) === "i") {
       await showCandidates(context.denops!, state);
     } else {
       await selectCandidates(context);
@@ -103,25 +101,24 @@ async function selectCandidates(context: Context) {
   const count = config.showCandidatesCount;
   const keys = config.selectCandidateKeys;
   let index = 0;
-  while(index >= 0) {
+  while (index >= 0) {
     const start = count + index * keys.length;
-    if(start >= state.candidates.length) {
+    if (start >= state.candidates.length) {
       // TODO: 辞書登録
       throw new Error("jisyo touroku");
     }
     const candidates = state.candidates.slice(start, start + keys.length);
-    const msg = candidates.map((c, i) =>
-      `${keys[i]}: ${c.replace(/;.*/, "")}`
-    ).join(" ");
+    const msg = candidates.map((c, i) => `${keys[i]}: ${c.replace(/;.*/, "")}`)
+      .join(" ");
     const keyCode = await denops.call("skkeleton#getchar", msg) as number;
     const key = String.fromCharCode(keyCode);
-    if(key === " ") {
+    if (key === " ") {
       index += 1;
-    } else if(key === "x") {
+    } else if (key === "x") {
       index -= 1;
     } else {
       const candIndex = keys.indexOf(key);
-      if(candIndex !== -1) {
+      if (candIndex !== -1) {
         state.candidateIndex = start + candIndex;
         kakutei(context, key);
         return;
@@ -164,7 +161,7 @@ export async function henkanInput(context: Context, key: string) {
   await context.denops!.call("skkeleton#close_candidates");
   if (state.candidateIndex >= config.showCandidatesCount) {
     const candIdx = config.selectCandidateKeys.indexOf(key);
-    if(candIdx !== -1) {
+    if (candIdx !== -1) {
       state.candidateIndex += candIdx;
       kakutei(context);
       return;
