@@ -1,3 +1,4 @@
+import { config } from "./config.ts";
 import { isArray, isObject, isString } from "./deps.ts";
 import { Cell } from "./util.ts";
 
@@ -17,6 +18,7 @@ export class Library {
   #globalJisyo: Jisyo;
   #userJisyo: Jisyo;
   #userJisyoPath: string;
+  #userJisyoTimestamp = -1;
 
   constructor(globalJisyo?: Jisyo, userJisyo?: Jisyo, userJisyoPath?: string) {
     this.#globalJisyo = globalJisyo ?? newJisyo();
@@ -45,11 +47,20 @@ export class Library {
     );
     candidates.unshift(candidate);
     this.#userJisyo[type][word] = candidates;
+    if(config.immediatelyJisyoRW) {
+      this.saveJisyo();
+    }
   }
 
   async loadJisyo() {
     if (this.#userJisyoPath) {
       try {
+        const stat = await Deno.stat(this.#userJisyoPath);
+        const time = stat.mtime?.getTime() ?? -1;
+        if(time === this.#userJisyoTimestamp) {
+          return;
+        }
+        this.#userJisyoTimestamp = time;
         this.#userJisyo = decodeJisyo(
           await Deno.readTextFile(this.#userJisyoPath),
         );
@@ -65,6 +76,9 @@ export class Library {
         this.#userJisyoPath,
         encodeJisyo(this.#userJisyo),
       );
+      const stat = await Deno.stat(this.#userJisyoPath);
+      const time = stat.mtime?.getTime() ?? -1;
+      this.#userJisyoTimestamp = time;
     }
   }
 }

@@ -1,3 +1,4 @@
+import { config } from "./config.ts";
 import { dirname, fromFileUrl, join } from "./deps/std/path.ts";
 import { assertEquals } from "./deps/std/testing.ts";
 import {
@@ -84,6 +85,7 @@ Deno.test({
 Deno.test({
   name: "read/write skk jisyo",
   async fn() {
+    config.immediatelyJisyoRW = false;
     const tmp = await Deno.makeTempFile();
     try {
       const library = await load("", tmp);
