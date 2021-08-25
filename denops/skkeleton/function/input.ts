@@ -5,16 +5,14 @@ import { asInputState } from "../state.ts";
 import type { InputMode, InputState } from "../state.ts";
 import { undoPoint } from "../util.ts";
 import { henkanFirst } from "./henkan.ts";
+import { PreEdit } from "../preedit.ts";
 
-async function kakutei(
-  context: Context,
+export function kakuteiKana(
+  state: InputState,
+  preEdit: PreEdit,
   kana: string,
   feed: string,
 ) {
-  const { preEdit, state } = context;
-  if (state.type !== "input") {
-    return;
-  }
   switch (state.mode) {
     case "direct":
       preEdit.doKakutei(kana);
@@ -24,15 +22,24 @@ async function kakutei(
       break;
     case "okuriari":
       state.okuriFeed += kana;
-      if (feed) {
-        state.feed += kana;
-      } else {
-        state.feed = "";
-        await henkanFirst(context, "");
-      }
       break;
   }
   state.feed = feed;
+}
+
+async function doKakutei(
+  context: Context,
+  kana: string,
+  feed: string,
+) {
+  const { preEdit, state } = context;
+  if (state.type !== "input") {
+    return;
+  }
+  kakuteiKana(state, preEdit, kana, feed);
+  if (state.mode === "okuriari" && !feed) {
+    await henkanFirst(context, "");
+  }
 }
 
 export async function kanaInput(context: Context, char: string) {
@@ -48,13 +55,13 @@ export async function kanaInput(context: Context, char: string) {
 
   if (found.length === 0) {
     if (current) {
-      await kakutei(context, current[1][0], char);
+      await doKakutei(context, current[1][0], char);
     } else {
       // kakutei previous feed
-      await kakutei(context, previousFeed, char);
+      await doKakutei(context, previousFeed, char);
     }
   } else if (found.length === 1 && found[0][0] === state.feed) {
-    await kakutei(context, found[0][1][0], found[0][1][1]);
+    await doKakutei(context, found[0][1][0], found[0][1][1]);
   }
 }
 
@@ -72,7 +79,7 @@ export function henkanPoint(context: Context, _?: string) {
   const state = context.state;
   if (state.mode === "direct") {
     context.preEdit.doKakutei(state.feed);
-    if(config.setUndoPoint) {
+    if (config.setUndoPoint) {
       context.preEdit.doKakutei(undoPoint);
     }
   }

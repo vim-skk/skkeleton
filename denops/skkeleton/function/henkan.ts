@@ -8,7 +8,7 @@ import { getOkuriStr } from "../okuri.ts";
 import { asInputState } from "../state.ts";
 import type { HenkanState } from "../state.ts";
 import { undoPoint } from "../util.ts";
-import { kanaInput } from "./input.ts";
+import { kakuteiKana, kanaInput } from "./input.ts";
 
 export async function henkanFirst(context: Context, key: string) {
   if (context.state.type !== "input") {
@@ -20,19 +20,8 @@ export async function henkanFirst(context: Context, key: string) {
   const feed = inputState.feed;
   const queueAsKana = inputState.table.find((e) => e[0] === feed)?.[1][0];
   if (queueAsKana) {
-    switch (inputState.mode) {
-      case "direct":
-        context.preEdit.doKakutei(queueAsKana);
-        break;
-      case "okurinasi":
-        inputState.henkanFeed += queueAsKana;
-        break;
-      case "okuriari":
-        inputState.okuriFeed += queueAsKana;
-        break;
-    }
+    kakuteiKana(inputState, context.preEdit, queueAsKana, "");
   }
-  inputState.feed = "";
 
   if (inputState.mode === "direct") {
     await kanaInput(context, key);
