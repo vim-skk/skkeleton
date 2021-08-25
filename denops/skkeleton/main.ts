@@ -1,5 +1,5 @@
 import { Context } from "./context.ts";
-import { Denops, ensureString, vars } from "./deps.ts";
+import { anonymous, autocmd, Denops, ensureString, vars } from "./deps.ts";
 import * as jisyo from "./jisyo.ts";
 import { handleKey } from "./keymap.ts";
 import { receiveNotation } from "./notation.ts";
@@ -30,6 +30,18 @@ async function init(denops: Denops) {
     await jisyo.load(globalJisyo, userJisyo, globalJisyoEncoding),
   );
   await receiveNotation(denops);
+  const id = anonymous.add(denops, () => {
+    const context = new Context();
+    context.denops = denops;
+    currentContext.set(context);
+  })[0];
+  autocmd.group(denops, "skkeleton", (helper) => {
+    helper.define(
+      ["InsertEnter", "CmdlineEnter"],
+      "*",
+      `call denops#notify('${denops.name}', '${id}', [])`,
+    );
+  });
 }
 
 export async function main(denops: Denops) {
