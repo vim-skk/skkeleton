@@ -68,9 +68,20 @@ Deno.test({
 Deno.test({
   name: "undo point",
   async fn() {
-    const context = new Context();
-    await dispatch(context, "a");
-    henkanPoint(context);
-    assertEquals(context.preEdit.output(context.toString()), "あ\x07u▽");
+    {
+      const context = new Context();
+      context.vimMode = "i";
+      await dispatch(context, "a");
+      henkanPoint(context);
+      assertEquals(context.preEdit.output(context.toString()), "あ\x07u▽");
+    }
+    // not emit at cmdline
+    {
+      const context = new Context();
+      context.vimMode = "c";
+      await dispatch(context, "a");
+      henkanPoint(context);
+      assertEquals(context.preEdit.output(context.toString()), "あ▽");
+    }
   },
 });

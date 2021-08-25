@@ -136,7 +136,7 @@ export function kakutei(context: Context, _?: string) {
       const candidate =
         state.candidates[state.candidateIndex]?.replace(/;.*/, "") ?? "error";
       const ret = candidate + state.okuriFeed +
-        (config.setUndoPoint ? undoPoint : "");
+        (config.setUndoPoint && context.vimMode === "i" ? undoPoint : "");
       context.preEdit.doKakutei(ret);
       asInputState(state);
       return;

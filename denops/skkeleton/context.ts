@@ -14,6 +14,7 @@ export class Context {
     okuriFeed: "",
   };
   preEdit = new PreEdit();
+  vimMode = "";
 
   toString(): string {
     switch (this.state.type) {

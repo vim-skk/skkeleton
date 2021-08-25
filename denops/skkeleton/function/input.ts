@@ -1,11 +1,11 @@
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
 import { hiraToKata } from "../kana/hira_kata.ts";
+import { PreEdit } from "../preedit.ts";
 import { asInputState } from "../state.ts";
 import type { InputMode, InputState } from "../state.ts";
 import { undoPoint } from "../util.ts";
 import { henkanFirst } from "./henkan.ts";
-import { PreEdit } from "../preedit.ts";
 
 export function kakuteiKana(
   state: InputState,
@@ -79,7 +79,7 @@ export function henkanPoint(context: Context, _?: string) {
   const state = context.state;
   if (state.mode === "direct") {
     context.preEdit.doKakutei(state.feed);
-    if (config.setUndoPoint) {
+    if (config.setUndoPoint && context.vimMode === "i") {
       context.preEdit.doKakutei(undoPoint);
     }
   }

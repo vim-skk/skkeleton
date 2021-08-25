@@ -63,9 +63,11 @@ export async function main(denops: Denops) {
         return "";
       }
     },
-    async handleKey(key: unknown): Promise<string> {
+    async handleKey(key: unknown, vimMode: unknown): Promise<string> {
       ensureString(key);
+      ensureString(vimMode);
       const context = currentContext.get();
+      context.vimMode = vimMode;
       await handleKey(context, key);
       return context.preEdit.output(context.toString());
     },
