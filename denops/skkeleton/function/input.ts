@@ -70,9 +70,13 @@ export function henkanPoint(context: Context, _?: string) {
     return;
   }
   const state = context.state;
-  if (state.mode === "direct" && config.setUndoPoint) {
-    context.preEdit.doKakutei(undoPoint);
+  if (state.mode === "direct") {
+    context.preEdit.doKakutei(state.feed);
+    if(config.setUndoPoint) {
+      context.preEdit.doKakutei(undoPoint);
+    }
   }
+  state.feed = "";
   // don't transition to okuri mode when henkan str is empty
   if (state.mode === "okurinasi" && state.henkanFeed.length === 0) {
     return;
