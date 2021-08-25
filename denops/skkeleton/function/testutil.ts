@@ -1,5 +1,5 @@
 import { Context } from "../context.ts";
-import { henkanFirst, henkanForward } from "./henkan.ts";
+import { henkanBackward, henkanFirst, henkanForward } from "./henkan.ts";
 import { henkanPoint, kanaInput } from "./input.ts";
 
 export async function dispatch(context: Context, keys: string) {
@@ -19,8 +19,12 @@ export async function dispatch(context: Context, keys: string) {
         break;
       case "henkan":
         switch (key) {
-        case " ":
-          await henkanForward(context, key);
+          case " ":
+            await henkanForward(context, key);
+            break;
+          case "x":
+            await henkanBackward(context, key);
+            break;
         }
         break;
     }

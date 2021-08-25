@@ -16,6 +16,8 @@ Deno.test({
     assertEquals(context.toString(), "▼変換");
     await dispatch(context, " ");
     assertEquals(context.toString(), "▼返還");
+    await dispatch(context, "x");
+    assertEquals(context.toString(), "▼変換");
   },
 });
 
