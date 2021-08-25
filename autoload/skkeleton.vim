@@ -161,6 +161,11 @@ function! s:popup(candidates) abort
 endfunction
 
 function s:close()
+  if mode() ==# 'c'
+    " redefine autocmd at cmdline mode
+    autocmd User skkeleton ++once call s:close()
+    return
+  endif
   if has('nvim')
     for i in s:windows
       call nvim_win_close(i, v:true)
