@@ -43,8 +43,36 @@ async function doKakutei(
 }
 
 export async function kanaInput(context: Context, char: string) {
-  // TODO: as InputState
-  const state = context.state as InputState;
+  const state = asInputState(context.state, false);
+  const lower = char.toLowerCase();
+  if(char !== lower) {
+    if(state.feed) {
+      // feedがあったら確定パターンを検索する
+      // ddskkで可能なsAやSasSiなどのパターンの処理に必要
+      const pat = state.feed + lower;
+      const result = state.table.find((e) => e[0] === pat);
+      if(result) {
+        if(result[1][1]) {
+          // 結果にfeedがあれば確定してポイント切ってfeedを積む
+          await kanaInput(context, lower);
+          henkanPoint(context);
+          state.feed = result[1][1];
+        } else {
+          // 無ければ変換ポイントを切って既にあったfeedを積む
+          const stash = state.feed;
+          state.feed = "";
+          henkanPoint(context);
+          state.feed = stash;
+          await kanaInput(context, lower);
+        }
+        return;
+      }
+    }
+    // どれでもなければstickyのエミュレート
+    henkanPoint(context);
+    await kanaInput(context, lower);
+    return;
+  }
 
   // 「ん」に関するパターンの処理に必要
   const current = state.table.find((e) => e[0] === state.feed);

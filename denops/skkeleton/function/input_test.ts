@@ -50,6 +50,26 @@ Deno.test({
 });
 
 Deno.test({
+  name: "upper case input",
+  async fn () {
+    {
+      const context = new Context();
+      for(const c of "HogeP") {
+        await dispatch(context, c);
+      }
+      assertEquals(context.toString(), "▽ほげ*p");
+    }
+    {
+      const context = new Context();
+      for(const c of "sAsS") {
+        await dispatch(context, c);
+      }
+      assertEquals(context.toString(), "▽さっ*s");
+    }
+  }
+});
+
+Deno.test({
   name: "delete char",
   async fn() {
     const context = new Context();

@@ -14,7 +14,7 @@ export async function dispatch(context: Context, keys: string) {
             henkanPoint(context, key);
             break;
           default:
-            kanaInput(context, key);
+            await kanaInput(context, key);
         }
         break;
       case "henkan":
