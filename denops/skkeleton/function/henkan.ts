@@ -9,6 +9,7 @@ import { asInputState } from "../state.ts";
 import type { HenkanState } from "../state.ts";
 import { undoPoint } from "../util.ts";
 import { kakuteiKana, kanaInput } from "./input.ts";
+import { jisyoTouroku } from "./jisyo.ts";
 
 export async function henkanFirst(context: Context, key: string) {
   if (context.state.type !== "input") {
@@ -34,9 +35,13 @@ export async function henkanFirst(context: Context, key: string) {
   state.candidateIndex = -1;
 
   const lib = currentLibrary.get();
+  if (config.immediatelyJisyoRW) {
+    await lib.loadJisyo();
+  }
   const word = state.mode === "okurinasi"
     ? state.henkanFeed
     : getOkuriStr(state.henkanFeed, state.okuriFeed);
+  state.word = word;
   state.candidates = lib.getCandidates(state.mode, word);
   await henkanForward(context, key);
 }
@@ -46,14 +51,17 @@ export async function henkanForward(context: Context, _?: string) {
   if (state.type !== "henkan") {
     return;
   }
+  const oldCandidateIndex = state.candidateIndex;
   if (state.candidateIndex >= config.showCandidatesCount) {
     state.candidateIndex += 7;
   } else {
     state.candidateIndex++;
   }
   if (state.candidates.length <= state.candidateIndex) {
-    // TODO: 辞書登録
-    return;
+    if (await jisyoTouroku(context)) {
+      return;
+    }
+    state.candidateIndex = oldCandidateIndex;
   }
   if (state.candidateIndex >= config.showCandidatesCount) {
     if (config.usePopup && await fn.mode(context.denops!) === "i") {
@@ -97,8 +105,9 @@ async function selectCandidates(context: Context) {
   while (index >= 0) {
     const start = count + index * keys.length;
     if (start >= state.candidates.length) {
-      // TODO: 辞書登録
-      throw new Error("jisyo touroku");
+      if (await jisyoTouroku(context)) {
+        return;
+      }
     }
     const candidates = state.candidates.slice(start, start + keys.length);
     const msg = candidates.map((c, i) => `${keys[i]}: ${c.replace(/;.*/, "")}`)

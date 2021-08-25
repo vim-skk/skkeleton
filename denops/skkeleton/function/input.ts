@@ -45,14 +45,14 @@ async function doKakutei(
 export async function kanaInput(context: Context, char: string) {
   const state = asInputState(context.state, false);
   const lower = char.toLowerCase();
-  if(char !== lower) {
-    if(state.feed) {
+  if (char !== lower) {
+    if (state.feed) {
       // feedがあったら確定パターンを検索する
       // ddskkで可能なsAやSasSiなどのパターンの処理に必要
       const pat = state.feed + lower;
       const result = state.table.find((e) => e[0] === pat);
-      if(result) {
-        if(result[1][1]) {
+      if (result) {
+        if (result[1][1]) {
           // 結果にfeedがあれば確定してポイント切ってfeedを積む
           await kanaInput(context, lower);
           henkanPoint(context);

@@ -39,6 +39,7 @@ export type HenkanState = {
   mode: HenkanType;
   henkanFeed: string;
   okuriFeed: string;
+  word: string;
   candidates: string[];
   candidateIndex: number;
 };

@@ -47,7 +47,7 @@ export class Library {
     );
     candidates.unshift(candidate);
     this.#userJisyo[type][word] = candidates;
-    if(config.immediatelyJisyoRW) {
+    if (config.immediatelyJisyoRW) {
       this.saveJisyo();
     }
   }
@@ -57,7 +57,7 @@ export class Library {
       try {
         const stat = await Deno.stat(this.#userJisyoPath);
         const time = stat.mtime?.getTime() ?? -1;
-        if(time === this.#userJisyoTimestamp) {
+        if (time === this.#userJisyoTimestamp) {
           return;
         }
         this.#userJisyoTimestamp = time;
