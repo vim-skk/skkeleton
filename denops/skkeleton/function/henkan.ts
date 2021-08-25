@@ -8,7 +8,6 @@ import { getOkuriStr } from "../okuri.ts";
 import { asInputState } from "../state.ts";
 import type { HenkanState } from "../state.ts";
 import { undoPoint } from "../util.ts";
-import { kanaInput } from "./input.ts";
 
 export async function henkanFirst(context: Context, key: string) {
   if (context.state.type !== "input") {
@@ -18,7 +17,7 @@ export async function henkanFirst(context: Context, key: string) {
   const inputState = context.state;
 
   if (inputState.mode === "direct") {
-    await kanaInput(context, key);
+    context.preEdit.doKakutei(key);
     return;
   }
 
