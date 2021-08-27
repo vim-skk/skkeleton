@@ -142,9 +142,18 @@ export function kakutei(context: Context, _?: string) {
   const state = context.state;
   switch (state.type) {
     case "henkan": {
-      const candidate =
-        state.candidates[state.candidateIndex]?.replace(/;.*/, "") ?? "error";
-      const ret = candidate + state.okuriFeed +
+      const candidate = state.candidates[state.candidateIndex]?.replace(
+        /;.*/,
+        "",
+      );
+      if (candidate) {
+        currentLibrary.get().registerCandidate(
+          state.mode,
+          state.word,
+          candidate,
+        );
+      }
+      const ret = (candidate ?? "error") + state.okuriFeed +
         (config.setUndoPoint && context.vimMode === "i" ? undoPoint : "");
       context.preEdit.doKakutei(ret);
       asInputState(state);
