@@ -1,31 +1,24 @@
+import { config, setConfig } from "./config.ts";
 import { Context } from "./context.ts";
-import { anonymous, autocmd, Denops, ensureString, vars } from "./deps.ts";
+import {
+  anonymous,
+  autocmd,
+  Denops,
+  ensureObject,
+  ensureString,
+  vars,
+} from "./deps.ts";
 import * as jisyo from "./jisyo.ts";
 import { handleKey } from "./keymap.ts";
 import { receiveNotation } from "./notation.ts";
 import { Cell } from "./util.ts";
 
+let initialized = false;
+
 export const currentContext = new Cell(new Context());
 
 async function init(denops: Denops) {
-  const globalJisyo = await vars.g.get(
-    denops,
-    "skkeleton#global_jisyo",
-    "/usr/share/skk/SKK-JISYO.L",
-  );
-  ensureString(globalJisyo);
-  const globalJisyoEncoding = await vars.g.get(
-    denops,
-    "skkeleton#global_jisyo_encoding",
-    "euc-jp",
-  );
-  ensureString(globalJisyoEncoding);
-  const userJisyo = await vars.g.get(
-    denops,
-    "skkeleton#user_jisyo",
-    Deno.env.get("HOME") + "/.skkeleton",
-  );
-  ensureString(userJisyo);
+  const { globalJisyo, userJisyo, globalJisyoEncoding } = config;
   jisyo.currentLibrary.set(
     await jisyo.load(globalJisyo, userJisyo, globalJisyoEncoding),
   );
@@ -45,9 +38,17 @@ async function init(denops: Denops) {
 }
 
 export async function main(denops: Denops) {
-  init(denops);
   denops.dispatcher = {
+    config(config: unknown) {
+      ensureObject(config);
+      setConfig(config);
+      return Promise.resolve();
+    },
     async enable(): Promise<string> {
+      if (!initialized) {
+        await init(denops);
+        initialized = true;
+      }
       if (await denops.eval("&l:iminsert") !== 1) {
         await denops.call("skkeleton#map");
         // ノーマルモード等ではsetlocal、挿入モード等では<C-^>が必要
