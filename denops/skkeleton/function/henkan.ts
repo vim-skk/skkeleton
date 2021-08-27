@@ -182,3 +182,10 @@ export async function henkanInput(context: Context, key: string) {
   kakutei(context, key);
   await handleKey(context, key);
 }
+
+export function newline(context: Context) {
+  kakutei(context);
+  if (!config.eggLikeNewline) {
+    context.preEdit.doKakutei("\n");
+  }
+}

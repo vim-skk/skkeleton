@@ -1,3 +1,4 @@
+import { config } from "./config.ts";
 import type { Context } from "./context.ts";
 import { disable, escape } from "./function/disable.ts";
 import {
@@ -5,11 +6,13 @@ import {
   henkanFirst,
   henkanForward,
   henkanInput,
+  newline,
 } from "./function/henkan.ts";
 import {
   deleteChar,
   henkanPoint,
   inputCancel,
+  insertRaw,
   kanaInput,
   katakana,
 } from "./function/input.ts";
@@ -29,6 +32,7 @@ const input: KeyMap = {
     "<bs>": deleteChar,
     "<c-g>": inputCancel,
     "<c-h>": deleteChar,
+    "<enter>": insertRaw,
     "<esc>": escape,
     "<space>": henkanFirst,
     "l": disable,
@@ -39,6 +43,7 @@ const input: KeyMap = {
 const henkan: KeyMap = {
   default: henkanInput,
   map: {
+    "<enter>": newline,
     "<space>": henkanForward,
     "x": henkanBackward,
   },
@@ -53,6 +58,9 @@ export async function handleKey(context: Context, key: string) {
   const keyMap = keyMaps[context.state.type];
   if (!keyMap) {
     throw new Error("Illegal State: " + context.state.type);
+  }
+  if (config.debug) {
+    console.log(`handleKey: key: ${key}, notation: ${keyToNotation[key]}`);
   }
   await ((keyMap.map[keyToNotation[key] ?? key] ?? keyMap.default)(
     context,

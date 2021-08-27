@@ -73,5 +73,7 @@ export async function main(denops: Denops) {
       return context.preEdit.output(context.toString());
     },
   };
-  await denops.cmd(`echomsg "loaded skkeleton"`);
+  if (config.debug) {
+    await denops.cmd(`echomsg "loaded skkeleton"`);
+  }
 }

@@ -1,6 +1,8 @@
 import { ensureBoolean, ensureNumber, ensureString } from "./deps.ts";
 
 export const config = {
+  eggLikeNewline: false,
+  debug: false,
   globalJisyo: "/usr/share/skk/SKK-JISYO.L",
   globalJisyoEncoding: "euc-jp",
   immediatelyJisyoRW: true,
@@ -16,6 +18,8 @@ type Validators = {
 };
 
 const validators: Validators = {
+  eggLikeNewline: ensureBoolean,
+  debug: ensureBoolean,
   globalJisyo: ensureString,
   globalJisyoEncoding: ensureString,
   immediatelyJisyoRW: ensureBoolean,

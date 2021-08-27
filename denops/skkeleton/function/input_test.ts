@@ -1,5 +1,9 @@
+import { config } from "../config.ts";
 import { Context } from "../context.ts";
+import { Denops } from "../deps.ts";
+import { test } from "../deps/denops_test.ts";
 import { assertEquals } from "../deps/std/testing.ts";
+import { main } from "../main.ts";
 import { deleteChar, henkanPoint } from "./input.ts";
 import { dispatch } from "./testutil.ts";
 
@@ -103,5 +107,33 @@ Deno.test({
       henkanPoint(context);
       assertEquals(context.preEdit.output(context.toString()), "あ▽");
     }
+  },
+});
+
+async function init(denops: Denops) {
+  const p = new URL(import.meta.url).pathname;
+  const autoload = p.slice(0, p.lastIndexOf("denops")) +
+    "autoload/skkeleton.vim";
+  await denops.cmd("source " + autoload);
+  await main(denops);
+}
+
+config.globalJisyo = "";
+config.userJisyo = "";
+
+test({
+  mode: "nvim",
+  name: "new line",
+  pluginName: "skkeleton",
+  async fn(denops) {
+    await init(denops);
+
+    await denops.cmd("setlocal autoindent");
+    await denops.cmd("startinsert");
+    await denops.cmd(
+      "inoremap <expr> J denops#request('skkeleton', 'enable', [])",
+    );
+    await denops.call("feedkeys", "iJ\thoge\x0dhoge", "tx");
+    assertEquals(await denops.call("getline", 1, "$"), ["\tほげ", "\tほげ"]);
   },
 });
