@@ -18,6 +18,7 @@ let initialized = false;
 export const currentContext = new Cell(new Context());
 
 async function init(denops: Denops) {
+  currentContext.get().denops = denops;
   const { globalJisyo, userJisyo, globalJisyoEncoding } = config;
   jisyo.currentLibrary.set(
     await jisyo.load(globalJisyo, userJisyo, globalJisyoEncoding),
@@ -51,14 +52,8 @@ export async function main(denops: Denops) {
       }
       if (await denops.eval("&l:iminsert") !== 1) {
         await denops.call("skkeleton#map");
-        // ノーマルモード等ではsetlocal、挿入モード等では<C-^>が必要
         await denops.cmd("setlocal iminsert=1");
         await vars.b.set(denops, "keymap_name", "skkeleton");
-        // とりあえず雑にコンテキスト生成
-        // TODO: 後で直す
-        const context = new Context();
-        context.denops = denops;
-        currentContext.set(context);
         return "\x1e"; // <C-^>
       } else {
         return "";
