@@ -5,6 +5,7 @@ let g:loaded_skkeleton = v:true
 
 function! s:enable() abort
   while !get(g:, 'skkeleton#init', v:false)
+    sleep 1m
   endwhile
   return denops#request('skkeleton', 'enable', [])
 endfunction
