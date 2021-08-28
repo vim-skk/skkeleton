@@ -1,0 +1,82 @@
+*skkeleton.txt* 日本語入力システム
+
+Author: kuuote
+License: zlib
+
+==============================================================================
+CONTENTS                                                  *skkeleton-contents*
+
+INTRODUCTION                                          |skkeleton-introduction|
+
+==============================================================================
+INTRODUCTION                                          *skkeleton-introduction*
+
+*skkeleton* は |denops.vim| を利用したSKK環境を提供します。
+
+==============================================================================
+INTERFACE                                                *skkeleton-interface*
+
+------------------------------------------------------------------------------
+KEYMAPPINGS                                            *skkeleton-keymappings*
+
+<Plug>(skkeleton-enable) (ic)                       *<Plug>(skkeleton-enable)*
+
+       skkeletonを有効化します。  >
+
+    " 例
+    imap <C-j> <Plug>(skkeleton-enable)
+    cmap <C-j> <Plug>(skkeleton-enable)
+<
+------------------------------------------------------------------------------
+CONFIG                                                      *skkeleton-config*
+
+skkeleton#config(dict)                                    *skkeleton#config()*
+
+        以下に示すキー(省略可能)から成る辞書を渡すことで設定を変更できます。
+        一部の設定(現時点では辞書関係)は初回起動前に渡す必要があります。
+
+eggLikeNewline                               *skkeleton-config-eggLikeNewline*
+        (デフォルト v:false)
+        このオプションを有効にすると
+        変換モードで改行キーを押した際に確定のみ行います。
+
+globalJisyo                                     *skkeleton-config-globalJisyo*
+        (デフォルト "/usr/share/skk/SKK-JISYO.L")
+        グローバル辞書のパス
+
+globalJisyoEncoding                     *skkeleton-config-globalJisyoEncoding*
+        (デフォルト "euc-jp")
+        グローバル辞書のエンコーディング
+        SKK Openlab以外が配布している辞書を使う場合などは
+        変更する必要があるかもしれません。
+
+immediatelyJisyoRW                       *skkeleton-config-immediatelyJisyoRW*
+        (デフォルト v:true)
+        このオプションを有効にすると
+        変換や確定の度にユーザー辞書を読み書きするようになります。
+        複数のVimインスタンスを同時に使う場合に有用かもしれません。
+
+selectCandidateKeys                     *skkeleton-config-selectCandidateKeys*
+        (デフォルト "asdfjkl")
+        候補を選択する際に使用するキーを指定します。
+        x以外の半角英字7文字が使用できます。
+
+setUndoPoint                                   *skkeleton-config-setUndoPoint*
+        (デフォルト v:true)
+        このオプションを有効にすると
+        変換や確定が行われる際にアンドゥポイントを切るようになります。
+
+showCandidatesCount                     *skkeleton-config-showCandidatesCount*
+        (デフォルト 4)
+        このオプションの数の候補までは選択表示がされずに変換されます。
+
+usePopup                                           *skkeleton-config-usePopup*
+        (デフォルト v:true)
+        このオプションを有効にすると、変換候補がポップアップ表示されます。
+
+userJisyo                                     *skkeleton-config-globalJisyo*
+        (デフォルト $HOME .. "/.skkeleton")
+        ユーザー辞書のパス
+        JavaScriptの制約によりエンコーディングはUTF-8限定になります。
+
+vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
