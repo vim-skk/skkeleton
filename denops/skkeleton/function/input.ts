@@ -87,6 +87,10 @@ export async function kanaInput(context: Context, char: string) {
     } else {
       // kakutei previous feed
       await doKakutei(context, previousFeed, char);
+      const found2 = state.table.find((e) => e[0] === char);
+      if (found2) {
+        await doKakutei(context, found2[1][0], found2[1][1]);
+      }
     }
   } else if (found.length === 1 && found[0][0] === state.feed) {
     await doKakutei(context, found[0][1][0], found[0][1][1]);

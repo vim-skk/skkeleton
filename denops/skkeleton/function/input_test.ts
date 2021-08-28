@@ -21,13 +21,21 @@ Deno.test({
 Deno.test({
   name: "kana input with illegal key",
   async fn() {
-    const context = new Context();
-    console.log();
-    for (const c of "n n n n ") {
-      await dispatch(context, c);
+    {
+      const context = new Context();
+      for (const c of "n n n n ") {
+        await dispatch(context, c);
+      }
+      // the last space isn't decision yet.
+      assertEquals(context.preEdit.output(""), "ん ん ん ん");
     }
-    // the last space isn't decision yet.
-    assertEquals(context.preEdit.output(""), "ん ん ん ん");
+    {
+      const context = new Context();
+      for (const c of "@a") {
+        await dispatch(context, c);
+      }
+      assertEquals(context.preEdit.output(""), "@あ");
+    }
   },
 });
 
