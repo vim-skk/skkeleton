@@ -6,6 +6,7 @@ import {
   henkanFirst,
   henkanForward,
   henkanInput,
+  kakutei,
   newline,
 } from "./function/henkan.ts";
 import {
@@ -44,6 +45,7 @@ const henkan: KeyMap = {
   default: henkanInput,
   map: {
     "<enter>": newline,
+    "<nl>": kakutei,
     "<space>": henkanForward,
     "x": henkanBackward,
   },
