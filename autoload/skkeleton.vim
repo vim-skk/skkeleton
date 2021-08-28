@@ -57,7 +57,7 @@ endfunction "}}}
 
 function! skkeleton#map() abort
   for c in skkeleton#get_default_mapped_keys()
-    execute printf('lnoremap <buffer> <expr> %s denops#request("skkeleton", "handleKey", ["%s", mode()]) .. skkeleton#doautocmd()', c, c)
+    execute printf('lnoremap <buffer> <expr> <nowait> %s denops#request("skkeleton", "handleKey", ["%s", mode()]) .. skkeleton#doautocmd()', c, c)
   endfor
 endfunction
 
