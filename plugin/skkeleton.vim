@@ -3,5 +3,11 @@ if exists('g:loaded_skkeleton') && g:loaded_skkeleton
 endif
 let g:loaded_skkeleton = v:true
 
-noremap! <expr> <Plug>(skkeleton-enable) denops#request('skkeleton', 'enable', [])
+function! s:enable() abort
+  while !get(g:, 'skkeleton#init', v:false)
+  endwhile
+  return denops#request('skkeleton', 'enable', [])
+endfunction
+
+noremap! <expr> <Plug>(skkeleton-enable) <SID>enable()
 autocmd User DenopsPluginPost:skkeleton let g:skkeleton#init = v:true
