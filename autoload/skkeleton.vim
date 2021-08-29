@@ -12,12 +12,21 @@ function! skkeleton#doautocmd() abort
   return ""
 endfunction
 
+function! s:load_configs()
+  for config in s:configs
+    call denops#notify('skkeleton', 'config', [config])
+  endfor
+endfunction
+
 function! skkeleton#config(config) abort
   if get(g:, 'skkeleton#init', v:false)
     call denops#notify('skkeleton', 'config', [a:config])
   else
-    let s:config = a:config
-    autocmd User DenopsPluginPost:skkeleton call denops#notify('skkeleton', 'config', [s:config])
+    let s:configs = add(get(s:, 'configs', []), a:config)
+    augroup skkeleton
+      autocmd!
+      autocmd User DenopsPluginPost:skkeleton call s:load_configs()
+    augroup END
   endif
 endfunction
 
