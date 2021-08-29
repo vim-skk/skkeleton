@@ -171,7 +171,3 @@ export function inputCancel(context: Context, _?: string) {
   state.henkanFeed = "";
   state.okuriFeed = "";
 }
-
-export function insertRaw(context: Context, str: string) {
-  context.preEdit.doKakutei(str);
-}

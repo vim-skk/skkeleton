@@ -1,11 +1,7 @@
 import { Context } from "../context.ts";
-import {
-  henkanBackward,
-  henkanFirst,
-  henkanForward,
-  newline,
-} from "./henkan.ts";
-import { henkanPoint, insertRaw, kanaInput } from "./input.ts";
+import { newline } from "./common.ts";
+import { henkanBackward, henkanFirst, henkanForward } from "./henkan.ts";
+import { henkanPoint, kanaInput } from "./input.ts";
 
 export async function dispatch(context: Context, keys: string) {
   for (const key of keys) {
@@ -19,7 +15,7 @@ export async function dispatch(context: Context, keys: string) {
             henkanPoint(context, key);
             break;
           case "\n":
-            insertRaw(context, "\n");
+            newline(context);
             break;
           default:
             await kanaInput(context, key);

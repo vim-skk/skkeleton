@@ -10,6 +10,7 @@ import type { HenkanState } from "../state.ts";
 import { undoPoint } from "../util.ts";
 import { kakuteiKana, kanaInput } from "./input.ts";
 import { jisyoTouroku } from "./jisyo.ts";
+import { kakutei } from "./common.ts";
 
 export async function henkanFirst(context: Context, key: string) {
   if (context.state.type !== "input") {
@@ -138,35 +139,6 @@ async function showCandidates(denops: Denops, state: HenkanState) {
   await denops.call("skkeleton#show_candidates", list);
 }
 
-export function kakutei(context: Context, _?: string) {
-  const state = context.state;
-  switch (state.type) {
-    case "henkan": {
-      const candidate = state.candidates[state.candidateIndex]?.replace(
-        /;.*/,
-        "",
-      );
-      if (candidate) {
-        currentLibrary.get().registerCandidate(
-          state.mode,
-          state.word,
-          candidate,
-        );
-      }
-      const ret = (candidate ?? "error") + state.okuriFeed +
-        (config.setUndoPoint && context.vimMode === "i" ? undoPoint : "");
-      context.preEdit.doKakutei(ret);
-      asInputState(state);
-      return;
-    }
-    default:
-      console.warn(
-        `initializing unknown phase state: ${JSON.stringify(state)}`,
-      );
-      asInputState(state);
-  }
-}
-
 export async function henkanInput(context: Context, key: string) {
   const state = context.state as HenkanState;
   await context.denops!.call("skkeleton#close_candidates");
@@ -181,11 +153,4 @@ export async function henkanInput(context: Context, key: string) {
 
   kakutei(context, key);
   await handleKey(context, key);
-}
-
-export function newline(context: Context) {
-  kakutei(context);
-  if (!config.eggLikeNewline) {
-    context.preEdit.doKakutei("\n");
-  }
 }
