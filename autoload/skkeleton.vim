@@ -16,7 +16,6 @@ function! skkeleton#config(config) abort
   if get(g:, 'skkeleton#init', v:false)
     call denops#notify('skkeleton', 'config', [a:config])
   else
-    if skkeleton#
     let s:config = a:config
     autocmd User DenopsPluginPost:skkeleton call denops#notify('skkeleton', 'config', [s:config])
   endif
