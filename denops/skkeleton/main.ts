@@ -58,9 +58,19 @@ export async function main(denops: Denops) {
         initialized = true;
       }
       if (await denops.eval("&l:iminsert") !== 1) {
+        try {
+          await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-pre");
+        } catch (e) {
+          console.log(e);
+        }
         await denops.call("skkeleton#map");
         await denops.cmd("setlocal iminsert=1");
         await vars.b.set(denops, "keymap_name", "skkeleton");
+        try {
+          await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-post");
+        } catch (e) {
+          console.log(e);
+        }
         return "\x1e"; // <C-^>
       } else {
         return "";
