@@ -167,9 +167,10 @@ export async function load(
       jisyoEncoding,
     );
   } catch (e) {
+    console.error("globalJisyo loading failed");
+    console.error(`at ${globalJisyoPath}`);
     if (config.debug) {
-      console.log("globalJisyo loading failed");
-      console.log(e);
+      console.error(e);
     }
   }
   try {
