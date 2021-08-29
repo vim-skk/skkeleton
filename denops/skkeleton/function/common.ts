@@ -38,9 +38,12 @@ export function kakutei(context: Context, _?: string) {
 }
 
 export function newline(context: Context) {
-  const currentState = context.state.type;
+  const insertNewline =
+    !(config.eggLikeNewline &&
+      (context.state.type === "henkan" ||
+        (context.state.type === "input" && context.state.mode !== "direct")));
   kakutei(context);
-  if (!config.eggLikeNewline || currentState !== "henkan") {
+  if (insertNewline) {
     context.preEdit.doKakutei("\n");
   }
 }
