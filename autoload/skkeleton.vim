@@ -21,6 +21,10 @@ function! skkeleton#config(config) abort
   endif
 endfunction
 
+function! skkeleton#is_enabled() abort
+  return get(g:, "skkeleton#enabled", v:false)
+endfunction
+
 " copied from eskk.vim
 function! skkeleton#get_default_mapped_keys() abort "{{{
     return split(

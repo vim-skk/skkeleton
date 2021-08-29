@@ -71,6 +71,7 @@ export async function main(denops: Denops) {
         } catch (e) {
           console.log(e);
         }
+        await vars.g.set(denops, "skkeleton#enabled", true);
         return "\x1e"; // <C-^>
       } else {
         return "";
