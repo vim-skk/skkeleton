@@ -4,11 +4,6 @@ Author: kuuote
 License: zlib
 
 ==============================================================================
-CONTENTS                                                  *skkeleton-contents*
-
-INTRODUCTION                                          |skkeleton-introduction|
-
-==============================================================================
 INTRODUCTION                                          *skkeleton-introduction*
 
 *skkeleton* は |denops.vim| を利用したSKK環境を提供します。
