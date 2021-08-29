@@ -113,3 +113,22 @@ Deno.test({
     }
   },
 });
+
+Deno.test({
+  name: "don't register empty candidate",
+  async fn() {
+    const tmp = await Deno.makeTempFile();
+    try {
+      const lib = new Library(undefined, undefined, tmp);
+      lib.registerCandidate("okurinasi", "ほげ", "");
+      lib.registerCandidate("okuriari", "ほげ", "");
+      await lib.saveJisyo();
+      assertEquals(
+        (await Deno.readTextFile(tmp)).indexOf("ほげ"),
+        -1,
+      );
+    } finally {
+      await Deno.remove(tmp);
+    }
+  },
+});
