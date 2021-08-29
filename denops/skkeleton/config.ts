@@ -51,8 +51,7 @@ export function setConfig(newConfig: Record<string, unknown>) {
         throw TypeError(`unknown option: ${k}`);
       }
     } catch (e) {
-      console.error("Illegal option detected");
-      console.error(e.toString());
+      throw Error(`Illegal option detected: ${e}`);
     }
   }
 }
