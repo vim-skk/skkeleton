@@ -163,15 +163,22 @@ export async function load(
       globalJisyoPath,
       jisyoEncoding,
     );
-  } catch {
-    // do nothing
+  } catch (e) {
+    if (config.debug) {
+      console.log("globalJisyo loading failed");
+      console.log(e);
+    }
   }
   try {
     userJisyo = await loadJisyo(
       userJisyoPath,
       jisyoEncoding,
     );
-  } catch {
+  } catch (e) {
+    if (config.debug) {
+      console.log("userJisyo loading failed");
+      console.log(e);
+    }
     // do nothing
   }
   return new Library(globalJisyo, userJisyo, userJisyoPath);

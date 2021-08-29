@@ -18,6 +18,10 @@ let initialized = false;
 export const currentContext = new Cell(new Context());
 
 async function init(denops: Denops) {
+  if (config.debug) {
+    console.log("skkeleton: initialize");
+    console.log(config);
+  }
   currentContext.get().denops = denops;
   const { globalJisyo, userJisyo, globalJisyoEncoding } = config;
   jisyo.currentLibrary.set(
@@ -39,6 +43,9 @@ async function init(denops: Denops) {
 }
 
 export async function main(denops: Denops) {
+  if (await vars.g.get(denops, "skkeleton#debug", false)) {
+    config.debug = true;
+  }
   denops.dispatcher = {
     config(config: unknown) {
       ensureObject(config);

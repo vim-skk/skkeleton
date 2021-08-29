@@ -38,6 +38,10 @@ const validators: Validators = {
 export function setConfig(newConfig: Record<string, unknown>) {
   const cfg = config as Record<string, unknown>;
   const val = validators as Record<string, (x: unknown) => void>;
+  if (config.debug) {
+    console.log("skkeleton: new config");
+    console.log(newConfig);
+  }
   for (const k in newConfig) {
     try {
       if (val[k]) {
