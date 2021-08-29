@@ -33,6 +33,7 @@ const input: KeyMap = {
     "<c-h>": deleteChar,
     "<enter>": newline,
     "<esc>": escape,
+    "<nl>": kakutei,
     "<space>": henkanFirst,
     "l": disable,
     "q": katakana,
