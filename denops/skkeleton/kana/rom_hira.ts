@@ -1,3 +1,4 @@
+import { disable } from "../function/disable.ts";
 import type { KanaTable } from "./type.ts";
 
 export const romToHira: KanaTable = [
@@ -241,4 +242,5 @@ export const romToHira: KanaTable = [
   ["]", ["」", ""]],
   [".", ["。", ""]],
   [",", ["、", ""]],
+  ["l", disable],
 ];

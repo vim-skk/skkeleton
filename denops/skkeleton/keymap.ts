@@ -17,7 +17,10 @@ import {
 } from "./function/input.ts";
 import { keyToNotation } from "./notation.ts";
 
-type KeyHandler = (context: Context, char: string) => void | Promise<void>;
+export type KeyHandler = (
+  context: Context,
+  char: string,
+) => void | Promise<void>;
 
 type KeyMap = {
   default: KeyHandler;
@@ -35,7 +38,6 @@ const input: KeyMap = {
     "<esc>": escape,
     "<nl>": kakutei,
     "<space>": henkanFirst,
-    "l": disable,
     "q": katakana,
   },
 };

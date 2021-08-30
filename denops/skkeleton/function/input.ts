@@ -6,6 +6,7 @@ import { asInputState } from "../state.ts";
 import type { InputMode, InputState } from "../state.ts";
 import { undoPoint } from "../util.ts";
 import { henkanFirst } from "./henkan.ts";
+import { KanaResult } from "../kana/type.ts";
 
 export function kakuteiKana(
   state: InputState,
@@ -47,6 +48,14 @@ async function doKakutei(
   }
 }
 
+async function acceptResult(context: Context, result: KanaResult) {
+  if (Array.isArray(result)) {
+    await doKakutei(context, result[0], result[1]);
+  } else {
+    await result(context, "");
+  }
+}
+
 export async function kanaInput(context: Context, char: string) {
   const state = asInputState(context.state, false);
   const lower = char.toLowerCase();
@@ -65,25 +74,20 @@ export async function kanaInput(context: Context, char: string) {
 
   if (found.length === 0) {
     if (current) {
-      await doKakutei(context, current[1][0], char);
+      await acceptResult(context, current[1]);
+      state.feed = char;
     } else {
       // kakutei previous feed
       await doKakutei(context, previousFeed, char);
       const found2 = state.table.find((e) => e[0] === char);
       if (found2) {
-        await doKakutei(context, found2[1][0], found2[1][1]);
+        await acceptResult(context, found2[1]);
       }
     }
   } else if (found.length === 1 && found[0][0] === state.feed) {
-    await doKakutei(context, found[0][1][0], found[0][1][1]);
+    await acceptResult(context, found[0][1]);
   }
 }
-
-const henkanPointTransition: Record<string, InputMode> = {
-  "direct": "okurinasi",
-  "okurinasi": "okuriari",
-  "okuriari": "okuriari",
-};
 
 export function henkanPoint(context: Context, _?: string) {
   if (context.state.type !== "input") {

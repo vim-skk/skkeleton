@@ -18,9 +18,9 @@ export async function henkanFirst(context: Context, key: string) {
   // feedが仮名に変換できる場合は確定
   const inputState = context.state;
   const feed = inputState.feed;
-  const queueAsKana = inputState.table.find((e) => e[0] === feed)?.[1][0];
-  if (queueAsKana) {
-    kakuteiKana(inputState, context.preEdit, queueAsKana, "");
+  const queueAsKana = inputState.table.find((e) => e[0] === feed)?.[1];
+  if (Array.isArray(queueAsKana)) {
+    kakuteiKana(inputState, context.preEdit, queueAsKana[0], "");
   }
 
   if (inputState.mode === "direct") {
