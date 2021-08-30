@@ -13,6 +13,9 @@ export type InputState = {
   feed: string;
   henkanFeed: string;
   okuriFeed: string;
+  // かなフィードが変換ポイントの前にあるかどうか
+  // 「察し」などを変換するのに必要
+  previousFeed: boolean;
 };
 
 export function asInputState(astate: State, initialize = true): InputState {
@@ -24,12 +27,14 @@ export function asInputState(astate: State, initialize = true): InputState {
     state.feed = "";
     state.henkanFeed = "";
     state.okuriFeed = "";
+    state.previousFeed = false;
   } else {
     state.table ??= getKanaTable();
     state.mode ??= "direct";
     state.feed ??= "";
     state.henkanFeed ??= "";
     state.okuriFeed ??= "";
+    state.previousFeed ??= false;
   }
   return state;
 }

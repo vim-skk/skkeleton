@@ -42,7 +42,7 @@ export class Library {
   }
 
   registerCandidate(type: HenkanType, word: string, candidate: string) {
-    if(!candidate) {
+    if (!candidate) {
       return;
     }
     const candidates = (this.#userJisyo[type][word] ?? []).filter((c) =>

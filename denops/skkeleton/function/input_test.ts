@@ -52,7 +52,7 @@ Deno.test({
       [";", "▽や*"],
       ["t", "▽や*t"],
       ["t", "▽や*っt"],
-      [";", "▽や*っ"],
+      [";", "▽や*っt"],
     ];
     for (const test of tests) {
       await dispatch(context, test[0]);

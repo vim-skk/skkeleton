@@ -21,7 +21,12 @@ export function kakuteiKana(
       state.henkanFeed += kana;
       break;
     case "okuriari":
-      state.okuriFeed += kana;
+      if (feed && state.previousFeed) {
+        state.henkanFeed += kana;
+      } else {
+        state.okuriFeed += kana;
+      }
+      state.previousFeed = false;
       break;
   }
   state.feed = feed;
@@ -46,29 +51,6 @@ export async function kanaInput(context: Context, char: string) {
   const state = asInputState(context.state, false);
   const lower = char.toLowerCase();
   if (char !== lower) {
-    if (state.feed) {
-      // feedがあったら確定パターンを検索する
-      // ddskkで可能なsAやSasSiなどのパターンの処理に必要
-      const pat = state.feed + lower;
-      const result = state.table.find((e) => e[0] === pat);
-      if (result) {
-        if (result[1][1]) {
-          // 結果にfeedがあれば確定してポイント切ってfeedを積む
-          await kanaInput(context, lower);
-          henkanPoint(context);
-          state.feed = result[1][1];
-        } else {
-          // 無ければ変換ポイントを切って既にあったfeedを積む
-          const stash = state.feed;
-          state.feed = "";
-          henkanPoint(context);
-          state.feed = stash;
-          await kanaInput(context, lower);
-        }
-        return;
-      }
-    }
-    // どれでもなければstickyのエミュレート
     henkanPoint(context);
     await kanaInput(context, lower);
     return;
@@ -104,23 +86,34 @@ const henkanPointTransition: Record<string, InputMode> = {
 };
 
 export function henkanPoint(context: Context, _?: string) {
-  // TODO: ちゃんと確定する
   if (context.state.type !== "input") {
     return;
   }
   const state = context.state;
-  if (state.mode === "direct") {
-    context.preEdit.doKakutei(state.feed);
-    if (config.setUndoPoint && context.vimMode === "i") {
-      context.preEdit.doKakutei(undoPoint);
-    }
-  }
-  state.feed = "";
+  const found = state.table.filter((e) => e[0].startsWith(state.feed));
   // don't transition to okuri mode when henkan str is empty
   if (state.mode === "okurinasi" && state.henkanFeed.length === 0) {
     return;
   }
-  state.mode = henkanPointTransition[state.mode];
+  switch (state.mode) {
+    case "direct":
+      if (found.length === 0) {
+        context.preEdit.doKakutei(state.feed);
+        state.feed = "";
+      }
+      if (config.setUndoPoint && context.vimMode === "i") {
+        context.preEdit.doKakutei(undoPoint);
+      }
+      state.mode = "okurinasi";
+      break;
+    case "okurinasi":
+      if (state.feed === "" || found.length === 0) {
+        state.feed = "";
+      } else {
+        state.previousFeed = true;
+      }
+      state.mode = "okuriari";
+  }
 }
 
 export function deleteChar(context: Context, _?: string) {

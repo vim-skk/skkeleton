@@ -12,6 +12,7 @@ export class Context {
     feed: "",
     henkanFeed: "",
     okuriFeed: "",
+    previousFeed: false,
   };
   preEdit = new PreEdit();
   vimMode = "";
@@ -21,11 +22,15 @@ export class Context {
       case "input": {
         const state = this.state;
         let ret = "";
-        if (state.mode === "okurinasi" || state.mode === "okuriari") {
+        if (state.mode !== "direct") {
           ret = "▽" + state.henkanFeed;
         }
         if (state.mode === "okuriari") {
-          ret += "*" + state.okuriFeed;
+          if (state.previousFeed) {
+            return ret + state.feed + "*";
+          } else {
+            ret += "*" + state.okuriFeed;
+          }
         }
         return ret + state.feed;
       }
