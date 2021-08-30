@@ -1,5 +1,6 @@
 import type { Context } from "../context.ts";
 import { vars } from "../deps.ts";
+import { asInputState } from "../state.ts";
 
 export async function disable(context: Context, _: string) {
   const denops = context.denops!;
@@ -19,6 +20,7 @@ export async function disable(context: Context, _: string) {
     }
     await vars.g.set(denops, "skkeleton#enabled", false);
   }
+  asInputState(context.state);
 }
 
 export async function escape(context: Context, _: string) {
