@@ -15,7 +15,7 @@ import { Cell } from "./util.ts";
 
 let initialized = false;
 
-export const currentContext = new Cell(new Context());
+export const currentContext = new Cell(() => new Context());
 
 async function init(denops: Denops) {
   if (config.debug) {
@@ -29,9 +29,7 @@ async function init(denops: Denops) {
   );
   await receiveNotation(denops);
   const id = anonymous.add(denops, () => {
-    const context = new Context();
-    context.denops = denops;
-    currentContext.set(context);
+    currentContext.init().denops = denops;
   })[0];
   autocmd.group(denops, "skkeleton", (helper) => {
     helper.define(
@@ -58,6 +56,7 @@ export async function main(denops: Denops) {
         initialized = true;
       }
       if (await denops.eval("&l:iminsert") !== 1) {
+        currentContext.init().denops = denops;
         try {
           await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-pre");
         } catch (e) {

@@ -1,11 +1,23 @@
 export class Cell<T> {
-  value: T;
+  initialized = false;
+  initializer: () => T;
+  value: T = null as unknown as T;
 
-  constructor(value: T) {
-    this.value = value;
+  constructor(initializer: () => T) {
+    this.initializer = initializer;
+  }
+
+  init() {
+    this.value = this.initializer();
+    this.initialized = true;
+    return this.value;
   }
 
   get(): T {
+    if (!this.initialized) {
+      this.value = this.initializer();
+      this.initialized = true;
+    }
     return this.value;
   }
 

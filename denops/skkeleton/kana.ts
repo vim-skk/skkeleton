@@ -1,9 +1,10 @@
 import { romToHira } from "./kana/rom_hira.ts";
 import type { KanaTable } from "./kana/type.ts";
+import { Cell } from "./util.ts";
 
-const tables: Record<string, KanaTable> = {
+const tables: Cell<Record<string, KanaTable>> = new Cell(() => ({
   "romToHira": romToHira,
-};
+}));
 
 let currentTable = "romToHira";
 
@@ -12,7 +13,7 @@ export function setCurrentKanaTable(name: string) {
 }
 
 export function getKanaTable(name = currentTable): KanaTable {
-  const table = tables[name];
+  const table = tables.get()[name];
   if (!table) {
     throw new Error(`undefined table: ${name}`);
   }

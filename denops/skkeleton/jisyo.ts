@@ -188,4 +188,4 @@ export async function load(
   return new Library(globalJisyo, userJisyo, userJisyoPath);
 }
 
-export const currentLibrary = new Cell(new Library());
+export const currentLibrary = new Cell(() => new Library());
