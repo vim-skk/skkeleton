@@ -23,6 +23,7 @@ export class Cell<T> {
 
   set(value: T) {
     this.value = value;
+    this.initialized = true;
   }
 }
 
