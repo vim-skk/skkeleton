@@ -1,7 +1,7 @@
 import { config } from "./config.ts";
 import type { Context } from "./context.ts";
 import { kakutei, newline } from "./function/common.ts";
-import { disable, escape } from "./function/disable.ts";
+import { escape } from "./function/disable.ts";
 import {
   henkanBackward,
   henkanFirst,

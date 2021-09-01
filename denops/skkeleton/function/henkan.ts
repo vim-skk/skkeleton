@@ -6,9 +6,9 @@ import { currentLibrary } from "../jisyo.ts";
 import { handleKey } from "../keymap.ts";
 import { getOkuriStr } from "../okuri.ts";
 import type { HenkanState } from "../state.ts";
+import { kakutei } from "./common.ts";
 import { kakuteiKana, kanaInput } from "./input.ts";
 import { jisyoTouroku } from "./jisyo.ts";
-import { kakutei } from "./common.ts";
 
 export async function henkanFirst(context: Context, key: string) {
   if (context.state.type !== "input") {

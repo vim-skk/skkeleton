@@ -1,4 +1,3 @@
-import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { batch, fn, mapping } from "../deps.ts";
 import { currentLibrary } from "../jisyo.ts";

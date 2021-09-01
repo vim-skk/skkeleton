@@ -1,8 +1,8 @@
-import { assertEquals } from "https://deno.land/std@0.103.0/testing/asserts.ts";
 import { config } from "./config.ts";
 import { Context } from "./context.ts";
 import { dispatch } from "./function/testutil.ts";
 import { currentLibrary } from "./jisyo.ts";
+import { assertEquals } from "https://deno.land/std@0.106.0/testing/asserts.ts";
 
 const defaultConfig = { ...config };
 

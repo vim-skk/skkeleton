@@ -1,12 +1,12 @@
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
 import { hiraToKata } from "../kana/hira_kata.ts";
+import { KanaResult } from "../kana/type.ts";
 import { PreEdit } from "../preedit.ts";
 import { asInputState } from "../state.ts";
-import type { InputMode, InputState } from "../state.ts";
+import type { InputState } from "../state.ts";
 import { undoPoint } from "../util.ts";
 import { henkanFirst } from "./henkan.ts";
-import { KanaResult } from "../kana/type.ts";
 
 export function kakuteiKana(
   state: InputState,
