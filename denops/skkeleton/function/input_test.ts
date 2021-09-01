@@ -2,6 +2,7 @@ import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { Denops } from "../deps.ts";
 import { test } from "../deps/denops_test.ts";
+import { fromFileUrl } from "../deps/std/path.ts";
 import { assertEquals } from "../deps/std/testing.ts";
 import { main } from "../main.ts";
 import { deleteChar, henkanPoint } from "./input.ts";
@@ -119,7 +120,7 @@ Deno.test({
 });
 
 async function init(denops: Denops) {
-  const p = new URL(import.meta.url).pathname;
+  const p = fromFileUrl(new URL(import.meta.url));
   const autoload = p.slice(0, p.lastIndexOf("denops")) +
     "autoload/skkeleton.vim";
   await denops.cmd("source " + autoload);
