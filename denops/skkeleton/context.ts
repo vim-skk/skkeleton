@@ -1,5 +1,5 @@
 import type { Denops } from "./deps.ts";
-import { romToHira } from "./kana/rom_hira.ts";
+import { getKanaTable } from "./kana.ts";
 import { PreEdit } from "./preedit.ts";
 import type { State } from "./state.ts";
 
@@ -8,7 +8,9 @@ export class Context {
   state: State = {
     type: "input",
     mode: "direct",
-    table: romToHira,
+    table: getKanaTable(),
+    tableName: "hira",
+    converterName: "",
     feed: "",
     henkanFeed: "",
     okuriFeed: "",
@@ -31,6 +33,9 @@ export class Context {
           } else {
             ret += "*" + state.okuriFeed;
           }
+        }
+        if (state.converter) {
+          ret = state.converter(ret);
         }
         return ret + state.feed;
       }

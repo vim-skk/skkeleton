@@ -6,13 +6,9 @@ const tables: Cell<Record<string, KanaTable>> = new Cell(() => ({
   "romToHira": romToHira,
 }));
 
-let currentTable = "romToHira";
+export const currentKanaTable = new Cell(() => "romToHira");
 
-export function setCurrentKanaTable(name: string) {
-  currentTable = name;
-}
-
-export function getKanaTable(name = currentTable): KanaTable {
+export function getKanaTable(name = currentKanaTable.get()): KanaTable {
   const table = tables.get()[name];
   if (!table) {
     throw new Error(`undefined table: ${name}`);

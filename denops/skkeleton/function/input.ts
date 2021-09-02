@@ -16,6 +16,9 @@ export function kakuteiKana(
 ) {
   switch (state.mode) {
     case "direct":
+      if (state.converter) {
+        kana = state.converter(kana);
+      }
       preEdit.doKakutei(kana);
       break;
     case "okurinasi":
@@ -150,10 +153,18 @@ export function katakana(context: Context, _?: string) {
   }
   const state = context.state;
   if (state.mode === "direct") {
-    // TODO: change to katakana mode
+    if (state.converter) {
+      state.converter = void 0;
+    } else {
+      state.converter = hiraToKata;
+      state.converterName = "katakana";
+    }
     return;
   }
-  const result = hiraToKata(state.henkanFeed + state.okuriFeed);
+  let result = state.henkanFeed + state.okuriFeed;
+  if (!state.converter) {
+    result = hiraToKata(result);
+  }
   context.preEdit.doKakutei(result);
   asInputState(state);
 }

@@ -5,7 +5,8 @@ import { test } from "../deps/denops_test.ts";
 import { fromFileUrl } from "../deps/std/path.ts";
 import { assertEquals } from "../deps/std/testing.ts";
 import { main } from "../main.ts";
-import { deleteChar, henkanPoint } from "./input.ts";
+import { kakutei } from "./common.ts";
+import { deleteChar, henkanPoint, katakana } from "./input.ts";
 import { dispatch } from "./testutil.ts";
 
 Deno.test({
@@ -144,5 +145,39 @@ test({
     );
     await denops.call("feedkeys", "iJ\thoge\x0dhoge;hoge\x0d", "tx");
     assertEquals(await denops.call("getline", 1, "$"), ["\tほげ", "\tほげほげ", ""]);
+  },
+});
+
+Deno.test({
+  name: "katakana input",
+  async fn() {
+    const context = new Context();
+
+    // change to katakana mode
+    katakana(context);
+    await dispatch(context, "a");
+    assertEquals(context.preEdit.output(""), "ア");
+    katakana(context);
+    await dispatch(context, "a");
+    assertEquals(context.preEdit.output(""), "あ");
+
+    // henkan pre
+    katakana(context);
+    await dispatch(context, "Hoge");
+    assertEquals(context.toString(), "▽ホゲ");
+    // and kakutei
+    kakutei(context);
+    assertEquals(context.preEdit.output(""), "ホゲ");
+
+    katakana(context);
+    // convert henkan pre
+    await dispatch(context, "Hoge");
+    katakana(context);
+    assertEquals(context.preEdit.output(""), "ホゲ");
+    // don't convert when converter enabled
+    katakana(context);
+    await dispatch(context, "Hoge");
+    katakana(context);
+    assertEquals(context.preEdit.output(""), "ほげ");
   },
 });

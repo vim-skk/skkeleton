@@ -25,10 +25,15 @@ export function kakutei(context: Context, _?: string) {
       asInputState(state);
       break;
     }
-    case "input":
-      context.preEdit.doKakutei(state.henkanFeed + state.okuriFeed);
+    case "input": {
+      let result = state.henkanFeed + state.okuriFeed;
+      if (state.converter) {
+        result = state.converter(result);
+      }
+      context.preEdit.doKakutei(result);
       asInputState(state);
       break;
+    }
     default:
       console.warn(
         `initializing unknown phase state: ${JSON.stringify(state)}`,

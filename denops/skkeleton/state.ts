@@ -10,6 +10,9 @@ export type InputState = {
   type: "input";
   mode: InputMode;
   table: KanaTable;
+  tableName: string;
+  converter?: (input: string) => string;
+  converterName: string;
   feed: string;
   henkanFeed: string;
   okuriFeed: string;
@@ -24,6 +27,8 @@ export function asInputState(astate: State, initialize = true): InputState {
   if (initialize) {
     state.table = getKanaTable();
     state.mode = "direct";
+    state.tableName = "";
+    state.converterName = "";
     state.feed = "";
     state.henkanFeed = "";
     state.okuriFeed = "";
@@ -31,6 +36,8 @@ export function asInputState(astate: State, initialize = true): InputState {
   } else {
     state.table ??= getKanaTable();
     state.mode ??= "direct";
+    state.tableName ??= "";
+    state.converterName ??= "";
     state.feed ??= "";
     state.henkanFeed ??= "";
     state.okuriFeed ??= "";
@@ -39,11 +46,9 @@ export function asInputState(astate: State, initialize = true): InputState {
   return state;
 }
 
-export type HenkanState = {
+export type HenkanState = Omit<InputState, "type"> & {
   type: "henkan";
   mode: HenkanType;
-  henkanFeed: string;
-  okuriFeed: string;
   word: string;
   candidates: string[];
   candidateIndex: number;
