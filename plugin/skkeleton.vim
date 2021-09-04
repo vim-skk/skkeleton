@@ -13,6 +13,11 @@ endfunction
 noremap! <expr> <Plug>(skkeleton-enable) <SID>enable()
 autocmd User DenopsPluginPost:skkeleton let g:skkeleton#init = v:true
 
+" Cause unexpected behavior when lmap is empty
+" (enable action was failed)
+" so makes dummy mapping
+lnoremap <Plug>(skkeleton-dummy) :
+
 " hook
 autocmd User skkeleton-enable-pre :
 autocmd User skkeleton-enable-post :
