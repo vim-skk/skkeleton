@@ -35,7 +35,7 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
     asInputState(state);
     return true;
   } catch (e) {
-    if (e.toString().indexOf("Keyboard interrupt") === -1) {
+    if (e.toString().indexOf("interrupt") === -1) {
       throw e;
     }
   } finally {
