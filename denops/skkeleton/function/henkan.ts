@@ -7,7 +7,7 @@ import { handleKey } from "../keymap.ts";
 import { getOkuriStr } from "../okuri.ts";
 import type { HenkanState } from "../state.ts";
 import { kakutei } from "./common.ts";
-import { kakuteiKana, kanaInput } from "./input.ts";
+import { kakuteiFeed, kanaInput } from "./input.ts";
 import { jisyoTouroku } from "./jisyo.ts";
 
 export async function henkanFirst(context: Context, key: string) {
@@ -15,18 +15,12 @@ export async function henkanFirst(context: Context, key: string) {
     return;
   }
 
-  // feedが仮名に変換できる場合は確定
-  const inputState = context.state;
-  const feed = inputState.feed;
-  const queueAsKana = inputState.table.find((e) => e[0] === feed)?.[1];
-  if (Array.isArray(queueAsKana)) {
-    kakuteiKana(inputState, context.preEdit, queueAsKana[0], "");
-  }
-
-  if (inputState.mode === "direct") {
+  if (context.state.mode === "direct") {
     await kanaInput(context, key);
     return;
   }
+
+  kakuteiFeed(context);
 
   const state = context.state as unknown as HenkanState;
   state.type = "henkan";

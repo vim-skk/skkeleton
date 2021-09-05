@@ -8,6 +8,19 @@ import type { InputState } from "../state.ts";
 import { undoPoint } from "../util.ts";
 import { henkanFirst } from "./henkan.ts";
 
+// feedが仮名に変換できる場合は確定
+export function kakuteiFeed(context: Context) {
+  if (context.state.type !== "input") {
+    return;
+  }
+  const inputState = context.state;
+  const feed = inputState.feed;
+  const queueAsKana = inputState.table.find((e) => e[0] === feed)?.[1];
+  if (Array.isArray(queueAsKana)) {
+    kakuteiKana(inputState, context.preEdit, queueAsKana[0], "");
+  }
+}
+
 export function kakuteiKana(
   state: InputState,
   preEdit: PreEdit,
@@ -161,6 +174,7 @@ export function katakana(context: Context, _?: string) {
     }
     return;
   }
+  kakuteiFeed(context);
   let result = state.henkanFeed + state.okuriFeed;
   if (!state.converter) {
     result = hiraToKata(result);

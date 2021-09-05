@@ -163,11 +163,11 @@ Deno.test({
 
     // henkan pre
     katakana(context);
-    await dispatch(context, "Hoge");
-    assertEquals(context.toString(), "▽ホゲ");
+    await dispatch(context, "N");
+    assertEquals(context.toString(), "▽n");
     // and kakutei
-    kakutei(context);
-    assertEquals(context.preEdit.output(""), "ホゲ");
+    await kakutei(context);
+    assertEquals(context.preEdit.output(""), "ン");
 
     katakana(context);
     // convert henkan pre

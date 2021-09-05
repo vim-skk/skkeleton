@@ -3,6 +3,7 @@ import { Context } from "../context.ts";
 import { currentLibrary } from "../jisyo.ts";
 import { asInputState } from "../state.ts";
 import { undoPoint } from "../util.ts";
+import { kakuteiFeed } from "./input.ts";
 
 export function kakutei(context: Context, _?: string) {
   const state = context.state;
@@ -26,6 +27,7 @@ export function kakutei(context: Context, _?: string) {
       break;
     }
     case "input": {
+      kakuteiFeed(context);
       let result = state.henkanFeed + state.okuriFeed;
       if (state.converter) {
         result = state.converter(result);
