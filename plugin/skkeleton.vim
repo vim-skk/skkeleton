@@ -4,9 +4,16 @@ endif
 let g:loaded_skkeleton = v:true
 
 function! s:enable() abort
+  let smd = &showmode
+  set noshowmode
   while !get(g:, 'skkeleton#init', v:false)
+    echo "waiting for denops start (press <C-c> to abort)"
+    redraw
     sleep 1m
   endwhile
+  let &showmode = smd
+  echo
+  redraw
   return denops#request('skkeleton', 'enable', [])
 endfunction
 
