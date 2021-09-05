@@ -39,8 +39,8 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
       throw e;
     }
   } finally {
-    // restore mapping
     await batch(denops, async (denops) => {
+      // restore mapping
       for (const m of cmap) {
         if (m.map?.buffer) {
           await mapping.map(denops, m.map.lhs, m.map.rhs, m.map);
@@ -49,6 +49,10 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
           await denops.cmd(`cunmap <buffer> ${m.key}`);
         }
       }
+      // restore skkeleton mode
+      await denops.cmd("let &l:iminsert = 1");
+      await denops.call("skkeleton#map");
+      await denops.cmd("redrawstatus");
     });
     // restore stashed context
     currentContext.set(context);
