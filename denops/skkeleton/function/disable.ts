@@ -1,6 +1,8 @@
 import type { Context } from "../context.ts";
 import { vars } from "../deps.ts";
 import { asInputState } from "../state.ts";
+import { config } from "../config.ts";
+import { autocmd } from "../deps.ts";
 
 export async function disable(context: Context, _: string) {
   const denops = context.denops!;
@@ -24,6 +26,17 @@ export async function disable(context: Context, _: string) {
 }
 
 export async function escape(context: Context, _: string) {
+  const denops = context.denops!;
+  if (config.keepState) {
+    autocmd.group(denops, "skkeleton", (helper) => {
+      helper.define(
+        "InsertEnter",
+        "<buffer>",
+        `call denops#request('${denops.name}', 'enable', [])`,
+        { once: true },
+      );
+    });
+  }
   await disable(context, _);
   context.state.type = "escape";
 }

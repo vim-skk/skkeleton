@@ -11,6 +11,7 @@ export const config = {
   showCandidatesCount: 4,
   usePopup: true,
   userJisyo: Deno.env.get("HOME") + "/.skkeleton",
+  keepState: false,
 };
 
 type Validators = {
@@ -33,6 +34,7 @@ const validators: Validators = {
   showCandidatesCount: ensureNumber,
   usePopup: ensureBoolean,
   userJisyo: ensureString,
+  keepState: ensureBoolean,
 };
 
 export function setConfig(newConfig: Record<string, unknown>) {
