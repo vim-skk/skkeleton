@@ -75,4 +75,9 @@ userJisyo                                     *skkeleton-config-userJisyo*
         ユーザー辞書のパス
         JavaScriptの制約によりエンコーディングはUTF-8限定になります。
 
+keepState                                     *skkeleton-config-keepState*
+        (デフォルト v:false)
+        このオプションを有効にすると
+        Insertモードを抜けても前回の状態を保持するようになります。
+
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
