@@ -9,16 +9,7 @@ augroup skkeleton
 augroup END
 
 function! skkeleton#enable() abort
-  let smd = &showmode
-  set noshowmode
-  while !get(g:, 'skkeleton#init', v:false)
-    echo 'waiting for denops start (press <C-c> to abort)'
-    redraw
-    sleep 1m
-  endwhile
-  let &showmode = smd
-  echo
-  redraw
+  call denops#plugin#wait('skkeleton')
   return denops#request('skkeleton', 'enable', [])
 endfunction
 
