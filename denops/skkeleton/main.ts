@@ -6,6 +6,7 @@ import {
   Denops,
   ensureObject,
   ensureString,
+  op,
   vars,
 } from "./deps.ts";
 import * as jisyo from "./jisyo.ts";
@@ -63,7 +64,7 @@ export async function main(denops: Denops) {
           console.log(e);
         }
         await denops.call("skkeleton#map");
-        await denops.cmd("setlocal iminsert=1");
+        await op.iminsert.setLocal(denops, 1)
         await vars.b.set(denops, "keymap_name", "skkeleton");
         try {
           await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-post");

@@ -1,5 +1,5 @@
 import type { Context } from "../context.ts";
-import { vars } from "../deps.ts";
+import { vars, op } from "../deps.ts";
 import { asInputState } from "../state.ts";
 import { config } from "../config.ts";
 import { autocmd } from "../deps.ts";
@@ -13,7 +13,7 @@ export async function disable(context: Context, _: string) {
       console.log(e);
     }
     await denops.call("skkeleton#unmap");
-    await denops.cmd("setlocal iminsert=0");
+    await op.iminsert.setLocal(denops, 0)
     context.preEdit.doKakutei("\x1e");
     try {
       await denops.cmd("doautocmd <nomodeline> User skkeleton-disable-post");
