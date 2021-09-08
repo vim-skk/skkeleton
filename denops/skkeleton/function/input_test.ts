@@ -138,7 +138,7 @@ test({
   async fn(denops: Denops) {
     await init(denops);
 
-    await op.autoindent.setLocal(denops, true)
+    await op.autoindent.setLocal(denops, true);
     await denops.cmd("startinsert");
     await denops.cmd(
       "inoremap <expr> J denops#request('skkeleton', 'enable', [])",
