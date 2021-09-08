@@ -189,13 +189,13 @@ function! s:popup(candidates) abort
           \ })
     call add(s:windows, id)
   endif
-  autocmd skkleton User skkeleton ++once call s:close()
+  autocmd skkeleton User skkeleton ++once call s:close()
 endfunction
 
 function! s:close() abort
   if mode() ==# 'c'
     " redefine autocmd at cmdline mode
-    autocmd skkleton User skkeleton ++once call s:close()
+    autocmd skkeleton User skkeleton ++once call s:close()
     return
   endif
   if has('nvim')
@@ -212,11 +212,11 @@ endfunction
 
 function! skkeleton#show_candidates(candidates) abort
   let s:candidates = a:candidates
-  autocmd skkleton User skkeleton ++once call s:popup(s:candidates)
+  autocmd skkeleton User skkeleton ++once call s:popup(s:candidates)
 endfunction
 
 function! skkeleton#close_candidates() abort
-  autocmd skkleton User skkeleton ++once call s:close()
+  autocmd skkeleton User skkeleton ++once call s:close()
 endfunction
 
 function! skkeleton#getchar(msg) abort
