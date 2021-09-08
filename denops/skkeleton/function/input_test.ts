@@ -1,6 +1,6 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
-import { Denops } from "../deps.ts";
+import { Denops, op } from "../deps.ts";
 import { test } from "../deps/denops_test.ts";
 import { fromFileUrl } from "../deps/std/path.ts";
 import { assertEquals } from "../deps/std/testing.ts";
@@ -135,10 +135,10 @@ test({
   mode: "nvim",
   name: "new line",
   pluginName: "skkeleton",
-  async fn(denops) {
+  async fn(denops: Denops) {
     await init(denops);
 
-    await denops.cmd("setlocal autoindent");
+    await op.autoindent.setLocal(denops, true);
     await denops.cmd("startinsert");
     await denops.cmd(
       "inoremap <expr> J denops#request('skkeleton', 'enable', [])",
