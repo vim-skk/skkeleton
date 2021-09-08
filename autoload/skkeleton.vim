@@ -9,10 +9,10 @@ endfunction
 
 function! skkeleton#doautocmd() abort
   call timer_start(1, {id->s:doautocmd()})
-  return ""
+  return ''
 endfunction
 
-function! s:load_configs()
+function! s:load_configs() abort
   for config in s:configs
     call denops#notify('skkeleton', 'config', [config])
   endfor
@@ -31,7 +31,7 @@ function! skkeleton#config(config) abort
 endfunction
 
 function! skkeleton#is_enabled() abort
-  return get(g:, "skkeleton#enabled", v:false)
+  return get(g:, 'skkeleton#enabled', v:false)
 endfunction
 
 " copied from eskk.vim
@@ -82,60 +82,60 @@ endfunction
 
 function! skkeleton#get_key_notations() abort
   let keys = {}
-  let keys["<nul>"] = "\<nul>"
-  let keys["<bs>"] = "\<bs>"
-  let keys["<tab>"] = "\<tab>"
-  let keys["<nl>"] = "\<nl>"
-  let keys["<ff>"] = "\<ff>"
-  let keys["<cr>"] = "\<cr>"
-  let keys["<return>"] = "\<return>"
-  let keys["<enter>"] = "\<enter>"
-  let keys["<esc>"] = "\<esc>"
-  let keys["<space>"] = "\<space>"
-  let keys["<lt>"] = "\<lt>"
-  let keys["<bslash>"] = "\<bslash>"
-  let keys["<bar>"] = "\<bar>"
-  let keys["<del>"] = "\<del>"
-  let keys["<csi>"] = "\<csi>"
-  let keys["<xcsi>"] = "\<xcsi>"
-  let keys["<eol>"] = "\<eol>"
-  let keys["<ignore>"] = "\<ignore>"
-  let keys["<nop>"] = "\<nop>"
-  let keys["<up>"] = "\<up>"
-  let keys["<down>"] = "\<down>"
-  let keys["<left>"] = "\<left>"
-  let keys["<right>"] = "\<right>"
-  let keys["<s-up>"] = "\<s-up>"
-  let keys["<s-down>"] = "\<s-down>"
-  let keys["<s-left>"] = "\<s-left>"
-  let keys["<s-right>"] = "\<s-right>"
-  let keys["<c-left>"] = "\<c-left>"
-  let keys["<c-right>"] = "\<c-right>"
-  let keys["<help>"] = "\<help>"
-  let keys["<undo>"] = "\<undo>"
-  let keys["<insert>"] = "\<insert>"
-  let keys["<home>"] = "\<home>"
-  let keys["<end>"] = "\<end>"
-  let keys["<pageup>"] = "\<pageup>"
-  let keys["<pagedown>"] = "\<pagedown>"
-  let keys["<kup>"] = "\<kup>"
-  let keys["<kdown>"] = "\<kdown>"
-  let keys["<kleft>"] = "\<kleft>"
-  let keys["<kright>"] = "\<kright>"
-  let keys["<khome>"] = "\<khome>"
-  let keys["<kend>"] = "\<kend>"
-  let keys["<korigin>"] = "\<korigin>"
-  let keys["<kpageup>"] = "\<kpageup>"
-  let keys["<kpagedown>"] = "\<kpagedown>"
-  let keys["<kdel>"] = "\<kdel>"
-  let keys["<kplus>"] = "\<kplus>"
-  let keys["<kminus>"] = "\<kminus>"
-  let keys["<kmultiply>"] = "\<kmultiply>"
-  let keys["<kdivide>"] = "\<kdivide>"
-  let keys["<kpoint>"] = "\<kpoint>"
-  let keys["<kcomma>"] = "\<kcomma>"
-  let keys["<kequal>"] = "\<kequal>"
-  let keys["<kenter>"] = "\<kenter>"
+  let keys['<nul>'] = "\<nul>"
+  let keys['<bs>'] = "\<bs>"
+  let keys['<tab>'] = "\<tab>"
+  let keys['<nl>'] = "\<nl>"
+  let keys['<ff>'] = "\<ff>"
+  let keys['<cr>'] = "\<cr>"
+  let keys['<return>'] = "\<return>"
+  let keys['<enter>'] = "\<enter>"
+  let keys['<esc>'] = "\<esc>"
+  let keys['<space>'] = "\<space>"
+  let keys['<lt>'] = "\<lt>"
+  let keys['<bslash>'] = "\<bslash>"
+  let keys['<bar>'] = "\<bar>"
+  let keys['<del>'] = "\<del>"
+  let keys['<csi>'] = "\<csi>"
+  let keys['<xcsi>'] = "\<xcsi>"
+  let keys['<eol>'] = "\<eol>"
+  let keys['<ignore>'] = "\<ignore>"
+  let keys['<nop>'] = "\<nop>"
+  let keys['<up>'] = "\<up>"
+  let keys['<down>'] = "\<down>"
+  let keys['<left>'] = "\<left>"
+  let keys['<right>'] = "\<right>"
+  let keys['<s-up>'] = "\<s-up>"
+  let keys['<s-down>'] = "\<s-down>"
+  let keys['<s-left>'] = "\<s-left>"
+  let keys['<s-right>'] = "\<s-right>"
+  let keys['<c-left>'] = "\<c-left>"
+  let keys['<c-right>'] = "\<c-right>"
+  let keys['<help>'] = "\<help>"
+  let keys['<undo>'] = "\<undo>"
+  let keys['<insert>'] = "\<insert>"
+  let keys['<home>'] = "\<home>"
+  let keys['<end>'] = "\<end>"
+  let keys['<pageup>'] = "\<pageup>"
+  let keys['<pagedown>'] = "\<pagedown>"
+  let keys['<kup>'] = "\<kup>"
+  let keys['<kdown>'] = "\<kdown>"
+  let keys['<kleft>'] = "\<kleft>"
+  let keys['<kright>'] = "\<kright>"
+  let keys['<khome>'] = "\<khome>"
+  let keys['<kend>'] = "\<kend>"
+  let keys['<korigin>'] = "\<korigin>"
+  let keys['<kpageup>'] = "\<kpageup>"
+  let keys['<kpagedown>'] = "\<kpagedown>"
+  let keys['<kdel>'] = "\<kdel>"
+  let keys['<kplus>'] = "\<kplus>"
+  let keys['<kminus>'] = "\<kminus>"
+  let keys['<kmultiply>'] = "\<kmultiply>"
+  let keys['<kdivide>'] = "\<kdivide>"
+  let keys['<kpoint>'] = "\<kpoint>"
+  let keys['<kcomma>'] = "\<kcomma>"
+  let keys['<kequal>'] = "\<kequal>"
+  let keys['<kenter>'] = "\<kenter>"
   for i in range(1, 12)
     execute printf('let keys["<f%s>"] = "\<f%s>"', i, i)
     execute printf('let keys["<s-f%s>"] = "\<s-f%s>"', i, i)
@@ -173,19 +173,19 @@ function! s:popup(candidates) abort
     call add(s:windows, win)
   else
     let id = popup_create(a:candidates, {
-          \ "pos": 'topleft',
-          \ "line": 'cursor+1',
-          \ "col": 'cursor',
+          \ 'pos': 'topleft',
+          \ 'line': 'cursor+1',
+          \ 'col': 'cursor',
           \ })
     call add(s:windows, id)
   endif
-  autocmd User skkeleton ++once call s:close()
+  autocmd skkleton User skkeleton ++once call s:close()
 endfunction
 
-function s:close()
+function! s:close() abort
   if mode() ==# 'c'
     " redefine autocmd at cmdline mode
-    autocmd User skkeleton ++once call s:close()
+    autocmd skkleton User skkeleton ++once call s:close()
     return
   endif
   if has('nvim')
@@ -202,11 +202,11 @@ endfunction
 
 function! skkeleton#show_candidates(candidates) abort
   let s:candidates = a:candidates
-  autocmd User skkeleton ++once call s:popup(s:candidates)
+  autocmd skkleton User skkeleton ++once call s:popup(s:candidates)
 endfunction
 
 function! skkeleton#close_candidates() abort
-  autocmd User skkeleton ++once call s:close()
+  autocmd skkleton User skkeleton ++once call s:close()
 endfunction
 
 function! skkeleton#getchar(msg) abort
