@@ -1,7 +1,26 @@
 augroup skkeleton
   autocmd!
   autocmd User skkeleton :
+
+  autocmd User skkeleton-enable-pre :
+  autocmd User skkeleton-enable-post :
+  autocmd User skkeleton-disable-pre :
+  autocmd User skkeleton-disable-post :
 augroup END
+
+function! skkeleton#enable() abort
+  let smd = &showmode
+  set noshowmode
+  while !get(g:, 'skkeleton#init', v:false)
+    echo 'waiting for denops start (press <C-c> to abort)'
+    redraw
+    sleep 1m
+  endwhile
+  let &showmode = smd
+  echo
+  redraw
+  return denops#request('skkeleton', 'enable', [])
+endfunction
 
 function! s:doautocmd() abort
   doautocmd <nomodeline> User skkeleton
