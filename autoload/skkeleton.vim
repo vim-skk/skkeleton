@@ -33,7 +33,7 @@ function! skkeleton#config(config) abort
     call denops#notify('skkeleton', 'config', [a:config])
   else
     let s:configs = add(get(s:, 'configs', []), a:config)
-    augroup skkeleton
+    augroup skkeleton-config
       autocmd!
       autocmd User DenopsPluginPost:skkeleton call s:load_configs()
     augroup END
