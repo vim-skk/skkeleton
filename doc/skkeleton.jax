@@ -65,11 +65,21 @@ globalJisyoEncoding                     *skkeleton-config-globalJisyoEncoding*
         SKK Openlab以外が配布している辞書を使う場合などは
         変更する必要があるかもしれません。
 
+immediatelyCancel                         *skkeleton-config-immediatelyCancel*
+        (デフォルト v:true)
+        このオプションを有効にすると
+        変換候補選択などから一気に未入力状態に戻るようになります。
+
 immediatelyJisyoRW                       *skkeleton-config-immediatelyJisyoRW*
         (デフォルト v:true)
         このオプションを有効にすると
         変換や確定の度にユーザー辞書を読み書きするようになります。
         複数のVimインスタンスを同時に使う場合に有用かもしれません。
+
+keepState                                     *skkeleton-config-keepState*
+        (デフォルト v:false)
+        このオプションを有効にすると
+        Insertモードを抜けても前回の状態を保持するようになります。
 
 selectCandidateKeys                     *skkeleton-config-selectCandidateKeys*
         (デフォルト "asdfjkl")
@@ -93,10 +103,5 @@ userJisyo                                     *skkeleton-config-userJisyo*
         (デフォルト $HOME .. "/.skkeleton")
         ユーザー辞書のパス
         JavaScriptの制約によりエンコーディングはUTF-8限定になります。
-
-keepState                                     *skkeleton-config-keepState*
-        (デフォルト v:false)
-        このオプションを有効にすると
-        Insertモードを抜けても前回の状態を保持するようになります。
 
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
