@@ -182,14 +182,3 @@ export function katakana(context: Context, _?: string) {
   context.preEdit.doKakutei(result);
   asInputState(state);
 }
-
-export function inputCancel(context: Context, _?: string) {
-  const state = context.state;
-  if (state.type !== "input") {
-    return;
-  }
-  state.mode = "direct";
-  state.feed = "";
-  state.henkanFeed = "";
-  state.okuriFeed = "";
-}
