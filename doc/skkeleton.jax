@@ -22,6 +22,25 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
     imap <C-j> <Plug>(skkeleton-enable)
     cmap <C-j> <Plug>(skkeleton-enable)
 <
+
+<Plug>(skkeleton-disable) (ic)                       *<Plug>(skkeleton-disable)*
+
+       skkeletonを無効化します。  >
+
+    " 例
+    imap <C-j> <Plug>(skkeleton-disable)
+    cmap <C-j> <Plug>(skkeleton-disable)
+<
+
+<Plug>(skkeleton-toggle) (ic)                       *<Plug>(skkeleton-toggle)*
+
+       skkeletonの有効、無効を切り替えます。  >
+
+    " 例
+    imap <C-j> <Plug>(skkeleton-toggle)
+    cmap <C-j> <Plug>(skkeleton-toggle)
+<
+
 ------------------------------------------------------------------------------
 CONFIG                                                      *skkeleton-config*
 

@@ -8,9 +8,14 @@ augroup skkeleton
   autocmd User skkeleton-disable-post :
 augroup END
 
-function! skkeleton#enable() abort
+function! skkeleton#request(funcname, args) abort
   call denops#plugin#wait('skkeleton')
-  return denops#request('skkeleton', 'enable', [])
+  let ret = denops#request('skkeleton', a:funcname, a:args)
+  if mode() ==# 'n'
+    return ''
+  else
+    return ret
+  endif
 endfunction
 
 function! s:doautocmd() abort
@@ -79,8 +84,14 @@ function! skkeleton#get_default_mapped_keys() abort "{{{
 endfunction "}}}
 
 function! skkeleton#map() abort
+  let m = mode()
   for c in skkeleton#get_default_mapped_keys()
-    execute printf("lnoremap <buffer> <expr> <nowait> %s denops#request('skkeleton', 'handleKey', [%s, mode()]) .. skkeleton#doautocmd()", c, string(c))
+    let func = 'handleKey'
+    let match = matchlist(maparg(c, m), '<Plug>(skkeleton-\(\a\+\))')
+    if !empty(match)
+      let func = match[1]
+    endif
+    execute printf("lnoremap <buffer> <expr> <nowait> %s denops#request('skkeleton', '%s', [%s, mode()]) .. skkeleton#doautocmd()", c, func, string(c))
   endfor
 endfunction
 

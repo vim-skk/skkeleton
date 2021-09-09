@@ -9,6 +9,7 @@ import {
   op,
   vars,
 } from "./deps.ts";
+import { disable as disableFunc } from "./function/disable.ts";
 import * as jisyo from "./jisyo.ts";
 import { handleKey } from "./keymap.ts";
 import { receiveNotation } from "./notation.ts";
@@ -41,6 +42,52 @@ async function init(denops: Denops) {
   });
 }
 
+async function enable(denops: Denops): Promise<string> {
+  if (!initialized) {
+    await init(denops);
+    initialized = true;
+  }
+  if (await denops.eval("&l:iminsert") !== 1) {
+    currentContext.init().denops = denops;
+    try {
+      await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-pre");
+    } catch (e) {
+      console.log(e);
+    }
+    await denops.call("skkeleton#map");
+    await op.iminsert.setLocal(denops, 1);
+    await vars.b.set(denops, "keymap_name", "skkeleton");
+    try {
+      await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-post");
+    } catch (e) {
+      console.log(e);
+    }
+    await vars.g.set(denops, "skkeleton#enabled", true);
+    return "\x1e"; // <C-^>
+  } else {
+    return "";
+  }
+}
+
+async function disable(key?: unknown, vimMode?: unknown): Promise<string> {
+  const context = currentContext.get();
+  const state = currentContext.get().state;
+  if (state.type !== "input" || state.mode !== "direct" && key && vimMode) {
+    return handle(key, vimMode);
+  }
+  await disableFunc(context, "");
+  return context.preEdit.output(context.toString());
+}
+
+async function handle(key: unknown, vimMode: unknown): Promise<string> {
+  ensureString(key);
+  ensureString(vimMode);
+  const context = currentContext.get();
+  context.vimMode = vimMode;
+  await handleKey(context, key);
+  return context.preEdit.output(context.toString());
+}
+
 export async function main(denops: Denops) {
   if (await vars.g.get(denops, "skkeleton#debug", false)) {
     config.debug = true;
@@ -51,39 +98,21 @@ export async function main(denops: Denops) {
       setConfig(config);
       return Promise.resolve();
     },
-    async enable(): Promise<string> {
-      if (!initialized) {
-        await init(denops);
-        initialized = true;
-      }
+    enable(): Promise<string> {
+      return enable(denops);
+    },
+    disable(key: unknown, vimMode: unknown): Promise<string> {
+      return disable(key, vimMode);
+    },
+    async toggle(key?: unknown, vimMode?: unknown): Promise<string> {
       if (await denops.eval("&l:iminsert") !== 1) {
-        currentContext.init().denops = denops;
-        try {
-          await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-pre");
-        } catch (e) {
-          console.log(e);
-        }
-        await denops.call("skkeleton#map");
-        await op.iminsert.setLocal(denops, 1);
-        await vars.b.set(denops, "keymap_name", "skkeleton");
-        try {
-          await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-post");
-        } catch (e) {
-          console.log(e);
-        }
-        await vars.g.set(denops, "skkeleton#enabled", true);
-        return "\x1e"; // <C-^>
+        return enable(denops);
       } else {
-        return "";
+        return disable(key, vimMode);
       }
     },
-    async handleKey(key: unknown, vimMode: unknown): Promise<string> {
-      ensureString(key);
-      ensureString(vimMode);
-      const context = currentContext.get();
-      context.vimMode = vimMode;
-      await handleKey(context, key);
-      return context.preEdit.output(context.toString());
+    handleKey(key: unknown, vimMode: unknown): Promise<string> {
+      return handle(key, vimMode);
     },
   };
   if (config.debug) {

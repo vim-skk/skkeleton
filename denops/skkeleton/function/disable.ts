@@ -1,8 +1,7 @@
-import type { Context } from "../context.ts";
-import { op, vars } from "../deps.ts";
-import { asInputState } from "../state.ts";
 import { config } from "../config.ts";
-import { autocmd } from "../deps.ts";
+import type { Context } from "../context.ts";
+import { autocmd, op, vars } from "../deps.ts";
+import { asInputState } from "../state.ts";
 
 export async function disable(context: Context, _: string) {
   const denops = context.denops!;
