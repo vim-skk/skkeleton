@@ -29,3 +29,12 @@ Deno.test({
     assertEquals(context.toString(), "▼送り");
   },
 });
+
+Deno.test({
+  name: "henkan cancel",
+  async fn() {
+    const context = new Context();
+    await dispatch(context, ";henkan x");
+    assertEquals(context.toString(), "▽へんかん");
+  },
+});

@@ -80,7 +80,7 @@ export async function henkanBackward(context: Context, _?: string) {
     state.candidateIndex--;
   }
   if (state.candidateIndex < 0) {
-    // TODO: 戻す
+    context.state.type = "input";
     return;
   }
   if (state.candidateIndex >= config.showCandidatesCount) {
