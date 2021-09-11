@@ -84,13 +84,19 @@ function! skkeleton#get_default_mapped_keys() abort "{{{
 endfunction "}}}
 
 function! skkeleton#map() abort
-  let m = mode()
+  if mode() ==# 'n'
+    let modes = ['i', 'c']
+  else
+    let modes = [mode()]
+  endif
   for c in skkeleton#get_default_mapped_keys()
     let func = 'handleKey'
-    let match = matchlist(maparg(c, m), '<Plug>(skkeleton-\(\a\+\))')
-    if !empty(match)
-      let func = match[1]
-    endif
+    for m in modes
+      let match = matchlist(maparg(c, m), '<Plug>(skkeleton-\(\a\+\))')
+      if !empty(match)
+        let func = match[1]
+      endif
+    endfor
     execute printf("lnoremap <buffer> <expr> <nowait> %s denops#request('skkeleton', '%s', [%s, mode()]) .. skkeleton#doautocmd()", c, func, string(c))
   endfor
 endfunction
