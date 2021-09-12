@@ -1,17 +1,18 @@
 import { ensureBoolean, ensureNumber, ensureString } from "./deps.ts";
 
 export const config = {
-  eggLikeNewline: false,
   debug: false,
+  eggLikeNewline: false,
   globalJisyo: "/usr/share/skk/SKK-JISYO.L",
   globalJisyoEncoding: "euc-jp",
+  immediatelyCancel: true,
   immediatelyJisyoRW: true,
+  keepState: false,
   selectCandidateKeys: "asdfjkl",
   setUndoPoint: true,
   showCandidatesCount: 4,
   usePopup: true,
   userJisyo: Deno.env.get("HOME") + "/.skkeleton",
-  keepState: false,
   markerHenkan: "▽",
   markerHenkanSelect: "▼",
 };
@@ -21,10 +22,11 @@ type Validators = {
 };
 
 const validators: Validators = {
-  eggLikeNewline: ensureBoolean,
   debug: ensureBoolean,
+  eggLikeNewline: ensureBoolean,
   globalJisyo: ensureString,
   globalJisyoEncoding: ensureString,
+  immediatelyCancel: ensureBoolean,
   immediatelyJisyoRW: ensureBoolean,
   selectCandidateKeys: (x): asserts x is string => {
     ensureString(x);
@@ -32,13 +34,17 @@ const validators: Validators = {
       throw TypeError("selectCandidateKeys !== 7");
     }
   },
+  keepState: ensureBoolean,
   setUndoPoint: ensureBoolean,
   showCandidatesCount: ensureNumber,
   usePopup: ensureBoolean,
   userJisyo: ensureString,
+<<<<<<< HEAD
   keepState: ensureBoolean,
   markerHenkan: ensureString,
   markerHenkanSelect: ensureString,
+=======
+>>>>>>> 115f37fa53c67fc31fc3d5ad26c9cb7374f9a38c
 };
 
 export function setConfig(newConfig: Record<string, unknown>) {

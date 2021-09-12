@@ -53,3 +53,19 @@ export function newline(context: Context) {
     context.preEdit.doKakutei("\n");
   }
 }
+
+export function cancel(context: Context) {
+  if (config.immediatelyCancel) {
+    asInputState(context.state);
+    return;
+  }
+  const state = context.state;
+  switch (state.type) {
+    case "input":
+      asInputState(state);
+      break;
+    case "henkan":
+      context.state.type = "input";
+      break;
+  }
+}
