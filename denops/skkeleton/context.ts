@@ -2,6 +2,7 @@ import type { Denops } from "./deps.ts";
 import { getKanaTable } from "./kana.ts";
 import { PreEdit } from "./preedit.ts";
 import type { State } from "./state.ts";
+import { config } from "./config.ts";
 
 export class Context {
   denops?: Denops;
@@ -25,7 +26,7 @@ export class Context {
         const state = this.state;
         let ret = "";
         if (state.mode !== "direct") {
-          ret = "▽" + state.henkanFeed;
+          ret = config.markerHenkan + state.henkanFeed;
         }
         if (state.mode === "okuriari") {
           if (state.previousFeed) {
@@ -45,7 +46,7 @@ export class Context {
             /;.*/,
             "",
           ) ?? "error";
-        return "▼" + candidate + this.state.okuriFeed;
+        return config.markerHenkanSelect + candidate + this.state.okuriFeed;
       }
       case "escape":
         return "\x1b";

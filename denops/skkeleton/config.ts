@@ -12,6 +12,8 @@ export const config = {
   usePopup: true,
   userJisyo: Deno.env.get("HOME") + "/.skkeleton",
   keepState: false,
+  markerHenkan: "▽",
+  markerHenkanSelect: "▼",
 };
 
 type Validators = {
@@ -35,6 +37,8 @@ const validators: Validators = {
   usePopup: ensureBoolean,
   userJisyo: ensureString,
   keepState: ensureBoolean,
+  markerHenkan: ensureString,
+  markerHenkanSelect: ensureString,
 };
 
 export function setConfig(newConfig: Record<string, unknown>) {
