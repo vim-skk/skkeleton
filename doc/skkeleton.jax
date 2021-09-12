@@ -104,4 +104,12 @@ userJisyo                                     *skkeleton-config-userJisyo*
         ユーザー辞書のパス
         JavaScriptの制約によりエンコーディングはUTF-8限定になります。
 
+makerHenkan                                   *skkeleton-config-markerHenkan*
+        (デフォルト "▽")
+        変換入力中であることを示すため文字を指定します。
+
+makerHenkanSelect                        *skkeleton-config-markerHenkanSelect*
+        (デフォルト "▼")
+        候補を選択している最中であることを示すため文字を指定します。
+
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
