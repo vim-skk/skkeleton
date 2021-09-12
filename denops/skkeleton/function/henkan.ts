@@ -36,10 +36,10 @@ export async function henkanFirst(context: Context, key: string) {
     : getOkuriStr(state.henkanFeed, state.okuriFeed);
   state.word = word;
   state.candidates = lib.getCandidates(state.mode, word);
-  await henkanForward(context, key);
+  await henkanForward(context);
 }
 
-export async function henkanForward(context: Context, _?: string) {
+export async function henkanForward(context: Context) {
   const state = context.state;
   if (state.type !== "henkan") {
     return;
@@ -66,7 +66,7 @@ export async function henkanForward(context: Context, _?: string) {
   await Promise.resolve();
 }
 
-export async function henkanBackward(context: Context, _?: string) {
+export async function henkanBackward(context: Context) {
   const state = context.state;
   if (state.type !== "henkan") {
     return;
@@ -115,7 +115,7 @@ async function selectCandidates(context: Context) {
       const candIndex = keys.indexOf(key);
       if (candIndex !== -1) {
         state.candidateIndex = start + candIndex;
-        kakutei(context, key);
+        kakutei(context);
         return;
       }
     }
@@ -143,6 +143,6 @@ export async function henkanInput(context: Context, key: string) {
     }
   }
 
-  kakutei(context, key);
+  kakutei(context);
   await handleKey(context, key);
 }

@@ -5,7 +5,7 @@ import { asInputState } from "../state.ts";
 import { undoPoint } from "../util.ts";
 import { kakuteiFeed } from "./input.ts";
 
-export function kakutei(context: Context, _?: string) {
+export function kakutei(context: Context) {
   const state = context.state;
   switch (state.type) {
     case "henkan": {
@@ -62,6 +62,10 @@ export function cancel(context: Context) {
   const state = context.state;
   switch (state.type) {
     case "input":
+      if (state.mode === "direct" && context.vimMode === "c") {
+        console.log("call");
+        context.preEdit.doKakutei("\x03");
+      }
       asInputState(state);
       break;
     case "henkan":

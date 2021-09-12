@@ -75,7 +75,7 @@ async function disable(key?: unknown, vimMode?: unknown): Promise<string> {
   if (state.type !== "input" || state.mode !== "direct" && key && vimMode) {
     return handle(key, vimMode);
   }
-  await disableFunc(context, "");
+  await disableFunc(context);
   return context.preEdit.output(context.toString());
 }
 

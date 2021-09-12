@@ -12,7 +12,7 @@ export async function dispatch(context: Context, keys: string) {
             await henkanFirst(context, key);
             break;
           case ";":
-            henkanPoint(context, key);
+            henkanPoint(context);
             break;
           case "\n":
             newline(context);
@@ -24,10 +24,10 @@ export async function dispatch(context: Context, keys: string) {
       case "henkan":
         switch (key) {
           case " ":
-            await henkanForward(context, key);
+            await henkanForward(context);
             break;
           case "x":
-            await henkanBackward(context, key);
+            await henkanBackward(context);
             break;
           case "\n":
             newline(context);

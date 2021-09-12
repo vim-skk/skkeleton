@@ -3,7 +3,7 @@ import type { Context } from "../context.ts";
 import { autocmd, op, vars } from "../deps.ts";
 import { asInputState } from "../state.ts";
 
-export async function disable(context: Context, _: string) {
+export async function disable(context: Context) {
   const denops = context.denops!;
   if (await denops.eval("&l:iminsert") === 1) {
     try {
@@ -24,7 +24,7 @@ export async function disable(context: Context, _: string) {
   asInputState(context.state);
 }
 
-export async function escape(context: Context, _: string) {
+export async function escape(context: Context) {
   const denops = context.denops!;
   if (config.keepState) {
     autocmd.group(denops, "skkeleton", (helper) => {
@@ -36,6 +36,6 @@ export async function escape(context: Context, _: string) {
       );
     });
   }
-  await disable(context, _);
+  await disable(context);
   context.state.type = "escape";
 }

@@ -105,7 +105,7 @@ export async function kanaInput(context: Context, char: string) {
   }
 }
 
-export function henkanPoint(context: Context, _?: string) {
+export function henkanPoint(context: Context) {
   if (context.state.type !== "input") {
     return;
   }
@@ -136,7 +136,7 @@ export function henkanPoint(context: Context, _?: string) {
   }
 }
 
-export function deleteChar(context: Context, _?: string) {
+export function deleteChar(context: Context) {
   if (context.state.type !== "input") {
     return;
   }
@@ -160,7 +160,7 @@ export function deleteChar(context: Context, _?: string) {
   }
 }
 
-export function katakana(context: Context, _?: string) {
+export function katakana(context: Context) {
   if (context.state.type !== "input") {
     return;
   }
