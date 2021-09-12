@@ -39,12 +39,8 @@ const validators: Validators = {
   showCandidatesCount: ensureNumber,
   usePopup: ensureBoolean,
   userJisyo: ensureString,
-<<<<<<< HEAD
-  keepState: ensureBoolean,
   markerHenkan: ensureString,
   markerHenkanSelect: ensureString,
-=======
->>>>>>> 115f37fa53c67fc31fc3d5ad26c9cb7374f9a38c
 };
 
 export function setConfig(newConfig: Record<string, unknown>) {
