@@ -55,17 +55,20 @@ export function newline(context: Context) {
 }
 
 export function cancel(context: Context) {
+  const state = context.state;
+  if (
+    state.type === "input" &&
+    state.mode === "direct" &&
+    context.vimMode === "c"
+  ) {
+    context.preEdit.doKakutei("\x03");
+  }
   if (config.immediatelyCancel) {
     asInputState(context.state);
     return;
   }
-  const state = context.state;
   switch (state.type) {
     case "input":
-      if (state.mode === "direct" && context.vimMode === "c") {
-        console.log("call");
-        context.preEdit.doKakutei("\x03");
-      }
       asInputState(state);
       break;
     case "henkan":
