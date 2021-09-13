@@ -1,8 +1,8 @@
+import { config } from "./config.ts";
 import type { Denops } from "./deps.ts";
 import { getKanaTable } from "./kana.ts";
 import { PreEdit } from "./preedit.ts";
 import type { State } from "./state.ts";
-import { config } from "./config.ts";
 
 export class Context {
   denops?: Denops;

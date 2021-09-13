@@ -1,5 +1,6 @@
 import { config } from "./config.ts";
 import type { Context } from "./context.ts";
+import { Func, functions } from "./function.ts";
 import { cancel, kakutei, newline } from "./function/common.ts";
 import { escape } from "./function/disable.ts";
 import {
@@ -14,16 +15,11 @@ import {
   kanaInput,
   katakana,
 } from "./function/input.ts";
-import { keyToNotation } from "./notation.ts";
-
-export type KeyHandler = (
-  context: Context,
-  char: string,
-) => void | Promise<void>;
+import { keyToNotation, notationToKey } from "./notation.ts";
 
 type KeyMap = {
-  default: KeyHandler;
-  map: Record<string, KeyHandler>;
+  default: Func;
+  map: Record<string, Func>;
 };
 
 const input: KeyMap = {

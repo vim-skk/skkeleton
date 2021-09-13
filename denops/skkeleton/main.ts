@@ -11,6 +11,7 @@ import {
 } from "./deps.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import * as jisyo from "./jisyo.ts";
+import { registerKanaTable } from "./kana.ts";
 import { handleKey } from "./keymap.ts";
 import { receiveNotation } from "./notation.ts";
 import { Cell } from "./util.ts";
@@ -96,6 +97,11 @@ export async function main(denops: Denops) {
     config(config: unknown) {
       ensureObject(config);
       setConfig(config);
+      return Promise.resolve();
+    },
+    registerKanaTable(tableName: unknown, table: unknown) {
+      ensureString(tableName);
+      registerKanaTable(tableName, table);
       return Promise.resolve();
     },
     enable(): Promise<string> {
