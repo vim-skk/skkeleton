@@ -4,6 +4,7 @@ import {
   anonymous,
   autocmd,
   Denops,
+  ensureBoolean,
   ensureObject,
   ensureString,
   op,
@@ -99,9 +100,9 @@ export async function main(denops: Denops) {
       setConfig(config);
       return Promise.resolve();
     },
-    registerKanaTable(tableName: unknown, table: unknown) {
+    registerKanaTable(tableName: unknown, table: unknown, create: unknown) {
       ensureString(tableName);
-      registerKanaTable(tableName, table);
+      registerKanaTable(tableName, table, !!create);
       return Promise.resolve();
     },
     enable(): Promise<string> {

@@ -49,8 +49,9 @@ function! skkeleton#config(config) abort
   call skkeleton#notify('config', [a:config])
 endfunction
 
-function! skkeleton#register_kanatable(table_name, table) abort
-  call skkeleton#notify('registerKanaTable', [a:table_name, a:table])
+function! skkeleton#register_kanatable(table_name, table, ...) abort
+  let create = get(a:000, 0, v:false)
+  call skkeleton#notify('registerKanaTable', [a:table_name, a:table, create])
 endfunction
 
 function! skkeleton#is_enabled() abort

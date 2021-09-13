@@ -1,3 +1,4 @@
+import { config } from "./config.ts";
 import { ensureObject, isString } from "./deps.ts";
 import { distinctBy } from "./deps/std/collections.ts";
 import { functions } from "./function.ts";
@@ -36,12 +37,23 @@ function asKanaResult(result: unknown): KanaResult {
   throw Error(`Illegal result: ${result}`);
 }
 
-export function registerKanaTable(name: string, rawTable: unknown) {
+export function registerKanaTable(
+  name: string,
+  rawTable: unknown,
+  create = false,
+) {
+  if (config.debug) {
+    console.log("skkeleton: new kana table");
+    console.log(`name: ${name}, table: ${Deno.inspect(rawTable)}`);
+  }
   ensureObject(rawTable);
   const table: KanaTable = Object.entries(rawTable).map((
     e,
   ) => [e[0], asKanaResult(e[1])]);
   const t = tables.get();
+  if (!t[name] && !create) {
+    throw Error(`table ${name} is not found.`);
+  }
   const newTable = distinctBy([...table, ...t[name] ?? []], (it) => it[0])
     .sort();
   t[name] = newTable;
