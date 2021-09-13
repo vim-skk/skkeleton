@@ -2,12 +2,10 @@ import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { Denops, op } from "../deps.ts";
 import { test } from "../deps/denops_test.ts";
-import { fromFileUrl } from "../deps/std/path.ts";
 import { assertEquals } from "../deps/std/testing.ts";
-import { main } from "../main.ts";
 import { kakutei } from "./common.ts";
 import { deleteChar, henkanPoint, katakana } from "./input.ts";
-import { dispatch } from "./testutil.ts";
+import { dispatch, initDenops } from "./testutil.ts";
 
 Deno.test({
   name: "kana input",
@@ -120,14 +118,6 @@ Deno.test({
   },
 });
 
-async function init(denops: Denops) {
-  const p = fromFileUrl(new URL(import.meta.url));
-  const autoload = p.slice(0, p.lastIndexOf("denops")) +
-    "autoload/skkeleton.vim";
-  await denops.cmd("source " + autoload);
-  await main(denops);
-}
-
 config.globalJisyo = "";
 config.userJisyo = "";
 
@@ -136,7 +126,7 @@ test({
   name: "new line",
   pluginName: "skkeleton",
   async fn(denops: Denops) {
-    await init(denops);
+    await initDenops(denops);
 
     await op.autoindent.setLocal(denops, true);
     await denops.cmd("startinsert");
