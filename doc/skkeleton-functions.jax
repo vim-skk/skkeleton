@@ -1,0 +1,69 @@
+*skkeleton-functions.txt* skkeletonの機能定義
+
+マッピングで使える機能の一覧です。
+括弧内は機能が使えるモードです、!が付いている物はマッピング先のキーに
+一部の挙動が依存します。
+
+kakutei                                          *skkeleton-functions-kakutei*
+        (input, henkan)
+        入力中や変換中の文字列を確定します。
+
+newline                                          *skkeleton-functions-newline*
+        (input, henkan)
+        現在の入力を確定し改行します。
+        確定後に改行が入るかどうかを|skkeleton-config-eggLikeNewline|により
+        カスタマイズすることもできます。
+
+cancel                                            *skkeleton-functions-cancel*
+        (input, henkan)
+        現在の入力をキャンセルします。
+        どこまで戻るかを|skkeleton-config-immediatelyCancel|により
+        変更できます。
+
+disable                                          *skkeleton-functions-disable*
+        (input, henkan)
+        skkeletonを無効化します。
+
+escape                                            *skkeleton-functions-escape*
+        (input, henkan)
+        挿入モードもしくはコマンドラインモードから抜けます。
+        |skkeleton-config-keepState|が有効になっている場合は
+        再びモードに入った際にskkeletonが有効化されます。
+
+henkanFirst                                  *skkeleton-functions-henkanFirst*
+        (input)!
+        変換を開始します。
+        直接入力モードの場合は何もマッピングされていないように振る舞います。
+
+henkanForward                              *skkeleton-functions-henkanForward*
+        (henkan)
+        変換候補を次に進めます。
+
+henkanBackward                             *skkeleton-function-henkanBackward*
+        (henkan)
+        変換候補を前に戻します。
+        戻りきった際は入力ステートに戻ります。
+
+henkanInput                                  *skkeleton-functions-henkanInput*
+        (henkan)!
+        変換候補を確定して文字を入力します。
+
+kakuteiFeed                                  *skkeleton-functions-kakuteiFeed*
+        (input)
+        直接入力時に入力が確定できる場合、確定します。
+        (ローマ字入力で「n」が入力されている場合など)
+
+henkanPoint                                  *skkeleton-functions-henkanPoint*
+        (input)
+        変換ポイントを設定します。いわゆるsticky-keyです。
+
+deleteChar                                    *skkeleton-functions-deleteChar*
+        (input)
+        入力を1文字削除します。変換ポイントに差し掛かると解除します。
+
+katakana                                        *skkeleton-functions-katakana*
+        (input)
+        カタカナモードに入ります。
+        変換ポイントが設定されている場合はカタカナに変換します。
+
+vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl

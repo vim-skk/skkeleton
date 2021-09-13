@@ -14,6 +14,8 @@ INTERFACE                                                *skkeleton-interface*
 ------------------------------------------------------------------------------
 KEYMAPPINGS                                            *skkeleton-keymappings*
 
+各マッピングはskkeleton有効時は直接入力モードでのみ使用できます。
+
 <Plug>(skkeleton-enable) (ic)                       *<Plug>(skkeleton-enable)*
 
        skkeletonを有効化します。  >
@@ -112,4 +114,29 @@ makerHenkanSelect                        *skkeleton-config-markerHenkanSelect*
         (デフォルト "▼")
         候補を選択している最中であることを示すため文字を指定します。
 
+------------------------------------------------------------------------------
+                                              *skkeleton#register_kanatable()*
+skkeleton#register_kanatable({tableName}, {table}, {create})
+        仮名入力のテーブルを登録できます。
+        {tableName}で指定したテーブルに{table}で指定した辞書の定義が登録されま
+        す。{create}が指定されていない場合は存在しないテーブル名を指定すると
+        エラーになります。
+        {table}の要素には以下の物が使用できます:
+                文字列:
+                        |skkeleton-functions| に示される機能を割り当てます。
+                二要素の文字列から成る配列:
+                        仮名定義を割り当てます。
+                        1番目の要素は入力される仮名を示します。
+                        2番目の要素は仮名が入力される際に追加で入力される
+                        文字を示します。
+                        (ttで「っ」を入力する際などに使用されます)
+>
+    " 例
+    call skkeleton#register_kanatable('rom', {
+          \ 'hh': ['お', 'h'],
+          \ 'jj': 'escape',
+          \ 'z,': ['―', ''],
+          \ "z\<Space>": ["\u3000", ''],
+          \ })
+<
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
