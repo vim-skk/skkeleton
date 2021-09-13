@@ -4,7 +4,6 @@ import {
   anonymous,
   autocmd,
   Denops,
-  ensureBoolean,
   ensureObject,
   ensureString,
   op,
