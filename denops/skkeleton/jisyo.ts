@@ -1,5 +1,6 @@
 import { config } from "./config.ts";
 import { isArray, isObject, isString } from "./deps.ts";
+import { distinct } from "./deps/std/collections.ts";
 import { Cell } from "./util.ts";
 
 const okuriAriMarker = ";; okuri-ari entries.";
@@ -45,10 +46,10 @@ export class Library {
     if (!candidate) {
       return;
     }
-    const candidates = (this.#userJisyo[type][word] ?? []).filter((c) =>
-      c !== candidate
-    );
-    candidates.unshift(candidate);
+    const candidates = distinct([
+      candidate,
+      ...this.#userJisyo[type][word] ?? [],
+    ]);
     this.#userJisyo[type][word] = candidates;
     if (config.immediatelyJisyoRW) {
       this.saveJisyo();
