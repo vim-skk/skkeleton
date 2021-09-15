@@ -55,6 +55,9 @@ export async function henkanForward(context: Context) {
       return;
     }
     state.candidateIndex = oldCandidateIndex;
+    if(state.candidateIndex === -1) {
+      context.state.type = "input";
+    }
   }
   if (state.candidateIndex >= config.showCandidatesCount) {
     if (config.usePopup && await fn.mode(context.denops!) === "i") {
