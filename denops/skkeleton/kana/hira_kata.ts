@@ -82,6 +82,7 @@ const katakanaTable: Record<string, string> = {
   "じ": "ジ",
   "ぞ": "ゾ",
   "ず": "ズ",
+  "ゔ": "ヴ",
 };
 
 export function hiraToKata(input: string): string {
