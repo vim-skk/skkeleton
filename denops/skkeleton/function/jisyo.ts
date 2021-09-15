@@ -1,3 +1,4 @@
+import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { batch, fn, mapping } from "../deps.ts";
 import { currentLibrary } from "../jisyo.ts";
@@ -35,8 +36,9 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
     asInputState(state);
     return true;
   } catch (e) {
-    if (e.toString().indexOf("interrupt") === -1) {
-      throw e;
+    if(config.debug) {
+      console.log("jisyo touroku interrupted");
+      console.log(e);
     }
   } finally {
     await batch(denops, async (denops) => {
