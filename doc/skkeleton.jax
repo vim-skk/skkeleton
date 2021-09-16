@@ -52,6 +52,10 @@ skkeleton#config(dict)                                    *skkeleton#config()*
         一部の設定(現時点では辞書関係)は初回起動前に渡す必要があります。
         また、パスの類は展開されないのでVimの方で展開をお願いします。
 
+debug                                                 *skkeleton-config-debug*
+        (デフォルト v:false, g:skkeleton#debug が真の場合は v:true)
+        このオプションを有効にするとデバッグログが出力されるようになります。
+
 eggLikeNewline                               *skkeleton-config-eggLikeNewline*
         (デフォルト v:false)
         このオプションを有効にすると
