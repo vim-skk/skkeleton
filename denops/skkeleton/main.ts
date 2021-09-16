@@ -11,6 +11,7 @@ import {
 } from "./deps.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import * as jisyo from "./jisyo.ts";
+import { currentLibrary } from "./jisyo.ts";
 import { registerKanaTable } from "./kana.ts";
 import { handleKey } from "./keymap.ts";
 import { receiveNotation } from "./notation.ts";
@@ -119,6 +120,26 @@ export async function main(denops: Denops) {
     },
     handleKey(key: unknown, vimMode: unknown): Promise<string> {
       return handle(key, vimMode);
+    },
+    //completion
+    getPreEditLength(): Promise<number> {
+      return Promise.resolve(currentContext.get().toString().length);
+    },
+    getPrefix(): Promise<string> {
+      const state = currentContext.get().state;
+      if (state.type !== "input") {
+        return Promise.resolve("");
+      }
+      return Promise.resolve(state.henkanFeed);
+    },
+    getCandidates(): Promise<[string, string[]][]> {
+      const state = currentContext.get().state;
+      if (state.type !== "input") {
+        return Promise.resolve([]);
+      }
+      return Promise.resolve(
+        currentLibrary.get().getCandidates(state.henkanFeed),
+      );
     },
   };
   if (config.debug) {

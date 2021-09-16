@@ -35,7 +35,7 @@ export async function henkanFirst(context: Context, key: string) {
     ? state.henkanFeed
     : getOkuriStr(state.henkanFeed, state.okuriFeed);
   state.word = word;
-  state.candidates = lib.getCandidates(state.mode, word);
+  state.candidates = lib.getCandidate(state.mode, word);
   await henkanForward(context);
 }
 
