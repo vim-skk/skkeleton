@@ -6,6 +6,7 @@ import {
   Denops,
   ensureObject,
   ensureString,
+  isString,
   op,
   vars,
 } from "./deps.ts";
@@ -15,6 +16,7 @@ import { currentLibrary } from "./jisyo.ts";
 import { registerKanaTable } from "./kana.ts";
 import { handleKey } from "./keymap.ts";
 import { receiveNotation } from "./notation.ts";
+import { asInputState } from "./state.ts";
 import { Cell } from "./util.ts";
 
 let initialized = false;
@@ -71,21 +73,32 @@ async function enable(denops: Denops): Promise<string> {
   }
 }
 
-async function disable(key?: unknown, vimMode?: unknown): Promise<string> {
+async function disable(key?: unknown, vimStatus?: unknown): Promise<string> {
   const context = currentContext.get();
   const state = currentContext.get().state;
-  if (state.type !== "input" || state.mode !== "direct" && key && vimMode) {
-    return handle(key, vimMode);
+  if (state.type !== "input" || state.mode !== "direct" && key && vimStatus) {
+    return handle(key, vimStatus);
   }
   await disableFunc(context);
   return context.preEdit.output(context.toString());
 }
 
-async function handle(key: unknown, vimMode: unknown): Promise<string> {
+async function handle(key: unknown, vimStatus: unknown): Promise<string> {
   ensureString(key);
-  ensureString(vimMode);
+  ensureObject(vimStatus);
+  const { mode, completeStr } = vimStatus;
+  ensureString(mode);
   const context = currentContext.get();
-  context.vimMode = vimMode;
+  context.vimMode = mode;
+  if (isString(completeStr)) {
+    console.log("isString(completeStr)");
+    console.log({ completeStr, context: context.toString() });
+    if (!(completeStr.endsWith(context.toString()))) {
+      console.log("endsWith");
+      asInputState(context.state);
+      context.preEdit.output("");
+    }
+  }
   await handleKey(context, key);
   return context.preEdit.output(context.toString());
 }
@@ -108,18 +121,18 @@ export async function main(denops: Denops) {
     enable(): Promise<string> {
       return enable(denops);
     },
-    disable(key: unknown, vimMode: unknown): Promise<string> {
-      return disable(key, vimMode);
+    disable(key: unknown, vimStatus: unknown): Promise<string> {
+      return disable(key, vimStatus);
     },
-    async toggle(key?: unknown, vimMode?: unknown): Promise<string> {
+    async toggle(key?: unknown, vimStatus?: unknown): Promise<string> {
       if (await denops.eval("&l:iminsert") !== 1) {
         return enable(denops);
       } else {
-        return disable(key, vimMode);
+        return disable(key, vimStatus);
       }
     },
-    handleKey(key: unknown, vimMode: unknown): Promise<string> {
-      return handle(key, vimMode);
+    handleKey(key: unknown, vimStatus: unknown): Promise<string> {
+      return handle(key, vimStatus);
     },
     //completion
     getPreEditLength(): Promise<number> {
