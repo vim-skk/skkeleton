@@ -24,7 +24,11 @@ export class Source extends BaseSource {
         string[],
       ][];
     const ddcCandidates = candidates.flatMap((e) =>
-      e[1].map((word) => ({ word, user_data: e[0] }))
+      e[1].map((word) => ({
+        word: word.replace(/;.*$/, ""),
+        abbr: word,
+        user_data: e[0],
+      }))
     );
     return Promise.resolve(ddcCandidates);
   }
