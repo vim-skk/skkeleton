@@ -18,12 +18,14 @@ export class Source extends BaseSource {
   async gatherCandidates(
     args: GatherCandidatesArguments,
   ): Promise<Candidate[]> {
-    const a = (await args.denops.dispatch("skkeleton", "getCandidates")) as [
-      string,
-      string[],
-    ][];
-    const b = a.flatMap((e) => e[1].map((word) => ({ word, user_data: e[0] })));
-    return Promise.resolve(b);
-    // return [{ word: args.denops.name + "44GG44KT44GT" }];
+    const candidates =
+      (await args.denops.dispatch("skkeleton", "getCandidates")) as [
+        string,
+        string[],
+      ][];
+    const ddcCandidates = candidates.flatMap((e) =>
+      e[1].map((word) => ({ word, user_data: e[0] }))
+    );
+    return Promise.resolve(ddcCandidates);
   }
 }
