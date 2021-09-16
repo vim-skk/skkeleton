@@ -143,4 +143,19 @@ skkeleton#register_kanatable({tableName}, {table}, {create})
           \ "z\<Space>": ["\u3000", ''],
           \ })
 <
+==============================================================================
+COMPLETION                                              *skkeleton-completion*
+
+    Note: This feature is work in progress.
+
+>
+    call ddc#custom#patch_global('sources', ['skkeleton'])
+    call ddc#custom#patch_global('sourceOptions', {
+        \ '_': {
+        \   'matchers': ['matcher_head'],
+        \   'sorters': ['sorter_rank']
+        \ },
+        \ 'eskk': {'mark': 'eskk', 'matchers': ['skkeleton'], 'sorters': []},
+        \ })
+<
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
