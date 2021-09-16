@@ -32,9 +32,9 @@ Deno.test({
   async fn() {
     const jisyo = await loadJisyo(jisyoPath, "utf-8");
     const manager = new Library(jisyo);
-    const ari = manager.getCandidates("okuriari", "てすt");
+    const ari = manager.getCandidate("okuriari", "てすt");
     assertEquals(["テスト"], ari);
-    const nasi = manager.getCandidates("okurinasi", "てすと");
+    const nasi = manager.getCandidate("okurinasi", "てすと");
     assertEquals(["テスト", "test"], nasi);
   },
 });
@@ -46,10 +46,10 @@ Deno.test({
     // most recently registered
     manager.registerCandidate("okurinasi", "test", "a");
     manager.registerCandidate("okurinasi", "test", "b");
-    assertEquals(["b", "a"], manager.getCandidates("okurinasi", "test"));
+    assertEquals(["b", "a"], manager.getCandidate("okurinasi", "test"));
     // and remove duplicate
     manager.registerCandidate("okurinasi", "test", "a");
-    assertEquals(["a", "b"], manager.getCandidates("okurinasi", "test"));
+    assertEquals(["a", "b"], manager.getCandidate("okurinasi", "test"));
   },
 });
 
@@ -61,13 +61,13 @@ Deno.test({
     library.registerCandidate("okurinasi", "てすと", "test");
 
     // remove dup
-    const nasi = library.getCandidates("okurinasi", "てすと");
+    const nasi = library.getCandidate("okurinasi", "てすと");
     assertEquals(["test", "テスト"], nasi);
 
     // new candidate
     // user candidates priority is higher than global
     library.registerCandidate("okurinasi", "てすと", "てすと");
-    const nasi2 = library.getCandidates("okurinasi", "てすと");
+    const nasi2 = library.getCandidate("okurinasi", "てすと");
     assertEquals(["てすと", "test", "テスト"], nasi2);
   },
 });
@@ -100,7 +100,7 @@ Deno.test({
 
       // load
       await library.loadJisyo();
-      assertEquals(library.getCandidates("okurinasi", "あ"), ["あ"]);
+      assertEquals(library.getCandidate("okurinasi", "あ"), ["あ"]);
 
       //save
       library.registerCandidate("okurinasi", "あ", "亜");
