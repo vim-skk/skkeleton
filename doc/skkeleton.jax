@@ -145,9 +145,9 @@ skkeleton#register_kanatable({tableName}, {table}, {create})
 <
 ==============================================================================
 COMPLETION                                              *skkeleton-completion*
+    |ddc|を利用した補完環境を提供します。
 
     Note: This feature is work in progress.
-
 >
     call ddc#custom#patch_global('sources', ['skkeleton'])
     call ddc#custom#patch_global('sourceOptions', {
@@ -155,7 +155,7 @@ COMPLETION                                              *skkeleton-completion*
         \   'matchers': ['matcher_head'],
         \   'sorters': ['sorter_rank']
         \ },
-        \ 'eskk': {'mark': 'eskk', 'matchers': ['skkeleton'], 'sorters': []},
+        \ 'eskk': {'mark': 'skkeleton', 'matchers': ['skkeleton'], 'sorters': []},
         \ })
 <
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
