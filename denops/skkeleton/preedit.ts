@@ -8,7 +8,13 @@ export class PreEdit {
   }
 
   output(next: string): string {
-    const ret = "\b".repeat(this.#current.length) + this.#kakutei + next;
+    let ret: string;
+    // 補完ウィンドウのちらつき防止のため必要のないバックスペースを送らない
+    if(!this.#kakutei && next.startsWith(this.#current)) {
+      ret = next.slice(this.#current.length);
+    } else {
+      ret = "\b".repeat(this.#current.length) + this.#kakutei + next;
+    }
     this.#current = next;
     this.#kakutei = "";
     return ret;
