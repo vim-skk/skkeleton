@@ -36,7 +36,7 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
     asInputState(state);
     return true;
   } catch (e) {
-    if(config.debug) {
+    if (config.debug) {
       console.log("jisyo touroku interrupted");
       console.log(e);
     }

@@ -55,7 +55,7 @@ export async function henkanForward(context: Context) {
       return;
     }
     state.candidateIndex = oldCandidateIndex;
-    if(state.candidateIndex === -1) {
+    if (state.candidateIndex === -1) {
       context.state.type = "input";
     }
   }
