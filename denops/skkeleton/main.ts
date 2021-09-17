@@ -10,6 +10,7 @@ import {
   op,
   vars,
 } from "./deps.ts";
+import { Candidate } from "./deps/ddc/types.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import * as jisyo from "./jisyo.ts";
 import { currentLibrary } from "./jisyo.ts";
@@ -17,6 +18,7 @@ import { registerKanaTable } from "./kana.ts";
 import { handleKey } from "./keymap.ts";
 import { receiveNotation } from "./notation.ts";
 import { asInputState } from "./state.ts";
+import { CompletionMetadata } from "./types.ts";
 import { Cell } from "./util.ts";
 
 let initialized = false;
@@ -42,6 +44,11 @@ async function init(denops: Denops) {
       ["InsertEnter", "CmdlineEnter"],
       "*",
       `call denops#notify('${denops.name}', '${id}', [])`,
+    );
+    helper.define(
+      "CompleteDone",
+      "*",
+      "call skkeleton#complete_done()",
     );
   });
 }
@@ -91,10 +98,14 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
   const context = currentContext.get();
   context.vimMode = mode;
   if (isString(completeStr)) {
-    console.log("isString(completeStr)");
-    console.log({ completeStr, context: context.toString() });
+    if (config.debug) {
+      console.log("input after complete");
+    }
     if (!(completeStr.endsWith(context.toString()))) {
-      console.log("endsWith");
+      if (config.debug) {
+        console.log("candidate selected");
+        console.log({ completeStr, context: context.toString() });
+      }
       asInputState(context.state);
       context.preEdit.output("");
     }
@@ -153,6 +164,12 @@ export async function main(denops: Denops) {
       return Promise.resolve(
         currentLibrary.get().getCandidates(state.henkanFeed),
       );
+    },
+    completeDone(_item: unknown) {
+      const item = _item as Candidate;
+      const meta = item.user_data as CompletionMetadata;
+      currentLibrary.get().registerCandidate("okurinasi", meta.kana, item.word);
+      return Promise.resolve();
     },
   };
   if (config.debug) {
