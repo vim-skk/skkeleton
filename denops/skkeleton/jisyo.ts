@@ -46,9 +46,22 @@ export class Library {
     if (prefix.length < 2) {
       return [];
     }
-    return Object.entries(this.#globalJisyo.okurinasi).filter((e) =>
-      e[0].startsWith(prefix)
+    const globalJisyo = this.#globalJisyo.okurinasi;
+    const userJisyo = this.#userJisyo.okurinasi;
+    const user = Object.entries(userJisyo).filter((e) =>
+      !globalJisyo[e[0]] && e[0].startsWith(prefix)
     );
+    const global: [string, string[]][] = Object.entries(
+      this.#globalJisyo.okurinasi,
+    ).filter((e) => e[0].startsWith(prefix)).map((e) => {
+      const ue = this.#userJisyo.okurinasi[e[0]];
+      if (ue) {
+        return [e[0], distinct(ue.concat(e[1]))];
+      } else {
+        return e;
+      }
+    });
+    return [...user, ...global].sort((a, b) => a[0].localeCompare(b[0]));
   }
 
   registerCandidate(type: HenkanType, word: string, candidate: string) {
