@@ -4,6 +4,7 @@ import {
   GetCompletePositionArguments,
 } from "../skkeleton/deps/ddc/source.ts";
 import { Candidate } from "../skkeleton/deps/ddc/types.ts";
+import { CompletionMetadata } from "../skkeleton/types.ts";
 
 export class Source extends BaseSource {
   async getCompletePosition(
@@ -23,13 +24,17 @@ export class Source extends BaseSource {
         string,
         string[],
       ][];
-    const ddcCandidates = candidates.flatMap((e) =>
-      e[1].map((word) => ({
+    const ddcCandidates = candidates.flatMap((e) => {
+      const metaData: CompletionMetadata = {
+        tag: "skkeleton",
+        kana: e[0],
+      };
+      return e[1].map((word) => ({
         word: word.replace(/;.*$/, ""),
         abbr: word,
-        user_data: e[0],
-      }))
-    );
+        user_data: metaData,
+      }));
+    });
     return Promise.resolve(ddcCandidates);
   }
 }
