@@ -59,9 +59,10 @@ function! skkeleton#is_enabled() abort
 endfunction
 
 function! skkeleton#vim_status() abort
+  let m = mode()
   return {
-  \ 'mode': mode(),
-  \ 'completeStr': pumvisible() ? getline('.')[: col('.') - 2] : v:null,
+  \ 'mode': m,
+  \ 'completeStr': m == "i" && pumvisible() ? getline('.')[: col('.') - 2] : v:null,
   \ }
 endfunction
 
