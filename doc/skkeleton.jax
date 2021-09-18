@@ -101,6 +101,10 @@ showCandidatesCount                     *skkeleton-config-showCandidatesCount*
         (デフォルト 4)
         このオプションの数の候補までは選択表示がされずに変換されます。
 
+tabCompletion                                 *skkeleton-config-tabCompletion*
+        (デフォルト v:true)
+        このオプションを有効にするとTabキーで補完候補を選択可能になります。
+
 usePopup                                           *skkeleton-config-usePopup*
         (デフォルト v:true)
         このオプションを有効にすると、変換候補がポップアップ表示されます。

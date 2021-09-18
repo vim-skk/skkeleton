@@ -16,7 +16,7 @@ import * as jisyo from "./jisyo.ts";
 import { currentLibrary } from "./jisyo.ts";
 import { registerKanaTable } from "./kana.ts";
 import { handleKey } from "./keymap.ts";
-import { keyToNotation, receiveNotation } from "./notation.ts";
+import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { asInputState } from "./state.ts";
 import { CompletionMetadata } from "./types.ts";
 import { Cell } from "./util.ts";
@@ -93,12 +93,15 @@ async function disable(key?: unknown, vimStatus?: unknown): Promise<string> {
 function handleCompleteKey(completed: boolean, key: unknown): string {
   ensureString(key);
   const notation = keyToNotation[key];
-  if(notation === "<c-y>") {
-    if(completed) {
+  if (notation === "<c-y>") {
+    if (completed) {
       const context = currentContext.get();
       asInputState(context.state);
     }
     return key;
+  }
+  if (notation === "<tab>" && config.tabCompletion) {
+    return notationToKey["<c-n>"];
   }
   return "";
 }

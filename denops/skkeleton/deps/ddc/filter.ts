@@ -1,1 +1,1 @@
-export * from "https://deno.land/x/ddc_vim@v0.6.0/base/filter.ts";
+export * from "https://deno.land/x/ddc_vim@v0.8.0/base/filter.ts";
