@@ -149,10 +149,11 @@ skkeleton#register_kanatable({tableName}, {table}, {create})
 <
 ==============================================================================
 COMPLETION                                              *skkeleton-completion*
-    |ddc|を利用した補完環境を提供します。
 
-    Note: This feature is work in progress.
+    |ddc|を利用した補完環境を提供します。
+    送りなし変換の仮名入力時に動作し、入力された仮名で始まる候補を表示します。
 >
+    " 例
     call ddc#custom#patch_global('sources', ['skkeleton'])
     call ddc#custom#patch_global('sourceOptions', {
         \   '_': {
@@ -163,7 +164,7 @@ COMPLETION                                              *skkeleton-completion*
         \     'mark': 'skkeleton',
         \     'matchers': ['skkeleton'],
         \     'sorters': []
-            },
+        \   },
         \ })
 <
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
