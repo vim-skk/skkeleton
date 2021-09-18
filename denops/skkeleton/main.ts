@@ -90,7 +90,7 @@ async function disable(key?: unknown, vimStatus?: unknown): Promise<string> {
   return context.preEdit.output(context.toString());
 }
 
-function handleCompleteKey(completed: boolean, key: unknown): string {
+function handleCompleteKey(completed: boolean, key: unknown): string | null {
   ensureString(key);
   const notation = keyToNotation[key];
   if (notation === "<c-y>") {
@@ -100,10 +100,15 @@ function handleCompleteKey(completed: boolean, key: unknown): string {
     }
     return key;
   }
+  if (notation === "<enter>") {
+    if (completed && config.eggLikeNewline) {
+      return notationToKey["<c-y>"];
+    }
+  }
   if (notation === "<tab>" && config.tabCompletion) {
     return notationToKey["<c-n>"];
   }
-  return "";
+  return null;
 }
 
 async function handle(key: unknown, vimStatus: unknown): Promise<string> {
@@ -127,7 +132,7 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
       context.preEdit.output("");
     }
     const handled = handleCompleteKey(completed, key);
-    if(handled) {
+    if (isString(handled)) {
       return handled;
     }
   }
