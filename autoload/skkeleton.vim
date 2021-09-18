@@ -66,13 +66,6 @@ function! skkeleton#vim_status() abort
   \ }
 endfunction
 
-function! skkeleton#complete_done() abort
-  let meta = get(v:completed_item, 'user_data', v:null)
-  if type(meta) == v:t_dict && get(meta, 'tag', '') ==# 'skkeleton'
-    call denops#request('skkeleton', 'completeDone', [v:completed_item])
-  endif
-endfunction
-
 " copied from eskk.vim
 function! skkeleton#get_default_mapped_keys() abort "{{{
     return split(

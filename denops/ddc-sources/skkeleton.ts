@@ -2,13 +2,18 @@ import {
   BaseSource,
   GatherCandidatesArguments,
   GetCompletePositionArguments,
+  OnCompleteDoneArguments,
 } from "../skkeleton/deps/ddc/source.ts";
 import { Candidate } from "../skkeleton/deps/ddc/types.ts";
-import { CompletionMetadata } from "../skkeleton/types.ts";
+
+export type CompletionMetadata = {
+  kana: string;
+  word: string;
+};
 
 export class Source extends BaseSource {
   async getCompletePosition(
-    args: GetCompletePositionArguments,
+    args: GetCompletePositionArguments<Record<string, never>>,
   ): Promise<number> {
     const inputLength = args.context.input.length;
     const preEditLength =
@@ -17,7 +22,7 @@ export class Source extends BaseSource {
   }
 
   async gatherCandidates(
-    args: GatherCandidatesArguments,
+    args: GatherCandidatesArguments<Record<string, never>>,
   ): Promise<Candidate[]> {
     const candidates =
       (await args.denops.dispatch("skkeleton", "getCandidates")) as [
@@ -25,16 +30,31 @@ export class Source extends BaseSource {
         string[],
       ][];
     const ddcCandidates = candidates.flatMap((e) => {
-      const metaData: CompletionMetadata = {
-        tag: "skkeleton",
-        kana: e[0],
-      };
       return e[1].map((word) => ({
         word: word.replace(/;.*$/, ""),
         abbr: word,
-        user_data: metaData,
+        user_data: {
+          kana: e[0],
+          word,
+        },
       }));
     });
     return Promise.resolve(ddcCandidates);
+  }
+
+  params() {
+    return {};
+  }
+
+  async onCompleteDone(
+    args: OnCompleteDoneArguments<Record<string, never>, CompletionMetadata>,
+  ) {
+    const meta = args.userData;
+    await args.denops.dispatch(
+      "skkeleton",
+      "registerCandidate",
+      meta.kana,
+      meta.word,
+    );
   }
 }

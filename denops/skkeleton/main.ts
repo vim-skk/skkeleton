@@ -10,7 +10,6 @@ import {
   op,
   vars,
 } from "./deps.ts";
-import { Candidate } from "./deps/ddc/types.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import * as jisyo from "./jisyo.ts";
 import { currentLibrary } from "./jisyo.ts";
@@ -18,7 +17,6 @@ import { registerKanaTable } from "./kana.ts";
 import { handleKey } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { asInputState } from "./state.ts";
-import { CompletionMetadata } from "./types.ts";
 import { Cell } from "./util.ts";
 
 let initialized = false;
@@ -44,11 +42,6 @@ async function init(denops: Denops) {
       ["InsertEnter", "CmdlineEnter"],
       "*",
       `call denops#notify('${denops.name}', '${id}', [])`,
-    );
-    helper.define(
-      "CompleteDone",
-      "*",
-      "call skkeleton#complete_done()",
     );
   });
 }
@@ -191,10 +184,10 @@ export async function main(denops: Denops) {
         currentLibrary.get().getCandidates(state.henkanFeed),
       );
     },
-    completeDone(_item: unknown) {
-      const item = _item as Candidate;
-      const meta = item.user_data as CompletionMetadata;
-      currentLibrary.get().registerCandidate("okurinasi", meta.kana, item.word);
+    registerCandidate(kana: unknown, word: unknown) {
+      ensureString(kana);
+      ensureString(word);
+      currentLibrary.get().registerCandidate("okurinasi", kana, word);
       return Promise.resolve();
     },
   };
