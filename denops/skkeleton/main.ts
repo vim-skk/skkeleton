@@ -16,7 +16,7 @@ import * as jisyo from "./jisyo.ts";
 import { currentLibrary } from "./jisyo.ts";
 import { registerKanaTable } from "./kana.ts";
 import { handleKey } from "./keymap.ts";
-import { receiveNotation } from "./notation.ts";
+import { keyToNotation, receiveNotation } from "./notation.ts";
 import { asInputState } from "./state.ts";
 import { CompletionMetadata } from "./types.ts";
 import { Cell } from "./util.ts";
@@ -90,6 +90,19 @@ async function disable(key?: unknown, vimStatus?: unknown): Promise<string> {
   return context.preEdit.output(context.toString());
 }
 
+function handleCompleteKey(completed: boolean, key: unknown): string {
+  ensureString(key);
+  const notation = keyToNotation[key];
+  if(notation === "<c-y>") {
+    if(completed) {
+      const context = currentContext.get();
+      asInputState(context.state);
+    }
+    return key;
+  }
+  return "";
+}
+
 async function handle(key: unknown, vimStatus: unknown): Promise<string> {
   ensureString(key);
   ensureObject(vimStatus);
@@ -101,13 +114,18 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
     if (config.debug) {
       console.log("input after complete");
     }
-    if (!(completeStr.endsWith(context.toString()))) {
+    const completed = !(completeStr.endsWith(context.toString()));
+    if (completed) {
       if (config.debug) {
         console.log("candidate selected");
         console.log({ completeStr, context: context.toString() });
       }
       asInputState(context.state);
       context.preEdit.output("");
+    }
+    const handled = handleCompleteKey(completed, key);
+    if(handled) {
+      return handled;
     }
   }
   await handleKey(context, key);
