@@ -129,6 +129,12 @@ export function henkanPoint(context: Context) {
     case "okurinasi":
       if (state.feed === "" || found.length === 0) {
         state.feed = "";
+      } else if (found[0][0] === state.feed) {
+        const result = found[0][1];
+        if (Array.isArray(result)) {
+          state.henkanFeed += result[0];
+        }
+        state.feed = "";
       } else {
         state.previousFeed = true;
       }

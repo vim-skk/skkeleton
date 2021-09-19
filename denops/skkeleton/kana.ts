@@ -55,6 +55,6 @@ export function registerKanaTable(
     throw Error(`table ${name} is not found.`);
   }
   const newTable = distinctBy([...table, ...t[name] ?? []], (it) => it[0])
-    .sort();
+    .sort((a, b) => a[0].localeCompare(b[0]));
   t[name] = newTable;
 }
