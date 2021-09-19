@@ -58,6 +58,14 @@ function! skkeleton#is_enabled() abort
   return get(g:, 'skkeleton#enabled', v:false)
 endfunction
 
+function! skkeleton#vim_status() abort
+  let m = mode()
+  return {
+  \ 'mode': m,
+  \ 'completeStr': m == "i" && pumvisible() ? getline('.')[: col('.') - 2] : v:null,
+  \ }
+endfunction
+
 " copied from eskk.vim
 function! skkeleton#get_default_mapped_keys() abort "{{{
     return split(
@@ -106,7 +114,7 @@ function! skkeleton#map() abort
         let func = match[1]
       endif
     endfor
-    execute printf("lnoremap <buffer> <expr> <nowait> %s denops#request('skkeleton', '%s', [%s, mode()]) .. skkeleton#doautocmd()", c, func, string(c))
+    execute printf("lnoremap <buffer> <expr> <nowait> %s denops#request('skkeleton', '%s', [%s, skkeleton#vim_status()]) .. skkeleton#doautocmd()", c, func, string(c))
   endfor
 endfunction
 

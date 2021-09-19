@@ -101,6 +101,10 @@ showCandidatesCount                     *skkeleton-config-showCandidatesCount*
         (デフォルト 4)
         このオプションの数の候補までは選択表示がされずに変換されます。
 
+tabCompletion                                 *skkeleton-config-tabCompletion*
+        (デフォルト v:true)
+        このオプションを有効にするとTabキーで補完候補を選択可能になります。
+
 usePopup                                           *skkeleton-config-usePopup*
         (デフォルト v:true)
         このオプションを有効にすると、変換候補がポップアップ表示されます。
@@ -142,5 +146,25 @@ skkeleton#register_kanatable({tableName}, {table}, {create})
           \ 'z,': ['―', ''],
           \ "z\<Space>": ["\u3000", ''],
           \ })
+<
+==============================================================================
+COMPLETION                                              *skkeleton-completion*
+
+    |ddc|を利用した補完環境を提供します。
+    送りなし変換の仮名入力時に動作し、入力された仮名で始まる候補を表示します。
+>
+    " 例
+    call ddc#custom#patch_global('sources', ['skkeleton'])
+    call ddc#custom#patch_global('sourceOptions', {
+        \   '_': {
+        \     'matchers': ['matcher_head'],
+        \     'sorters': ['sorter_rank']
+        \   },
+        \   'skkeleton': {
+        \     'mark': 'skkeleton',
+        \     'matchers': ['skkeleton'],
+        \     'sorters': []
+        \   },
+        \ })
 <
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl

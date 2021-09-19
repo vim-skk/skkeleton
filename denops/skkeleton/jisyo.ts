@@ -27,7 +27,7 @@ export class Library {
     this.#userJisyoPath = userJisyoPath ?? "";
   }
 
-  getCandidates(type: HenkanType, word: string): string[] {
+  getCandidate(type: HenkanType, word: string): string[] {
     const candidates = this.#userJisyo[type][word] ?? [];
     const globalCandidates = this.#globalJisyo[type][word];
     if (globalCandidates) {
@@ -40,6 +40,28 @@ export class Library {
       return merged;
     }
     return candidates;
+  }
+
+  getCandidates(prefix: string): [string, string[]][] {
+    if (prefix.length < 2) {
+      return [];
+    }
+    const globalJisyo = this.#globalJisyo.okurinasi;
+    const userJisyo = this.#userJisyo.okurinasi;
+    const user = Object.entries(userJisyo).filter((e) =>
+      !globalJisyo[e[0]] && e[0].startsWith(prefix)
+    );
+    const global: [string, string[]][] = Object.entries(
+      this.#globalJisyo.okurinasi,
+    ).filter((e) => e[0].startsWith(prefix)).map((e) => {
+      const ue = this.#userJisyo.okurinasi[e[0]];
+      if (ue) {
+        return [e[0], distinct(ue.concat(e[1]))];
+      } else {
+        return e;
+      }
+    });
+    return [...user, ...global].sort((a, b) => a[0].localeCompare(b[0]));
   }
 
   registerCandidate(type: HenkanType, word: string, candidate: string) {

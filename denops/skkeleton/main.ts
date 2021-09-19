@@ -6,14 +6,17 @@ import {
   Denops,
   ensureObject,
   ensureString,
+  isString,
   op,
   vars,
 } from "./deps.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import * as jisyo from "./jisyo.ts";
+import { currentLibrary } from "./jisyo.ts";
 import { registerKanaTable } from "./kana.ts";
 import { handleKey } from "./keymap.ts";
-import { receiveNotation } from "./notation.ts";
+import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
+import { asInputState } from "./state.ts";
 import { Cell } from "./util.ts";
 
 let initialized = false;
@@ -70,21 +73,62 @@ async function enable(denops: Denops): Promise<string> {
   }
 }
 
-async function disable(key?: unknown, vimMode?: unknown): Promise<string> {
+async function disable(key?: unknown, vimStatus?: unknown): Promise<string> {
   const context = currentContext.get();
   const state = currentContext.get().state;
-  if (state.type !== "input" || state.mode !== "direct" && key && vimMode) {
-    return handle(key, vimMode);
+  if (state.type !== "input" || state.mode !== "direct" && key && vimStatus) {
+    return handle(key, vimStatus);
   }
   await disableFunc(context);
   return context.preEdit.output(context.toString());
 }
 
-async function handle(key: unknown, vimMode: unknown): Promise<string> {
+function handleCompleteKey(completed: boolean, key: unknown): string | null {
   ensureString(key);
-  ensureString(vimMode);
+  const notation = keyToNotation[key];
+  if (notation === "<c-y>") {
+    if (completed) {
+      const context = currentContext.get();
+      asInputState(context.state);
+    }
+    return key;
+  }
+  if (notation === "<enter>") {
+    if (completed && config.eggLikeNewline) {
+      return notationToKey["<c-y>"];
+    }
+  }
+  if (notation === "<tab>" && config.tabCompletion) {
+    return notationToKey["<c-n>"];
+  }
+  return null;
+}
+
+async function handle(key: unknown, vimStatus: unknown): Promise<string> {
+  ensureString(key);
+  ensureObject(vimStatus);
+  const { mode, completeStr } = vimStatus;
+  ensureString(mode);
   const context = currentContext.get();
-  context.vimMode = vimMode;
+  context.vimMode = mode;
+  if (isString(completeStr)) {
+    if (config.debug) {
+      console.log("input after complete");
+    }
+    const completed = !(completeStr.endsWith(context.toString()));
+    if (completed) {
+      if (config.debug) {
+        console.log("candidate selected");
+        console.log({ completeStr, context: context.toString() });
+      }
+      asInputState(context.state);
+      context.preEdit.output("");
+    }
+    const handled = handleCompleteKey(completed, key);
+    if (isString(handled)) {
+      return handled;
+    }
+  }
   await handleKey(context, key);
   return context.preEdit.output(context.toString());
 }
@@ -107,18 +151,44 @@ export async function main(denops: Denops) {
     enable(): Promise<string> {
       return enable(denops);
     },
-    disable(key: unknown, vimMode: unknown): Promise<string> {
-      return disable(key, vimMode);
+    disable(key: unknown, vimStatus: unknown): Promise<string> {
+      return disable(key, vimStatus);
     },
-    async toggle(key?: unknown, vimMode?: unknown): Promise<string> {
+    async toggle(key?: unknown, vimStatus?: unknown): Promise<string> {
       if (await denops.eval("&l:iminsert") !== 1) {
         return enable(denops);
       } else {
-        return disable(key, vimMode);
+        return disable(key, vimStatus);
       }
     },
-    handleKey(key: unknown, vimMode: unknown): Promise<string> {
-      return handle(key, vimMode);
+    handleKey(key: unknown, vimStatus: unknown): Promise<string> {
+      return handle(key, vimStatus);
+    },
+    //completion
+    getPreEditLength(): Promise<number> {
+      return Promise.resolve(currentContext.get().toString().length);
+    },
+    getPrefix(): Promise<string> {
+      const state = currentContext.get().state;
+      if (state.type !== "input") {
+        return Promise.resolve("");
+      }
+      return Promise.resolve(state.henkanFeed);
+    },
+    getCandidates(): Promise<[string, string[]][]> {
+      const state = currentContext.get().state;
+      if (state.type !== "input") {
+        return Promise.resolve([]);
+      }
+      return Promise.resolve(
+        currentLibrary.get().getCandidates(state.henkanFeed),
+      );
+    },
+    registerCandidate(kana: unknown, word: unknown) {
+      ensureString(kana);
+      ensureString(word);
+      currentLibrary.get().registerCandidate("okurinasi", kana, word);
+      return Promise.resolve();
     },
   };
   if (config.debug) {
