@@ -2,7 +2,7 @@ import { CompletionMetadata } from "../ddc-sources/skkeleton.ts";
 import { BaseFilter, FilterArguments } from "../skkeleton/deps/ddc/filter.ts";
 import { Candidate } from "../skkeleton/deps/ddc/types.ts";
 
-export class Filter extends BaseFilter {
+export class Filter extends BaseFilter<Record<string, never>> {
   async filter(
     args: FilterArguments<Record<string, never>>,
   ): Promise<Candidate[]> {

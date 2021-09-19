@@ -11,7 +11,8 @@ export type CompletionMetadata = {
   word: string;
 };
 
-export class Source extends BaseSource {
+export class Source
+  extends BaseSource<Record<string, never>, CompletionMetadata> {
   async getCompletePosition(
     args: GetCompletePositionArguments<Record<string, never>>,
   ): Promise<number> {
@@ -23,7 +24,7 @@ export class Source extends BaseSource {
 
   async gatherCandidates(
     args: GatherCandidatesArguments<Record<string, never>>,
-  ): Promise<Candidate[]> {
+  ): Promise<Candidate<CompletionMetadata>[]> {
     const candidates =
       (await args.denops.dispatch("skkeleton", "getCandidates")) as [
         string,
