@@ -111,6 +111,9 @@ function handleCompleteKey(completed: boolean, key: unknown): string | null {
   if (notation === "<tab>" && config.tabCompletion) {
     return notationToKey["<c-n>"];
   }
+  if (notation === "<s-tab>" && config.tabCompletion) {
+    return notationToKey["<c-p>"];
+  }
   return null;
 }
 
