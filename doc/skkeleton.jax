@@ -18,6 +18,27 @@ Vimのautocmd機能によるフック機能を提供しています。
 `autocmd User skkeleton-enable-pre echo "enable pre"`
 のように呼び出せます。
 
+skkeleton-initialize-pre                            *skkeleton-initialize-pre*
+
+        skkeletonが初期化される前に実行されます。
+        |denops.vim|はVimと独立して再起動する場合があるので
+        こちらのフックを利用して設定を行うことをおすすめします。
+>
+    " 例
+    function! s:skkeleton_init() abort
+      call skkeleton#config({
+        \ 'eggLikeNewline': v:true
+        \ })
+      call skkeleton#register_kanatable('rom', {
+        \ "z\<Space>": ["\u3000", ''],
+        \ })
+    endfunction
+    autocmd User skkeleton-initialize-pre call s:skkeleton_init()
+<
+skkeleton-initialize-post                          *skkeleton-initialize-post*
+
+        skkeletonが初期化された後に実行されます。
+
 skkeleton-enable-pre                                    *skkeleton-enable-pre*
 
         skkeletonが有効化される前に毎回実行されます。

@@ -28,6 +28,11 @@ async function init(denops: Denops) {
     console.log("skkeleton: initialize");
     console.log(config);
   }
+  try {
+    await denops.cmd("doautocmd <nomodeline> User skkeleton-initialize-pre");
+  } catch (e) {
+    console.log(e);
+  }
   currentContext.get().denops = denops;
   const { globalJisyo, userJisyo, globalJisyoEncoding } = config;
   jisyo.currentLibrary.set(
@@ -44,6 +49,11 @@ async function init(denops: Denops) {
       `call denops#notify('${denops.name}', '${id}', [])`,
     );
   });
+  try {
+    await denops.cmd("doautocmd <nomodeline> User skkeleton-initialize-post");
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 async function enable(denops: Denops): Promise<string> {
