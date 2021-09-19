@@ -139,7 +139,8 @@ showCandidatesCount                     *skkeleton-config-showCandidatesCount*
 
 tabCompletion                                 *skkeleton-config-tabCompletion*
         (デフォルト v:true)
-        このオプションを有効にするとTabキーで補完候補を選択可能になります。
+        このオプションを有効にすると<Tab>キーで及び<S-Tab>キーで
+        補完候補を選択可能になります。
 
 usePopup                                           *skkeleton-config-usePopup*
         (デフォルト v:true)
