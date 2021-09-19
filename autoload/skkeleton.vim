@@ -81,6 +81,7 @@ function! skkeleton#get_default_mapped_keys() abort "{{{
                 \   '<lt>',
                 \   '<Bar>',
                 \   '<Tab>',
+                \   '<S-Tab>',
                 \   '<BS>',
                 \   '<C-h>',
                 \   '<CR>',
@@ -129,6 +130,7 @@ function! skkeleton#get_key_notations() abort
   let keys['<nul>'] = "\<nul>"
   let keys['<bs>'] = "\<bs>"
   let keys['<tab>'] = "\<tab>"
+  let keys['<s-tab>'] = "\<s-tab>"
   let keys['<nl>'] = "\<nl>"
   let keys['<ff>'] = "\<ff>"
   let keys['<cr>'] = "\<cr>"
