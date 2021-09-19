@@ -93,26 +93,21 @@ async function disable(key?: unknown, vimStatus?: unknown): Promise<string> {
   return context.preEdit.output(context.toString());
 }
 
-function handleCompleteKey(completed: boolean, key: unknown): string | null {
-  ensureString(key);
-  const notation = keyToNotation[key];
+function handleCompleteKey(
+  completed: boolean,
+  notation: string,
+): string | null {
   if (notation === "<c-y>") {
     if (completed) {
       const context = currentContext.get();
       asInputState(context.state);
     }
-    return key;
+    return notationToKey["<c-y>"];
   }
   if (notation === "<enter>") {
     if (completed && config.eggLikeNewline) {
       return notationToKey["<c-y>"];
     }
-  }
-  if (notation === "<tab>" && config.tabCompletion) {
-    return notationToKey["<c-n>"];
-  }
-  if (notation === "<s-tab>" && config.tabCompletion) {
-    return notationToKey["<c-p>"];
   }
   return null;
 }
@@ -128,6 +123,13 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
     if (config.debug) {
       console.log("input after complete");
     }
+    const notation = keyToNotation[key];
+    if (notation === "<tab>" && config.tabCompletion) {
+      return notationToKey["<c-n>"];
+    }
+    if (notation === "<s-tab>" && config.tabCompletion) {
+      return notationToKey["<c-p>"];
+    }
     const completed = !(completeStr.endsWith(context.toString()));
     if (completed) {
       if (config.debug) {
@@ -137,7 +139,7 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
       asInputState(context.state);
       context.preEdit.output("");
     }
-    const handled = handleCompleteKey(completed, key);
+    const handled = handleCompleteKey(completed, notation);
     if (isString(handled)) {
       return handled;
     }
