@@ -12,6 +12,21 @@ INTRODUCTION                                          *skkeleton-introduction*
 INTERFACE                                                *skkeleton-interface*
 
 ------------------------------------------------------------------------------
+HOOKS                                                        *skkeleton-hooks*
+
+Vimのautocmd機能によるフック機能を提供しています。
+`autocmd User skkeleton-enable-pre echo "enable pre"`
+のように呼び出せます。
+
+skkeleton-enable-pre                                    *skkeleton-enable-pre*
+
+        skkeletonが有効化される前に毎回実行されます。
+
+skkeleton-enable-post                                  *skkeleton-enable-post*
+
+        skkeletonが有効化された後に毎回実行されます。
+        
+------------------------------------------------------------------------------
 KEYMAPPINGS                                            *skkeleton-keymappings*
 
 各マッピングはskkeleton有効時は直接入力モードでのみ使用できます。
