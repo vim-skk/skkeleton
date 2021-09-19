@@ -8,7 +8,13 @@ SKK.
 It's heavily inspired from [ddskk](https://github.com/skk-dev/ddskk) and
 [eskk.vim](https://github.com/tyru/eskk.vim).
 
+# Demo
+
 ![movie](https://user-images.githubusercontent.com/36663503/131238795-89866efb-6064-4832-b0cf-132fbab1da94.gif)
+
+## Completion with [ddc.vim](https://github.com/Shougo/ddc.vim)
+
+![movie](https://user-images.githubusercontent.com/36663503/133924624-112837d4-8951-4f49-b2c1-554c10a09480.gif)
 
 # Documentation
 

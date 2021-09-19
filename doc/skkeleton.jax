@@ -114,11 +114,11 @@ userJisyo                                     *skkeleton-config-userJisyo*
         ユーザー辞書のパス
         JavaScriptの制約によりエンコーディングはUTF-8限定になります。
 
-makerHenkan                                   *skkeleton-config-markerHenkan*
+markerHenkan                                   *skkeleton-config-markerHenkan*
         (デフォルト "▽")
         変換入力中であることを示すため文字を指定します。
 
-makerHenkanSelect                        *skkeleton-config-markerHenkanSelect*
+markerHenkanSelect                       *skkeleton-config-markerHenkanSelect*
         (デフォルト "▼")
         候補を選択している最中であることを示すため文字を指定します。
 
@@ -150,7 +150,7 @@ skkeleton#register_kanatable({tableName}, {table}, {create})
 ==============================================================================
 COMPLETION                                              *skkeleton-completion*
 
-    |ddc|を利用した補完環境を提供します。
+    |ddc|と連携した補完環境を提供します。
     送りなし変換の仮名入力時に動作し、入力された仮名で始まる候補を表示します。
 >
     " 例
@@ -167,4 +167,23 @@ COMPLETION                                              *skkeleton-completion*
         \   },
         \ })
 <
+==============================================================================
+FAQ                                                            *skkeleton-faq*
+
+変換ができない~
+
+変換を行うにはSKK用の辞書のダウンロード及びパスの設定が必要になります。
+https://skk-dev.github.io/dict/ で管理されているL辞書をダウンロードして
+展開するのをおすすめします。
+展開後は|skkeleton-config-globalJisyo|に展開したパスの指定をしてください。
+
+変換ポイントの描画が乱れる~
+
+SKKではデフォルトで変換ポイントとして逆三角形を使いますが、この文字は
+|'ambiwidth'|の対象になっています。
+そのためVimとターミナルやフォントの設定がずれていると描画が乱れます。
+|'ambiwidth'|の設定を変更するか|skkeleton-config-markerHenkan|及び
+|skkeleton-config-markerHenkanSelect|を|'ambiwidth'|の対象外に
+変更してみてください。
+
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
