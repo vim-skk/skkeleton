@@ -1,11 +1,6 @@
 augroup skkeleton
   autocmd!
-  autocmd User skkeleton :
-
-  autocmd User skkeleton-enable-pre :
-  autocmd User skkeleton-enable-post :
-  autocmd User skkeleton-disable-pre :
-  autocmd User skkeleton-disable-post :
+  autocmd User skkeleton* :
 augroup END
 
 function! skkeleton#request(funcname, args) abort
