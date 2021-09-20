@@ -1,4 +1,4 @@
-import { CompletionMetadata } from "../ddc-sources/skkeleton.ts";
+import { CompletionMetadata } from "../@ddc-sources/skkeleton.ts";
 import { BaseFilter, FilterArguments } from "../skkeleton/deps/ddc/filter.ts";
 import { Candidate } from "../skkeleton/deps/ddc/types.ts";
 
