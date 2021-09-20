@@ -39,6 +39,14 @@ skkeleton-initialize-post                          *skkeleton-initialize-post*
 
         skkeletonが初期化された後に実行されます。
 
+skkeleton-disable-pre                                  *skkeleton-disable-pre*
+
+        skkeletonが無効化される前に毎回実行されます。
+
+skkeleton-disable-post                                *skkeleton-disable-post*
+
+        skkeletonが無効化された後に毎回実行されます。
+        
 skkeleton-enable-pre                                    *skkeleton-enable-pre*
 
         skkeletonが有効化される前に毎回実行されます。
