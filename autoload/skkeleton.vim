@@ -3,6 +3,8 @@ augroup skkeleton
   autocmd User skkeleton* :
 augroup END
 
+let g:skkeleton#mode = ''
+
 function! skkeleton#request(funcname, args) abort
   call denops#plugin#wait('skkeleton')
   let ret = denops#request('skkeleton', a:funcname, a:args)
@@ -51,6 +53,14 @@ endfunction
 
 function! skkeleton#is_enabled() abort
   return get(g:, 'skkeleton#enabled', v:false)
+endfunction
+
+function! skkeleton#mode() abort
+  if skkeleton#is_enabled()
+    return denops#request('skkeleton', 'mode', [])
+  else
+    return ''
+  endif
 endfunction
 
 function! skkeleton#vim_status() abort

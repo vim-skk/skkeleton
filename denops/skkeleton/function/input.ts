@@ -1,6 +1,5 @@
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
-import { hiraToKata } from "../kana/hira_kata.ts";
 import { KanaResult } from "../kana/type.ts";
 import { PreEdit } from "../preedit.ts";
 import { asInputState } from "../state.ts";
@@ -164,27 +163,4 @@ export function deleteChar(context: Context) {
   } else {
     context.preEdit.doKakutei("\b");
   }
-}
-
-export function katakana(context: Context) {
-  if (context.state.type !== "input") {
-    return;
-  }
-  const state = context.state;
-  if (state.mode === "direct") {
-    if (state.converter) {
-      state.converter = void 0;
-    } else {
-      state.converter = hiraToKata;
-      state.converterName = "katakana";
-    }
-    return;
-  }
-  kakuteiFeed(context);
-  let result = state.henkanFeed + state.okuriFeed;
-  if (!state.converter) {
-    result = hiraToKata(result);
-  }
-  context.preEdit.doKakutei(result);
-  asInputState(state);
 }

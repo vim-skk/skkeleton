@@ -46,7 +46,7 @@ skkeleton-disable-pre                                  *skkeleton-disable-pre*
 skkeleton-disable-post                                *skkeleton-disable-post*
 
         skkeletonが無効化された後に毎回実行されます。
-        
+
 skkeleton-enable-pre                                    *skkeleton-enable-pre*
 
         skkeletonが有効化される前に毎回実行されます。
@@ -54,7 +54,13 @@ skkeleton-enable-pre                                    *skkeleton-enable-pre*
 skkeleton-enable-post                                  *skkeleton-enable-post*
 
         skkeletonが有効化された後に毎回実行されます。
-        
+
+skkeleton-mode-changed                                *skkeleton-mode-changed*
+
+        モードが切り替わった際に呼び出されます。
+        呼び出しの際は `g:skkeleton#mode` に |skkeleton#mode()| の結果と
+        同じ物が代入されます。
+
 ------------------------------------------------------------------------------
 KEYMAPPINGS                                            *skkeleton-keymappings*
 
@@ -62,7 +68,7 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
 
 <Plug>(skkeleton-enable) (ic)                       *<Plug>(skkeleton-enable)*
 
-       skkeletonを有効化します。  >
+        skkeletonを有効化します。  >
 
     " 例
     imap <C-j> <Plug>(skkeleton-enable)
@@ -71,7 +77,7 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
 
 <Plug>(skkeleton-disable) (ic)                       *<Plug>(skkeleton-disable)*
 
-       skkeletonを無効化します。  >
+        skkeletonを無効化します。  >
 
     " 例
     imap <C-j> <Plug>(skkeleton-disable)
@@ -80,12 +86,26 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
 
 <Plug>(skkeleton-toggle) (ic)                       *<Plug>(skkeleton-toggle)*
 
-       skkeletonの有効、無効を切り替えます。  >
+        skkeletonの有効、無効を切り替えます。  >
 
     " 例
     imap <C-j> <Plug>(skkeleton-toggle)
     cmap <C-j> <Plug>(skkeleton-toggle)
 <
+------------------------------------------------------------------------------
+API                                                            *skkeleton-api*
+
+skkeleton#is_enabled()                                *skkeleton#is_enabled()*
+
+        skkeletonが有効化されているかどうかを返します。
+
+skkeleton#mode()                                            *skkeleton#mode()*
+
+        現在のモードを以下のように返します。
+        無効化されている場合は空文字を返します。
+
+                "hira": ひらがな
+                "kata": カタカナ
 
 ------------------------------------------------------------------------------
 CONFIG                                                      *skkeleton-config*

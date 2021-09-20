@@ -9,12 +9,8 @@ import {
   henkanForward,
   henkanInput,
 } from "./function/henkan.ts";
-import {
-  deleteChar,
-  henkanPoint,
-  kanaInput,
-  katakana,
-} from "./function/input.ts";
+import { deleteChar, henkanPoint, kanaInput } from "./function/input.ts";
+import { katakana } from "./function/mode.ts";
 import { keyToNotation, notationToKey } from "./notation.ts";
 
 type KeyMap = {

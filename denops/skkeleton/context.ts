@@ -17,6 +17,7 @@ export class Context {
     okuriFeed: "",
     previousFeed: false,
   };
+  mode = "hira";
   preEdit = new PreEdit();
   vimMode = "";
 
