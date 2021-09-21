@@ -37,24 +37,24 @@ Deno.test({
   async fn() {
     const jisyo = await loadJisyo(globalJisyo, "euc-jp");
     const manager = new Library(jisyo);
-    const ari = manager.getCandidate("okuriari", "てすt");
+    const ari = await manager.getCandidate("okuriari", "てすt");
     assertEquals(["テスト"], ari);
-    const nasi = manager.getCandidate("okurinasi", "てすと");
+    const nasi = await manager.getCandidate("okurinasi", "てすと");
     assertEquals(["テスト", "test"], nasi);
   },
 });
 
 Deno.test({
   name: "register candidate",
-  fn() {
+  async fn() {
     const manager = new Library();
     // most recently registered
     manager.registerCandidate("okurinasi", "test", "a");
     manager.registerCandidate("okurinasi", "test", "b");
-    assertEquals(["b", "a"], manager.getCandidate("okurinasi", "test"));
+    assertEquals(["b", "a"], await manager.getCandidate("okurinasi", "test"));
     // and remove duplicate
     manager.registerCandidate("okurinasi", "test", "a");
-    assertEquals(["a", "b"], manager.getCandidate("okurinasi", "test"));
+    assertEquals(["a", "b"], await manager.getCandidate("okurinasi", "test"));
   },
 });
 
@@ -66,13 +66,13 @@ Deno.test({
     library.registerCandidate("okurinasi", "てすと", "test");
 
     // remove dup
-    const nasi = library.getCandidate("okurinasi", "てすと");
+    const nasi = await library.getCandidate("okurinasi", "てすと");
     assertEquals(["test", "テスト"], nasi);
 
     // new candidate
     // user candidates priority is higher than global
     library.registerCandidate("okurinasi", "てすと", "てすと");
-    const nasi2 = library.getCandidate("okurinasi", "てすと");
+    const nasi2 = await library.getCandidate("okurinasi", "てすと");
     assertEquals(["てすと", "test", "テスト"], nasi2);
   },
 });
@@ -106,7 +106,7 @@ Deno.test({
 
       // load
       await library.loadJisyo();
-      assertEquals(library.getCandidate("okurinasi", "あ"), ["あ"]);
+      assertEquals(await library.getCandidate("okurinasi", "あ"), ["あ"]);
 
       //save
       library.registerCandidate("okurinasi", "あ", "亜");
