@@ -1,5 +1,5 @@
 import { config } from "./config.ts";
-import { isArray, isObject, isString, encode, decode} from "./deps.ts";
+import { decode, encode, isArray, isObject, isString } from "./deps.ts";
 import { distinct } from "./deps/std/collections.ts";
 import { Cell } from "./util.ts";
 
@@ -16,33 +16,35 @@ export type Jisyo = {
 export type HenkanType = "okuriari" | "okurinasi";
 
 export class RemoteJisyo {
-  #conn: Deno.Conn | undefined
+  #conn: Deno.Conn | undefined;
   async connect(options: Deno.ConnectOptions) {
-    this.#conn = await Deno.connect(options) 
+    this.#conn = await Deno.connect(options);
   }
   async getCandidate(_type: HenkanType, word: string): Promise<string[]> {
-    if (!this.#conn) return []
-    await this.#conn.write(decode(`1${word} `, "euc-jp"))
-    const res = new Uint8Array(2 ^ 10)
-    await this.#conn.read(res)
-    const str = encode(res, "euc-jp")
-    return (str.at(0) === '4') ? [] : str.split("/").slice(1, -1)
+    if (!this.#conn) return [];
+    await this.#conn.write(decode(`1${word} `, "euc-jp"));
+    const res = new Uint8Array(2 ^ 10);
+    await this.#conn.read(res);
+    const str = encode(res, "euc-jp");
+    return (str.at(0) === "4") ? [] : str.split("/").slice(1, -1);
   }
   async getCandidates(word: string): Promise<[string, string[]][]> {
-    if (!this.#conn) return []
-    await this.#conn.write(decode(`4${word} `, "euc-jp"))
-    const res = new Uint8Array(2 ^ 10)
-    await this.#conn.read(res)
-    return await Promise.all(encode(res, "euc-jp").split("/").slice(1, -1).map(async (c: string)=>{
-      if (!this.#conn) return [c, []]
-      await this.#conn.write(decode(`1${word} `, "euc-jp"))
-      const res = new Uint8Array(2 ^ 10)
-      await this.#conn.read(res)
-      return [c, encode(res, "euc-jp").split("/").slice(1, -1)]
-    }))
+    if (!this.#conn) return [];
+    await this.#conn.write(decode(`4${word} `, "euc-jp"));
+    const res = new Uint8Array(2 ^ 10);
+    await this.#conn.read(res);
+    return await Promise.all(
+      encode(res, "euc-jp").split("/").slice(1, -1).map(async (c: string) => {
+        if (!this.#conn) return [c, []];
+        await this.#conn.write(decode(`1${word} `, "euc-jp"));
+        const res = new Uint8Array(2 ^ 10);
+        await this.#conn.read(res);
+        return [c, encode(res, "euc-jp").split("/").slice(1, -1)];
+      }),
+    );
   }
   close() {
-    this.#conn?.close()
+    this.#conn?.close();
   }
 }
 
@@ -62,29 +64,38 @@ export class Library {
   async getCandidate(type: HenkanType, word: string): Promise<string[]> {
     const userCandidates = this.#userJisyo[type][word] ?? [];
     const globalCandidates = this.#globalJisyo[type][word] ?? [];
-    const remotecandidates = await this.#remoteJisyo?.getCandidate(type, word) ?? []
-    return Promise.resolve(Array.from(new Set(userCandidates.concat(globalCandidates, remotecandidates))))
+    const remotecandidates =
+      await this.#remoteJisyo?.getCandidate(type, word) ?? [];
+    return Promise.resolve(
+      Array.from(
+        new Set(userCandidates.concat(globalCandidates, remotecandidates)),
+      ),
+    );
   }
 
   async getCandidates(prefix: string): Promise<[string, string[]][]> {
     if (prefix.length < 2) {
       return Promise.resolve([]);
     }
-    const table: Record<string, string[]> = {}
-    for(const [key, value] of Object.entries(this.#globalJisyo.okurinasi)) {
+    const table: Record<string, string[]> = {};
+    for (const [key, value] of Object.entries(this.#globalJisyo.okurinasi)) {
       if (key.startsWith(prefix)) {
-        table[key] = Array.from(new Set(value.concat(table[key])))
+        table[key] = Array.from(new Set(value.concat(table[key])));
       }
     }
-    for(const [key, value] of Object.entries(this.#userJisyo.okurinasi)) {
+    for (const [key, value] of Object.entries(this.#userJisyo.okurinasi)) {
       if (key.startsWith(prefix)) {
-        table[key] = Array.from(new Set(value.concat(table[key])))
+        table[key] = Array.from(new Set(value.concat(table[key])));
       }
     }
-    for(const [key, value] of await this.#remoteJisyo?.getCandidates(prefix) ?? []) {
-      table[key] = Array.from(new Set(value.concat(table[key])))
+    for (
+      const [key, value] of await this.#remoteJisyo?.getCandidates(prefix) ?? []
+    ) {
+      table[key] = Array.from(new Set(value.concat(table[key])));
     }
-    return Promise.resolve(Object.entries(table).sort((a, b) => a[0].localeCompare(b[0])))
+    return Promise.resolve(
+      Object.entries(table).sort((a, b) => a[0].localeCompare(b[0])),
+    );
   }
 
   registerCandidate(type: HenkanType, word: string, candidate: string) {
