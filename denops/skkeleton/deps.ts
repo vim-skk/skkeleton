@@ -11,4 +11,4 @@ export * as vars from "https://deno.land/x/denops_std@v1.11.3/variable/mod.ts";
 export * as op from "https://deno.land/x/denops_std@v1.11.3/option/mod.ts#^";
 export * from "https://deno.land/x/unknownutil@v1.1.1/mod.ts";
 export { ensureString } from "https://deno.land/x/unknownutil@v1.1.1/mod.ts";
-export { encode, decode } from "https://esm.sh/iconv-lite@0.6.3/?no-check";
+export { decode, encode } from "https://esm.sh/iconv-lite@0.6.3/?no-check";
