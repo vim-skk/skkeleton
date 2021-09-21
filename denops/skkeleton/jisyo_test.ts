@@ -1,4 +1,3 @@
-import { config } from "./config.ts";
 import { dirname, fromFileUrl, join } from "./deps/std/path.ts";
 import { assertEquals } from "./deps/std/testing.ts";
 import {
@@ -10,16 +9,22 @@ import {
   loadJisyo,
 } from "./jisyo.ts";
 
-const jisyoPath = join(
+const globalJisyo = join(
   dirname(fromFileUrl(import.meta.url)),
   "testdata",
-  "JISYO",
+  "globalJisyo",
+);
+
+const userJisyo = join(
+  dirname(fromFileUrl(import.meta.url)),
+  "testdata",
+  "userJisyo",
 );
 
 Deno.test({
   name: "load jisyo",
   async fn() {
-    const jisyo = await loadJisyo(jisyoPath, "utf-8");
+    const jisyo = await loadJisyo(globalJisyo, "euc-jp");
     ensureJisyo(jisyo);
     const data =
       '{"okuriari":{"てすt":["テスト"]},"okurinasi":{"てすと":["テスト","test"]}}';
@@ -30,7 +35,7 @@ Deno.test({
 Deno.test({
   name: "get candidates",
   async fn() {
-    const jisyo = await loadJisyo(jisyoPath, "utf-8");
+    const jisyo = await loadJisyo(globalJisyo, "euc-jp");
     const manager = new Library(jisyo);
     const ari = manager.getCandidate("okuriari", "てすt");
     assertEquals(["テスト"], ari);
@@ -56,7 +61,7 @@ Deno.test({
 Deno.test({
   name: "global/local jisyo interop",
   async fn() {
-    const jisyo = await loadJisyo(jisyoPath, "utf-8");
+    const jisyo = await loadJisyo(globalJisyo, "euc-jp");
     const library = new Library(jisyo);
     library.registerCandidate("okurinasi", "てすと", "test");
 
@@ -75,7 +80,9 @@ Deno.test({
 Deno.test({
   name: "encode/decode skk jisyo",
   async fn() {
-    const data = await Deno.readTextFile(jisyoPath);
+    const data = new TextDecoder("euc-jp").decode(
+      await Deno.readFile(globalJisyo),
+    );
     const jisyo = decodeJisyo(data);
     const redata = encodeJisyo(jisyo);
     assertEquals(redata, data);
@@ -85,7 +92,6 @@ Deno.test({
 Deno.test({
   name: "read/write skk jisyo",
   async fn() {
-    config.immediatelyJisyoRW = false;
     const tmp = await Deno.makeTempFile();
     try {
       const library = await load("", tmp);
@@ -130,5 +136,16 @@ Deno.test({
     } finally {
       await Deno.remove(tmp);
     }
+  },
+});
+
+Deno.test({
+  name: "Bulk load jisyo",
+  async fn() {
+    const library = await load(globalJisyo, userJisyo, "euc-jp");
+    const global = library.getCandidate("okurinasi", "てすと");
+    assertEquals(["テスト", "test"], global);
+    const user = library.getCandidate("okurinasi", "ユーザー辞書");
+    assertEquals(["ほげ"], user);
   },
 });

@@ -199,7 +199,7 @@ export async function load(
   try {
     userJisyo = await loadJisyo(
       userJisyoPath,
-      jisyoEncoding,
+      "utf-8",
     );
   } catch (e) {
     if (config.debug) {
