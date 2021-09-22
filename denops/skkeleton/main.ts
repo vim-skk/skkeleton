@@ -36,9 +36,28 @@ async function init(denops: Denops) {
     console.log(e);
   }
   currentContext.get().denops = denops;
-  const { globalJisyo, userJisyo, globalJisyoEncoding } = config;
+  const {
+    globalJisyo,
+    userJisyo,
+    globalJisyoEncoding,
+    remoteJisyo,
+    remoteJisyoHostname,
+    remoteJisyoPort,
+  } = config;
+  let remoteJisyoOptions: Deno.ConnectOptions | undefined;
+  if (remoteJisyo) {
+    remoteJisyoOptions = {
+      hostname: remoteJisyoHostname,
+      port: remoteJisyoPort,
+    };
+  }
   jisyo.currentLibrary.set(
-    await jisyo.load(globalJisyo, userJisyo, globalJisyoEncoding),
+    await jisyo.load(
+      globalJisyo,
+      userJisyo,
+      globalJisyoEncoding,
+      remoteJisyoOptions,
+    ),
   );
   await receiveNotation(denops);
   const id = anonymous.add(denops, () => {

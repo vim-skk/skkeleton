@@ -20,28 +20,28 @@ export class RemoteJisyo {
   async connect(options: Deno.ConnectOptions) {
     this.#conn = await Deno.connect(options);
   }
-  async getCandidate(_type: HenkanType, word: string): Promise<string[]> {
+  async getCandidate(word: string): Promise<string[]> {
     if (!this.#conn) return [];
-    await this.#conn.write(decode(`1${word} `, "euc-jp"));
-    const res = new Uint8Array(2 ^ 10);
+    await this.#conn.write(encode(`1${word} `, "euc-jp"));
+    const res = new Uint8Array(1024);
     await this.#conn.read(res);
-    const str = encode(res, "euc-jp");
+    const str = decode(res, "euc-jp");
     return (str.at(0) === "4") ? [] : str.split("/").slice(1, -1);
   }
   async getCandidates(word: string): Promise<[string, string[]][]> {
     if (!this.#conn) return [];
-    await this.#conn.write(decode(`4${word} `, "euc-jp"));
-    const res = new Uint8Array(2 ^ 10);
+    await this.#conn.write(encode(`4${word} `, "euc-jp"));
+    const res = new Uint8Array(1024);
     await this.#conn.read(res);
-    return await Promise.all(
-      encode(res, "euc-jp").split("/").slice(1, -1).map(async (c: string) => {
-        if (!this.#conn) return [c, []];
-        await this.#conn.write(decode(`1${word} `, "euc-jp"));
-        const res = new Uint8Array(2 ^ 10);
-        await this.#conn.read(res);
-        return [c, encode(res, "euc-jp").split("/").slice(1, -1)];
-      }),
-    );
+    const result: [string, string[]][] = [];
+    for (const entry of decode(res, "euc-jp").split("/").slice(1, -1)) {
+      if (!this.#conn) return [entry, []];
+      await this.#conn.write(encode(`1${entry} `, "euc-jp"));
+      const res = new Uint8Array(1024);
+      await this.#conn.read(res);
+      result.push([entry, decode(res, "euc-jp").split("/").slice(1, -1)]);
+    }
+    return result;
   }
   close() {
     this.#conn?.close();
@@ -53,19 +53,24 @@ export class Library {
   #userJisyo: Jisyo;
   #userJisyoPath: string;
   #userJisyoTimestamp = -1;
-  #remoteJisyo: RemoteJisyo | undefined;
+  #remoteJisyo: RemoteJisyo;
 
-  constructor(globalJisyo?: Jisyo, userJisyo?: Jisyo, userJisyoPath?: string) {
+  constructor(
+    globalJisyo?: Jisyo,
+    userJisyo?: Jisyo,
+    userJisyoPath?: string,
+    remoteJisyo = new RemoteJisyo(),
+  ) {
     this.#globalJisyo = globalJisyo ?? newJisyo();
     this.#userJisyo = userJisyo ?? newJisyo();
     this.#userJisyoPath = userJisyoPath ?? "";
+    this.#remoteJisyo = remoteJisyo;
   }
 
   async getCandidate(type: HenkanType, word: string): Promise<string[]> {
     const userCandidates = this.#userJisyo[type][word] ?? [];
     const globalCandidates = this.#globalJisyo[type][word] ?? [];
-    const remotecandidates =
-      await this.#remoteJisyo?.getCandidate(type, word) ?? [];
+    const remotecandidates = await this.#remoteJisyo.getCandidate(word);
     return Promise.resolve(
       Array.from(
         new Set(userCandidates.concat(globalCandidates, remotecandidates)),
@@ -88,9 +93,7 @@ export class Library {
         table[key] = Array.from(new Set(value.concat(table[key])));
       }
     }
-    for (
-      const [key, value] of await this.#remoteJisyo?.getCandidates(prefix) ?? []
-    ) {
+    for (const [key, value] of await this.#remoteJisyo.getCandidates(prefix)) {
       table[key] = Array.from(new Set(value.concat(table[key])));
     }
     return Promise.resolve(
@@ -215,9 +218,11 @@ export async function load(
   globalJisyoPath: string,
   userJisyoPath: string,
   jisyoEncoding = "euc-jp",
+  remoteJisyoOptions?: Deno.ConnectOptions,
 ): Promise<Library> {
   let globalJisyo = newJisyo();
   let userJisyo = newJisyo();
+  const remoteJisyo = new RemoteJisyo();
   try {
     globalJisyo = await loadJisyo(
       globalJisyoPath,
@@ -242,7 +247,17 @@ export async function load(
     }
     // do nothing
   }
-  return new Library(globalJisyo, userJisyo, userJisyoPath);
+  try {
+    if (remoteJisyoOptions) {
+      remoteJisyo.connect(remoteJisyoOptions);
+    }
+  } catch (e) {
+    if (config.debug) {
+      console.log("remoteJisyo loading failed");
+      console.log(e);
+    }
+  }
+  return new Library(globalJisyo, userJisyo, userJisyoPath, remoteJisyo);
 }
 
 export const currentLibrary = new Cell(() => new Library());
