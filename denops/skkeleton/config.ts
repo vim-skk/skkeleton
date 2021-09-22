@@ -16,6 +16,9 @@ export const config = {
   userJisyo: Deno.env.get("HOME") + "/.skkeleton",
   markerHenkan: "▽",
   markerHenkanSelect: "▼",
+  remoteJisyo: false,
+  remoteJisyoHostname: "localhost",
+  remoteJisyoPort: 1178,
 };
 
 type Validators = {
@@ -43,6 +46,9 @@ const validators: Validators = {
   userJisyo: ensureString,
   markerHenkan: ensureString,
   markerHenkanSelect: ensureString,
+  remoteJisyo: ensureBoolean,
+  remoteJisyoHostname: ensureString,
+  remoteJisyoPort: ensureNumber,
 };
 
 export function setConfig(newConfig: Record<string, unknown>) {
