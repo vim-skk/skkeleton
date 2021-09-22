@@ -1,5 +1,5 @@
 import { dirname, fromFileUrl, join } from "./deps/std/path.ts";
-import { assertEquals } from "./deps/std/testing.ts";
+import { assertEquals, assertNotEquals } from "./deps/std/testing.ts";
 import {
   decodeJisyo,
   encodeJisyo,
@@ -7,6 +7,7 @@ import {
   Library,
   load,
   loadJisyo,
+  RemoteJisyo,
 } from "./jisyo.ts";
 
 const globalJisyo = join(
@@ -20,6 +21,22 @@ const userJisyo = join(
   "testdata",
   "userJisyo",
 );
+
+Deno.test({
+  name: "remote jisyo",
+  async fn() {
+    try {
+      const remoteJisyo = new RemoteJisyo();
+      await remoteJisyo.connect({ port: 1178 });
+      assertNotEquals(await remoteJisyo.getCandidate("ai"), []);
+      assertNotEquals(await remoteJisyo.getCandidates("abs"), []);
+      remoteJisyo.close();
+    } catch (e) {
+      console.log("failed connecting to skkserv");
+      console.log(e);
+    }
+  },
+});
 
 Deno.test({
   name: "load jisyo",
