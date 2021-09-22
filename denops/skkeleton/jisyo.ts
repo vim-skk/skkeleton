@@ -68,6 +68,12 @@ export class Library {
     if (!candidate) {
       return;
     }
+    if (config.skipRegisterFirstCandidate) {
+      const globalCandidate = this.#globalJisyo[type][word]?.[0];
+      if (candidate === globalCandidate) {
+        return;
+      }
+    }
     const candidates = distinct([
       candidate,
       ...this.#userJisyo[type][word] ?? [],
