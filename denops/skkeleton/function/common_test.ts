@@ -37,6 +37,6 @@ Deno.test({
     await dispatch(context, ";tyuusyaku ");
     kakutei(context);
     assertEquals("注釈", context.preEdit.output(""));
-    assertEquals(["注釈;これは注釈です"], lib.getCandidate("okurinasi", "ちゅうしゃく"));
+    assertEquals(["注釈;これは注釈です"], await lib.getCandidate("okurinasi", "ちゅうしゃく"));
   },
 });
