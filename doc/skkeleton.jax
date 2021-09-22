@@ -146,7 +146,13 @@ immediatelyJisyoRW                       *skkeleton-config-immediatelyJisyoRW*
         変換や確定の度にユーザー辞書を読み書きするようになります。
         複数のVimインスタンスを同時に使う場合に有用かもしれません。
 
-keepState                                     *skkeleton-config-keepState*
+registerConvertResult                 *skkeleton-config-registerConvertResult*
+        (デフォルト v:false)
+        このオプションを有効にすると
+        カタカナ変換等の結果を辞書に登録するようになります。
+        補完機能を使っている場合などに便利だと思います。
+
+keepState                                         *skkeleton-config-keepState*
         (デフォルト v:false)
         このオプションを有効にすると
         Insertモードを抜けても前回の状態を保持するようになります。

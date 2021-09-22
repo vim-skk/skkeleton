@@ -8,6 +8,7 @@ export const config = {
   immediatelyCancel: true,
   immediatelyJisyoRW: true,
   keepState: false,
+  registerConvertResult: false,
   selectCandidateKeys: "asdfjkl",
   setUndoPoint: true,
   showCandidatesCount: 4,
@@ -29,6 +30,7 @@ const validators: Validators = {
   globalJisyoEncoding: ensureString,
   immediatelyCancel: ensureBoolean,
   immediatelyJisyoRW: ensureBoolean,
+  registerConvertResult: ensureBoolean,
   selectCandidateKeys: (x): asserts x is string => {
     ensureString(x);
     if (x.length !== 7) {
