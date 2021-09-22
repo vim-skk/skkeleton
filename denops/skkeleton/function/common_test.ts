@@ -2,10 +2,13 @@ import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { assertEquals } from "../deps/std/testing.ts";
 import { currentLibrary } from "../jisyo.ts";
-import { cancel } from "./common.ts";
+import { cancel, kakutei } from "./common.ts";
 import { dispatch } from "./testutil.ts";
 
-currentLibrary.get().registerCandidate("okurinasi", "あ", "い");
+const lib = currentLibrary.get();
+
+lib.registerCandidate("okurinasi", "あ", "い");
+lib.registerCandidate("okurinasi", "ちゅうしゃく", "注釈;これは注釈です");
 
 Deno.test({
   name: "input cancel",
@@ -24,5 +27,16 @@ Deno.test({
     assertEquals(context.toString(), "▽あ");
     cancel(context);
     assertEquals(context.toString(), "");
+  },
+});
+
+Deno.test({
+  name: "annotation",
+  async fn() {
+    const context = new Context();
+    await dispatch(context, ";tyuusyaku ");
+    kakutei(context);
+    assertEquals("注釈", context.preEdit.output(""));
+    assertEquals(["注釈;これは注釈です"], lib.getCandidate("okurinasi", "ちゅうしゃく"));
   },
 });

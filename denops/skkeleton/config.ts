@@ -8,9 +8,11 @@ export const config = {
   immediatelyCancel: true,
   immediatelyJisyoRW: true,
   keepState: false,
+  registerConvertResult: false,
   selectCandidateKeys: "asdfjkl",
   setUndoPoint: true,
   showCandidatesCount: 4,
+  skipRegisterFirstCandidate: true,
   tabCompletion: true,
   usePopup: true,
   userJisyo: Deno.env.get("HOME") + "/.skkeleton",
@@ -32,15 +34,17 @@ const validators: Validators = {
   globalJisyoEncoding: ensureString,
   immediatelyCancel: ensureBoolean,
   immediatelyJisyoRW: ensureBoolean,
+  registerConvertResult: ensureBoolean,
   selectCandidateKeys: (x): asserts x is string => {
     ensureString(x);
     if (x.length !== 7) {
-      throw TypeError("selectCandidateKeys !== 7");
+      throw TypeError("length of selectCandidateKeys !== 7");
     }
   },
   keepState: ensureBoolean,
   setUndoPoint: ensureBoolean,
   showCandidatesCount: ensureNumber,
+  skipRegisterFirstCandidate: ensureBoolean,
   tabCompletion: ensureBoolean,
   usePopup: ensureBoolean,
   userJisyo: ensureString,

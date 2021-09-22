@@ -105,6 +105,12 @@ export class Library {
     if (!candidate) {
       return;
     }
+    if (config.skipRegisterFirstCandidate) {
+      const globalCandidate = this.#globalJisyo[type][word]?.[0];
+      if (candidate === globalCandidate) {
+        return;
+      }
+    }
     const candidates = distinct([
       candidate,
       ...this.#userJisyo[type][word] ?? [],
@@ -238,7 +244,7 @@ export async function load(
   try {
     userJisyo = await loadJisyo(
       userJisyoPath,
-      jisyoEncoding,
+      "utf-8",
     );
   } catch (e) {
     if (config.debug) {

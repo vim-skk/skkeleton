@@ -1,5 +1,7 @@
+import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { autocmd, vars } from "../deps.ts";
+import { currentLibrary } from "../jisyo.ts";
 import { hiraToKata } from "../kana/hira_kata.ts";
 import { asInputState } from "../state.ts";
 import { kakuteiFeed } from "./input.ts";
@@ -36,9 +38,14 @@ export async function katakana(context: Context) {
     return;
   }
   kakuteiFeed(context);
-  let result = state.henkanFeed + state.okuriFeed;
+  const kana = state.henkanFeed + state.okuriFeed;
+  let result = kana;
   if (!state.converter) {
     result = hiraToKata(result);
+    if (config.registerConvertResult) {
+      const lib = currentLibrary.get();
+      lib.registerCandidate("okurinasi", kana, result);
+    }
   }
   context.preEdit.doKakutei(result);
   asInputState(state);
