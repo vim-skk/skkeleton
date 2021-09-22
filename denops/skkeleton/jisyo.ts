@@ -68,14 +68,16 @@ export class Library {
     if (!candidate) {
       return;
     }
-    const userCandidates = this.#userJisyo[type][word] ?? [];
     if (config.skipRegisterFirstCandidate) {
       const globalCandidate = this.#globalJisyo[type][word]?.[0];
-      if (userCandidates.length === 0 && candidate === globalCandidate) {
+      if (candidate === globalCandidate) {
         return;
       }
     }
-    const candidates = distinct([candidate, ...userCandidates]);
+    const candidates = distinct([
+      candidate,
+      ...this.#userJisyo[type][word] ?? [],
+    ]);
     this.#userJisyo[type][word] = candidates;
     if (config.immediatelyJisyoRW) {
       this.saveJisyo();
