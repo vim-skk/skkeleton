@@ -160,9 +160,9 @@ Deno.test({
   name: "Bulk load jisyo",
   async fn() {
     const library = await load(globalJisyo, userJisyo, "euc-jp");
-    const global = library.getCandidate("okurinasi", "てすと");
+    const global = await library.getCandidate("okurinasi", "てすと");
     assertEquals(["テスト", "test"], global);
-    const user = library.getCandidate("okurinasi", "ユーザー辞書");
+    const user = await library.getCandidate("okurinasi", "ユーザー辞書");
     assertEquals(["ほげ"], user);
   },
 });
