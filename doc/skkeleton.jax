@@ -187,6 +187,15 @@ markerHenkanSelect                       *skkeleton-config-markerHenkanSelect*
         (デフォルト "▼")
         候補を選択している最中であることを示すため文字を指定します。
 
+remoteJisyo                              *skkeleton-config-remoteJisyo*
+        (デフォルト v:false)
+        辞書サーバー機能を有効にします。
+remoteJisyoHostname                   *skkeleton-config-remoteJisyoHostname*
+        (デフォルト "localhost")
+        辞書サーバーのホスト名を指定します。
+remoteJisyoPort                   *skkeleton-config-remoteJisyoPort*
+        (デフォルト 1178)
+        辞書サーバーのポート番号を指定します。
 ------------------------------------------------------------------------------
                                               *skkeleton#register_kanatable()*
 skkeleton#register_kanatable({tableName}, {table}, {create})
