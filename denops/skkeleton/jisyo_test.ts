@@ -25,16 +25,17 @@ const userJisyo = join(
 Deno.test({
   name: "remote jisyo",
   async fn() {
+    const remoteJisyo = new RemoteJisyo();
     try {
-      const remoteJisyo = new RemoteJisyo();
       await remoteJisyo.connect({ port: 1178 });
-      assertNotEquals(await remoteJisyo.getCandidate("ai"), []);
-      assertNotEquals(await remoteJisyo.getCandidates("abs"), []);
-      remoteJisyo.close();
     } catch (e) {
       console.log("failed connecting to skkserv");
       console.log(e);
+      return;
     }
+    assertEquals(await remoteJisyo.getCandidate("ai"), ["AI", "人工知能"]);
+    assertNotEquals(await remoteJisyo.getCandidates("abs"), []);
+    remoteJisyo.close();
   },
 });
 
