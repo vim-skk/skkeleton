@@ -1,5 +1,5 @@
 import { config } from "./config.ts";
-import { decode, encode, isArray, isObject, isString } from "./deps.ts";
+import { encoding, isArray, isObject, isString } from "./deps.ts";
 import { distinct } from "./deps/std/collections.ts";
 import { Cell } from "./util.ts";
 
@@ -14,6 +14,23 @@ export type Jisyo = {
 };
 
 export type HenkanType = "okuriari" | "okurinasi";
+
+function encode(str: string, enc: "euc-jp" | "utf-8" = "euc-jp"): Uint8Array {
+  const encodingCompat = {
+    "euc-jp": "EUCJP",
+    "utf-8": "UTF8",
+  };
+  const buffer: ArrayBuffer = encoding.convert(str, {
+    to: encodingCompat[enc],
+    type: "arrayBuffer",
+  });
+  return new Uint8Array(buffer);
+}
+
+function decode(str: Uint8Array, enc = "euc-jp"): string {
+  const decoder = new TextDecoder(enc);
+  return decoder.decode(str);
+}
 
 export class RemoteJisyo {
   #conn: Deno.Conn | undefined;
@@ -35,7 +52,6 @@ export class RemoteJisyo {
     await this.#conn.read(res);
     const result: [string, string[]][] = [];
     for (const entry of decode(res, "euc-jp").split("/").slice(1, -1)) {
-      if (!this.#conn) return [entry, []];
       await this.#conn.write(encode(`1${entry} `, "euc-jp"));
       const res = new Uint8Array(1024);
       await this.#conn.read(res);
