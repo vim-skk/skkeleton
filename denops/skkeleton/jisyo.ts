@@ -20,7 +20,7 @@ function encode(str: string, enc: "euc-jp" | "utf-8" = "euc-jp"): Uint8Array {
     "euc-jp": "EUCJP" as const,
     "utf-8": "UTF8" as const,
   };
-  const array = Uint8Array.from(str.split("").map(c => c.charCodeAt(0)))
+  const array = Uint8Array.from(str.split("").map((c) => c.charCodeAt(0)));
   const buffer = encoding.convert(array, encodingCompat[enc]);
   return new Uint8Array(buffer);
 }
