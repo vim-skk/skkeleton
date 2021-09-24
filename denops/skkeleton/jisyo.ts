@@ -17,13 +17,11 @@ export type HenkanType = "okuriari" | "okurinasi";
 
 function encode(str: string, enc: "euc-jp" | "utf-8" = "euc-jp"): Uint8Array {
   const encodingCompat = {
-    "euc-jp": "EUCJP",
-    "utf-8": "UTF8",
+    "euc-jp": "EUCJP" as const,
+    "utf-8": "UTF8" as const,
   };
-  const buffer: ArrayBuffer = encoding.convert(str, {
-    to: encodingCompat[enc],
-    type: "arrayBuffer",
-  });
+  const array = Uint8Array.from(str.split("").map(c => c.charCodeAt(0)))
+  const buffer = encoding.convert(array, encodingCompat[enc]);
   return new Uint8Array(buffer);
 }
 
