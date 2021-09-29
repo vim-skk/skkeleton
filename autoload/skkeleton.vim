@@ -71,6 +71,12 @@ function! skkeleton#vim_status() abort
   \ }
 endfunction
 
+function! skkeleton#handle(func, key) abort
+  let ret = denops#request('skkeleton', a:func, [a:key, skkeleton#vim_status()])
+  call skkeleton#doautocmd()
+  return ret
+endfunction
+
 " copied from eskk.vim
 function! skkeleton#get_default_mapped_keys() abort "{{{
     return split(
@@ -120,7 +126,7 @@ function! skkeleton#map() abort
         let func = match[1]
       endif
     endfor
-    execute printf("lnoremap <buffer> <expr> <nowait> %s denops#request('skkeleton', '%s', [%s, skkeleton#vim_status()]) .. skkeleton#doautocmd()", c, func, string(c))
+    execute printf('lnoremap <buffer> <expr> <nowait> %s skkeleton#handle(%s, %s)', c, string(func), string(c))
   endfor
 endfunction
 
