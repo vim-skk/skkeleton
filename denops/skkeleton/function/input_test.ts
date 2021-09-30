@@ -27,8 +27,7 @@ Deno.test({
       for (const c of "n n n n ") {
         await dispatch(context, c);
       }
-      // the last space isn't decision yet.
-      assertEquals(context.preEdit.output(""), "ん ん ん ん");
+      assertEquals(context.preEdit.output(""), "ん ん ん ん ");
     }
     {
       const context = new Context();
@@ -36,6 +35,13 @@ Deno.test({
         await dispatch(context, c);
       }
       assertEquals(context.preEdit.output(""), "@あ");
+    }
+    {
+      const context = new Context();
+      for (const c of " na") {
+        await dispatch(context, c);
+      }
+      assertEquals(context.preEdit.output(""), " な");
     }
   },
 });
