@@ -67,6 +67,7 @@ async function acceptResult(context: Context, result: KanaResult) {
   if (Array.isArray(result)) {
     await doKakutei(context, result[0], result[1]);
   } else {
+    (context.state as InputState).feed = "";
     await result(context, "");
   }
 }
