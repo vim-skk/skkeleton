@@ -1,6 +1,6 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
-import { batch, fn, mapping } from "../deps.ts";
+import { batch, fn, mapping, op, vars } from "../deps.ts";
 import { currentLibrary } from "../jisyo.ts";
 import { currentContext } from "../main.ts";
 import { asInputState, HenkanState } from "../state.ts";
@@ -52,8 +52,9 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
         }
       }
       // restore skkeleton mode
-      await denops.cmd("let &l:iminsert = 1");
+      await op.iminsert.setLocal(denops, 1);
       await denops.call("skkeleton#map");
+      await vars.g.set(denops, "skkeleton#enabled", true);
       await denops.cmd("redrawstatus");
     });
     // restore stashed context
