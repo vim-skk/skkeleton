@@ -11,6 +11,7 @@ import {
   vars,
 } from "./deps.ts";
 import { disable as disableFunc } from "./function/disable.ts";
+import { modeChange } from "./function/mode.ts";
 import * as jisyo from "./jisyo.ts";
 import { currentLibrary } from "./jisyo.ts";
 import { registerKanaTable } from "./kana.ts";
@@ -77,6 +78,7 @@ async function enable(denops: Denops): Promise<string> {
       console.log(e);
     }
     await vars.g.set(denops, "skkeleton#enabled", true);
+    await modeChange(currentContext.get(), "hira");
     return "\x1e"; // <C-^>
   } else {
     return "";
