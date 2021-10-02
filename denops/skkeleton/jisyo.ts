@@ -1,7 +1,9 @@
 import { config } from "./config.ts";
-import { encoding, isArray, isObject, isString } from "./deps.ts";
+import { encoding, isArray, isObject, isString, iter } from "./deps.ts";
 import { distinct } from "./deps/std/collections.ts";
 import { Cell } from "./util.ts";
+import type { Encoding, SkkServerOptions } from "./types.ts";
+import { Encode } from "./types.ts";
 
 const okuriAriMarker = ";; okuri-ari entries.";
 const okuriNasiMarker = ";; okuri-nasi entries.";
@@ -15,45 +17,46 @@ export type Jisyo = {
 
 export type HenkanType = "okuriari" | "okurinasi";
 
-function encode(str: string, enc: "euc-jp" | "utf-8" = "euc-jp"): Uint8Array {
-  const encodingCompat = {
-    "euc-jp": "EUCJP" as const,
-    "utf-8": "UTF8" as const,
-  };
-  const array = Uint8Array.from(str.split("").map((c) => c.charCodeAt(0)));
-  const buffer = encoding.convert(array, encodingCompat[enc]);
-  return new Uint8Array(buffer);
+function encode(str: string, enc: Encoding): Uint8Array {
+  const utf8Encoder = new TextEncoder();
+  const utf8Bytes = utf8Encoder.encode(str);
+  const eucBytesArray = encoding.convert(utf8Bytes, enc, "UTF8");
+  const eucBytes = Uint8Array.from(eucBytesArray);
+  return eucBytes;
 }
 
-function decode(str: Uint8Array, enc = "euc-jp"): string {
-  const decoder = new TextDecoder(enc);
+function decode(str: Uint8Array, enc: Encoding): string {
+  const decoder = new TextDecoder(Encode[enc]);
   return decoder.decode(str);
 }
 
-export class RemoteJisyo {
+export class SkkServer {
   #conn: Deno.Conn | undefined;
-  async connect(options: Deno.ConnectOptions) {
-    this.#conn = await Deno.connect(options);
+  responseEnc: Encoding;
+  requestEnc: Encoding;
+  connectOptions: Deno.ConnectOptions;
+  constructor(opts: SkkServerOptions) {
+    this.requestEnc = opts.requestEnc;
+    this.responseEnc = opts.responseEnc;
+    this.connectOptions = {
+      hostname: opts.hostname,
+      port: opts.port,
+    };
+  }
+  async connect() {
+    this.#conn = await Deno.connect(this.connectOptions);
   }
   async getCandidate(word: string): Promise<string[]> {
     if (!this.#conn) return [];
-    await this.#conn.write(encode(`1${word} `, "euc-jp"));
-    const res = new Uint8Array(1024);
-    await this.#conn.read(res);
-    const str = decode(res, "euc-jp");
-    return (str.at(0) === "4") ? [] : str.split("/").slice(1, -1);
-  }
-  async getCandidates(word: string): Promise<[string, string[]][]> {
-    if (!this.#conn) return [];
-    await this.#conn.write(encode(`4${word} `, "euc-jp"));
-    const res = new Uint8Array(1024);
-    await this.#conn.read(res);
-    const result: [string, string[]][] = [];
-    for (const entry of decode(res, "euc-jp").split("/").slice(1, -1)) {
-      await this.#conn.write(encode(`1${entry} `, "euc-jp"));
-      const res = new Uint8Array(1024);
-      await this.#conn.read(res);
-      result.push([entry, decode(res, "euc-jp").split("/").slice(1, -1)]);
+    await this.#conn.write(encode(`1${word} `, this.requestEnc));
+    const result: string[] = [];
+    for await (const res of iter(this.#conn)) {
+      const str = decode(res, this.responseEnc);
+      result.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
+
+      if (str.endsWith("\n")) {
+        break;
+      }
     }
     return result;
   }
@@ -67,52 +70,62 @@ export class Library {
   #userJisyo: Jisyo;
   #userJisyoPath: string;
   #userJisyoTimestamp = -1;
-  #remoteJisyo: RemoteJisyo;
+  #skkServer: SkkServer | undefined;
 
   constructor(
     globalJisyo?: Jisyo,
     userJisyo?: Jisyo,
     userJisyoPath?: string,
-    remoteJisyo = new RemoteJisyo(),
+    skkServer?: SkkServer,
   ) {
     this.#globalJisyo = globalJisyo ?? newJisyo();
     this.#userJisyo = userJisyo ?? newJisyo();
     this.#userJisyoPath = userJisyoPath ?? "";
-    this.#remoteJisyo = remoteJisyo;
+    this.#skkServer = skkServer;
   }
 
   async getCandidate(type: HenkanType, word: string): Promise<string[]> {
     const userCandidates = this.#userJisyo[type][word] ?? [];
-    const globalCandidates = this.#globalJisyo[type][word] ?? [];
-    const remotecandidates = await this.#remoteJisyo.getCandidate(word);
-    return Promise.resolve(
-      Array.from(
-        new Set(userCandidates.concat(globalCandidates, remotecandidates)),
-      ),
-    );
+    const merged = userCandidates.slice();
+    const globalCandidates = this.#globalJisyo[type][word];
+    const remoteCandidates = await this.#skkServer?.getCandidate(word);
+    if (globalCandidates) {
+      for (const c of globalCandidates) {
+        if (!merged.includes(c)) {
+          merged.push(c);
+        }
+      }
+    }
+    if (remoteCandidates) {
+      for (const c of remoteCandidates) {
+        if (!merged.includes(c)) {
+          merged.push(c);
+        }
+      }
+    }
+    return merged;
   }
 
-  async getCandidates(prefix: string): Promise<[string, string[]][]> {
+  getCandidates(prefix: string): [string, string[]][] {
     if (prefix.length < 2) {
-      return Promise.resolve([]);
+      return [];
     }
-    const table: Record<string, string[]> = {};
-    for (const [key, value] of Object.entries(this.#globalJisyo.okurinasi)) {
-      if (key.startsWith(prefix)) {
-        table[key] = Array.from(new Set(value.concat(table[key])));
-      }
-    }
-    for (const [key, value] of Object.entries(this.#userJisyo.okurinasi)) {
-      if (key.startsWith(prefix)) {
-        table[key] = Array.from(new Set(value.concat(table[key])));
-      }
-    }
-    for (const [key, value] of await this.#remoteJisyo.getCandidates(prefix)) {
-      table[key] = Array.from(new Set(value.concat(table[key])));
-    }
-    return Promise.resolve(
-      Object.entries(table).sort((a, b) => a[0].localeCompare(b[0])),
+    const globalJisyo = this.#globalJisyo.okurinasi;
+    const userJisyo = this.#userJisyo.okurinasi;
+    const user = Object.entries(userJisyo).filter((e) =>
+      !globalJisyo[e[0]] && e[0].startsWith(prefix)
     );
+    const global: [string, string[]][] = Object.entries(
+      this.#globalJisyo.okurinasi,
+    ).filter((e) => e[0].startsWith(prefix)).map((e) => {
+      const ue = this.#userJisyo.okurinasi[e[0]];
+      if (ue) {
+        return [e[0], distinct(ue.concat(e[1]))];
+      } else {
+        return e;
+      }
+    });
+    return [...user, ...global].sort((a, b) => a[0].localeCompare(b[0]));
   }
 
   registerCandidate(type: HenkanType, word: string, candidate: string) {
@@ -232,11 +245,10 @@ export async function load(
   globalJisyoPath: string,
   userJisyoPath: string,
   jisyoEncoding = "euc-jp",
-  remoteJisyoOptions?: Deno.ConnectOptions,
+  skkServer: SkkServer | undefined,
 ): Promise<Library> {
   let globalJisyo = newJisyo();
   let userJisyo = newJisyo();
-  const remoteJisyo = new RemoteJisyo();
   try {
     globalJisyo = await loadJisyo(
       globalJisyoPath,
@@ -262,16 +274,16 @@ export async function load(
     // do nothing
   }
   try {
-    if (remoteJisyoOptions) {
-      remoteJisyo.connect(remoteJisyoOptions);
+    if (skkServer) {
+      skkServer.connect();
     }
   } catch (e) {
     if (config.debug) {
-      console.log("remoteJisyo loading failed");
+      console.log("connecting to skk server is failed");
       console.log(e);
     }
   }
-  return new Library(globalJisyo, userJisyo, userJisyoPath, remoteJisyo);
+  return new Library(globalJisyo, userJisyo, userJisyoPath, skkServer);
 }
 
 export const currentLibrary = new Cell(() => new Library());

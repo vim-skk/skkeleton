@@ -14,12 +14,13 @@ import {
 import { disable as disableFunc } from "./function/disable.ts";
 import { modeChange } from "./function/mode.ts";
 import * as jisyo from "./jisyo.ts";
-import { currentLibrary } from "./jisyo.ts";
+import { currentLibrary, SkkServer } from "./jisyo.ts";
 import { registerKanaTable } from "./kana.ts";
 import { handleKey } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { asInputState } from "./state.ts";
 import { Cell } from "./util.ts";
+import type { SkkServerOptions } from "./types.ts";
 
 let initialized = false;
 
@@ -40,23 +41,29 @@ async function init(denops: Denops) {
     globalJisyo,
     userJisyo,
     globalJisyoEncoding,
-    remoteJisyo,
-    remoteJisyoHostname,
-    remoteJisyoPort,
+    useSkkServer,
+    skkServerAddr,
+    skkServerPort,
+    skkServerResEnc,
+    skkServerReqEnc,
   } = config;
-  let remoteJisyoOptions: Deno.ConnectOptions | undefined;
-  if (remoteJisyo) {
-    remoteJisyoOptions = {
-      hostname: remoteJisyoHostname,
-      port: remoteJisyoPort,
+  let skkServer: SkkServer | undefined;
+  let skkServerOptions: SkkServerOptions | undefined;
+  if (useSkkServer) {
+    skkServerOptions = {
+      hostname: skkServerAddr,
+      port: skkServerPort,
+      requestEnc: skkServerReqEnc,
+      responseEnc: skkServerResEnc,
     };
+    skkServer = new SkkServer(skkServerOptions);
   }
   jisyo.currentLibrary.set(
     await jisyo.load(
       globalJisyo,
       userJisyo,
       globalJisyoEncoding,
-      remoteJisyoOptions,
+      skkServer,
     ),
   );
   await receiveNotation(denops);
@@ -231,7 +238,9 @@ export async function main(denops: Denops) {
       if (state.type !== "input") {
         return Promise.resolve([]);
       }
-      return currentLibrary.get().getCandidates(state.henkanFeed);
+      return Promise.resolve(
+        currentLibrary.get().getCandidates(state.henkanFeed),
+      );
     },
     registerCandidate(kana: unknown, word: unknown) {
       ensureString(kana);

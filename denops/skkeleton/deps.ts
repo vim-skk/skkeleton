@@ -11,4 +11,5 @@ export * as vars from "https://deno.land/x/denops_std@v1.11.3/variable/mod.ts";
 export * as op from "https://deno.land/x/denops_std@v1.11.3/option/mod.ts#^";
 export * from "https://deno.land/x/unknownutil@v1.1.1/mod.ts";
 export { ensureString } from "https://deno.land/x/unknownutil@v1.1.1/mod.ts";
-export * as encoding from "https://esm.sh/encoding-japanese@1";
+export * as encoding from "https://esm.sh/encoding-japanese@1.0.30";
+export * from "https://deno.land/std@0.109.0/io/mod.ts";
