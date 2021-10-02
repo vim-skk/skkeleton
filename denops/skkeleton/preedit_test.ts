@@ -15,3 +15,13 @@ Deno.test({
     assertEquals(preEdit.output("baz"), "\b\b\b\bbarbaz");
   },
 });
+
+Deno.test({
+  name: "preedit with emoji",
+  fn() {
+    const preEdit = new PreEdit();
+    assertEquals(preEdit.output("💩"), "💩");
+    assertEquals(preEdit.output("🚽"), "\b🚽");
+    assertEquals(preEdit.output("🍦"), "\b🍦");
+  },
+});

@@ -13,7 +13,7 @@ export class PreEdit {
     if (!this.#kakutei && next.startsWith(this.#current)) {
       ret = next.slice(this.#current.length);
     } else {
-      ret = "\b".repeat(this.#current.length) + this.#kakutei + next;
+      ret = "\b".repeat([...this.#current].length) + this.#kakutei + next;
     }
     this.#current = next;
     this.#kakutei = "";
