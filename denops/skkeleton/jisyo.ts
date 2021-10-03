@@ -61,6 +61,7 @@ export class SkkServer {
     return result;
   }
   close() {
+    this.#conn?.write(encode("0", this.requestEnc));
     this.#conn?.close();
   }
 }
@@ -245,7 +246,7 @@ export async function load(
   globalJisyoPath: string,
   userJisyoPath: string,
   jisyoEncoding = "euc-jp",
-  skkServer: SkkServer | undefined,
+  skkServer?: SkkServer,
 ): Promise<Library> {
   let globalJisyo = newJisyo();
   let userJisyo = newJisyo();
