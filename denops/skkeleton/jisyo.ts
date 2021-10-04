@@ -20,13 +20,13 @@ export type HenkanType = "okuriari" | "okurinasi";
 function encode(str: string, enc: Encoding): Uint8Array {
   const utf8Encoder = new TextEncoder();
   const utf8Bytes = utf8Encoder.encode(str);
-  const eucBytesArray = encoding.convert(utf8Bytes, enc, "UTF8");
+  const eucBytesArray = encoding.convert(utf8Bytes, Encode[enc], "UTF8");
   const eucBytes = Uint8Array.from(eucBytesArray);
   return eucBytes;
 }
 
 function decode(str: Uint8Array, enc: Encoding): string {
-  const decoder = new TextDecoder(Encode[enc]);
+  const decoder = new TextDecoder(enc);
   return decoder.decode(str);
 }
 

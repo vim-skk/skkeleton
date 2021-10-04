@@ -13,18 +13,18 @@ export function asCompletionMetadata(x: unknown): CompletionMetadata | null {
 }
 
 export const Encode = {
-  UTF32: "utf-32",
-  UTF16: "utf-16",
-  UTF16BE: "utf-16be",
-  UTF16LE: "utf-16le",
-  BINARY: "binary",
-  ASCII: "ascii",
-  JIS: "jis",
-  UTF8: "utf-8",
-  EUCJP: "euc-jp",
-  SJIS: "sjis",
-  UNICODE: "unicode",
-  AUTO: "auto",
+  "utf-32": "UTF32",
+  "utf-16": "UTF16",
+  "utf-16be": "UTF16BE",
+  "utf-16le": "UTF16LE",
+  "binary": "BINARY",
+  "ascii": "ASCII",
+  "jis": "JIS",
+  "utf-8": "UTF8",
+  "euc-jp": "EUCJP",
+  "sjis": "SJIS",
+  "unicode": "UNICODE",
+  "auto": "AUTO",
 } as const;
 
 export type Encoding = keyof typeof Encode;

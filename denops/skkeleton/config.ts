@@ -21,8 +21,8 @@ export const config = {
   useSkkServer: false,
   skkServerAddr: "127.0.0.1",
   skkServerPort: 1178,
-  skkServerResEnc: "EUCJP" as Encoding,
-  skkServerReqEnc: "EUCJP" as Encoding,
+  skkServerResEnc: "euc-jp" as Encoding,
+  skkServerReqEnc: "euc-jp" as Encoding,
 };
 
 type Validators = {

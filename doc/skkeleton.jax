@@ -206,11 +206,11 @@ skkServerPort                   *skkeleton-config-skkServerPort*
         辞書サーバーのポート番号を指定します。
 
 skkServerResEnc                 *skkeleton-config-skkServerResEnc*
-        （デフォルト "EUCJP"）
+        （デフォルト "euc-jp"）
         辞書サーバーから受け取る文字列のエンコード形式を指定します。
 
 skkServerReqEnc                 *skkeleton-config-skkServerReqEnc*
-        （デフォルト "EUCJP"）
+        （デフォルト "euc-jp"）
         辞書サーバーに渡す文字列のエンコード形式を指定します。
 ------------------------------------------------------------------------------
                                               *skkeleton#register_kanatable()*
