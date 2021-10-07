@@ -78,6 +78,9 @@ endfunction
 
 function! skkeleton#handle(func, key) abort
   let ret = denops#request('skkeleton', a:func, [a:key, skkeleton#vim_status()])
+  if ret =~# "^<Cmd>"
+    let ret = "\<Cmd>" .. ret[5:] .. "\<CR>"
+  endif
   call skkeleton#doautocmd()
   return ret
 endfunction
