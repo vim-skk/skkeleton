@@ -17,27 +17,27 @@ export type Jisyo = {
 
 export type HenkanType = "okuriari" | "okurinasi";
 
-function encode(str: string, enc: Encoding): Uint8Array {
+function encode(str: string, encode: Encoding): Uint8Array {
   const utf8Encoder = new TextEncoder();
   const utf8Bytes = utf8Encoder.encode(str);
-  const eucBytesArray = encoding.convert(utf8Bytes, Encode[enc], "UTF8");
+  const eucBytesArray = encoding.convert(utf8Bytes, Encode[encode], "UTF8");
   const eucBytes = Uint8Array.from(eucBytesArray);
   return eucBytes;
 }
 
-function decode(str: Uint8Array, enc: Encoding): string {
-  const decoder = new TextDecoder(enc);
+function decode(str: Uint8Array, encode: Encoding): string {
+  const decoder = new TextDecoder(encode);
   return decoder.decode(str);
 }
 
 export class SkkServer {
   #conn: Deno.Conn | undefined;
-  responseEnc: Encoding;
-  requestEnc: Encoding;
+  responseEncoding: Encoding;
+  requestEncoding: Encoding;
   connectOptions: Deno.ConnectOptions;
   constructor(opts: SkkServerOptions) {
-    this.requestEnc = opts.requestEnc;
-    this.responseEnc = opts.responseEnc;
+    this.requestEncoding = opts.requestEnc;
+    this.responseEncoding = opts.responseEnc;
     this.connectOptions = {
       hostname: opts.hostname,
       port: opts.port,
@@ -48,10 +48,10 @@ export class SkkServer {
   }
   async getCandidate(word: string): Promise<string[]> {
     if (!this.#conn) return [];
-    await this.#conn.write(encode(`1${word} `, this.requestEnc));
+    await this.#conn.write(encode(`1${word} `, this.requestEncoding));
     const result: string[] = [];
     for await (const res of iter(this.#conn)) {
-      const str = decode(res, this.responseEnc);
+      const str = decode(res, this.responseEncoding);
       result.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
 
       if (str.endsWith("\n")) {
@@ -60,8 +60,12 @@ export class SkkServer {
     }
     return result;
   }
+  getCandidates(_prefix: string): [string, string[]][] {
+    // TODO: add support for ddc.vim
+    return [["", [""]]];
+  }
   close() {
-    this.#conn?.write(encode("0", this.requestEnc));
+    this.#conn?.write(encode("0", this.requestEncoding));
     this.#conn?.close();
   }
 }
