@@ -1,5 +1,4 @@
 import { config } from "./config.ts";
-import { isArray, isObject, isString } from "./deps.ts";
 import { Cell } from "./util.ts";
 
 const okuriAriMarker = ";; okuri-ari entries.";
