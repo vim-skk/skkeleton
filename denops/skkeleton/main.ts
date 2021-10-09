@@ -212,7 +212,7 @@ export async function main(denops: Denops) {
       if (state.type !== "input") {
         return Promise.resolve([]);
       }
-      return currentLibrary.get().getCandidates(state.henkanFeed)
+      return currentLibrary.get().getCandidates(state.henkanFeed);
     },
     async registerCandidate(kana: unknown, word: unknown) {
       ensureString(kana);

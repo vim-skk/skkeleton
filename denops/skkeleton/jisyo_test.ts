@@ -1,13 +1,13 @@
 import { dirname, fromFileUrl, join } from "./deps/std/path.ts";
 import { assertEquals } from "./deps/std/testing.ts";
 import {
-  LocalJisyo,
   decodeJisyo,
   encodeJisyo,
   ensureJisyo,
   Library,
   load,
   loadJisyo,
+  LocalJisyo,
 } from "./jisyo.ts";
 
 const globalJisyo = join(
@@ -28,9 +28,9 @@ Deno.test({
     const jisyo = await loadJisyo(globalJisyo, "euc-jp");
     ensureJisyo(jisyo);
     const data = new LocalJisyo(
-      new Map([["てすt",["テスト"]]]),
-      new Map([["てすと",["テスト","test"]]])
-    )
+      new Map([["てすt", ["テスト"]]]),
+      new Map([["てすと", ["テスト", "test"]]]),
+    );
     assertEquals(jisyo, data);
   },
 });

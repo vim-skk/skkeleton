@@ -8,34 +8,38 @@ const lineRegexp = /^(\S+) \/(.*)\/$/;
 
 interface Jisyo {
   getCandidate(type: HenkanType, word: string): Promise<string[]>;
-  getCandidates(word: string): Promise<[string, string[]][] >;
+  getCandidates(word: string): Promise<[string, string[]][]>;
 }
 
 export class LocalJisyo implements Jisyo {
-  #okuriari: Map<string, string[]> ;
+  #okuriari: Map<string, string[]>;
   #okurinasi: Map<string, string[]>;
-  constructor(okuriari?: Map<string, string[]>, okurinasi?: Map<string, string[]>) {
+  constructor(
+    okuriari?: Map<string, string[]>,
+    okurinasi?: Map<string, string[]>,
+  ) {
     this.#okuriari = okuriari ?? new Map();
     this.#okurinasi = okurinasi ?? new Map();
   }
   getCandidate(type: HenkanType, word: string): Promise<string[]> {
-    const target = type === "okuriari" ? this.#okuriari : this.#okurinasi
-    return Promise.resolve(target.get(word) ?? [])
+    const target = type === "okuriari" ? this.#okuriari : this.#okurinasi;
+    return Promise.resolve(target.get(word) ?? []);
   }
   getCandidates(prefix: string): Promise<[string, string[]][]> {
-    const candidates = new Map<string, string[]>()
-    for(const [key, value] of this.#okurinasi) {
+    const candidates = new Map<string, string[]>();
+    for (const [key, value] of this.#okurinasi) {
       if (key.startsWith(prefix)) {
-          candidates.set(key, value)
+        candidates.set(key, value);
       }
     }
-    return Promise.resolve(Array.from(candidates.entries()))
+    return Promise.resolve(Array.from(candidates.entries()));
   }
   registerCandidate(type: HenkanType, word: string, candidate: string) {
-    const target = type === "okuriari" ? this.#okuriari : this.#okurinasi
+    const target = type === "okuriari" ? this.#okuriari : this.#okurinasi;
     target.set(
-      word, Array.from(new Set([candidate, ...target.get(word) ?? []]))
-    )
+      word,
+      Array.from(new Set([candidate, ...target.get(word) ?? []])),
+    );
   }
   toString(): string {
     return [
@@ -49,7 +53,7 @@ export class LocalJisyo implements Jisyo {
 }
 
 export function encodeJisyo(jisyo: LocalJisyo) {
-  return jisyo.toString()
+  return jisyo.toString();
 }
 
 export type HenkanType = "okuriari" | "okurinasi";
@@ -60,7 +64,11 @@ export class Library {
   #userJisyoPath: string;
   #userJisyoTimestamp = -1;
 
-  constructor(globalJisyo?: LocalJisyo, userJisyo?: LocalJisyo, userJisyoPath?: string) {
+  constructor(
+    globalJisyo?: LocalJisyo,
+    userJisyo?: LocalJisyo,
+    userJisyoPath?: string,
+  ) {
     this.#globalJisyo = globalJisyo ?? new LocalJisyo();
     this.#userJisyo = userJisyo ?? new LocalJisyo();
     this.#userJisyoPath = userJisyoPath ?? "";
@@ -85,20 +93,20 @@ export class Library {
     if (prefix.length < 2) {
       return [];
     }
-    const candidates = new Map<string, string[]>()
-    for(const [key, value] of await this.#userJisyo.getCandidates(prefix)) {
+    const candidates = new Map<string, string[]>();
+    for (const [key, value] of await this.#userJisyo.getCandidates(prefix)) {
       candidates.set(
         key,
-        Array.from(new Set([...candidates.get(key) ?? [], ...value]))
-      )
+        Array.from(new Set([...candidates.get(key) ?? [], ...value])),
+      );
     }
-    for(const [key, value] of await this.#globalJisyo.getCandidates(prefix)) {
+    for (const [key, value] of await this.#globalJisyo.getCandidates(prefix)) {
       candidates.set(
         key,
-        Array.from(new Set([...candidates.get(key) ?? [], ...value]))
-      )
+        Array.from(new Set([...candidates.get(key) ?? [], ...value])),
+      );
     }
-    return Array.from(candidates.entries())
+    return Array.from(candidates.entries());
   }
 
   async registerCandidate(type: HenkanType, word: string, candidate: string) {
@@ -106,12 +114,13 @@ export class Library {
       return;
     }
     if (config.skipRegisterFirstCandidate) {
-      const globalCandidate = (await this.#globalJisyo.getCandidate(type, word)).at(0)
+      const globalCandidate = (await this.#globalJisyo.getCandidate(type, word))
+        .at(0);
       if (candidate === globalCandidate) {
         return;
       }
     }
-    this.#userJisyo.registerCandidate(type, word, candidate)
+    this.#userJisyo.registerCandidate(type, word, candidate);
     if (config.immediatelyJisyoRW) {
       this.saveJisyo();
     }
@@ -139,7 +148,7 @@ export class Library {
     if (this.#userJisyoPath) {
       await Deno.writeTextFile(
         this.#userJisyoPath,
-        encodeJisyo(this.#userJisyo)
+        encodeJisyo(this.#userJisyo),
       );
       const stat = await Deno.stat(this.#userJisyoPath);
       const time = stat.mtime?.getTime() ?? -1;
@@ -156,14 +165,18 @@ export function decodeJisyo(data: string): LocalJisyo {
 
   const okuriAriEntries = lines.slice(okuriAriIndex + 1, okuriNasiIndex).map(
     (s) => s.match(lineRegexp),
-  ).filter((m) => m).map((m) => [m![1], m![2].split("/")] as [string, string[]]);
+  ).filter((m) => m).map((m) =>
+    [m![1], m![2].split("/")] as [string, string[]]
+  );
   const okuriNasiEntries = lines.slice(okuriNasiIndex + 1, lines.length).map(
     (s) => s.match(lineRegexp),
-  ).filter((m) => m).map((m) => [m![1], m![2].split("/")] as [string, string[]]);
+  ).filter((m) => m).map((m) =>
+    [m![1], m![2].split("/")] as [string, string[]]
+  );
 
   return new LocalJisyo(
     new Map(okuriAriEntries),
-    new Map(okuriNasiEntries)
+    new Map(okuriNasiEntries),
   );
 }
 
@@ -186,7 +199,7 @@ function linesToString(entries: [string, string[]][]): string[] {
 
 export function ensureJisyo(x: unknown): asserts x is Jisyo {
   if (x instanceof LocalJisyo) {
-    return
+    return;
   }
   throw new Error("corrupt jisyo detected");
 }
