@@ -52,11 +52,11 @@ Deno.test({
   async fn() {
     const manager = new Library();
     // most recently registered
-    await manager.registerCandidate("okurinasi", "test", "a");
-    await manager.registerCandidate("okurinasi", "test", "b");
+    manager.registerCandidate("okurinasi", "test", "a");
+    manager.registerCandidate("okurinasi", "test", "b");
     assertEquals(["b", "a"], await manager.getCandidate("okurinasi", "test"));
     // and remove duplicate
-    await manager.registerCandidate("okurinasi", "test", "a");
+    manager.registerCandidate("okurinasi", "test", "a");
     assertEquals(["a", "b"], await manager.getCandidate("okurinasi", "test"));
   },
 });
@@ -66,7 +66,7 @@ Deno.test({
   async fn() {
     const jisyo = await loadJisyo(globalJisyo, "euc-jp");
     const library = new Library(jisyo);
-    await library.registerCandidate("okurinasi", "てすと", "test");
+    library.registerCandidate("okurinasi", "てすと", "test");
 
     // remove dup
     const nasi = await library.getCandidate("okurinasi", "てすと");
@@ -74,7 +74,7 @@ Deno.test({
 
     // new candidate
     // user candidates priority is higher than global
-    await library.registerCandidate("okurinasi", "てすと", "てすと");
+    library.registerCandidate("okurinasi", "てすと", "てすと");
     const nasi2 = await library.getCandidate("okurinasi", "てすと");
     assertEquals(["てすと", "test", "テスト"], nasi2);
   },
@@ -112,7 +112,7 @@ Deno.test({
       assertEquals(await library.getCandidate("okurinasi", "あ"), ["あ"]);
 
       //save
-      await library.registerCandidate("okurinasi", "あ", "亜");
+      library.registerCandidate("okurinasi", "あ", "亜");
       await library.saveJisyo();
       const data = await Deno.readTextFile(tmp);
       const line = data.split("\n").find((value) => value.startsWith("あ"));
@@ -129,8 +129,8 @@ Deno.test({
     const tmp = await Deno.makeTempFile();
     try {
       const lib = new Library(undefined, undefined, tmp);
-      await lib.registerCandidate("okurinasi", "ほげ", "");
-      await lib.registerCandidate("okuriari", "ほげ", "");
+      lib.registerCandidate("okurinasi", "ほげ", "");
+      lib.registerCandidate("okuriari", "ほげ", "");
       await lib.saveJisyo();
       assertEquals(
         (await Deno.readTextFile(tmp)).indexOf("ほげ"),

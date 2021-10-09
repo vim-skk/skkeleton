@@ -7,8 +7,8 @@ import { dispatch } from "./testutil.ts";
 
 const lib = currentLibrary.get();
 
-await lib.registerCandidate("okurinasi", "あ", "い");
-await lib.registerCandidate("okurinasi", "ちゅうしゃく", "注釈;これは注釈です");
+lib.registerCandidate("okurinasi", "あ", "い");
+lib.registerCandidate("okurinasi", "ちゅうしゃく", "注釈;これは注釈です");
 
 Deno.test({
   name: "input cancel",

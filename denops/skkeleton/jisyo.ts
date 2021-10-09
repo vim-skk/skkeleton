@@ -109,16 +109,9 @@ export class Library {
     return Array.from(candidates.entries());
   }
 
-  async registerCandidate(type: HenkanType, word: string, candidate: string) {
+  registerCandidate(type: HenkanType, word: string, candidate: string) {
     if (!candidate) {
       return;
-    }
-    if (config.skipRegisterFirstCandidate) {
-      const globalCandidate = (await this.#globalJisyo.getCandidate(type, word))
-        .at(0);
-      if (candidate === globalCandidate) {
-        return;
-      }
     }
     this.#userJisyo.registerCandidate(type, word, candidate);
     if (config.immediatelyJisyoRW) {

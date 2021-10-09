@@ -12,7 +12,6 @@ export function kakutei(context: Context) {
       const candidate = state.candidates[state.candidateIndex];
       const candidateStrip = candidate?.replace(/;.*/, "");
       if (candidate) {
-        //TODO: registerCnadidate returns Promise
         currentLibrary.get().registerCandidate(
           state.mode,
           state.word,

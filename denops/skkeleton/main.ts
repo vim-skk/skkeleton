@@ -217,7 +217,7 @@ export async function main(denops: Denops) {
     async registerCandidate(kana: unknown, word: unknown) {
       ensureString(kana);
       ensureString(word);
-      await currentLibrary.get().registerCandidate("okurinasi", kana, word);
+      currentLibrary.get().registerCandidate("okurinasi", kana, word);
     },
   };
   if (config.debug) {
