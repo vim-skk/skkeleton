@@ -214,10 +214,11 @@ export async function main(denops: Denops) {
       }
       return currentLibrary.get().getCandidates(state.henkanFeed);
     },
-    async registerCandidate(kana: unknown, word: unknown) {
+    registerCandidate(kana: unknown, word: unknown) {
       ensureString(kana);
       ensureString(word);
       currentLibrary.get().registerCandidate("okurinasi", kana, word);
+      return Promise.resolve()
     },
   };
   if (config.debug) {
