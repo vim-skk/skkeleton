@@ -67,6 +67,7 @@ async function acceptResult(context: Context, result: KanaResult) {
   if (Array.isArray(result)) {
     await doKakutei(context, result[0], result[1]);
   } else {
+    (context.state as InputState).feed = "";
     await result(context, "");
   }
 }
@@ -80,27 +81,29 @@ export async function kanaInput(context: Context, char: string) {
     return;
   }
 
-  // 「ん」に関するパターンの処理に必要
-  const current = state.table.find((e) => e[0] === state.feed);
+  const next = state.feed + char;
+  const found = state.table.filter((e) => e[0].startsWith(next));
 
-  const previousFeed = state.feed;
-  state.feed += char;
-  const found = state.table.filter((e) => e[0].startsWith(state.feed));
-
-  if (found.length === 0) {
+  if (found.length === 1 && found[0][0] === next) {
+    // 正確にマッチした場合はそのまま確定
+    await acceptResult(context, found[0][1]);
+  } else if (found.length) {
+    // テーブルに残余があったらfeedに積む
+    state.feed = next;
+  } else if (state.feed) {
+    // テーブルとマッチせずfeedが存在した場合は
+    // feedを確定し、もう一度kanaInputに通す
+    const current = state.table.find((e) => e[0] === state.feed);
     if (current) {
       await acceptResult(context, current[1]);
-      state.feed = char;
     } else {
-      // kakutei previous feed
-      await doKakutei(context, previousFeed, char);
-      const found2 = state.table.find((e) => e[0] === char);
-      if (found2) {
-        await acceptResult(context, found2[1]);
-      }
+      kakuteiKana(state, context.preEdit, state.feed, "");
     }
-  } else if (found.length === 1 && found[0][0] === state.feed) {
-    await acceptResult(context, found[0][1]);
+    await kanaInput(context, char);
+  } else {
+    // feedが無い場合(=テーブルに存在しない文字)
+    // そのまま確定してしまう
+    kakuteiKana(state, context.preEdit, char, "");
   }
 }
 

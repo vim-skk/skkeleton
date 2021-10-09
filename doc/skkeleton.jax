@@ -171,11 +171,6 @@ showCandidatesCount                     *skkeleton-config-showCandidatesCount*
         (デフォルト 4)
         このオプションの数の候補までは選択表示がされずに変換されます。
 
-skipRegisterFirstCandidate       *skkeleton-config-skipRegisterFirstCandidate*
-        (デフォルト v:true)
-        このオプションを有効にすると
-        候補登録の際にグローバル辞書の先頭にある単語を登録しません。
-
 tabCompletion                                 *skkeleton-config-tabCompletion*
         (デフォルト v:true)
         このオプションを有効にすると<Tab>キーで及び<S-Tab>キーで
@@ -262,4 +257,13 @@ SKKではデフォルトで変換ポイントとして逆三角形を使いま�
 |skkeleton-config-markerHenkanSelect|を|'ambiwidth'|の対象外に
 変更してみてください。
 
+プラグインと干渉する~
+
+skkeletonを有効化、無効化する際にフックが使えますので
+プラグイン側で一時的に機能を無効化するという方法があります。
+>
+    " coc.nvimの例
+    autocmd User skkeleton-enable-pre let b:coc_suggest_disable = v:true
+    autocmd User skkeleton-disable-pre let b:coc_suggest_disable = v:false
+<
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl

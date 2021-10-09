@@ -27,7 +27,7 @@ export function kakutei(context: Context) {
     }
     case "input": {
       kakuteiFeed(context);
-      let result = state.henkanFeed + state.okuriFeed;
+      let result = state.henkanFeed + state.okuriFeed + state.feed;
       if (state.converter) {
         result = state.converter(result);
       }

@@ -63,12 +63,26 @@ function! skkeleton#mode() abort
   endif
 endfunction
 
+" Handling Shougo/pum.vim
+function! s:pumvisible() abort
+  return exists('*pum#visible') && pum#visible() || pumvisible()
+endfunction
+
 function! skkeleton#vim_status() abort
   let m = mode()
   return {
   \ 'mode': m,
-  \ 'completeStr': m == "i" && pumvisible() ? getline('.')[: col('.') - 2] : v:null,
+  \ 'completeStr': m == "i" && s:pumvisible() ? getline('.')[: col('.') - 2] : v:null,
   \ }
+endfunction
+
+function! skkeleton#handle(func, key) abort
+  let ret = denops#request('skkeleton', a:func, [a:key, skkeleton#vim_status()])
+  if ret =~# "^<Cmd>"
+    let ret = "\<Cmd>" .. ret[5:] .. "\<CR>"
+  endif
+  call skkeleton#doautocmd()
+  return ret
 endfunction
 
 " copied from eskk.vim
@@ -120,7 +134,7 @@ function! skkeleton#map() abort
         let func = match[1]
       endif
     endfor
-    execute printf("lnoremap <buffer> <expr> <nowait> %s denops#request('skkeleton', '%s', [%s, skkeleton#vim_status()]) .. skkeleton#doautocmd()", c, func, string(c))
+    execute printf('lnoremap <buffer> <expr> <nowait> %s skkeleton#handle(%s, %s)', c, string(func), string(c))
   endfor
 endfunction
 

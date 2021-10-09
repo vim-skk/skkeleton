@@ -2,6 +2,8 @@ import { config } from "../config.ts";
 import type { Context } from "../context.ts";
 import { autocmd, op, vars } from "../deps.ts";
 import { asInputState } from "../state.ts";
+import { kakutei } from "./common.ts";
+import { modeChange } from "./mode.ts";
 
 export async function disable(context: Context) {
   const denops = context.denops!;
@@ -13,6 +15,7 @@ export async function disable(context: Context) {
     }
     await denops.call("skkeleton#unmap");
     await op.iminsert.setLocal(denops, 0);
+    kakutei(context);
     context.preEdit.doKakutei("\x1e");
     try {
       await denops.cmd("doautocmd <nomodeline> User skkeleton-disable-post");
@@ -20,6 +23,7 @@ export async function disable(context: Context) {
       console.log(e);
     }
     await vars.g.set(denops, "skkeleton#enabled", false);
+    await modeChange(context, "");
   }
   asInputState(context.state);
 }

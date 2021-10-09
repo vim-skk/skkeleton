@@ -6,11 +6,13 @@ import {
   Denops,
   ensureObject,
   ensureString,
+  fn,
   isString,
   op,
   vars,
 } from "./deps.ts";
 import { disable as disableFunc } from "./function/disable.ts";
+import { modeChange } from "./function/mode.ts";
 import * as jisyo from "./jisyo.ts";
 import { currentLibrary } from "./jisyo.ts";
 import { registerKanaTable } from "./kana.ts";
@@ -77,6 +79,7 @@ async function enable(denops: Denops): Promise<string> {
       console.log(e);
     }
     await vars.g.set(denops, "skkeleton#enabled", true);
+    await modeChange(currentContext.get(), "hira");
     return "\x1e"; // <C-^>
   } else {
     return "";
@@ -120,15 +123,25 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
   const context = currentContext.get();
   context.vimMode = mode;
   if (isString(completeStr)) {
+    const denops = context.denops!;
+    const isNativePum = await fn.pumvisible(denops);
     if (config.debug) {
       console.log("input after complete");
     }
     const notation = keyToNotation[key];
     if (notation === "<tab>" && config.tabCompletion) {
-      return notationToKey["<c-n>"];
+      if (isNativePum) {
+        return notationToKey["<c-n>"];
+      } else {
+        return "<Cmd>call pum#map#insert_relative(+1)";
+      }
     }
     if (notation === "<s-tab>" && config.tabCompletion) {
-      return notationToKey["<c-p>"];
+      if (isNativePum) {
+        return notationToKey["<c-p>"];
+      } else {
+        return "<Cmd>call pum#map#insert_relative(-1)";
+      }
     }
     const completed = !(completeStr.endsWith(context.toString()));
     if (completed) {
