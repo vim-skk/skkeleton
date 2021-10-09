@@ -218,7 +218,7 @@ export async function main(denops: Denops) {
       ensureString(kana);
       ensureString(word);
       currentLibrary.get().registerCandidate("okurinasi", kana, word);
-      return Promise.resolve()
+      return Promise.resolve();
     },
   };
   if (config.debug) {
