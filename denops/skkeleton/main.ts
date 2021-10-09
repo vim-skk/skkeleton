@@ -199,15 +199,12 @@ export async function main(denops: Denops) {
       if (state.type !== "input") {
         return Promise.resolve([]);
       }
-      return Promise.resolve(
-        currentLibrary.get().getCandidates(state.henkanFeed),
-      );
+      return currentLibrary.get().getCandidates(state.henkanFeed)
     },
-    registerCandidate(kana: unknown, word: unknown) {
+    async registerCandidate(kana: unknown, word: unknown) {
       ensureString(kana);
       ensureString(word);
-      currentLibrary.get().registerCandidate("okurinasi", kana, word);
-      return Promise.resolve();
+      await currentLibrary.get().registerCandidate("okurinasi", kana, word);
     },
   };
   if (config.debug) {

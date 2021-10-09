@@ -7,7 +7,7 @@ import { currentLibrary } from "./jisyo.ts";
 const defaultConfig = { ...config };
 
 const lib = currentLibrary.get();
-lib.registerCandidate("okurinasi", "あ", "あ");
+await lib.registerCandidate("okurinasi", "あ", "あ");
 
 Deno.test({
   name: "egg like newline",

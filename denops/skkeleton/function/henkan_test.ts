@@ -4,9 +4,9 @@ import { currentLibrary } from "../jisyo.ts";
 import { dispatch } from "./testutil.ts";
 
 const l = currentLibrary.get();
-l.registerCandidate("okurinasi", "へんかん", "返還");
-l.registerCandidate("okurinasi", "へんかん", "変換");
-l.registerCandidate("okuriari", "おくr", "送");
+await l.registerCandidate("okurinasi", "へんかん", "返還");
+await l.registerCandidate("okurinasi", "へんかん", "変換");
+await l.registerCandidate("okuriari", "おくr", "送");
 
 Deno.test({
   name: "okurinasi henkan",
