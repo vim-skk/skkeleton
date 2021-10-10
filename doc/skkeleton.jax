@@ -182,7 +182,7 @@ usePopup                                           *skkeleton-config-usePopup*
         このオプションを有効にすると、変換候補がポップアップ表示されます。
 
 userJisyo                                     *skkeleton-config-userJisyo*
-        (デフォルト $HOME .. "/.skkeleton")
+        (デフォルト "~/.skkeleton")
         ユーザー辞書のパス
         JavaScriptの制約によりエンコーディングはUTF-8限定になります。
 

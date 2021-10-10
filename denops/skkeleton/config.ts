@@ -15,7 +15,7 @@ export const config = {
   showCandidatesCount: 4,
   tabCompletion: true,
   usePopup: true,
-  userJisyo: Deno.env.get("HOME") + "/.skkeleton",
+  userJisyo: "~/.skkeleton",
   markerHenkan: "▽",
   markerHenkanSelect: "▼",
   useSkkServer: false,
