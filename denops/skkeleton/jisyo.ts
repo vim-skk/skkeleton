@@ -205,10 +205,17 @@ export class Library {
 
   async saveJisyo() {
     if (this.#userJisyoPath) {
-      await Deno.writeTextFile(
-        this.#userJisyoPath,
-        encodeJisyo(this.#userJisyo),
-      );
+      try {
+        await Deno.writeTextFile(
+          this.#userJisyoPath,
+          encodeJisyo(this.#userJisyo),
+        );
+      } catch {
+        console.log(
+          `warning(skkeleton): can't write userJisyo to ${this.#userJisyoPath}`,
+        );
+        return;
+      }
       const stat = await Deno.stat(this.#userJisyoPath);
       const time = stat.mtime?.getTime() ?? -1;
       this.#userJisyoTimestamp = time;
