@@ -1,6 +1,4 @@
 import { config } from "./config.ts";
-import { isArray, isObject, isString } from "./deps.ts";
-import { distinct } from "./deps/std/collections.ts";
 import { Cell } from "./util.ts";
 
 const okuriAriMarker = ";; okuri-ari entries.";
@@ -8,28 +6,77 @@ const okuriNasiMarker = ";; okuri-nasi entries.";
 
 const lineRegexp = /^(\S+) \/(.*)\/$/;
 
-export type Jisyo = {
-  okuriari: Record<string, string[]>;
-  okurinasi: Record<string, string[]>;
-};
+interface Jisyo {
+  getCandidate(type: HenkanType, word: string): Promise<string[]>;
+  getCandidates(word: string): Promise<[string, string[]][]>;
+}
+
+export class LocalJisyo implements Jisyo {
+  #okuriari: Map<string, string[]>;
+  #okurinasi: Map<string, string[]>;
+  constructor(
+    okuriari?: Map<string, string[]>,
+    okurinasi?: Map<string, string[]>,
+  ) {
+    this.#okuriari = okuriari ?? new Map();
+    this.#okurinasi = okurinasi ?? new Map();
+  }
+  getCandidate(type: HenkanType, word: string): Promise<string[]> {
+    const target = type === "okuriari" ? this.#okuriari : this.#okurinasi;
+    return Promise.resolve(target.get(word) ?? []);
+  }
+  getCandidates(prefix: string): Promise<[string, string[]][]> {
+    const candidates = new Map<string, string[]>();
+    for (const [key, value] of this.#okurinasi) {
+      if (key.startsWith(prefix)) {
+        candidates.set(key, value);
+      }
+    }
+    return Promise.resolve(Array.from(candidates.entries()));
+  }
+  registerCandidate(type: HenkanType, word: string, candidate: string) {
+    const target = type === "okuriari" ? this.#okuriari : this.#okurinasi;
+    target.set(
+      word,
+      Array.from(new Set([candidate, ...target.get(word) ?? []])),
+    );
+  }
+  toString(): string {
+    return [
+      [okuriAriMarker],
+      linesToString(Array.from(this.#okuriari.entries())),
+      [okuriNasiMarker],
+      linesToString(Array.from(this.#okurinasi.entries())),
+      [""], // The text file must end with a new line
+    ].flat().join("\n");
+  }
+}
+
+export function encodeJisyo(jisyo: LocalJisyo) {
+  return jisyo.toString();
+}
 
 export type HenkanType = "okuriari" | "okurinasi";
 
 export class Library {
-  #globalJisyo: Jisyo;
-  #userJisyo: Jisyo;
+  #globalJisyo: LocalJisyo;
+  #userJisyo: LocalJisyo;
   #userJisyoPath: string;
   #userJisyoTimestamp = -1;
 
-  constructor(globalJisyo?: Jisyo, userJisyo?: Jisyo, userJisyoPath?: string) {
-    this.#globalJisyo = globalJisyo ?? newJisyo();
-    this.#userJisyo = userJisyo ?? newJisyo();
+  constructor(
+    globalJisyo?: LocalJisyo,
+    userJisyo?: LocalJisyo,
+    userJisyoPath?: string,
+  ) {
+    this.#globalJisyo = globalJisyo ?? new LocalJisyo();
+    this.#userJisyo = userJisyo ?? new LocalJisyo();
     this.#userJisyoPath = userJisyoPath ?? "";
   }
 
-  getCandidate(type: HenkanType, word: string): string[] {
-    const candidates = this.#userJisyo[type][word] ?? [];
-    const globalCandidates = this.#globalJisyo[type][word];
+  async getCandidate(type: HenkanType, word: string): Promise<string[]> {
+    const candidates = await this.#userJisyo.getCandidate(type, word);
+    const globalCandidates = await this.#globalJisyo.getCandidate(type, word);
     if (globalCandidates) {
       const merged = candidates.slice();
       for (const c of globalCandidates) {
@@ -42,37 +89,31 @@ export class Library {
     return candidates;
   }
 
-  getCandidates(prefix: string): [string, string[]][] {
+  async getCandidates(prefix: string): Promise<[string, string[]][]> {
     if (prefix.length < 2) {
       return [];
     }
-    const globalJisyo = this.#globalJisyo.okurinasi;
-    const userJisyo = this.#userJisyo.okurinasi;
-    const user = Object.entries(userJisyo).filter((e) =>
-      !globalJisyo[e[0]] && e[0].startsWith(prefix)
-    );
-    const global: [string, string[]][] = Object.entries(
-      this.#globalJisyo.okurinasi,
-    ).filter((e) => e[0].startsWith(prefix)).map((e) => {
-      const ue = this.#userJisyo.okurinasi[e[0]];
-      if (ue) {
-        return [e[0], distinct(ue.concat(e[1]))];
-      } else {
-        return e;
-      }
-    });
-    return [...user, ...global].sort((a, b) => a[0].localeCompare(b[0]));
+    const candidates = new Map<string, string[]>();
+    for (const [key, value] of await this.#userJisyo.getCandidates(prefix)) {
+      candidates.set(
+        key,
+        Array.from(new Set([...candidates.get(key) ?? [], ...value])),
+      );
+    }
+    for (const [key, value] of await this.#globalJisyo.getCandidates(prefix)) {
+      candidates.set(
+        key,
+        Array.from(new Set([...candidates.get(key) ?? [], ...value])),
+      );
+    }
+    return Array.from(candidates.entries());
   }
 
   registerCandidate(type: HenkanType, word: string, candidate: string) {
     if (!candidate) {
       return;
     }
-    const candidates = distinct([
-      candidate,
-      ...this.#userJisyo[type][word] ?? [],
-    ]);
-    this.#userJisyo[type][word] = candidates;
+    this.#userJisyo.registerCandidate(type, word, candidate);
     if (config.immediatelyJisyoRW) {
       this.saveJisyo();
     }
@@ -109,7 +150,7 @@ export class Library {
   }
 }
 
-export function decodeJisyo(data: string) {
+export function decodeJisyo(data: string): LocalJisyo {
   const lines = data.split("\n");
 
   const okuriAriIndex = lines.indexOf(okuriAriMarker);
@@ -117,17 +158,19 @@ export function decodeJisyo(data: string) {
 
   const okuriAriEntries = lines.slice(okuriAriIndex + 1, okuriNasiIndex).map(
     (s) => s.match(lineRegexp),
-  ).filter((m) => m).map((m) => [m![1], m![2].split("/")]);
+  ).filter((m) => m).map((m) =>
+    [m![1], m![2].split("/")] as [string, string[]]
+  );
   const okuriNasiEntries = lines.slice(okuriNasiIndex + 1, lines.length).map(
     (s) => s.match(lineRegexp),
-  ).filter((m) => m).map((m) => [m![1], m![2].split("/")]);
+  ).filter((m) => m).map((m) =>
+    [m![1], m![2].split("/")] as [string, string[]]
+  );
 
-  const jisyo: Jisyo = {
-    okuriari: Object.fromEntries(okuriAriEntries),
-    okurinasi: Object.fromEntries(okuriNasiEntries),
-  };
-
-  return jisyo;
+  return new LocalJisyo(
+    new Map(okuriAriEntries),
+    new Map(okuriNasiEntries),
+  );
 }
 
 /**
@@ -136,7 +179,7 @@ export function decodeJisyo(data: string) {
 export async function loadJisyo(
   path: string,
   jisyoEncoding: string,
-): Promise<Jisyo> {
+): Promise<LocalJisyo> {
   const decoder = new TextDecoder(jisyoEncoding);
   return decodeJisyo(decoder.decode(await Deno.readFile(path)));
 }
@@ -147,31 +190,8 @@ function linesToString(entries: [string, string[]][]): string[] {
   );
 }
 
-/**
- * encode jisyo to SKK style
- */
-export function encodeJisyo(jisyo: Jisyo): string {
-  return [
-    [okuriAriMarker],
-    linesToString(Object.entries(jisyo.okuriari)),
-    [okuriNasiMarker],
-    linesToString(Object.entries(jisyo.okurinasi)),
-    [""], // The text file must end with a new line
-  ].flat().join("\n");
-}
-
-function newJisyo(): Jisyo {
-  return {
-    okuriari: {},
-    okurinasi: {},
-  };
-}
-
 export function ensureJisyo(x: unknown): asserts x is Jisyo {
-  const pred = (x: unknown): x is Array<string> => isArray(x, isString);
-  if (
-    isObject(x) && isObject(x.okuriari, pred) && isObject(x.okurinasi, pred)
-  ) {
+  if (x instanceof LocalJisyo) {
     return;
   }
   throw new Error("corrupt jisyo detected");
@@ -182,8 +202,8 @@ export async function load(
   userJisyoPath: string,
   jisyoEncoding = "euc-jp",
 ): Promise<Library> {
-  let globalJisyo = newJisyo();
-  let userJisyo = newJisyo();
+  let globalJisyo = new LocalJisyo();
+  let userJisyo = new LocalJisyo();
   try {
     globalJisyo = await loadJisyo(
       globalJisyoPath,
