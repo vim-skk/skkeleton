@@ -7,6 +7,7 @@ import {
   Library,
   load,
   loadJisyo,
+  LocalJisyo,
 } from "./jisyo.ts";
 
 const globalJisyo = join(
@@ -26,9 +27,11 @@ Deno.test({
   async fn() {
     const jisyo = await loadJisyo(globalJisyo, "euc-jp");
     ensureJisyo(jisyo);
-    const data =
-      '{"okuriari":{"てすt":["テスト"]},"okurinasi":{"てすと":["テスト","test"]}}';
-    assertEquals(JSON.stringify(jisyo), data);
+    const data = new LocalJisyo(
+      new Map([["てすt", ["テスト"]]]),
+      new Map([["てすと", ["テスト", "test"]]]),
+    );
+    assertEquals(jisyo, data);
   },
 });
 
