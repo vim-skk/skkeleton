@@ -193,6 +193,25 @@ markerHenkanSelect                       *skkeleton-config-markerHenkanSelect*
         (デフォルト "▼")
         候補を選択している最中であることを示すため文字を指定します。
 
+useSkkServer                              *skkeleton-config-useSkkServer*
+        (デフォルト v:false)
+        辞書サーバー機能を有効にします。
+
+skkServerAddr                   *skkeleton-config-skkServerAddr*
+        (デフォルト "127.0.0.1")
+        辞書サーバーのホスト名またはIPアドレスを指定します。
+
+skkServerPort                   *skkeleton-config-skkServerPort*
+        (デフォルト 1178)
+        辞書サーバーのポート番号を指定します。
+
+skkServerResEnc                 *skkeleton-config-skkServerResEnc*
+        （デフォルト "euc-jp"）
+        辞書サーバーから受け取る文字列のエンコード形式を指定します。
+
+skkServerReqEnc                 *skkeleton-config-skkServerReqEnc*
+        （デフォルト "euc-jp"）
+        辞書サーバーに渡す文字列のエンコード形式を指定します。
 ------------------------------------------------------------------------------
                                               *skkeleton#register_kanatable()*
 skkeleton#register_kanatable({tableName}, {table}, {create})
