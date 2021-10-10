@@ -1,14 +1,25 @@
 import { config } from "./config.ts";
+import { encoding, iter } from "./deps.ts";
 import { Cell } from "./util.ts";
+import type { Encoding, SkkServerOptions } from "./types.ts";
+import { Encode } from "./types.ts";
 
 const okuriAriMarker = ";; okuri-ari entries.";
 const okuriNasiMarker = ";; okuri-nasi entries.";
 
 const lineRegexp = /^(\S+) \/(.*)\/$/;
 
-interface Jisyo {
+export interface Jisyo {
   getCandidate(type: HenkanType, word: string): Promise<string[]>;
   getCandidates(word: string): Promise<[string, string[]][]>;
+}
+
+function encode(str: string, encode: Encoding): Uint8Array {
+  const utf8Encoder = new TextEncoder();
+  const utf8Bytes = utf8Encoder.encode(str);
+  const eucBytesArray = encoding.convert(utf8Bytes, Encode[encode], "UTF8");
+  const eucBytes = Uint8Array.from(eucBytesArray);
+  return eucBytes;
 }
 
 export class LocalJisyo implements Jisyo {
@@ -58,35 +69,90 @@ export function encodeJisyo(jisyo: LocalJisyo) {
 
 export type HenkanType = "okuriari" | "okurinasi";
 
+function decode(str: Uint8Array, encode: Encoding): string {
+  const decoder = new TextDecoder(encode);
+  return decoder.decode(str);
+}
+
+export class SkkServer {
+  #conn: Deno.Conn | undefined;
+  responseEncoding: Encoding;
+  requestEncoding: Encoding;
+  connectOptions: Deno.ConnectOptions;
+  constructor(opts: SkkServerOptions) {
+    this.requestEncoding = opts.requestEnc;
+    this.responseEncoding = opts.responseEnc;
+    this.connectOptions = {
+      hostname: opts.hostname,
+      port: opts.port,
+    };
+  }
+  async connect() {
+    this.#conn = await Deno.connect(this.connectOptions);
+  }
+  async getCandidate(word: string): Promise<string[]> {
+    if (!this.#conn) return [];
+    await this.#conn.write(encode(`1${word} `, this.requestEncoding));
+    const result: string[] = [];
+    for await (const res of iter(this.#conn)) {
+      const str = decode(res, this.responseEncoding);
+      result.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
+
+      if (str.endsWith("\n")) {
+        break;
+      }
+    }
+    return result;
+  }
+  getCandidates(_prefix: string): [string, string[]][] {
+    // TODO: add support for ddc.vim
+    return [["", [""]]];
+  }
+  close() {
+    this.#conn?.write(encode("0", this.requestEncoding));
+    this.#conn?.close();
+  }
+}
+
 export class Library {
   #globalJisyo: LocalJisyo;
   #userJisyo: LocalJisyo;
   #userJisyoPath: string;
   #userJisyoTimestamp = -1;
+  #skkServer: SkkServer | undefined;
 
   constructor(
     globalJisyo?: LocalJisyo,
     userJisyo?: LocalJisyo,
     userJisyoPath?: string,
+    skkServer?: SkkServer,
   ) {
     this.#globalJisyo = globalJisyo ?? new LocalJisyo();
     this.#userJisyo = userJisyo ?? new LocalJisyo();
     this.#userJisyoPath = userJisyoPath ?? "";
+    this.#skkServer = skkServer;
   }
 
   async getCandidate(type: HenkanType, word: string): Promise<string[]> {
-    const candidates = await this.#userJisyo.getCandidate(type, word);
+    const userCandidates = await this.#userJisyo.getCandidate(type, word);
+    const merged = userCandidates.slice();
     const globalCandidates = await this.#globalJisyo.getCandidate(type, word);
+    const remoteCandidates = await this.#skkServer?.getCandidate(word);
     if (globalCandidates) {
-      const merged = candidates.slice();
       for (const c of globalCandidates) {
         if (!merged.includes(c)) {
           merged.push(c);
         }
       }
-      return merged;
     }
-    return candidates;
+    if (remoteCandidates) {
+      for (const c of remoteCandidates) {
+        if (!merged.includes(c)) {
+          merged.push(c);
+        }
+      }
+    }
+    return merged;
   }
 
   async getCandidates(prefix: string): Promise<[string, string[]][]> {
@@ -201,6 +267,7 @@ export async function load(
   globalJisyoPath: string,
   userJisyoPath: string,
   jisyoEncoding = "euc-jp",
+  skkServer?: SkkServer,
 ): Promise<Library> {
   let globalJisyo = new LocalJisyo();
   let userJisyo = new LocalJisyo();
@@ -228,7 +295,17 @@ export async function load(
     }
     // do nothing
   }
-  return new Library(globalJisyo, userJisyo, userJisyoPath);
+  try {
+    if (skkServer) {
+      skkServer.connect();
+    }
+  } catch (e) {
+    if (config.debug) {
+      console.log("connecting to skk server is failed");
+      console.log(e);
+    }
+  }
+  return new Library(globalJisyo, userJisyo, userJisyoPath, skkServer);
 }
 
 export const currentLibrary = new Cell(() => new Library());

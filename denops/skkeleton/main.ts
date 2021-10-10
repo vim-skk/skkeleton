@@ -14,12 +14,13 @@ import {
 import { disable as disableFunc } from "./function/disable.ts";
 import { modeChange } from "./function/mode.ts";
 import * as jisyo from "./jisyo.ts";
-import { currentLibrary } from "./jisyo.ts";
+import { currentLibrary, SkkServer } from "./jisyo.ts";
 import { registerKanaTable } from "./kana.ts";
 import { handleKey } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { asInputState } from "./state.ts";
 import { Cell } from "./util.ts";
+import type { SkkServerOptions } from "./types.ts";
 
 let initialized = false;
 
@@ -36,9 +37,34 @@ async function init(denops: Denops) {
     console.log(e);
   }
   currentContext.get().denops = denops;
-  const { globalJisyo, userJisyo, globalJisyoEncoding } = config;
+  const {
+    globalJisyo,
+    userJisyo,
+    globalJisyoEncoding,
+    useSkkServer,
+    skkServerHost,
+    skkServerPort,
+    skkServerResEnc,
+    skkServerReqEnc,
+  } = config;
+  let skkServer: SkkServer | undefined;
+  let skkServerOptions: SkkServerOptions | undefined;
+  if (useSkkServer) {
+    skkServerOptions = {
+      hostname: skkServerHost,
+      port: skkServerPort,
+      requestEnc: skkServerReqEnc,
+      responseEnc: skkServerResEnc,
+    };
+    skkServer = new SkkServer(skkServerOptions);
+  }
   jisyo.currentLibrary.set(
-    await jisyo.load(globalJisyo, userJisyo, globalJisyoEncoding),
+    await jisyo.load(
+      globalJisyo,
+      userJisyo,
+      globalJisyoEncoding,
+      skkServer,
+    ),
   );
   await receiveNotation(denops);
   const id = anonymous.add(denops, () => {

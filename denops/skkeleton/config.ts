@@ -1,4 +1,5 @@
 import { ensureBoolean, ensureNumber, ensureString } from "./deps.ts";
+import { Encode, Encoding } from "./types.ts";
 
 export const config = {
   debug: false,
@@ -17,6 +18,11 @@ export const config = {
   userJisyo: Deno.env.get("HOME") + "/.skkeleton",
   markerHenkan: "▽",
   markerHenkanSelect: "▼",
+  useSkkServer: false,
+  skkServerHost: "127.0.0.1",
+  skkServerPort: 1178,
+  skkServerResEnc: "euc-jp" as Encoding,
+  skkServerReqEnc: "euc-jp" as Encoding,
 };
 
 type Validators = {
@@ -45,6 +51,21 @@ const validators: Validators = {
   userJisyo: ensureString,
   markerHenkan: ensureString,
   markerHenkanSelect: ensureString,
+  useSkkServer: ensureBoolean,
+  skkServerHost: ensureString,
+  skkServerPort: ensureNumber,
+  skkServerResEnc: (x): asserts x is Encoding => {
+    ensureString(x);
+    if (!(x in Encode)) {
+      throw TypeError(`${x} is invalid encoding`);
+    }
+  },
+  skkServerReqEnc: (x): asserts x is Encoding => {
+    ensureString(x);
+    if (!(x in Encode)) {
+      throw TypeError(`${x} is invalid encoding`);
+    }
+  },
 };
 
 export function setConfig(newConfig: Record<string, unknown>) {
