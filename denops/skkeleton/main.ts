@@ -26,6 +26,14 @@ let initialized = false;
 
 export const currentContext = new Cell(() => new Context());
 
+function homeExpand(path: string, homePath: string): string {
+  if (path[0] === "~") {
+    return homePath + path.slice(1);
+  } else {
+    return path;
+  }
+}
+
 async function init(denops: Denops) {
   if (config.debug) {
     console.log("skkeleton: initialize");
@@ -58,10 +66,11 @@ async function init(denops: Denops) {
     };
     skkServer = new SkkServer(skkServerOptions);
   }
+  const homePath = await fn.expand(denops, "~") as string;
   jisyo.currentLibrary.set(
     await jisyo.load(
-      globalJisyo,
-      userJisyo,
+      homeExpand(globalJisyo, homePath),
+      homeExpand(userJisyo, homePath),
       globalJisyoEncoding,
       skkServer,
     ),

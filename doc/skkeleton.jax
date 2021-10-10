@@ -114,7 +114,8 @@ skkeleton#config(dict)                                    *skkeleton#config()*
 
         以下に示すキー(省略可能)から成る辞書を渡すことで設定を変更できます。
         一部の設定(現時点では辞書関係)は初回起動前に渡す必要があります。
-        また、パスの類は展開されないのでVimの方で展開をお願いします。
+        パスに関しては、ホームディレクトリを示す `~` のみVimの|expand()|と
+        同じ方法で展開されます。
 
 debug                                                 *skkeleton-config-debug*
         (デフォルト v:false, g:skkeleton#debug が真の場合は v:true)
