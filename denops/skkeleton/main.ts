@@ -42,7 +42,7 @@ async function init(denops: Denops) {
     userJisyo,
     globalJisyoEncoding,
     useSkkServer,
-    skkServerAddr,
+    skkServerHost,
     skkServerPort,
     skkServerResEnc,
     skkServerReqEnc,
@@ -51,7 +51,7 @@ async function init(denops: Denops) {
   let skkServerOptions: SkkServerOptions | undefined;
   if (useSkkServer) {
     skkServerOptions = {
-      hostname: skkServerAddr,
+      hostname: skkServerHost,
       port: skkServerPort,
       requestEnc: skkServerReqEnc,
       responseEnc: skkServerResEnc,

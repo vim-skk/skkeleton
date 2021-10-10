@@ -1,6 +1,5 @@
 import { config } from "./config.ts";
-import { encoding, isArray, isObject, isString, iter } from "./deps.ts";
-import { distinct } from "./deps/std/collections.ts";
+import { encoding, iter } from "./deps.ts";
 import { Cell } from "./util.ts";
 import type { Encoding, SkkServerOptions } from "./types.ts";
 import { Encode } from "./types.ts";

@@ -19,7 +19,7 @@ export const config = {
   markerHenkan: "▽",
   markerHenkanSelect: "▼",
   useSkkServer: false,
-  skkServerAddr: "127.0.0.1",
+  skkServerHost: "127.0.0.1",
   skkServerPort: 1178,
   skkServerResEnc: "euc-jp" as Encoding,
   skkServerReqEnc: "euc-jp" as Encoding,
@@ -52,7 +52,7 @@ const validators: Validators = {
   markerHenkan: ensureString,
   markerHenkanSelect: ensureString,
   useSkkServer: ensureBoolean,
-  skkServerAddr: ensureString,
+  skkServerHost: ensureString,
   skkServerPort: ensureNumber,
   skkServerResEnc: (x): asserts x is Encoding => {
     ensureString(x);
