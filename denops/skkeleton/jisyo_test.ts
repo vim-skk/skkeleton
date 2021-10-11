@@ -22,6 +22,12 @@ const userJisyo = join(
   "userJisyo",
 );
 
+const numJisyo = join(
+  dirname(fromFileUrl(import.meta.url)),
+  "testdata",
+  "numJisyo",
+);
+
 Deno.test({
   name: "load jisyo",
   async fn() {
@@ -44,6 +50,26 @@ Deno.test({
     assertEquals(["テスト"], ari);
     const nasi = await manager.getCandidate("okurinasi", "てすと");
     assertEquals(["テスト", "test"], nasi);
+  },
+});
+
+Deno.test({
+  name: "get num candidates",
+  async fn() {
+    const jisyo = await loadJisyo(numJisyo, "euc-jp");
+    const manager = new Library(jisyo);
+    const nasi = await manager.getCandidate("okurinasi", "101ばん");
+    assertEquals(["101番", "１０１番", "一〇一番", "百一番"], nasi);
+  },
+});
+
+Deno.test({
+  name: "get num candidates",
+  async fn() {
+    const jisyo = await loadJisyo(numJisyo, "euc-jp");
+    const manager = new Library(jisyo);
+    const nasi = await manager.getCandidate("okurinasi", "101ばん");
+    assertEquals(["101番", "１０１番", "一〇一番", "百一番"], nasi);
   },
 });
 

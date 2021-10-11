@@ -1,5 +1,5 @@
 import { config } from "./config.ts";
-import { encoding, iter } from "./deps.ts";
+import { encoding, iter, R, JpNum } from "./deps.ts";
 import { Cell } from "./util.ts";
 import type { Encoding, SkkServerOptions } from "./types.ts";
 import { Encode } from "./types.ts";
@@ -8,6 +8,47 @@ const okuriAriMarker = ";; okuri-ari entries.";
 const okuriNasiMarker = ";; okuri-nasi entries.";
 
 const lineRegexp = /^(\S+) \/(.*)\/$/;
+
+
+function toZenkaku(n: number): string {
+  return n.toString().replaceAll(/[0-9]/g, (c): string => {
+    const zenkakuNumbers = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"];
+    return zenkakuNumbers[parseInt(c)];
+  });
+}
+function toKanjiModern(n: number): string {
+  return n.toString().replaceAll(/[0-9]/g, (c): string => {
+    const kanjiNumbers = ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+    return kanjiNumbers[parseInt(c)];
+  });
+}
+const toKanjiClassic: (n: number) => string = JpNum.number2kanji;
+
+function convertNumber(pattern: string, entry: string): string {
+  return R.zip(pattern.split(/(#[0-9]?)/g), entry.split(/([0-9]+)/g))
+    .map(([k, e]) => {
+      switch (k) {
+        case "#":
+        case "#0":
+        case "#4":
+        case "#5":
+        case "#6":
+        case "#7":
+        case "#8":
+        case "#9":
+          return e;
+        case "#1":
+          return toZenkaku(parseInt(e));
+        case "#2":
+          return toKanjiModern(parseInt(e));
+        case "#3":
+          return toKanjiClassic(parseInt(e));
+        default:
+          return k;
+      }
+    })
+    .join("");
+}
 
 export interface Jisyo {
   getCandidate(type: HenkanType, word: string): Promise<string[]>;
@@ -34,12 +75,16 @@ export class LocalJisyo implements Jisyo {
   }
   getCandidate(type: HenkanType, word: string): Promise<string[]> {
     const target = type === "okuriari" ? this.#okuriari : this.#okurinasi;
-    return Promise.resolve(target.get(word) ?? []);
+    return Promise.resolve(
+      (target.get(word.replaceAll(/[0-9]+/g, "#")) ?? [])
+        .map((candidate) => convertNumber(candidate, word))
+    );
   }
   getCandidates(prefix: string): Promise<[string, string[]][]> {
     const candidates = new Map<string, string[]>();
     for (const [key, value] of this.#okurinasi) {
       if (key.startsWith(prefix)) {
+        // TODO: to get numebric candidates
         candidates.set(key, value);
       }
     }
