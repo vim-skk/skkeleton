@@ -1,5 +1,5 @@
 import { config } from "./config.ts";
-import { encoding, iter, R, JpNum } from "./deps.ts";
+import { encoding, iter, JpNum, R } from "./deps.ts";
 import { Cell } from "./util.ts";
 import type { Encoding, SkkServerOptions } from "./types.ts";
 import { Encode } from "./types.ts";
@@ -8,7 +8,6 @@ const okuriAriMarker = ";; okuri-ari entries.";
 const okuriNasiMarker = ";; okuri-nasi entries.";
 
 const lineRegexp = /^(\S+) \/(.*)\/$/;
-
 
 function toZenkaku(n: number): string {
   return n.toString().replaceAll(/[0-9]/g, (c): string => {
@@ -77,7 +76,7 @@ export class LocalJisyo implements Jisyo {
     const target = type === "okuriari" ? this.#okuriari : this.#okurinasi;
     return Promise.resolve(
       (target.get(word.replaceAll(/[0-9]+/g, "#")) ?? [])
-        .map((candidate) => convertNumber(candidate, word))
+        .map((candidate) => convertNumber(candidate, word)),
     );
   }
   getCandidates(prefix: string): Promise<[string, string[]][]> {
