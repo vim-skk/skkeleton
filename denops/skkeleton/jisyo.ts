@@ -1,8 +1,9 @@
 import { config } from "./config.ts";
-import { encoding, iter, JpNum, R } from "./deps.ts";
+import { encoding, iter, JpNum } from "./deps.ts";
 import { Cell } from "./util.ts";
 import type { Encoding, SkkServerOptions } from "./types.ts";
 import { Encode } from "./types.ts";
+import { zip } from "./deps/std/collections.ts";
 
 const okuriAriMarker = ";; okuri-ari entries.";
 const okuriNasiMarker = ";; okuri-nasi entries.";
@@ -24,7 +25,7 @@ function toKanjiModern(n: number): string {
 const toKanjiClassic: (n: number) => string = JpNum.number2kanji;
 
 function convertNumber(pattern: string, entry: string): string {
-  return R.zip(pattern.split(/(#[0-9]?)/g), entry.split(/([0-9]+)/g))
+  return zip(pattern.split(/(#[0-9]?)/g), entry.split(/([0-9]+)/g))
     .map(([k, e]) => {
       switch (k) {
         case "#":
