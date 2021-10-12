@@ -153,13 +153,12 @@ function handleCompleteKey(
 async function handle(key: unknown, vimStatus: unknown): Promise<string> {
   ensureString(key);
   ensureObject(vimStatus);
-  const { mode, completeStr } = vimStatus;
+  const { mode, completeStr, isNativePum } = vimStatus;
   ensureString(mode);
   const context = currentContext.get();
   context.vimMode = mode;
   if (isString(completeStr)) {
     const denops = context.denops!;
-    const isNativePum = await fn.pumvisible(denops);
     if (config.debug) {
       console.log("input after complete");
     }

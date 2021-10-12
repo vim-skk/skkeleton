@@ -73,6 +73,7 @@ function! skkeleton#vim_status() abort
   return {
   \ 'mode': m,
   \ 'completeStr': m == "i" && s:pumvisible() ? getline('.')[: col('.') - 2] : v:null,
+  \ 'isNativePum': pumvisible(),
   \ }
 endfunction
 
