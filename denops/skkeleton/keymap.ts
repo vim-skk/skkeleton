@@ -10,7 +10,7 @@ import {
   henkanInput,
 } from "./function/henkan.ts";
 import { deleteChar, henkanPoint, kanaInput } from "./function/input.ts";
-import { katakana } from "./function/mode.ts";
+import { hankatakana, katakana } from "./function/mode.ts";
 import { keyToNotation, notationToKey } from "./notation.ts";
 
 type KeyMap = {
@@ -30,6 +30,7 @@ const input: KeyMap = {
     "<nl>": kakutei,
     "<space>": henkanFirst,
     "q": katakana,
+    "<c-q>": hankatakana,
   },
 };
 
