@@ -1,4 +1,4 @@
-import { isObject } from "../skkeleton/deps.ts";
+import { isObject } from "./deps/unknownutil.ts";
 
 export type CompletionMetadata = {
   tag: "skkeleton";

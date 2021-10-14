@@ -1,5 +1,5 @@
-import { ensureObject, isString } from "./deps.ts";
 import type { Denops } from "./deps.ts";
+import { ensureObject, isString } from "./deps/unknownutil.ts";
 
 export let notationToKey: Record<string, string> = {};
 export let keyToNotation: Record<string, string> = {};

@@ -1,5 +1,6 @@
 import { config } from "./config.ts";
-import { encoding, JpNum } from "./deps.ts";
+import { encoding } from "./deps/encoding_japanese.ts";
+import { JpNum } from "./deps/japanese_numeral.ts";
 import { zip } from "./deps/std/collections.ts";
 import { iter } from "./deps/std/io.ts";
 import { Encode } from "./types.ts";

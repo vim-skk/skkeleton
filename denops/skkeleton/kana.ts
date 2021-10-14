@@ -1,6 +1,6 @@
 import { config } from "./config.ts";
-import { ensureObject, isString } from "./deps.ts";
 import { distinctBy } from "./deps/std/collections.ts";
+import { ensureObject, isString } from "./deps/unknownutil.ts";
 import { functions } from "./function.ts";
 import { romToHira } from "./kana/rom_hira.ts";
 import type { KanaResult, KanaTable } from "./kana/type.ts";

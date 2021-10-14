@@ -1,4 +1,8 @@
-import { ensureBoolean, ensureNumber, ensureString } from "./deps.ts";
+import {
+  ensureBoolean,
+  ensureNumber,
+  ensureString,
+} from "./deps/unknownutil.ts";
 import { Encode, Encoding } from "./types.ts";
 
 export const config = {

@@ -1,16 +1,7 @@
 import { config, setConfig } from "./config.ts";
 import { Context } from "./context.ts";
-import {
-  anonymous,
-  autocmd,
-  Denops,
-  ensureObject,
-  ensureString,
-  fn,
-  isString,
-  op,
-  vars,
-} from "./deps.ts";
+import { anonymous, autocmd, Denops, fn, op, vars } from "./deps.ts";
+import { ensureObject, ensureString, isString } from "./deps/unknownutil.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { modeChange } from "./function/mode.ts";
 import * as jisyo from "./jisyo.ts";
