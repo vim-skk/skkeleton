@@ -3,6 +3,7 @@ import { Context } from "../context.ts";
 import { autocmd, vars } from "../deps.ts";
 import { currentLibrary } from "../jisyo.ts";
 import { hiraToKata } from "../kana/hira_kata.ts";
+import { hiraToHanKata } from "../kana/hira_hankata.ts";
 import { asInputState } from "../state.ts";
 import { kakuteiFeed } from "./input.ts";
 
@@ -42,6 +43,36 @@ export async function katakana(context: Context) {
   let result = kana;
   if (!state.converter) {
     result = hiraToKata(result);
+    if (config.registerConvertResult) {
+      const lib = currentLibrary.get();
+      lib.registerCandidate("okurinasi", kana, result);
+    }
+  }
+  context.preEdit.doKakutei(result);
+  asInputState(state);
+}
+
+export async function hankatakana(context: Context) {
+  if (context.state.type !== "input") {
+    return;
+  }
+  const state = context.state;
+  if (state.mode === "direct") {
+    if (state.converter === hiraToHanKata) {
+      state.converter = void 0;
+      await modeChange(context, "hira");
+    } else {
+      state.converter = hiraToHanKata;
+      state.converterName = "hankatakana";
+      await modeChange(context, "hankata");
+    }
+    return;
+  }
+  kakuteiFeed(context);
+  const kana = state.henkanFeed + state.okuriFeed;
+  let result = kana;
+  if (state.converter !== hiraToHanKata) {
+    result = hiraToHanKata(result);
     if (config.registerConvertResult) {
       const lib = currentLibrary.get();
       lib.registerCandidate("okurinasi", kana, result);

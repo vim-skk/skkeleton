@@ -5,7 +5,7 @@ import { test } from "../deps/denops_test.ts";
 import { assertEquals } from "../deps/std/testing.ts";
 import { kakutei } from "./common.ts";
 import { deleteChar, henkanPoint } from "./input.ts";
-import { katakana } from "./mode.ts";
+import { hankatakana, katakana } from "./mode.ts";
 import { dispatch, initDenops } from "./testutil.ts";
 
 Deno.test({
@@ -171,10 +171,65 @@ Deno.test({
     await dispatch(context, "Hoge");
     await katakana(context);
     assertEquals(context.preEdit.output(""), "ホゲ");
+    // from hankatakana mode
+    await hankatakana(context);
+    await dispatch(context, "Hoge");
+    await katakana(context);
+    assertEquals(context.preEdit.output(""), "ほげ");
+    await hankatakana(context);
     // don't convert when converter enabled
     await katakana(context);
     await dispatch(context, "Hoge");
     await katakana(context);
+    assertEquals(context.preEdit.output(""), "ほげ");
+  },
+});
+
+Deno.test({
+  name: "hankatakana input",
+  async fn() {
+    const context = new Context();
+
+    // change to hankatakana mode
+    await hankatakana(context);
+    await dispatch(context, "a");
+    assertEquals(context.preEdit.output(""), "ｱ");
+    await hankatakana(context);
+    await dispatch(context, "a");
+    assertEquals(context.preEdit.output(""), "あ");
+    // from katakana mode
+    await katakana(context);
+    await hankatakana(context);
+    await dispatch(context, "a");
+    assertEquals(context.preEdit.output(""), "ｱ");
+    // katakana() in hankana mode to move to hiragana mode
+    await katakana(context);
+    await dispatch(context, "a");
+    assertEquals(context.preEdit.output(""), "あ");
+
+    // henkan pre
+    await hankatakana(context);
+    await dispatch(context, "N");
+    assertEquals(context.toString(), "▽n");
+    // and kakutei
+    kakutei(context);
+    assertEquals(context.preEdit.output(""), "ﾝ");
+
+    await hankatakana(context);
+    // convert henkan pre
+    await dispatch(context, "Hoge");
+    await hankatakana(context);
+    assertEquals(context.preEdit.output(""), "ﾎｹﾞ");
+    // from katakana mode
+    await katakana(context);
+    await dispatch(context, "Hoge");
+    await hankatakana(context);
+    assertEquals(context.preEdit.output(""), "ﾎｹﾞ");
+    await katakana(context);
+    // don't convert when converter enabled
+    await hankatakana(context);
+    await dispatch(context, "Hoge");
+    await hankatakana(context);
     assertEquals(context.preEdit.output(""), "ほげ");
   },
 });
