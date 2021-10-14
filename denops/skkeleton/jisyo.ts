@@ -1,9 +1,10 @@
 import { config } from "./config.ts";
-import { encoding, iter, JpNum } from "./deps.ts";
-import { Cell } from "./util.ts";
-import type { Encoding, SkkServerOptions } from "./types.ts";
-import { Encode } from "./types.ts";
+import { encoding, JpNum } from "./deps.ts";
 import { zip } from "./deps/std/collections.ts";
+import { iter } from "./deps/std/io.ts";
+import { Encode } from "./types.ts";
+import type { Encoding, SkkServerOptions } from "./types.ts";
+import { Cell } from "./util.ts";
 
 const okuriAriMarker = ";; okuri-ari entries.";
 const okuriNasiMarker = ";; okuri-nasi entries.";

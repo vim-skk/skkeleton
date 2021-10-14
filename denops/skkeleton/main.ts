@@ -19,8 +19,8 @@ import { registerKanaTable } from "./kana.ts";
 import { handleKey } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { asInputState } from "./state.ts";
-import { Cell } from "./util.ts";
 import type { SkkServerOptions } from "./types.ts";
+import { Cell } from "./util.ts";
 
 let initialized = false;
 

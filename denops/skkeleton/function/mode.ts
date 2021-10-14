@@ -2,8 +2,8 @@ import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { autocmd, vars } from "../deps.ts";
 import { currentLibrary } from "../jisyo.ts";
-import { hiraToKata } from "../kana/hira_kata.ts";
 import { hiraToHanKata } from "../kana/hira_hankata.ts";
+import { hiraToKata } from "../kana/hira_kata.ts";
 import { asInputState } from "../state.ts";
 import { kakuteiFeed } from "./input.ts";
 
