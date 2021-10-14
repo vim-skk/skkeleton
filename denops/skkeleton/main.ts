@@ -158,7 +158,6 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
   const context = currentContext.get();
   context.vimMode = mode;
   if (isString(completeStr)) {
-    const denops = context.denops!;
     if (config.debug) {
       console.log("input after complete");
     }
