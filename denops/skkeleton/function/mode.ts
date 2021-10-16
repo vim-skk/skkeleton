@@ -4,7 +4,7 @@ import { autocmd, vars } from "../deps.ts";
 import { currentLibrary } from "../jisyo.ts";
 import { hiraToHanKata } from "../kana/hira_hankata.ts";
 import { hiraToKata } from "../kana/hira_kata.ts";
-import { asInputState } from "../state.ts";
+import { resetState } from "../state.ts";
 import { kakuteiFeed } from "./input.ts";
 
 export async function modeChange(context: Context, mode: string) {
@@ -49,7 +49,7 @@ export async function katakana(context: Context) {
     }
   }
   context.preEdit.doKakutei(result);
-  asInputState(state);
+  resetState(state);
 }
 
 export async function hankatakana(context: Context) {
@@ -79,5 +79,5 @@ export async function hankatakana(context: Context) {
     }
   }
   context.preEdit.doKakutei(result);
-  asInputState(state);
+  resetState(state);
 }

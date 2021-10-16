@@ -10,7 +10,6 @@ export type InputState = {
   type: "input";
   mode: InputMode;
   table: KanaTable;
-  tableName: string;
   converter?: (input: string) => string;
   converterName: string;
   feed: string;
@@ -21,29 +20,31 @@ export type InputState = {
   previousFeed: boolean;
 };
 
-export function asInputState(astate: State, initialize = true): InputState {
+const defaultInputState: InputState = {
+  type: "input",
+  mode: "direct",
+  table: getKanaTable(),
+  converter: void 0,
+  converterName: "",
+  feed: "",
+  henkanFeed: "",
+  okuriFeed: "",
+  previousFeed: false,
+};
+
+export function initializeState(state: Record<string, unknown>): InputState {
+  defaultInputState.table = getKanaTable();
+  return Object.assign(state, defaultInputState);
+}
+
+export function resetState(astate: State) {
+  astate.type = "input";
   const state = astate as InputState;
-  state.type = "input";
-  if (initialize) {
-    state.table = getKanaTable();
-    state.mode = "direct";
-    state.tableName = "";
-    state.converterName = "";
-    state.feed = "";
-    state.henkanFeed = "";
-    state.okuriFeed = "";
-    state.previousFeed = false;
-  } else {
-    state.table ??= getKanaTable();
-    state.mode ??= "direct";
-    state.tableName ??= "";
-    state.converterName ??= "";
-    state.feed ??= "";
-    state.henkanFeed ??= "";
-    state.okuriFeed ??= "";
-    state.previousFeed ??= false;
-  }
-  return state;
+  state.mode = "direct";
+  state.feed = "";
+  state.henkanFeed = "";
+  state.okuriFeed = "";
+  state.previousFeed = false;
 }
 
 export type HenkanState = Omit<InputState, "type"> & {

@@ -2,7 +2,6 @@ import { config } from "../config.ts";
 import type { Context } from "../context.ts";
 import { KanaResult } from "../kana/type.ts";
 import { PreEdit } from "../preedit.ts";
-import { asInputState } from "../state.ts";
 import type { InputState } from "../state.ts";
 import { undoPoint } from "../util.ts";
 import { henkanFirst } from "./henkan.ts";
@@ -73,7 +72,9 @@ async function acceptResult(context: Context, result: KanaResult) {
 }
 
 export async function kanaInput(context: Context, char: string) {
-  const state = asInputState(context.state, false);
+  context.state.type = "input";
+  const state = context.state as InputState;
+
   const lower = char.toLowerCase();
   if (char !== lower) {
     henkanPoint(context);

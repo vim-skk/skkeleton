@@ -9,7 +9,7 @@ import { currentLibrary, SkkServer } from "./jisyo.ts";
 import { registerKanaTable } from "./kana.ts";
 import { handleKey } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
-import { asInputState } from "./state.ts";
+import { resetState } from "./state.ts";
 import type { SkkServerOptions } from "./types.ts";
 import { Cell } from "./util.ts";
 
@@ -129,7 +129,7 @@ function handleCompleteKey(
   if (notation === "<c-y>") {
     if (completed) {
       const context = currentContext.get();
-      asInputState(context.state);
+      resetState(context.state);
     }
     return notationToKey["<c-y>"];
   }
@@ -173,7 +173,7 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
         console.log("candidate selected");
         console.log({ completeStr, context: context.toString() });
       }
-      asInputState(context.state);
+      resetState(context.state);
       context.preEdit.output("");
     }
     const handled = handleCompleteKey(completed, notation);

@@ -3,7 +3,7 @@ import { Context } from "../context.ts";
 import { batch, fn, mapping, op, vars } from "../deps.ts";
 import { currentLibrary } from "../jisyo.ts";
 import { currentContext } from "../main.ts";
-import { asInputState, HenkanState } from "../state.ts";
+import { HenkanState, initializeState } from "../state.ts";
 
 const cmapKeys = ["<Esc>", "<C-g>"];
 
@@ -37,7 +37,7 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
       result,
     );
     context.preEdit.doKakutei(result);
-    asInputState(state);
+    initializeState(state);
     return true;
   } catch (e) {
     if (config.debug) {

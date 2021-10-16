@@ -1,7 +1,7 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { currentLibrary } from "../jisyo.ts";
-import { asInputState } from "../state.ts";
+import { initializeState, resetState } from "../state.ts";
 import { undoPoint } from "../util.ts";
 import { kakuteiFeed } from "./input.ts";
 
@@ -21,7 +21,6 @@ export function kakutei(context: Context) {
       const ret = (candidateStrip ?? "error") + state.okuriFeed +
         (config.setUndoPoint && context.vimMode === "i" ? undoPoint : "");
       context.preEdit.doKakutei(ret);
-      asInputState(state);
       break;
     }
     case "input": {
@@ -31,15 +30,14 @@ export function kakutei(context: Context) {
         result = state.converter(result);
       }
       context.preEdit.doKakutei(result);
-      asInputState(state);
       break;
     }
     default:
       console.warn(
         `initializing unknown phase state: ${JSON.stringify(state)}`,
       );
-      asInputState(state);
   }
+  resetState(state);
 }
 
 export function newline(context: Context) {
@@ -62,12 +60,12 @@ export function cancel(context: Context) {
     context.preEdit.doKakutei("\x03");
   }
   if (config.immediatelyCancel) {
-    asInputState(context.state);
+    initializeState(context.state);
     return;
   }
   switch (state.type) {
     case "input":
-      asInputState(state);
+      initializeState(state);
       break;
     case "henkan":
       context.state.type = "input";

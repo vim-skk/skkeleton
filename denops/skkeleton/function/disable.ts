@@ -1,7 +1,7 @@
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
 import { autocmd, op, vars } from "../deps.ts";
-import { asInputState } from "../state.ts";
+import { initializeState } from "../state.ts";
 import { kakutei } from "./common.ts";
 import { modeChange } from "./mode.ts";
 
@@ -25,7 +25,7 @@ export async function disable(context: Context) {
     await vars.g.set(denops, "skkeleton#enabled", false);
     await modeChange(context, "");
   }
-  asInputState(context.state);
+  initializeState(context.state);
 }
 
 export async function escape(context: Context) {
