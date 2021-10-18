@@ -36,7 +36,7 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
       state.word,
       result,
     );
-    context.preEdit.doKakutei(result);
+    context.kakutei(result);
     initializeState(state);
     return true;
   } catch (e) {

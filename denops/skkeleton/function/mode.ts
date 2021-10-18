@@ -48,7 +48,7 @@ export async function katakana(context: Context) {
       lib.registerCandidate("okurinasi", kana, result);
     }
   }
-  context.preEdit.doKakutei(result);
+  context.kakuteiWithUndoPoint(result);
   resetState(state);
 }
 
@@ -78,6 +78,6 @@ export async function hankatakana(context: Context) {
       lib.registerCandidate("okurinasi", kana, result);
     }
   }
-  context.preEdit.doKakutei(result);
+  context.kakuteiWithUndoPoint(result);
   resetState(state);
 }

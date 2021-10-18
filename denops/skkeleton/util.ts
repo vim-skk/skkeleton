@@ -26,8 +26,3 @@ export class Cell<T> {
     this.initialized = true;
   }
 }
-
-/**
- * Undo point string of Vim
- */
-export const undoPoint = "\x07u";

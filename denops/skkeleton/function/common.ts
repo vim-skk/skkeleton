@@ -2,7 +2,6 @@ import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { currentLibrary } from "../jisyo.ts";
 import { initializeState, resetState } from "../state.ts";
-import { undoPoint } from "../util.ts";
 import { kakuteiFeed } from "./input.ts";
 
 export function kakutei(context: Context) {
@@ -18,9 +17,8 @@ export function kakutei(context: Context) {
           candidate,
         );
       }
-      const ret = (candidateStrip ?? "error") + state.okuriFeed +
-        (config.setUndoPoint && context.vimMode === "i" ? undoPoint : "");
-      context.preEdit.doKakutei(ret);
+      const ret = (candidateStrip ?? "error") + state.okuriFeed;
+      context.kakuteiWithUndoPoint(ret);
       break;
     }
     case "input": {
@@ -29,7 +27,7 @@ export function kakutei(context: Context) {
       if (state.converter) {
         result = state.converter(result);
       }
-      context.preEdit.doKakutei(result);
+      context.kakutei(result);
       break;
     }
     default:
@@ -46,7 +44,7 @@ export function newline(context: Context) {
       (context.state.type === "input" && context.state.mode !== "direct")));
   kakutei(context);
   if (insertNewline) {
-    context.preEdit.doKakutei("\n");
+    context.kakutei("\n");
   }
 }
 
@@ -57,7 +55,7 @@ export function cancel(context: Context) {
     state.mode === "direct" &&
     context.vimMode === "c"
   ) {
-    context.preEdit.doKakutei("\x03");
+    context.kakutei("\x03");
   }
   if (config.immediatelyCancel) {
     initializeState(context.state);

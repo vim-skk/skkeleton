@@ -1,9 +1,7 @@
-import { config } from "../config.ts";
 import type { Context } from "../context.ts";
 import { KanaResult } from "../kana/type.ts";
 import { PreEdit } from "../preedit.ts";
 import type { InputState } from "../state.ts";
-import { undoPoint } from "../util.ts";
 import { henkanFirst } from "./henkan.ts";
 
 // feedが仮名に変換できる場合は確定
@@ -121,12 +119,10 @@ export function henkanPoint(context: Context) {
   switch (state.mode) {
     case "direct":
       if (found.length === 0) {
-        context.preEdit.doKakutei(state.feed);
+        context.kakutei(state.feed);
         state.feed = "";
       }
-      if (config.setUndoPoint && context.vimMode === "i") {
-        context.preEdit.doKakutei(undoPoint);
-      }
+      context.kakuteiWithUndoPoint("");
       state.mode = "okurinasi";
       break;
     case "okurinasi":
@@ -165,6 +161,6 @@ export function deleteChar(context: Context) {
       state.mode = "direct";
     }
   } else {
-    context.preEdit.doKakutei("\b");
+    context.kakutei("\b");
   }
 }

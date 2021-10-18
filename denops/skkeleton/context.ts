@@ -10,6 +10,17 @@ export class Context {
   preEdit = new PreEdit();
   vimMode = "";
 
+  kakutei(str: string) {
+    this.preEdit.doKakutei(str);
+  }
+
+  kakuteiWithUndoPoint(str: string) {
+    if (config.setUndoPoint && this.vimMode === "i") {
+      str += "\x07u";
+    }
+    this.preEdit.doKakutei(str);
+  }
+
   toString(): string {
     switch (this.state.type) {
       case "input": {
