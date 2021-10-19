@@ -1,13 +1,17 @@
 import { disable } from "../function/disable.ts";
+import { henkanFirst } from "../function/henkan.ts";
+import { henkanPoint } from "../function/input.ts";
+import { katakana } from "../function/mode.ts";
 import type { KanaTable } from "./type.ts";
 
 export const romToHira: KanaTable = [
+  [" ", henkanFirst],
   ["!", ["！", ""]],
   [",", ["、", ""]],
   ["-", ["ー", ""]],
   [".", ["。", ""]],
   [":", ["：", ""]],
-  [";", ["；", ""]],
+  [";", henkanPoint],
   ["?", ["？", ""]],
   ["[", ["「", ""]],
   ["]", ["」", ""]],
@@ -144,6 +148,7 @@ export const romToHira: KanaTable = [
   ["pyi", ["ぴぃ", ""]],
   ["pyo", ["ぴょ", ""]],
   ["pyu", ["ぴゅ", ""]],
+  ["q", katakana],
   ["ra", ["ら", ""]],
   ["re", ["れ", ""]],
   ["ri", ["り", ""]],

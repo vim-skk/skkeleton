@@ -5,12 +5,11 @@ import { cancel, kakutei, newline } from "./function/common.ts";
 import { escape } from "./function/disable.ts";
 import {
   henkanBackward,
-  henkanFirst,
   henkanForward,
   henkanInput,
 } from "./function/henkan.ts";
-import { deleteChar, henkanPoint, kanaInput } from "./function/input.ts";
-import { hankatakana, katakana } from "./function/mode.ts";
+import { deleteChar, kanaInput } from "./function/input.ts";
+import { hankatakana } from "./function/mode.ts";
 import { keyToNotation, notationToKey } from "./notation.ts";
 
 type KeyMap = {
@@ -21,15 +20,12 @@ type KeyMap = {
 const input: KeyMap = {
   default: kanaInput,
   map: {
-    ";": henkanPoint,
     "<bs>": deleteChar,
     "<c-g>": cancel,
     "<c-h>": deleteChar,
     "<enter>": newline,
     "<esc>": escape,
     "<nl>": kakutei,
-    "<space>": henkanFirst,
-    "q": katakana,
     "<c-q>": hankatakana,
   },
 };
