@@ -141,14 +141,27 @@ function handleCompleteKey(
   return null;
 }
 
+type CompleteInfo = {
+  // Note: This is not implemeted in native completion
+  inserted?: string;
+  items: string[];
+  // deno-lint-ignore camelcase
+  pum_visible: boolean;
+  selected: number;
+};
+
+type VimStatus = {
+  completeInfo: CompleteInfo;
+  isNativePum: boolean;
+  mode: string;
+};
+
 async function handle(key: unknown, vimStatus: unknown): Promise<string> {
   ensureString(key);
-  ensureObject(vimStatus);
-  const { mode, completeStr, isNativePum } = vimStatus;
-  ensureString(mode);
+  const { completeInfo, isNativePum, mode } = vimStatus as VimStatus;
   const context = currentContext.get();
   context.vimMode = mode;
-  if (isString(completeStr)) {
+  if (completeInfo.pum_visible) {
     if (config.debug) {
       console.log("input after complete");
     }
@@ -167,11 +180,23 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
         return "<Cmd>call pum#map#insert_relative(-1)";
       }
     }
-    const completed = !(completeStr.endsWith(context.toString()));
+
+    const completed = !!((isNativePum ||
+      completeInfo.inserted) && completeInfo.selected >= 0);
+    if (config.debug) {
+      console.log({
+        isNativePum,
+        inserted: completeInfo.inserted,
+        selected: completeInfo.selected,
+      });
+    }
     if (completed) {
       if (config.debug) {
         console.log("candidate selected");
-        console.log({ completeStr, context: context.toString() });
+        console.log({
+          candidate: completeInfo.items[completeInfo.selected],
+          context: context.toString(),
+        });
       }
       resetState(context.state);
       context.preEdit.output("");

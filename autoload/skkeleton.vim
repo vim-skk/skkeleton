@@ -64,16 +64,20 @@ function! skkeleton#mode() abort
 endfunction
 
 " Handling Shougo/pum.vim
-function! s:pumvisible() abort
-  return exists('*pum#visible') && pum#visible() || pumvisible()
+function! s:complete_info() abort
+  if exists('*pum#visible') && pum#visible()
+    return pum#complete_info()
+  else
+    return complete_info()
+  endif
 endfunction
 
 function! skkeleton#vim_status() abort
   let m = mode()
   return {
-  \ 'mode': m,
-  \ 'completeStr': m == "i" && s:pumvisible() ? getline('.')[: col('.') - 2] : v:null,
+  \ 'completeInfo': s:complete_info(),
   \ 'isNativePum': pumvisible(),
+  \ 'mode': m,
   \ }
 endfunction
 
