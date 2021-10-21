@@ -36,7 +36,7 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
       state.word,
       result,
     );
-    context.kakutei(result);
+    context.kakuteiWithUndoPoint(result);
     initializeState(state);
     return true;
   } catch (e) {
