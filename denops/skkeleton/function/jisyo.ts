@@ -30,12 +30,13 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
   try {
     const base = "[辞書登録] " + state.henkanFeed;
     const okuri = state.mode === "okuriari" ? "*" + state.okuriFeed : "";
-    const result = await fn.input(denops, base + okuri + ": ");
+    const input = await fn.input(denops, base + okuri + ": ");
     currentLibrary.get().registerCandidate(
       state.mode,
       state.word,
-      result,
+      input,
     );
+    const result = input + (okuri ? state.okuriFeed : "");
     context.kakuteiWithUndoPoint(result);
     initializeState(state);
     return true;
