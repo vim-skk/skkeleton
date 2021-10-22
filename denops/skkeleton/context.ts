@@ -1,7 +1,7 @@
 import { config } from "./config.ts";
 import type { Denops } from "./deps.ts";
 import { PreEdit } from "./preedit.ts";
-import { initializeState, State } from "./state.ts";
+import { initializeState, State, toString } from "./state.ts";
 
 export class Context {
   denops?: Denops;
@@ -21,38 +21,7 @@ export class Context {
     this.preEdit.doKakutei(str);
   }
 
-  toString(): string {
-    switch (this.state.type) {
-      case "input": {
-        const state = this.state;
-        let ret = "";
-        if (state.mode !== "direct") {
-          ret = config.markerHenkan + state.henkanFeed;
-        }
-        if (state.mode === "okuriari") {
-          if (state.previousFeed) {
-            return ret + state.feed + "*";
-          } else {
-            ret += "*" + state.okuriFeed;
-          }
-        }
-        if (state.converter) {
-          ret = state.converter(ret);
-        }
-        return ret + state.feed;
-      }
-      case "henkan": {
-        const candidate =
-          this.state.candidates[this.state.candidateIndex]?.replace(
-            /;.*/,
-            "",
-          ) ?? "error";
-        return config.markerHenkanSelect + candidate + this.state.okuriFeed;
-      }
-      case "escape":
-        return "\x1b";
-      default:
-        return "";
-    }
+  toString() {
+    return toString(this.state);
   }
 }

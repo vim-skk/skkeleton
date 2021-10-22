@@ -1,3 +1,4 @@
+import { config } from "./config.ts";
 import type { HenkanType } from "./jisyo.ts";
 import { getKanaTable } from "./kana.ts";
 import { KanaTable } from "./kana/type.ts";
@@ -19,6 +20,24 @@ export type InputState = {
   // 「察し」などを変換するのに必要
   previousFeed: boolean;
 };
+
+function inputStateToString(state: InputState): string {
+  let ret = "";
+  if (state.mode !== "direct") {
+    ret = config.markerHenkan + state.henkanFeed;
+  }
+  if (state.mode === "okuriari") {
+    if (state.previousFeed) {
+      return ret + state.feed + "*";
+    } else {
+      ret += "*" + state.okuriFeed;
+    }
+  }
+  if (state.converter) {
+    ret = state.converter(ret);
+  }
+  return ret + state.feed;
+}
 
 const defaultInputState: InputState = {
   type: "input",
@@ -55,6 +74,25 @@ export type HenkanState = Omit<InputState, "type"> & {
   candidateIndex: number;
 };
 
+export function henkanStateToString(state: HenkanState): string {
+  const candidate =
+    state.candidates[state.candidateIndex]?.replace(/;.*/, "") ?? "error";
+  return config.markerHenkanSelect + candidate + state.okuriFeed;
+}
+
 export type EscapeState = {
   type: "escape";
 };
+
+export function toString(state: State): string {
+  switch (state.type) {
+    case "input":
+      return inputStateToString(state);
+    case "henkan":
+      return henkanStateToString(state);
+    case "escape":
+      return "\x1b";
+    default:
+      return "";
+  }
+}
