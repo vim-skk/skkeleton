@@ -6,6 +6,7 @@ import {
 import { Encode, Encoding } from "./types.ts";
 
 export const config = {
+  acceptIllegalResult: false,
   debug: false,
   eggLikeNewline: false,
   globalJisyo: "/usr/share/skk/SKK-JISYO.L",
@@ -34,6 +35,7 @@ type Validators = {
 };
 
 const validators: Validators = {
+  acceptIllegalResult: ensureBoolean,
   debug: ensureBoolean,
   eggLikeNewline: ensureBoolean,
   globalJisyo: ensureString,
@@ -44,7 +46,7 @@ const validators: Validators = {
   selectCandidateKeys: (x): asserts x is string => {
     ensureString(x);
     if (x.length !== 7) {
-      throw TypeError("selectCandidateKeys !== 7");
+      throw TypeError("selectCandidateKeys.length !== 7");
     }
   },
   keepState: ensureBoolean,

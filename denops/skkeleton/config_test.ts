@@ -23,3 +23,21 @@ Deno.test({
     assertEquals(context.preEdit.output(""), "ああ");
   },
 });
+
+Deno.test({
+  name: "acceptIllegalResult",
+  async fn() {
+    {
+      config.acceptIllegalResult = false;
+      const context = new Context();
+      await dispatch(context, "ksa");
+      assertEquals(context.preEdit.output(""), "さ");
+    }
+    {
+      config.acceptIllegalResult = true;
+      const context = new Context();
+      await dispatch(context, "ksa");
+      assertEquals(context.preEdit.output(""), "kさ");
+    }
+  },
+});

@@ -1,3 +1,4 @@
+import { config } from "../config.ts";
 import type { Context } from "../context.ts";
 import { KanaResult } from "../kana/type.ts";
 import { PreEdit } from "../preedit.ts";
@@ -95,8 +96,10 @@ export async function kanaInput(context: Context, char: string) {
     const current = state.table.find((e) => e[0] === state.feed);
     if (current) {
       await acceptResult(context, current[1]);
-    } else {
+    } else if (config.acceptIllegalResult) {
       kakuteiKana(state, context.preEdit, state.feed, "");
+    } else {
+      state.feed = "";
     }
     await kanaInput(context, char);
   } else {
