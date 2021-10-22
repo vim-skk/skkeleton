@@ -117,6 +117,12 @@ skkeleton#config(dict)                                    *skkeleton#config()*
         パスに関しては、ホームディレクトリを示す `~` のみVimの|expand()|と
         同じ方法で展開されます。
 
+acceptIllegalResult                     *skkeleton-config-acceptIllegalResult*
+        (デフォルト v:false)
+        このオプションを有効にすると、Microsoft IME等と同様に
+        入力に失敗したローマ字がバッファに残るようになります。
+
+
 debug                                                 *skkeleton-config-debug*
         (デフォルト v:false, g:skkeleton#debug が真の場合は v:true)
         このオプションを有効にするとデバッグログが出力されるようになります。
