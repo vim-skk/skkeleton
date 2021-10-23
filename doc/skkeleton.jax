@@ -135,6 +135,8 @@ eggLikeNewline                               *skkeleton-config-eggLikeNewline*
 globalJisyo                                     *skkeleton-config-globalJisyo*
         (デフォルト "/usr/share/skk/SKK-JISYO.L")
         グローバル辞書のパス
+        圧縮された辞書をそのまま使う機能はないため
+        辞書が圧縮されている場合は展開する必要があります。
 
 globalJisyoEncoding                     *skkeleton-config-globalJisyoEncoding*
         (デフォルト "euc-jp")
