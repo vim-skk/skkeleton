@@ -1,6 +1,5 @@
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
-import { fn } from "../deps.ts";
 import type { Denops } from "../deps.ts";
 import { currentLibrary } from "../jisyo.ts";
 import { handleKey } from "../keymap.ts";
@@ -60,7 +59,7 @@ export async function henkanForward(context: Context) {
     }
   }
   if (state.candidateIndex >= config.showCandidatesCount) {
-    if (config.usePopup && await fn.mode(context.denops!) === "i") {
+    if (config.usePopup && context.vimMode === "i") {
       await showCandidates(context.denops!, state);
     } else {
       await selectCandidates(context);
