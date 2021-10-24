@@ -280,6 +280,8 @@ function! skkeleton#close_candidates() abort
 endfunction
 
 function! skkeleton#getchar(msg) abort
-  echo a:msg
-  return getchar()
+  autocmd CmdlineEnter * ++once let s:char = getchar()
+  autocmd CmdlineEnter * ++once call feedkeys("\<Esc>", 'n')
+  call input(a:msg)
+  return s:char
 endfunction
