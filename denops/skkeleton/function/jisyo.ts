@@ -30,6 +30,7 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
   try {
     const base = "[辞書登録] " + state.henkanFeed;
     const okuri = state.mode === "okuriari" ? "*" + state.okuriFeed : "";
+    currentContext.init().denops = denops;
     const input = await fn.input(denops, base + okuri + ": ");
     currentLibrary.get().registerCandidate(
       state.mode,

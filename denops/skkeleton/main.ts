@@ -75,7 +75,7 @@ async function init(denops: Denops) {
   })[0];
   autocmd.group(denops, "skkeleton", (helper) => {
     helper.define(
-      ["InsertEnter", "CmdlineEnter"],
+      ["InsertEnter"],
       "*",
       `call denops#notify('${denops.name}', '${id}', [])`,
     );
