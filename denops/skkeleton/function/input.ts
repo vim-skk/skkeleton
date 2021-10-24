@@ -61,12 +61,17 @@ async function doKakutei(
   }
 }
 
-async function acceptResult(context: Context, result: KanaResult) {
+async function acceptResult(
+  context: Context,
+  result: KanaResult,
+  feed: string,
+) {
   if (Array.isArray(result)) {
     await doKakutei(context, result[0], result[1]);
   } else {
-    (context.state as InputState).feed = "";
-    await result(context, "");
+    const state = context.state as InputState;
+    state.feed = "";
+    await result(context, feed);
   }
 }
 
@@ -86,7 +91,7 @@ export async function kanaInput(context: Context, char: string) {
 
   if (found.length === 1 && found[0][0] === next) {
     // 正確にマッチした場合はそのまま確定
-    await acceptResult(context, found[0][1]);
+    await acceptResult(context, found[0][1], next);
   } else if (found.length) {
     // テーブルに残余があったらfeedに積む
     state.feed = next;
@@ -95,7 +100,7 @@ export async function kanaInput(context: Context, char: string) {
     // feedを確定し、もう一度kanaInputに通す
     const current = state.table.find((e) => e[0] === state.feed);
     if (current) {
-      await acceptResult(context, current[1]);
+      await acceptResult(context, current[1], next);
     } else if (config.acceptIllegalResult) {
       kakuteiKana(state, context.preEdit, state.feed, "");
     } else {
