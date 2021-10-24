@@ -65,7 +65,6 @@ export async function henkanForward(context: Context) {
       await selectCandidates(context);
     }
   }
-  await Promise.resolve();
 }
 
 export async function henkanBackward(context: Context) {
@@ -93,7 +92,6 @@ export async function henkanBackward(context: Context) {
 async function selectCandidates(context: Context) {
   const state = context.state as HenkanState;
   const denops = context.denops!;
-  await Promise.resolve();
   const count = config.showCandidatesCount;
   const keys = config.selectCandidateKeys;
   let index = 0;
@@ -122,6 +120,7 @@ async function selectCandidates(context: Context) {
       }
     }
   }
+  state.candidateIndex = config.showCandidatesCount - 1;
 }
 
 async function showCandidates(denops: Denops, state: HenkanState) {
