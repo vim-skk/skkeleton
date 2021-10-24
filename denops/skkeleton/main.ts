@@ -26,6 +26,9 @@ function homeExpand(path: string, homePath: string): string {
 }
 
 async function init(denops: Denops) {
+  if (initialized) {
+    return;
+  }
   if (config.debug) {
     console.log("skkeleton: initialize");
     console.log(config);
@@ -82,9 +85,16 @@ async function init(denops: Denops) {
   } catch (e) {
     console.log(e);
   }
+  initialized = true;
 }
 
-async function enable(denops: Denops): Promise<string> {
+async function enable(key?: unknown, vimStatus?: unknown): Promise<string> {
+  const context = currentContext.get();
+  const state = context.state;
+  const denops = context.denops!;
+  if (state.type !== "input" || state.mode !== "direct" && key && vimStatus) {
+    return handle(key, vimStatus);
+  }
   if (!initialized) {
     await init(denops);
     initialized = true;
@@ -225,15 +235,17 @@ export async function main(denops: Denops) {
       registerKanaTable(tableName, table, !!create);
       return Promise.resolve();
     },
-    enable(): Promise<string> {
-      return enable(denops);
+    async enable(key: unknown, vimStatus: unknown): Promise<string> {
+      await init(denops);
+      return enable(key, vimStatus);
     },
-    disable(key: unknown, vimStatus: unknown): Promise<string> {
+    async disable(key: unknown, vimStatus: unknown): Promise<string> {
+      await init(denops);
       return disable(key, vimStatus);
     },
-    async toggle(key?: unknown, vimStatus?: unknown): Promise<string> {
+    async toggle(key: unknown, vimStatus: unknown): Promise<string> {
       if (await denops.eval("&l:iminsert") !== 1) {
-        return enable(denops);
+        return enable(key, vimStatus);
       } else {
         return disable(key, vimStatus);
       }
