@@ -1,4 +1,4 @@
-import { hiraToKata } from "././hira_kata.ts";
+import { hiraToKata } from "./hira_kata.ts";
 const hankataTable: Record<string, string> = {
   "ア": "ｱ",
   "バ": "ﾊﾞ",
