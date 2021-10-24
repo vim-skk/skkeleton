@@ -66,4 +66,9 @@ katakana                                        *skkeleton-functions-katakana*
         カタカナモードに入ります。
         変換ポイントが設定されている場合はカタカナに変換します。
 
+hankatakana                                  *skkeleton-functions-hankatakana*
+        (input)
+        半角カタカナモードに入ります。
+        変換ポイントが設定されている場合は半角カタカナに変換します。
+
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
