@@ -244,6 +244,7 @@ export async function main(denops: Denops) {
       return disable(key, vimStatus);
     },
     async toggle(key: unknown, vimStatus: unknown): Promise<string> {
+      await init(denops);
       if (await denops.eval("&l:iminsert") !== 1) {
         return enable(key, vimStatus);
       } else {
