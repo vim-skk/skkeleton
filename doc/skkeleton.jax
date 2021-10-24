@@ -60,6 +60,10 @@ skkeleton-mode-changed                                *skkeleton-mode-changed*
         モードが切り替わった際に呼び出されます。
         呼び出しの際は `g:skkeleton#mode` に |skkeleton#mode()| の結果と
         同じ物が代入されます。
+>
+    " 例
+    autocmd User skkeleton-mode-changed redrawstatus
+<
 
 ------------------------------------------------------------------------------
 KEYMAPPINGS                                            *skkeleton-keymappings*
