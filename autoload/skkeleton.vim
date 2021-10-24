@@ -3,6 +3,7 @@ augroup skkeleton
   autocmd User skkeleton* :
 augroup END
 
+let g:skkeleton#enabled = v:false
 let g:skkeleton#mode = ''
 
 function! skkeleton#request(funcname, args) abort
@@ -52,12 +53,12 @@ function! skkeleton#register_kanatable(table_name, table, ...) abort
 endfunction
 
 function! skkeleton#is_enabled() abort
-  return get(g:, 'skkeleton#enabled', v:false)
+  return g:skkeleton#enabled
 endfunction
 
 function! skkeleton#mode() abort
   if skkeleton#is_enabled()
-    return denops#request('skkeleton', 'mode', [])
+    return g:skkeleton#mode
   else
     return ''
   endif
