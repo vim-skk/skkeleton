@@ -233,18 +233,18 @@ export async function main(denops: Denops) {
     },
     async enable(key: unknown, vimStatus: unknown): Promise<string> {
       await init(denops);
-      return enable(key, vimStatus);
+      return await enable(key, vimStatus);
     },
     async disable(key: unknown, vimStatus: unknown): Promise<string> {
       await init(denops);
-      return disable(key, vimStatus);
+      return await disable(key, vimStatus);
     },
     async toggle(key: unknown, vimStatus: unknown): Promise<string> {
       await init(denops);
       if (await denops.eval("&l:iminsert") !== 1) {
-        return enable(key, vimStatus);
+        return await enable(key, vimStatus);
       } else {
-        return disable(key, vimStatus);
+        return await disable(key, vimStatus);
       }
     },
     handleKey(key: unknown, vimStatus: unknown): Promise<string> {
