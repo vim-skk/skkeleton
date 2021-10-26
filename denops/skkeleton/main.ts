@@ -95,10 +95,6 @@ async function enable(key?: unknown, vimStatus?: unknown): Promise<string> {
   if (state.type !== "input" || state.mode !== "direct" && key && vimStatus) {
     return handle(key, vimStatus);
   }
-  if (!initialized) {
-    await init(denops);
-    initialized = true;
-  }
   if (await denops.eval("&l:iminsert") !== 1) {
     currentContext.init().denops = denops;
     try {
