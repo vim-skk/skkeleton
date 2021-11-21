@@ -1,10 +1,12 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { currentLibrary } from "../jisyo.ts";
+import { currentKanaTable } from "../kana.ts";
 import { initializeState, resetState } from "../state.ts";
 import { kakuteiFeed } from "./input.ts";
+import { modeChange } from "./mode.ts";
 
-export function kakutei(context: Context) {
+export async function kakutei(context: Context) {
   const state = context.state;
   switch (state.type) {
     case "henkan": {
@@ -28,6 +30,11 @@ export function kakutei(context: Context) {
         result = state.converter(result);
       }
       context.kakutei(result);
+      if (currentKanaTable.get() === "zen") {
+        currentKanaTable.set("rom");
+        state.converter = void 0;
+        await modeChange(context, "hira");
+      }
       break;
     }
     default:
@@ -38,11 +45,11 @@ export function kakutei(context: Context) {
   resetState(state);
 }
 
-export function newline(context: Context) {
+export async function newline(context: Context) {
   const insertNewline = !(config.eggLikeNewline &&
     (context.state.type === "henkan" ||
       (context.state.type === "input" && context.state.mode !== "direct")));
-  kakutei(context);
+  await kakutei(context);
   if (insertNewline) {
     context.kakutei("\n");
   }

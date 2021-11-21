@@ -15,7 +15,7 @@ export async function disable(context: Context) {
     }
     await denops.call("skkeleton#unmap");
     await op.iminsert.setLocal(denops, 0);
-    kakutei(context);
+    await kakutei(context);
     context.kakutei("\x1e");
     try {
       await denops.cmd("doautocmd <nomodeline> User skkeleton-disable-post");

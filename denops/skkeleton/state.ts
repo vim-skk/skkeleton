@@ -64,6 +64,7 @@ export function resetState(astate: State) {
   state.henkanFeed = "";
   state.okuriFeed = "";
   state.previousFeed = false;
+  state.table = getKanaTable();
 }
 
 export type HenkanState = Omit<InputState, "type"> & {

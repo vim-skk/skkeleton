@@ -9,7 +9,7 @@ import {
   henkanInput,
 } from "./function/henkan.ts";
 import { deleteChar, kanaInput } from "./function/input.ts";
-import { hankatakana } from "./function/mode.ts";
+import { hankatakana, zenkaku } from "./function/mode.ts";
 import { keyToNotation, notationToKey } from "./notation.ts";
 
 type KeyMap = {
@@ -27,6 +27,7 @@ const input: KeyMap = {
     "<esc>": escape,
     "<nl>": kakutei,
     "<c-q>": hankatakana,
+    "<s-l>": zenkaku,
   },
 };
 
