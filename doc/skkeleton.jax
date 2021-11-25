@@ -267,7 +267,7 @@ COMPLETION                                              *skkeleton-completion*
         \   'skkeleton': {
         \     'mark': 'skkeleton',
         \     'matchers': ['skkeleton'],
-        \     'sorters': []
+        \     'sorters': [],
         \     'minAutoCompleteLength': 2,
         \   },
         \ })
