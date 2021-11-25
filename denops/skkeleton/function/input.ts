@@ -81,9 +81,14 @@ export async function kanaInput(context: Context, char: string) {
 
   const lower = char.toLowerCase();
   if (char !== lower) {
-    henkanPoint(context);
-    await kanaInput(context, lower);
-    return;
+    const withShift = `<s-${lower}>`;
+    if (state.table.some((e) => e[0].startsWith(state.feed + withShift))) {
+      char = withShift;
+    } else {
+      henkanPoint(context);
+      await kanaInput(context, lower);
+      return;
+    }
   }
 
   const next = state.feed + char;
