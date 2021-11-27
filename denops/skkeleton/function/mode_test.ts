@@ -2,7 +2,7 @@ import { autocmd, Denops, vars } from "../deps.ts";
 import { test } from "../deps/denops_test.ts";
 import { assertEquals } from "../deps/std/testing.ts";
 import { currentContext } from "../main.ts";
-import { hankatakana, katakana } from "./mode.ts";
+import { hankatakana, katakana, zenkaku } from "./mode.ts";
 import { initDenops } from "./testutil.ts";
 
 test({
@@ -23,6 +23,8 @@ test({
     assertEquals(await d.call("skkeleton#mode"), "hira");
     await hankatakana(currentContext.get());
     assertEquals(await d.call("skkeleton#mode"), "hankata");
+    await zenkaku(currentContext.get());
+    assertEquals(await d.call("skkeleton#mode"), "zenkaku");
   },
 });
 
@@ -44,5 +46,7 @@ test({
     assertEquals(await vars.g.get(d, "skkeleton#mode_actual"), "hira");
     await hankatakana(currentContext.get());
     assertEquals(await vars.g.get(d, "skkeleton#mode_actual"), "hankata");
+    await zenkaku(currentContext.get());
+    assertEquals(await vars.g.get(d, "skkeleton#mode_actual"), "zenkaku");
   },
 });
