@@ -64,6 +64,10 @@ export async function hankatakana(context: Context) {
       state.converter = void 0;
       await modeChange(context, "hira");
     } else {
+      if (currentKanaTable.get() === "zen") {
+        currentKanaTable.set("rom");
+        state.table = getKanaTable();
+      }
       state.converter = hiraToHanKata;
       state.converterName = "hankatakana";
       await modeChange(context, "hankata");
