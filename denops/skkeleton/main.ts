@@ -92,7 +92,7 @@ async function enable(key?: unknown, vimStatus?: unknown): Promise<string> {
   const context = currentContext.get();
   const state = context.state;
   const denops = context.denops!;
-  if (state.type !== "input" || state.mode !== "direct" && key && vimStatus) {
+  if ((state.type !== "input" || state.mode !== "direct") && key && vimStatus) {
     return handle(key, vimStatus);
   }
   if (await denops.eval("&l:iminsert") !== 1) {
@@ -121,7 +121,7 @@ async function enable(key?: unknown, vimStatus?: unknown): Promise<string> {
 async function disable(key?: unknown, vimStatus?: unknown): Promise<string> {
   const context = currentContext.get();
   const state = currentContext.get().state;
-  if (state.type !== "input" || state.mode !== "direct" && key && vimStatus) {
+  if ((state.type !== "input" || state.mode !== "direct") && key && vimStatus) {
     return handle(key, vimStatus);
   }
   await disableFunc(context);
