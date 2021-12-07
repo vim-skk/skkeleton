@@ -2,9 +2,11 @@ import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { autocmd, vars } from "../deps.ts";
 import { currentLibrary } from "../jisyo.ts";
+import { currentKanaTable, getKanaTable } from "../kana.ts";
 import { hiraToHanKata } from "../kana/hira_hankata.ts";
 import { hiraToKata } from "../kana/hira_kata.ts";
 import { resetState } from "../state.ts";
+import { kakutei } from "./common.ts";
 import { kakuteiFeed } from "./input.ts";
 
 export async function modeChange(context: Context, mode: string) {
@@ -62,6 +64,10 @@ export async function hankatakana(context: Context) {
       state.converter = void 0;
       await modeChange(context, "hira");
     } else {
+      if (currentKanaTable.get() === "zen") {
+        currentKanaTable.set("rom");
+        state.table = getKanaTable();
+      }
       state.converter = hiraToHanKata;
       state.converterName = "hankatakana";
       await modeChange(context, "hankata");
@@ -80,4 +86,17 @@ export async function hankatakana(context: Context) {
   }
   context.kakuteiWithUndoPoint(result);
   resetState(state);
+}
+
+export async function zenkaku(context: Context) {
+  if (context.state.type !== "input") {
+    return;
+  }
+  const state = context.state;
+  if (state.mode !== "direct") {
+    await kakutei(context);
+  }
+  currentKanaTable.set("zen");
+  state.table = getKanaTable();
+  await modeChange(context, "zenkaku");
 }

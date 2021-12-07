@@ -115,7 +115,7 @@ async function selectCandidates(context: Context) {
       const candIndex = keys.indexOf(key);
       if (candIndex !== -1) {
         state.candidateIndex = start + candIndex;
-        kakutei(context);
+        await kakutei(context);
         return;
       }
     }
@@ -139,11 +139,11 @@ export async function henkanInput(context: Context, key: string) {
     const candIdx = config.selectCandidateKeys.indexOf(key);
     if (candIdx !== -1) {
       state.candidateIndex += candIdx;
-      kakutei(context);
+      await kakutei(context);
       return;
     }
   }
 
-  kakutei(context);
+  await kakutei(context);
   await handleKey(context, key);
 }
