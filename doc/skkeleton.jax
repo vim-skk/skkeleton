@@ -33,7 +33,10 @@ skkeleton-initialize-pre                            *skkeleton-initialize-pre*
         \ "z\<Space>": ["\u3000", ''],
         \ })
     endfunction
-    autocmd User skkeleton-initialize-pre call s:skkeleton_init()
+    augroup skkeleton-initlaize-pre
+      autocmd!
+      autocmd User skkeleton-initialize-pre call s:skkeleton_init()
+    augroup END
 <
 skkeleton-initialize-post                          *skkeleton-initialize-post*
 
@@ -62,7 +65,10 @@ skkeleton-mode-changed                                *skkeleton-mode-changed*
         同じ物が代入されます。
 >
     " 例
-    autocmd User skkeleton-mode-changed redrawstatus
+    augroup skkeleton-mode-changed
+      autocmd!
+      autocmd User skkeleton-mode-changed redrawstatus
+    augroup END
 <
 
 ------------------------------------------------------------------------------
@@ -297,7 +303,10 @@ skkeletonを有効化、無効化する際にフックが使えますので
 プラグイン側で一時的に機能を無効化するという方法があります。
 >
     " coc.nvimの例
-    autocmd User skkeleton-enable-pre let b:coc_suggest_disable = v:true
-    autocmd User skkeleton-disable-pre let b:coc_suggest_disable = v:false
+    augroup skkeleton-coc
+      autocmd!
+      autocmd User skkeleton-enable-pre let b:coc_suggest_disable = v:true
+      autocmd User skkeleton-disable-pre let b:coc_suggest_disable = v:false
+    augroup END
 <
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
