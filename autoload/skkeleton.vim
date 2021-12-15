@@ -1,4 +1,4 @@
-augroup skkeleton
+augroup skkeleton-internal
   autocmd!
   autocmd User skkeleton* :
 augroup END
