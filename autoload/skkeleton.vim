@@ -1,10 +1,12 @@
+let g:skkeleton#enabled = v:false
+let g:skkeleton#mode = ''
+
 augroup skkeleton-internal
   autocmd!
   autocmd User skkeleton* :
+  autocmd User DenopsPluginPost:skkeleton let g:skkeleton#enabled = v:false
+  autocmd User DenopsPluginPost:skkeleton let g:skkeleton#mode = ''
 augroup END
-
-let g:skkeleton#enabled = v:false
-let g:skkeleton#mode = ''
 
 function! skkeleton#request(funcname, args) abort
   call denops#plugin#wait('skkeleton')
