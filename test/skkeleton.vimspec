@@ -1,0 +1,9 @@
+Describe skkeleton
+  Before
+    call RunDenops()
+  End
+  It enable
+    call skkeleton#request('enable', [])
+    Assert Equals(g:skkeleton#enabled, v:true)
+  End
+End

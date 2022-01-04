@@ -3,6 +3,7 @@ name: test
 env:
   DENOPS_PATH: "../denops.vim"
   DENO_DIR: ".deno"
+  THEMIS_BIN: "../vim-themis/bin/themis"
 
 on:
   push:
@@ -82,6 +83,10 @@ jobs:
         with:
           repository: "vim-denops/denops.vim"
           path: "./denops.vim"
+      - uses: actions/checkout@v2
+        with:
+          repository: "thinca/vim-themis"
+          path: "./vim-themis"
       - uses: denoland/setup-deno@v1
         with:
           deno-version: "${{ matrix.version }}"
@@ -123,4 +128,5 @@ jobs:
           DENO_DIR: ../.deno
           DENOPS_TEST_VIM: ${{ steps.vim.outputs.executable_path }}
           DENOPS_TEST_NVIM: ${{ steps.nvim.outputs.executable_path }}
+          THEMIS_VIM: ${{ steps.vim.outputs.executable_path }}
         timeout-minutes: 5

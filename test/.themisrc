@@ -1,0 +1,14 @@
+call themis#helper('command').with(themis#helper('assert'))
+
+let g:themis_run_denops = v:false
+
+function RunDenops() abort
+  if g:themis_run_denops
+    call denops#server#restart()
+  else
+    set rtp+=$DENOPS_PATH
+    runtime! plugin/denops.vim
+  endif
+  let g:themis_run_denops = v:true
+  call denops#plugin#wait('skkeleton')
+endfunction
