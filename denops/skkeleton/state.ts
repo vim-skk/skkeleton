@@ -2,6 +2,7 @@ import { config } from "./config.ts";
 import type { HenkanType } from "./jisyo.ts";
 import { getKanaTable } from "./kana.ts";
 import { KanaTable } from "./kana/type.ts";
+import { Cell } from "./util.ts";
 
 export type State = InputState | HenkanState | EscapeState;
 
@@ -39,7 +40,7 @@ function inputStateToString(state: InputState): string {
   return ret + state.feed;
 }
 
-const defaultInputState: InputState = {
+const defaultInputState = new Cell((): InputState => ({
   type: "input",
   mode: "direct",
   table: getKanaTable(),
@@ -49,11 +50,12 @@ const defaultInputState: InputState = {
   henkanFeed: "",
   okuriFeed: "",
   previousFeed: false,
-};
+}));
 
 export function initializeState(state: Record<string, unknown>): InputState {
-  defaultInputState.table = getKanaTable();
-  return Object.assign(state, defaultInputState);
+  const def = defaultInputState.get();
+  def.table = getKanaTable();
+  return Object.assign(state, def);
 }
 
 export function resetState(astate: State) {
