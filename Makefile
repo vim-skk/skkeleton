@@ -26,7 +26,6 @@ type-check: FORCE	## Type check
 
 test: FORCE	## Test
 	@deno test --unstable -A
-	@${THEMIS_BIN}
 
 update: FORCE	## Update dependencies
 	@${TOOLS}/bin/udd $$(find . -name '*.ts' -not -name '.deno')

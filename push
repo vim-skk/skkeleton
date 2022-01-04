@@ -1,0 +1,4 @@
+#!/bin/bash -u
+
+git push -f
+git push kuuote themis:main -f

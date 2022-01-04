@@ -128,5 +128,12 @@ jobs:
           DENO_DIR: ../.deno
           DENOPS_TEST_VIM: ${{ steps.vim.outputs.executable_path }}
           DENOPS_TEST_NVIM: ${{ steps.nvim.outputs.executable_path }}
+        timeout-minutes: 5
+      - name: themis
+        if: ${{ runner.os != 'windows' }}
+        working-directory: ./repo
+        run: ../vim-themis/bin/themis
+        env:
+          DENO_DIR: ../.deno
           THEMIS_VIM: ${{ steps.vim.outputs.executable_path }}
         timeout-minutes: 5
