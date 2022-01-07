@@ -164,7 +164,7 @@ Deno.test({
     await dispatch(context, "N");
     assertEquals(context.toString(), "▽n");
     // and kakutei
-    kakutei(context);
+    await kakutei(context);
     assertEquals(context.preEdit.output(""), "ン");
 
     await katakana(context);
@@ -213,7 +213,7 @@ Deno.test({
     await dispatch(context, "N");
     assertEquals(context.toString(), "▽n");
     // and kakutei
-    kakutei(context);
+    await kakutei(context);
     assertEquals(context.preEdit.output(""), "ﾝ");
 
     await hankatakana(context);

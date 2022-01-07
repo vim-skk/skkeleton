@@ -7,8 +7,8 @@ import { dispatch } from "./testutil.ts";
 
 const lib = currentLibrary.get();
 
-lib.registerCandidate("okurinasi", "あ", "い");
-lib.registerCandidate("okurinasi", "ちゅうしゃく", "注釈;これは注釈です");
+await lib.registerCandidate("okurinasi", "あ", "い");
+await lib.registerCandidate("okurinasi", "ちゅうしゃく", "注釈;これは注釈です");
 
 Deno.test({
   name: "input cancel",
@@ -35,7 +35,7 @@ Deno.test({
   async fn() {
     const context = new Context();
     await dispatch(context, ";tyuusyaku ");
-    kakutei(context);
+    await kakutei(context);
     assertEquals("注釈", context.preEdit.output(""));
     assertEquals(["注釈;これは注釈です"], await lib.getCandidate("okurinasi", "ちゅうしゃく"));
   },

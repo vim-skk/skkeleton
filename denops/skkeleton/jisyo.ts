@@ -222,13 +222,13 @@ export class Library {
     return Array.from(candidates.entries());
   }
 
-  registerCandidate(type: HenkanType, word: string, candidate: string) {
+  async registerCandidate(type: HenkanType, word: string, candidate: string) {
     if (!candidate) {
       return;
     }
     this.#userJisyo.registerCandidate(type, word, candidate);
     if (config.immediatelyJisyoRW) {
-      this.saveJisyo();
+      await this.saveJisyo();
     }
   }
 

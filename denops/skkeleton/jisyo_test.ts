@@ -78,11 +78,11 @@ Deno.test({
   async fn() {
     const manager = new Library();
     // most recently registered
-    manager.registerCandidate("okurinasi", "test", "a");
-    manager.registerCandidate("okurinasi", "test", "b");
+    await manager.registerCandidate("okurinasi", "test", "a");
+    await manager.registerCandidate("okurinasi", "test", "b");
     assertEquals(["b", "a"], await manager.getCandidate("okurinasi", "test"));
     // and remove duplicate
-    manager.registerCandidate("okurinasi", "test", "a");
+    await manager.registerCandidate("okurinasi", "test", "a");
     assertEquals(["a", "b"], await manager.getCandidate("okurinasi", "test"));
   },
 });
@@ -92,7 +92,7 @@ Deno.test({
   async fn() {
     const jisyo = await loadJisyo(globalJisyo, "euc-jp");
     const library = new Library(jisyo);
-    library.registerCandidate("okurinasi", "てすと", "test");
+    await library.registerCandidate("okurinasi", "てすと", "test");
 
     // remove dup
     const nasi = await library.getCandidate("okurinasi", "てすと");
@@ -138,7 +138,7 @@ Deno.test({
       assertEquals(await library.getCandidate("okurinasi", "あ"), ["あ"]);
 
       //save
-      library.registerCandidate("okurinasi", "あ", "亜");
+      await library.registerCandidate("okurinasi", "あ", "亜");
       await library.saveJisyo();
       const data = await Deno.readTextFile(tmp);
       const line = data.split("\n").find((value) => value.startsWith("あ"));
@@ -155,8 +155,8 @@ Deno.test({
     const tmp = await Deno.makeTempFile();
     try {
       const lib = new Library(undefined, undefined, tmp);
-      lib.registerCandidate("okurinasi", "ほげ", "");
-      lib.registerCandidate("okuriari", "ほげ", "");
+      await lib.registerCandidate("okurinasi", "ほげ", "");
+      await lib.registerCandidate("okuriari", "ほげ", "");
       await lib.saveJisyo();
       assertEquals(
         (await Deno.readTextFile(tmp)).indexOf("ほげ"),
