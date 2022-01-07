@@ -121,7 +121,7 @@ function decode(str: Uint8Array, encode: Encoding): string {
   return decoder.decode(str);
 }
 
-export class SkkServer {
+export class SkkServer implements Jisyo {
   #conn: Deno.Conn | undefined;
   responseEncoding: Encoding;
   requestEncoding: Encoding;
@@ -151,9 +151,9 @@ export class SkkServer {
     }
     return result;
   }
-  getCandidates(_prefix: string): [string, string[]][] {
+  async getCandidates(_prefix: string): Promise<[string, string[]][]> {
     // TODO: add support for ddc.vim
-    return [["", [""]]];
+    return await Promise.resolve([["", [""]]]);
   }
   close() {
     this.#conn?.write(encode("0", this.requestEncoding));
