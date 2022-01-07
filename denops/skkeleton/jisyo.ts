@@ -52,9 +52,9 @@ function convertNumber(pattern: string, entry: string): string {
     .join("");
 }
 
-export interface Jisyo {
+export interface Dictionary {
   getCandidate(type: HenkanType, word: string): Promise<string[]>;
-  getCandidates(word: string): Promise<[string, string[]][]>;
+  getCandidates(prefix: string): Promise<[string, string[]][]>;
 }
 
 function encode(str: string, encode: Encoding): Uint8Array {
@@ -65,7 +65,7 @@ function encode(str: string, encode: Encoding): Uint8Array {
   return eucBytes;
 }
 
-export class LocalJisyo implements Jisyo {
+export class LocalJisyo implements Dictionary {
   #okuriari: Map<string, string[]>;
   #okurinasi: Map<string, string[]>;
   constructor(
@@ -121,7 +121,7 @@ function decode(str: Uint8Array, encode: Encoding): string {
   return decoder.decode(str);
 }
 
-export class SkkServer implements Jisyo {
+export class SkkServer implements Dictionary {
   #conn: Deno.Conn | undefined;
   responseEncoding: Encoding;
   requestEncoding: Encoding;
@@ -310,7 +310,7 @@ function linesToString(entries: [string, string[]][]): string[] {
   );
 }
 
-export function ensureJisyo(x: unknown): asserts x is Jisyo {
+export function ensureJisyo(x: unknown): asserts x is Dictionary {
   if (x instanceof LocalJisyo) {
     return;
   }
