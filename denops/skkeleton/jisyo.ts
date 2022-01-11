@@ -65,6 +65,42 @@ function encode(str: string, encode: Encoding): Uint8Array {
   return eucBytes;
 }
 
+export class NumberConvertWrapper implements Dictionary {
+  #inner: Dictionary;
+
+  constructor(dict: Dictionary) {
+    this.#inner = dict;
+  }
+
+  async getCandidate(type: HenkanType, word: string): Promise<string[]> {
+    const realWord = word.replaceAll(/[0-9]+/g, "#");
+    const candidate = await this.#inner.getCandidate(type, realWord);
+    if (word === realWord) {
+      return candidate;
+    } else {
+      return candidate.map((c) => convertNumber(c, word));
+    }
+  }
+
+  async getCandidates(prefix: string): Promise<[string, string[]][]> {
+    const realPrefix = prefix.replaceAll(/[0-9]+/g, "#");
+    const candidates = await this.#inner.getCandidates(realPrefix);
+    if (prefix === realPrefix) {
+      return candidates;
+    } else {
+      return candidates.map((
+        [kana, cand],
+      ) => [kana, cand.map((c) => convertNumber(c, prefix))]);
+    }
+  }
+}
+
+export function wrapDictionary(dict: Dictionary): Dictionary {
+  return new NumberConvertWrapper(
+    dict,
+  );
+}
+
 export class LocalJisyo implements Dictionary {
   #okuriari: Map<string, string[]>;
   #okurinasi: Map<string, string[]>;
