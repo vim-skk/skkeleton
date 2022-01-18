@@ -114,9 +114,11 @@ async function selectCandidates(context: Context) {
     } else {
       const candIndex = keys.indexOf(key);
       if (candIndex !== -1) {
-        state.candidateIndex = start + candIndex;
-        await kakutei(context);
-        return;
+        if (start + candIndex < state.candidates.length) {
+          state.candidateIndex = start + candIndex;
+          await kakutei(context);
+          return;
+        }
       }
     }
   }
@@ -138,8 +140,10 @@ export async function henkanInput(context: Context, key: string) {
   if (state.candidateIndex >= config.showCandidatesCount) {
     const candIdx = config.selectCandidateKeys.indexOf(key);
     if (candIdx !== -1) {
-      state.candidateIndex += candIdx;
-      await kakutei(context);
+      if (state.candidateIndex + candIdx < state.candidates.length) {
+        state.candidateIndex += candIdx;
+        await kakutei(context);
+      }
       return;
     }
   }
