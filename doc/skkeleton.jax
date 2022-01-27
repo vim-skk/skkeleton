@@ -33,7 +33,7 @@ skkeleton-initialize-pre                            *skkeleton-initialize-pre*
         \ "z\<Space>": ["\u3000", ''],
         \ })
     endfunction
-    augroup skkeleton-initlaize-pre
+    augroup skkeleton-initialize-pre
       autocmd!
       autocmd User skkeleton-initialize-pre call s:skkeleton_init()
     augroup END
