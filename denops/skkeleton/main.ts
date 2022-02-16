@@ -216,8 +216,13 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
       return handled;
     }
   }
+  const before = context.mode;
   await handleKey(context, key);
-  return context.preEdit.output(context.toString());
+  const output = context.preEdit.output(context.toString());
+  if (output === "" && before !== context.mode) {
+    return " \x08";
+  }
+  return output;
 }
 
 export async function main(denops: Denops) {
