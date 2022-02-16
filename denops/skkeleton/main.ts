@@ -92,6 +92,10 @@ async function enable(key?: unknown, vimStatus?: unknown): Promise<string> {
   const context = currentContext.get();
   const state = context.state;
   const denops = context.denops!;
+  if (await fn.mode(denops) === "R") {
+    console.log("skkeleton doesn't allowed in replace mode");
+    return "";
+  }
   if ((state.type !== "input" || state.mode !== "direct") && key && vimStatus) {
     return handle(key, vimStatus);
   }
