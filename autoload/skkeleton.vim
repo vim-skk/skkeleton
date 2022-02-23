@@ -146,7 +146,9 @@ function! skkeleton#map() abort
   for c in skkeleton#get_default_mapped_keys()
     " notation to lower
     if len(c) > 1 && c[0] ==# '<'
-      let c = tolower(c)
+      let k = '<lt>' .. tolower(c[1:])
+    else
+      let k = c
     endif
     let func = 'handleKey'
     for m in modes
@@ -155,7 +157,7 @@ function! skkeleton#map() abort
         let func = match[1]
       endif
     endfor
-    execute printf('lnoremap <buffer> <expr> <nowait> %s skkeleton#handle(%s, %s)', c, string(func), string(c))
+    execute printf('lnoremap <buffer> <expr> <nowait> %s skkeleton#handle(%s, %s)', c, string(func), string(k))
   endfor
 endfunction
 

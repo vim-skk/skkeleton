@@ -28,7 +28,7 @@ test({
     // backward state with <BS>
     await denops.cmd('call skkeleton#handle("handleKey", "A")');
     await denops.cmd('call skkeleton#handle("handleKey", " ")');
-    await denops.cmd('call skkeleton#handle("handleKey", "\\<BS>")');
+    await denops.cmd('call skkeleton#handle("handleKey", "<bs>")');
     assertEquals(currentContext.get().toString(), "▽あ");
   },
 });
