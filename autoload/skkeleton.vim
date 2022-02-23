@@ -47,6 +47,17 @@ function! skkeleton#config(config) abort
   call skkeleton#request_async('config', [a:config])
 endfunction
 
+function! skkeleton#register_keymap(state, key, func_name)
+  " normalize notation
+  if len(a:key) > 1 && a:key[0] ==# '<'
+    let key = g:skkeleton#notation#notation_to_key[tolower(a:key)]
+  else
+    let key = a:key
+  endif
+  let key = get(g:skkeleton#notation#key_to_notation, key, key)
+  call skkeleton#request_async('registerKeyMap', [a:state, key, a:func_name])
+endfunction
+
 function! skkeleton#register_kanatable(table_name, table, ...) abort
   let create = get(a:000, 0, v:false)
   call skkeleton#request_async('registerKanaTable', [a:table_name, a:table, create])

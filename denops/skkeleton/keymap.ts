@@ -59,19 +59,18 @@ export async function handleKey(context: Context, key: string) {
   ) ?? Promise.resolve());
 }
 
-export function mappingKey(state: string, key: string, func: string) {
+export function registerKeyMap(state: string, key: string, func: unknown) {
   const keyMap = keyMaps[state];
   if (!keyMap) {
     throw Error(`unknown state: ${state}`);
   }
-  const fn = functions.get()[func];
+  if (!func) {
+    delete keyMap.map[key];
+    return;
+  }
+  const fn = functions.get()[String(func)];
   if (!fn) {
     throw Error(`unknown function: ${func}`);
   }
-  if (key === "default") {
-    keyMap.default = fn;
-  } else {
-    const normalizedKey = keyToNotation[notationToKey[key]] ?? key;
-    keyMap.map[normalizedKey] = fn;
-  }
+  keyMap.map[key] = fn;
 }
