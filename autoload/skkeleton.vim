@@ -133,6 +133,10 @@ function! skkeleton#map() abort
     let modes = [mode()]
   endif
   for c in skkeleton#get_default_mapped_keys()
+    " notation to lower
+    if len(c) > 1 && c[0] ==# '<'
+      let c = tolower(c)
+    endif
     let func = 'handleKey'
     for m in modes
       let match = matchlist(maparg(c, m), '<Plug>(skkeleton-\(\a\+\))')

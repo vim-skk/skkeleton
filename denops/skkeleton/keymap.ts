@@ -10,7 +10,6 @@ import {
 } from "./function/henkan.ts";
 import { deleteChar, kanaInput } from "./function/input.ts";
 import { hankatakana } from "./function/mode.ts";
-import { keyToNotation, notationToKey } from "./notation.ts";
 
 type KeyMap = {
   default: Func;
@@ -52,9 +51,9 @@ export async function handleKey(context: Context, key: string) {
     throw new Error("Illegal State: " + context.state.type);
   }
   if (config.debug) {
-    console.log(`handleKey: key: ${key}, notation: ${keyToNotation[key]}`);
+    console.log(`handleKey: ${key}`);
   }
-  await ((keyMap.map[keyToNotation[key] ?? key] ?? keyMap.default)(
+  await ((keyMap.map[key] ?? keyMap.default)(
     context,
     key,
   ) ?? Promise.resolve());
