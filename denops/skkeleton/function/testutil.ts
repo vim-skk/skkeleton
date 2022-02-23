@@ -1,19 +1,7 @@
 import { Context } from "../context.ts";
-import { Denops } from "../deps.ts";
-import { fromFileUrl } from "../deps/std/path.ts";
-import { currentContext, main } from "../main.ts";
 import { newline } from "./common.ts";
 import { henkanBackward, henkanFirst, henkanForward } from "./henkan.ts";
 import { henkanPoint, kanaInput } from "./input.ts";
-
-export async function initDenops(denops: Denops) {
-  const p = fromFileUrl(new URL(import.meta.url));
-  const autoload = p.slice(0, p.lastIndexOf("denops")) +
-    "autoload/skkeleton.vim";
-  await denops.cmd("source " + autoload);
-  await main(denops);
-  currentContext.init().denops = denops;
-}
 
 export async function dispatch(context: Context, keys: string) {
   for (const key of keys) {

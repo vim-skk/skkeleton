@@ -2,7 +2,8 @@ import { Denops } from "../deps.ts";
 import { test } from "../deps/denops_test.ts";
 import { assertEquals } from "../deps/std/testing.ts";
 import { currentContext } from "../main.ts";
-import { dispatch, initDenops } from "./testutil.ts";
+import { initDenops } from "../testutil.ts";
+import { dispatch } from "./testutil.ts";
 
 test({
   mode: "all",
