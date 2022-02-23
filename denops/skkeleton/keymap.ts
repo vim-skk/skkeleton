@@ -23,7 +23,7 @@ const input: KeyMap = {
     "<bs>": deleteChar,
     "<c-g>": cancel,
     "<c-h>": deleteChar,
-    "<enter>": newline,
+    "<cr>": newline,
     "<esc>": escape,
     "<nl>": kakutei,
     "<c-q>": hankatakana,
@@ -34,7 +34,7 @@ const henkan: KeyMap = {
   default: henkanInput,
   map: {
     "<c-g>": cancel,
-    "<enter>": newline,
+    "<cr>": newline,
     "<nl>": kakutei,
     "<space>": henkanForward,
     "x": henkanBackward,

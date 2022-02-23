@@ -147,6 +147,8 @@ function! skkeleton#map() abort
     " notation to lower
     if len(c) > 1 && c[0] ==# '<'
       let k = '<lt>' .. tolower(c[1:])
+      " normalize notation
+      let k = get(g:skkeleton#notation#key_to_notation, get(g:skkeleton#notation#notation_to_key, k), k)
     else
       let k = c
     endif
