@@ -102,32 +102,33 @@ export function wrapDictionary(dict: Dictionary): Dictionary {
 }
 
 export class SKKDictionary implements Dictionary {
-  #okuriari: Map<string, string[]>;
-  #okurinasi: Map<string, string[]>;
+  #okuriAri: Map<string, string[]>;
+  #okuriNasi: Map<string, string[]>;
+
   constructor(
-    okuriari?: Map<string, string[]>,
-    okurinasi?: Map<string, string[]>,
+    okuriAri?: Map<string, string[]>,
+    okuriNasi?: Map<string, string[]>,
   ) {
-    this.#okuriari = okuriari ?? new Map();
-    this.#okurinasi = okurinasi ?? new Map();
+    this.#okuriAri = okuriAri ?? new Map();
+    this.#okuriNasi = okuriNasi ?? new Map();
   }
+
   getCandidate(type: HenkanType, word: string): Promise<string[]> {
-    const target = type === "okuriari" ? this.#okuriari : this.#okurinasi;
-    return Promise.resolve(
-      (target.get(word.replaceAll(/[0-9]+/g, "#")) ?? [])
-        .map((candidate) => convertNumber(candidate, word)),
-    );
+    const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
+    return Promise.resolve(target.get(word) ?? []);
   }
+
   getCandidates(prefix: string): Promise<[string, string[]][]> {
-    const candidates = new Map<string, string[]>();
-    for (const [key, value] of this.#okurinasi) {
-      if (key.startsWith(prefix)) {
-        // TODO: to get numebric candidates
-        candidates.set(key, value);
+    const candidates: [string, string[]][] = [];
+    for (const entry of this.#okuriNasi) {
+      if (entry[0].startsWith(prefix)) {
+        candidates.push(entry);
       }
     }
-    return Promise.resolve(Array.from(candidates.entries()));
+    candidates.sort((a, b) => a[0].localeCompare(b[0]));
+    return Promise.resolve(candidates);
   }
+
   registerCandidate(type: HenkanType, word: string, candidate: string) {
     const target = type === "okuriari" ? this.#okuriari : this.#okurinasi;
     target.set(
@@ -135,6 +136,7 @@ export class SKKDictionary implements Dictionary {
       Array.from(new Set([candidate, ...target.get(word) ?? []])),
     );
   }
+
   toString(): string {
     return [
       [okuriAriMarker],
