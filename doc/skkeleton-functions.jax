@@ -71,4 +71,9 @@ hankatakana                                  *skkeleton-functions-hankatakana*
         半角カタカナモードに入ります。
         変換ポイントが設定されている場合は半角カタカナに変換します。
 
+zenkaku                                          *skkeleton-functions-zenkaku*
+        (input)
+        全角英数モードに入ります。
+
+
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
