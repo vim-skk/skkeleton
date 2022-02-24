@@ -10,7 +10,7 @@ import {
 } from "./function/henkan.ts";
 import { deleteChar, kanaInput } from "./function/input.ts";
 import { hankatakana } from "./function/mode.ts";
-import { keyToNotation, notationToKey } from "./notation.ts";
+import { notationToKey } from "./notation.ts";
 
 type KeyMap = {
   default: Func;
@@ -23,7 +23,7 @@ const input: KeyMap = {
     "<bs>": deleteChar,
     "<c-g>": cancel,
     "<c-h>": deleteChar,
-    "<enter>": newline,
+    "<cr>": newline,
     "<esc>": escape,
     "<nl>": kakutei,
     "<c-q>": hankatakana,
@@ -34,7 +34,7 @@ const henkan: KeyMap = {
   default: henkanInput,
   map: {
     "<c-g>": cancel,
-    "<enter>": newline,
+    "<cr>": newline,
     "<nl>": kakutei,
     "<space>": henkanForward,
     "x": henkanBackward,
@@ -52,27 +52,26 @@ export async function handleKey(context: Context, key: string) {
     throw new Error("Illegal State: " + context.state.type);
   }
   if (config.debug) {
-    console.log(`handleKey: key: ${key}, notation: ${keyToNotation[key]}`);
+    console.log(`handleKey: ${key}`);
   }
-  await ((keyMap.map[keyToNotation[key] ?? key] ?? keyMap.default)(
+  await ((keyMap.map[key] ?? keyMap.default)(
     context,
-    key,
+    notationToKey[key] ?? key,
   ) ?? Promise.resolve());
 }
 
-export function mappingKey(state: string, key: string, func: string) {
+export function registerKeyMap(state: string, key: string, func: unknown) {
   const keyMap = keyMaps[state];
   if (!keyMap) {
     throw Error(`unknown state: ${state}`);
   }
-  const fn = functions.get()[func];
+  if (!func) {
+    delete keyMap.map[key];
+    return;
+  }
+  const fn = functions.get()[String(func)];
   if (!fn) {
     throw Error(`unknown function: ${func}`);
   }
-  if (key === "default") {
-    keyMap.default = fn;
-  } else {
-    const normalizedKey = keyToNotation[notationToKey[key]] ?? key;
-    keyMap.map[normalizedKey] = fn;
-  }
+  keyMap.map[key] = fn;
 }

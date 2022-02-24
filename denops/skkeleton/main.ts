@@ -7,7 +7,7 @@ import { modeChange } from "./function/mode.ts";
 import * as jisyo from "./jisyo.ts";
 import { currentLibrary, SkkServer } from "./jisyo.ts";
 import { registerKanaTable } from "./kana.ts";
-import { handleKey } from "./keymap.ts";
+import { handleKey, registerKeyMap } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { resetState } from "./state.ts";
 import type { SkkServerOptions } from "./types.ts";
@@ -234,6 +234,12 @@ export async function main(denops: Denops) {
       ensureObject(config);
       setConfig(config);
       return Promise.resolve();
+    },
+    async registerKeyMap(state: unknown, key: unknown, funcName: unknown) {
+      ensureString(state);
+      ensureString(key);
+      await receiveNotation(denops);
+      registerKeyMap(state, key, funcName);
     },
     registerKanaTable(tableName: unknown, table: unknown, create: unknown) {
       ensureString(tableName);

@@ -31,9 +31,9 @@ function! s:send_notify() abort
   endfor
 endfunction
 
-function! skkeleton#notify(funcname, args) abort
+function! skkeleton#request_async(funcname, args) abort
   if get(g:, 'skkeleton#init', v:false)
-    call denops#notify('skkeleton', a:funcname, a:args)
+    call denops#request('skkeleton', a:funcname, a:args)
   else
     let s:pending_notify = add(get(s:, 'pending_notify', []), [a:funcname, a:args])
     augroup skkeleton-notify
@@ -44,12 +44,23 @@ function! skkeleton#notify(funcname, args) abort
 endfunction
 
 function! skkeleton#config(config) abort
-  call skkeleton#notify('config', [a:config])
+  call skkeleton#request_async('config', [a:config])
+endfunction
+
+function! skkeleton#register_keymap(state, key, func_name)
+  " normalize notation
+  if len(a:key) > 1 && a:key[0] ==# '<'
+    let key = g:skkeleton#notation#notation_to_key[tolower(a:key)]
+  else
+    let key = a:key
+  endif
+  let key = get(g:skkeleton#notation#key_to_notation, key, key)
+  call skkeleton#request_async('registerKeyMap', [a:state, key, a:func_name])
 endfunction
 
 function! skkeleton#register_kanatable(table_name, table, ...) abort
   let create = get(a:000, 0, v:false)
-  call skkeleton#notify('registerKanaTable', [a:table_name, a:table, create])
+  call skkeleton#request_async('registerKanaTable', [a:table_name, a:table, create])
 endfunction
 
 function! skkeleton#is_enabled() abort
@@ -133,6 +144,14 @@ function! skkeleton#map() abort
     let modes = [mode()]
   endif
   for c in skkeleton#get_default_mapped_keys()
+    " notation to lower
+    if len(c) > 1 && c[0] ==# '<'
+      let k = '<lt>' .. tolower(c[1:])
+      " normalize notation
+      let k = get(g:skkeleton#notation#key_to_notation, get(g:skkeleton#notation#notation_to_key, k), k)
+    else
+      let k = c
+    endif
     let func = 'handleKey'
     for m in modes
       let match = matchlist(maparg(c, m), '<Plug>(skkeleton-\(\a\+\))')
@@ -140,7 +159,7 @@ function! skkeleton#map() abort
         let func = match[1]
       endif
     endfor
-    execute printf('lnoremap <buffer> <expr> <nowait> %s skkeleton#handle(%s, %s)', c, string(func), string(c))
+    execute printf('lnoremap <buffer> <expr> <nowait> %s skkeleton#handle(%s, %s)', c, string(func), string(k))
   endfor
 endfunction
 
@@ -250,13 +269,13 @@ function! s:popup(candidates) abort
           \ })
     call add(s:windows, id)
   endif
-  autocmd skkeleton User skkeleton-handled ++once call s:close()
+  autocmd skkeleton-internal User skkeleton-handled ++once call s:close()
 endfunction
 
 function! s:close() abort
   if mode() ==# 'c'
     " redefine autocmd at cmdline mode
-    autocmd skkeleton User skkeleton-handled ++once call s:close()
+    autocmd skkeleton-internal User skkeleton-handled ++once call s:close()
     return
   endif
   if has('nvim')
@@ -273,11 +292,11 @@ endfunction
 
 function! skkeleton#show_candidates(candidates) abort
   let s:candidates = a:candidates
-  autocmd skkeleton User skkeleton-handled ++once call s:popup(s:candidates)
+  autocmd skkeleton-internal User skkeleton-handled ++once call s:popup(s:candidates)
 endfunction
 
 function! skkeleton#close_candidates() abort
-  autocmd skkeleton User skkeleton-handled ++once call s:close()
+  autocmd skkeleton-internal User skkeleton-handled ++once call s:close()
 endfunction
 
 function! skkeleton#getchar(msg) abort

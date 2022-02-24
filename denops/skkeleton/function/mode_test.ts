@@ -2,8 +2,8 @@ import { autocmd, Denops, vars } from "../deps.ts";
 import { test } from "../deps/denops_test.ts";
 import { assertEquals } from "../deps/std/testing.ts";
 import { currentContext } from "../main.ts";
+import { initDenops } from "../testutil.ts";
 import { hankatakana, katakana, zenkaku } from "./mode.ts";
-import { initDenops } from "./testutil.ts";
 
 test({
   mode: "all",

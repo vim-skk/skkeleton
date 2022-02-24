@@ -1,11 +1,11 @@
 import { Denops } from "../deps.ts";
-import { HenkanState } from "../state.ts";
-import { assertEquals } from "../deps/std/testing.ts";
-import { currentContext } from "../main.ts";
-import { currentKanaTable, getKanaTable } from "../kana.ts";
-import { initDenops } from "./testutil.ts";
-import { jisyoTouroku } from "./jisyo.ts";
 import { test } from "../deps/denops_test.ts";
+import { assertEquals } from "../deps/std/testing.ts";
+import { currentKanaTable, getKanaTable } from "../kana.ts";
+import { currentContext } from "../main.ts";
+import { HenkanState } from "../state.ts";
+import { initDenops } from "../testutil.ts";
+import { jisyoTouroku } from "./jisyo.ts";
 
 test({
   mode: "all",

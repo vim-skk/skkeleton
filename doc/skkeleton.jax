@@ -257,6 +257,22 @@ skkeleton#register_kanatable({tableName}, {table}, {create})
           \ "z\<Space>": ["\u3000", ''],
           \ })
 <
+                                                 *skkeleton#register_keymap()*
+skkeleton#register_keymap({state}, {key}, {funcName})
+        ステート単位のキーマップを定義します。
+        {state}で指定したステートの{key}に{funcName}で指定した機能が
+        |skkeleton-functions| より割り当てられます。
+        {funcName}に |falsy| な値を指定するとマッピングを削除します。
+
+        {state}は以下の物が指定できます:
+                input
+                henkan
+>
+    " 例: 変換モードでxを<BS>に移動します
+    call skkeleton#register_keymap('henkan', "\<BS>", 'henkanBackward')
+    call skkeleton#register_keymap('henkan', "x", '')
+<
+
 ==============================================================================
 COMPLETION                                              *skkeleton-completion*
 
