@@ -96,7 +96,7 @@ Deno.test({
 
       // load
       const dic = new UserDictionary();
-      await dic.load(tmp);
+      await dic.load({ path: tmp });
       assertEquals(await dic.getCandidate("okurinasi", "あ"), ["あ"]);
 
       //save

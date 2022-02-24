@@ -3,9 +3,11 @@ import { encoding } from "./deps/encoding_japanese.ts";
 import { JpNum } from "./deps/japanese_numeral.ts";
 import { zip } from "./deps/std/collections.ts";
 import { iter } from "./deps/std/io.ts";
-import { Encode } from "./types.ts";
+import { Encode, RankData } from "./types.ts";
 import type { Encoding, SkkServerOptions } from "./types.ts";
 import { Cell } from "./util.ts";
+import { ensureArray, isString } from "./deps/unknownutil.ts";
+import { wrap } from "./deps/iterator_helpers.ts";
 
 const okuriAriMarker = ";; okuri-ari entries.";
 const okuriNasiMarker = ";; okuri-nasi entries.";
@@ -161,11 +163,18 @@ export class SKKDictionary implements Dictionary {
   }
 }
 
+type UserDictionaryPath = {
+  path?: string;
+  rankPath?: string;
+};
+
 export class UserDictionary implements Dictionary {
   #okuriAri: Map<string, string[]>;
   #okuriNasi: Map<string, string[]>;
+  #rank: Map<string, number>;
 
   #path = "";
+  #rankPath = "";
   #loadTime = -1;
 
   #cachedPrefix = "";
@@ -174,9 +183,11 @@ export class UserDictionary implements Dictionary {
   constructor(
     okuriAri?: Map<string, string[]>,
     okuriNasi?: Map<string, string[]>,
+    rank?: Map<string, number>,
   ) {
     this.#okuriAri = okuriAri ?? new Map();
     this.#okuriNasi = okuriNasi ?? new Map();
+    this.#rank = rank ?? new Map();
   }
 
   getCandidate(type: HenkanType, word: string): Promise<string[]> {
@@ -203,6 +214,18 @@ export class UserDictionary implements Dictionary {
     return Promise.resolve(this.#cachedCandidates);
   }
 
+  getRanks(prefix: string): RankData {
+    const set = new Set();
+    const adder = set.add.bind(set);
+    this.cacheCandidates(prefix);
+    for (const [, cs] of this.#cachedCandidates) {
+      cs.forEach(adder);
+    }
+    return wrap(this.#rank.entries())
+      .filter((e) => set.has(e[0]))
+      .toArray();
+  }
+
   registerCandidate(type: HenkanType, word: string, candidate: string) {
     if (candidate === "") {
       return;
@@ -213,10 +236,12 @@ export class UserDictionary implements Dictionary {
       word,
       Array.from(new Set([candidate, ...oldCandidate])),
     );
+    this.#rank.set(candidate, Date.now());
     this.#cachedPrefix = "";
   }
 
-  private async readFile(path: string) {
+  private async readFile(path: string, rankPath: string) {
+    // dictionary
     const lines = (await Deno.readTextFile(path)).split("\n");
 
     const okuriAriIndex = lines.indexOf(okuriAriMarker);
@@ -233,10 +258,18 @@ export class UserDictionary implements Dictionary {
 
     this.#okuriAri = new Map(okuriAriEntries);
     this.#okuriNasi = new Map(okuriNasiEntries);
+    // rank
+    if (!rankPath) {
+      return;
+    }
+    const rankData = JSON.parse(await Deno.readTextFile(rankPath));
+    ensureArray(rankData, isString);
+    this.#rank = new Map(rankData.map((c, i) => [c, i]));
   }
 
-  async load(path = "") {
+  async load({ path, rankPath }: UserDictionaryPath = {}) {
     path = this.#path = path ?? this.#path;
+    rankPath = this.#rankPath = rankPath ?? this.#rankPath;
     if (path) {
       try {
         const stat = await Deno.stat(path);
@@ -245,14 +278,16 @@ export class UserDictionary implements Dictionary {
           return;
         }
         this.#loadTime = time;
-        await this.readFile(path);
+        await this.readFile(path, rankPath);
       } catch {
         // do nothing
       }
+      this.#cachedPrefix = "";
     }
   }
 
-  private async writeFile(path: string) {
+  private async writeFile(path: string, rankPath: string) {
+    // dictionary
     // Note: in SKK dictionary reverses candidates sort order if okuriari
     const okuriAri = Array.from(this.#okuriAri).sort((a, b) =>
       b[0].localeCompare(a[0])
@@ -275,6 +310,23 @@ export class UserDictionary implements Dictionary {
       );
       throw e;
     }
+    // rank
+    if (!rankPath) {
+      return;
+    }
+    const rankData = JSON.stringify(
+      Array.from(this.#rank.entries()).sort((a, b) => a[1] - b[1]).map((e) =>
+        e[0]
+      ),
+    );
+    try {
+      await Deno.writeTextFile(rankPath, rankData);
+    } catch (e) {
+      console.log(
+        `warning(skkeleton): can't write candidate rank data to ${rankPath}`,
+      );
+      throw e;
+    }
   }
 
   async save() {
@@ -282,7 +334,7 @@ export class UserDictionary implements Dictionary {
       return;
     }
     try {
-      await this.writeFile(this.#path);
+      await this.writeFile(this.#path, this.#rankPath);
     } catch (e) {
       if (config.debug) {
         console.log(e);
@@ -389,6 +441,10 @@ export class Library {
       .map(([kana, cset]) => [kana, Array.from(cset)]);
   }
 
+  getRanks(prefix: string): RankData {
+    return this.#userDictionary.getRanks(prefix);
+  }
+
   async registerCandidate(type: HenkanType, word: string, candidate: string) {
     this.#userDictionary.registerCandidate(type, word, candidate);
     if (config.immediatelyJisyoRW) {
@@ -407,7 +463,7 @@ export class Library {
 
 export async function load(
   globalDictionaryPath: string,
-  userDictionaryPath: string,
+  userDictionaryPath: UserDictionaryPath,
   dictonaryEncoding = "euc-jp",
   skkServer?: SkkServer,
 ): Promise<Library> {

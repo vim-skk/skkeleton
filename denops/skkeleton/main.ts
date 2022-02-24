@@ -10,7 +10,7 @@ import { registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { resetState } from "./state.ts";
-import type { SkkServerOptions } from "./types.ts";
+import type { RankData, SkkServerOptions } from "./types.ts";
 import { Cell } from "./util.ts";
 
 let initialized = false;
@@ -40,6 +40,7 @@ async function init(denops: Denops) {
   }
   currentContext.get().denops = denops;
   const {
+    completionRankFile,
     globalJisyo,
     userJisyo,
     globalJisyoEncoding,
@@ -64,7 +65,10 @@ async function init(denops: Denops) {
   jisyo.currentLibrary.set(
     await jisyo.load(
       homeExpand(globalJisyo, homePath),
-      homeExpand(userJisyo, homePath),
+      {
+        path: homeExpand(userJisyo, homePath),
+        rankPath: homeExpand(completionRankFile, homePath),
+      },
       globalJisyoEncoding,
       skkServer,
     ),
@@ -285,6 +289,13 @@ export async function main(denops: Denops) {
         return Promise.resolve([]);
       }
       return currentLibrary.get().getCandidates(state.henkanFeed);
+    },
+    getRanks(): Promise<RankData> {
+      const state = currentContext.get().state;
+      if (state.type !== "input") {
+        return Promise.resolve([]);
+      }
+      return Promise.resolve(currentLibrary.get().getRanks(state.henkanFeed));
     },
     async registerCandidate(kana: unknown, word: unknown) {
       ensureString(kana);
