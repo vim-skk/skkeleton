@@ -133,6 +133,9 @@ acceptIllegalResult                     *skkeleton-config-acceptIllegalResult*
         このオプションを有効にすると、Microsoft IME等と同様に
         入力に失敗したローマ字がバッファに残るようになります。
 
+completionRankFile                       *skkeleton-config-completionRankFile*
+        (デフォルト "")
+        パスを指定すると補完候補の順番を記録するようになります。
 
 debug                                                 *skkeleton-config-debug*
         (デフォルト v:false, g:skkeleton#debug が真の場合は v:true)
@@ -166,16 +169,24 @@ immediatelyJisyoRW                       *skkeleton-config-immediatelyJisyoRW*
         変換や確定の度にユーザー辞書を読み書きするようになります。
         複数のVimインスタンスを同時に使う場合に有用かもしれません。
 
+keepState                                         *skkeleton-config-keepState*
+        (デフォルト v:false)
+        このオプションを有効にすると
+        Insertモードを抜けても前回の状態を保持するようになります。
+
+markerHenkan                                   *skkeleton-config-markerHenkan*
+        (デフォルト "▽")
+        変換入力中であることを示すため文字を指定します。
+
+markerHenkanSelect                       *skkeleton-config-markerHenkanSelect*
+        (デフォルト "▼")
+        候補を選択している最中であることを示すため文字を指定します。
+
 registerConvertResult                 *skkeleton-config-registerConvertResult*
         (デフォルト v:false)
         このオプションを有効にすると
         カタカナ変換等の結果を辞書に登録するようになります。
         補完機能を使っている場合などに便利だと思います。
-
-keepState                                         *skkeleton-config-keepState*
-        (デフォルト v:false)
-        このオプションを有効にすると
-        Insertモードを抜けても前回の状態を保持するようになります。
 
 selectCandidateKeys                     *skkeleton-config-selectCandidateKeys*
         (デフォルト "asdfjkl")
@@ -191,6 +202,22 @@ showCandidatesCount                     *skkeleton-config-showCandidatesCount*
         (デフォルト 4)
         このオプションの数の候補までは選択表示がされずに変換されます。
 
+skkServerHost                   *skkeleton-config-skkServerHost*
+        (デフォルト "127.0.0.1")
+        辞書サーバーのホスト名またはIPアドレスを指定します。
+
+skkServerPort                   *skkeleton-config-skkServerPort*
+        (デフォルト 1178)
+        辞書サーバーのポート番号を指定します。
+
+skkServerReqEnc                 *skkeleton-config-skkServerReqEnc*
+        （デフォルト "euc-jp"）
+        辞書サーバーに渡す文字列のエンコード形式を指定します。
+
+skkServerResEnc                 *skkeleton-config-skkServerResEnc*
+        （デフォルト "euc-jp"）
+        辞書サーバーから受け取る文字列のエンコード形式を指定します。
+
 tabCompletion                                 *skkeleton-config-tabCompletion*
         (デフォルト v:true)
         このオプションを有効にすると<Tab>キーで及び<S-Tab>キーで
@@ -200,38 +227,15 @@ usePopup                                           *skkeleton-config-usePopup*
         (デフォルト v:true)
         このオプションを有効にすると、変換候補がポップアップ表示されます。
 
+useSkkServer                              *skkeleton-config-useSkkServer*
+        (デフォルト v:false)
+        辞書サーバー機能を有効にします。
+
 userJisyo                                     *skkeleton-config-userJisyo*
         (デフォルト "~/.skkeleton")
         ユーザー辞書のパス
         JavaScriptの制約によりエンコーディングはUTF-8限定になります。
 
-markerHenkan                                   *skkeleton-config-markerHenkan*
-        (デフォルト "▽")
-        変換入力中であることを示すため文字を指定します。
-
-markerHenkanSelect                       *skkeleton-config-markerHenkanSelect*
-        (デフォルト "▼")
-        候補を選択している最中であることを示すため文字を指定します。
-
-useSkkServer                              *skkeleton-config-useSkkServer*
-        (デフォルト v:false)
-        辞書サーバー機能を有効にします。
-
-skkServerHost                   *skkeleton-config-skkServerHost*
-        (デフォルト "127.0.0.1")
-        辞書サーバーのホスト名またはIPアドレスを指定します。
-
-skkServerPort                   *skkeleton-config-skkServerPort*
-        (デフォルト 1178)
-        辞書サーバーのポート番号を指定します。
-
-skkServerResEnc                 *skkeleton-config-skkServerResEnc*
-        （デフォルト "euc-jp"）
-        辞書サーバーから受け取る文字列のエンコード形式を指定します。
-
-skkServerReqEnc                 *skkeleton-config-skkServerReqEnc*
-        （デフォルト "euc-jp"）
-        辞書サーバーに渡す文字列のエンコード形式を指定します。
 ------------------------------------------------------------------------------
                                               *skkeleton#register_kanatable()*
 skkeleton#register_kanatable({tableName}, {table}, {create})
