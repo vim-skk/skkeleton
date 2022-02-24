@@ -101,6 +101,17 @@ export function wrapDictionary(dict: Dictionary): Dictionary {
   );
 }
 
+function parseEntries(lines: string[]): [string, string[]][] {
+  return lines.flatMap((s) => {
+    const m = s.match(lineRegexp);
+    if (m) {
+      return [[m[1], m[2].split("/")]];
+    } else {
+      return [];
+    }
+  });
+}
+
 export class SKKDictionary implements Dictionary {
   #okuriAri: Map<string, string[]>;
   #okuriNasi: Map<string, string[]>;
