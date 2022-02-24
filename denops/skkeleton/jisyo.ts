@@ -128,6 +128,26 @@ export class SKKDictionary implements Dictionary {
     candidates.sort((a, b) => a[0].localeCompare(b[0]));
     return Promise.resolve(candidates);
   }
+
+  async load(path: string, encoding: string) {
+    const decoder = new TextDecoder(encoding);
+    const lines = decoder.decode(await Deno.readFile(path)).split("\n");
+
+    const okuriAriIndex = lines.indexOf(okuriAriMarker);
+    const okuriNasiIndex = lines.indexOf(okuriNasiMarker);
+
+    const okuriAriEntries = parseEntries(lines.slice(
+      okuriAriIndex + 1,
+      okuriNasiIndex,
+    ));
+    const okuriNasiEntries = parseEntries(lines.slice(
+      okuriNasiIndex + 1,
+      lines.length,
+    ));
+
+    this.#okuriAri = new Map(okuriAriEntries);
+    this.#okuriNasi = new Map(okuriNasiEntries);
+  }
 }
 
 export function encodeJisyo(jisyo: SKKDictionary) {
@@ -338,48 +358,40 @@ export function ensureJisyo(x: unknown): asserts x is Dictionary {
 }
 
 export async function load(
-  globalJisyoPath: string,
-  userJisyoPath: string,
-  jisyoEncoding = "euc-jp",
+  globalDictionaryPath: string,
+  userDictionaryPath: string,
+  dictonaryEncoding = "euc-jp",
   skkServer?: SkkServer,
 ): Promise<Library> {
-  let globalJisyo = new SKKDictionary();
-  let userJisyo = new SKKDictionary();
+  const globalDictionary = new SKKDictionary();
+  const userDictionary = new SKKDictionary();
   try {
-    globalJisyo = await loadJisyo(
-      globalJisyoPath,
-      jisyoEncoding,
-    );
+    await globalDictionary.load(globalDictionaryPath, dictonaryEncoding);
   } catch (e) {
-    console.error("globalJisyo loading failed");
-    console.error(`at ${globalJisyoPath}`);
+    console.error("globalDictionary loading failed");
+    console.error(`at ${globalDictionaryPath}`);
     if (config.debug) {
       console.error(e);
     }
   }
   try {
-    userJisyo = await loadJisyo(
-      userJisyoPath,
-      "utf-8",
-    );
+    await userDictionary.load(userDictionaryPath, "utf-8");
   } catch (e) {
     if (config.debug) {
-      console.log("userJisyo loading failed");
+      console.log("userDictionary loading failed");
       console.log(e);
     }
     // do nothing
   }
   try {
-    if (skkServer) {
-      skkServer.connect();
-    }
+    skkServer?.connect();
   } catch (e) {
     if (config.debug) {
       console.log("connecting to skk server is failed");
       console.log(e);
     }
   }
-  return new Library(globalJisyo, userJisyo, userJisyoPath, skkServer);
+  return new Library(globalDictionary, userDictionary, userDictionaryPath, skkServer);
 }
 
 export const currentLibrary = new Cell(() => new Library());
