@@ -128,24 +128,6 @@ export class SKKDictionary implements Dictionary {
     candidates.sort((a, b) => a[0].localeCompare(b[0]));
     return Promise.resolve(candidates);
   }
-
-  registerCandidate(type: HenkanType, word: string, candidate: string) {
-    const target = type === "okuriari" ? this.#okuriari : this.#okurinasi;
-    target.set(
-      word,
-      Array.from(new Set([candidate, ...target.get(word) ?? []])),
-    );
-  }
-
-  toString(): string {
-    return [
-      [okuriAriMarker],
-      linesToString(Array.from(this.#okuriari.entries())),
-      [okuriNasiMarker],
-      linesToString(Array.from(this.#okurinasi.entries())),
-      [""], // The text file must end with a new line
-    ].flat().join("\n");
-  }
 }
 
 export function encodeJisyo(jisyo: SKKDictionary) {
@@ -264,7 +246,7 @@ export class Library {
     if (!candidate) {
       return;
     }
-    this.#userJisyo.registerCandidate(type, word, candidate);
+    // this.#userJisyo.registerCandidate(type, word, candidate);
     if (config.immediatelyJisyoRW) {
       await this.saveJisyo();
     }
