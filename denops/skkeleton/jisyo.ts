@@ -52,9 +52,9 @@ function convertNumber(pattern: string, entry: string): string {
     .join("");
 }
 
-export interface Jisyo {
+export interface Dictionary {
   getCandidate(type: HenkanType, word: string): Promise<string[]>;
-  getCandidates(word: string): Promise<[string, string[]][]>;
+  getCandidates(prefix: string): Promise<[string, string[]][]>;
 }
 
 function encode(str: string, encode: Encoding): Uint8Array {
@@ -65,53 +65,233 @@ function encode(str: string, encode: Encoding): Uint8Array {
   return eucBytes;
 }
 
-export class LocalJisyo implements Jisyo {
-  #okuriari: Map<string, string[]>;
-  #okurinasi: Map<string, string[]>;
-  constructor(
-    okuriari?: Map<string, string[]>,
-    okurinasi?: Map<string, string[]>,
-  ) {
-    this.#okuriari = okuriari ?? new Map();
-    this.#okurinasi = okurinasi ?? new Map();
+export class NumberConvertWrapper implements Dictionary {
+  #inner: Dictionary;
+
+  constructor(dict: Dictionary) {
+    this.#inner = dict;
   }
-  getCandidate(type: HenkanType, word: string): Promise<string[]> {
-    const target = type === "okuriari" ? this.#okuriari : this.#okurinasi;
-    return Promise.resolve(
-      (target.get(word.replaceAll(/[0-9]+/g, "#")) ?? [])
-        .map((candidate) => convertNumber(candidate, word)),
-    );
-  }
-  getCandidates(prefix: string): Promise<[string, string[]][]> {
-    const candidates = new Map<string, string[]>();
-    for (const [key, value] of this.#okurinasi) {
-      if (key.startsWith(prefix)) {
-        // TODO: to get numebric candidates
-        candidates.set(key, value);
-      }
+
+  async getCandidate(type: HenkanType, word: string): Promise<string[]> {
+    const realWord = word.replaceAll(/[0-9]+/g, "#");
+    const candidate = await this.#inner.getCandidate(type, realWord);
+    if (word === realWord) {
+      return candidate;
+    } else {
+      return candidate.map((c) => convertNumber(c, word));
     }
-    return Promise.resolve(Array.from(candidates.entries()));
   }
-  registerCandidate(type: HenkanType, word: string, candidate: string) {
-    const target = type === "okuriari" ? this.#okuriari : this.#okurinasi;
-    target.set(
-      word,
-      Array.from(new Set([candidate, ...target.get(word) ?? []])),
-    );
-  }
-  toString(): string {
-    return [
-      [okuriAriMarker],
-      linesToString(Array.from(this.#okuriari.entries())),
-      [okuriNasiMarker],
-      linesToString(Array.from(this.#okurinasi.entries())),
-      [""], // The text file must end with a new line
-    ].flat().join("\n");
+
+  async getCandidates(prefix: string): Promise<[string, string[]][]> {
+    const realPrefix = prefix.replaceAll(/[0-9]+/g, "#");
+    const candidates = await this.#inner.getCandidates(realPrefix);
+    if (prefix === realPrefix) {
+      return candidates;
+    } else {
+      return candidates.map((
+        [kana, cand],
+      ) => [kana, cand.map((c) => convertNumber(c, prefix))]);
+    }
   }
 }
 
-export function encodeJisyo(jisyo: LocalJisyo) {
-  return jisyo.toString();
+export function wrapDictionary(dict: Dictionary): Dictionary {
+  return new NumberConvertWrapper(
+    dict,
+  );
+}
+
+function parseEntries(lines: string[]): [string, string[]][] {
+  return lines.flatMap((s) => {
+    const m = s.match(lineRegexp);
+    if (m) {
+      return [[m[1], m[2].split("/")]];
+    } else {
+      return [];
+    }
+  });
+}
+
+export class SKKDictionary implements Dictionary {
+  #okuriAri: Map<string, string[]>;
+  #okuriNasi: Map<string, string[]>;
+
+  constructor(
+    okuriAri?: Map<string, string[]>,
+    okuriNasi?: Map<string, string[]>,
+  ) {
+    this.#okuriAri = okuriAri ?? new Map();
+    this.#okuriNasi = okuriNasi ?? new Map();
+  }
+
+  getCandidate(type: HenkanType, word: string): Promise<string[]> {
+    const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
+    return Promise.resolve(target.get(word) ?? []);
+  }
+
+  getCandidates(prefix: string): Promise<[string, string[]][]> {
+    const candidates: [string, string[]][] = [];
+    for (const entry of this.#okuriNasi) {
+      if (entry[0].startsWith(prefix)) {
+        candidates.push(entry);
+      }
+    }
+    candidates.sort((a, b) => a[0].localeCompare(b[0]));
+    return Promise.resolve(candidates);
+  }
+
+  async load(path: string, encoding: string) {
+    const decoder = new TextDecoder(encoding);
+    const lines = decoder.decode(await Deno.readFile(path)).split("\n");
+
+    const okuriAriIndex = lines.indexOf(okuriAriMarker);
+    const okuriNasiIndex = lines.indexOf(okuriNasiMarker);
+
+    const okuriAriEntries = parseEntries(lines.slice(
+      okuriAriIndex + 1,
+      okuriNasiIndex,
+    ));
+    const okuriNasiEntries = parseEntries(lines.slice(
+      okuriNasiIndex + 1,
+      lines.length,
+    ));
+
+    this.#okuriAri = new Map(okuriAriEntries);
+    this.#okuriNasi = new Map(okuriNasiEntries);
+  }
+}
+
+export class UserDictionary implements Dictionary {
+  #okuriAri: Map<string, string[]>;
+  #okuriNasi: Map<string, string[]>;
+
+  #path = "";
+  #loadTime = -1;
+
+  #cachedPrefix = "";
+  #cachedCandidates: [string, string[]][] = [];
+
+  constructor(
+    okuriAri?: Map<string, string[]>,
+    okuriNasi?: Map<string, string[]>,
+  ) {
+    this.#okuriAri = okuriAri ?? new Map();
+    this.#okuriNasi = okuriNasi ?? new Map();
+  }
+
+  getCandidate(type: HenkanType, word: string): Promise<string[]> {
+    const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
+    return Promise.resolve(target.get(word) ?? []);
+  }
+
+  private cacheCandidates(prefix: string) {
+    if (this.#cachedPrefix === prefix) {
+      return;
+    }
+    const candidates: [string, string[]][] = [];
+    for (const entry of this.#okuriNasi) {
+      if (entry[0].startsWith(prefix)) {
+        candidates.push(entry);
+      }
+    }
+    this.#cachedPrefix = prefix;
+    this.#cachedCandidates = candidates;
+  }
+
+  getCandidates(prefix: string): Promise<[string, string[]][]> {
+    this.cacheCandidates(prefix);
+    return Promise.resolve(this.#cachedCandidates);
+  }
+
+  registerCandidate(type: HenkanType, word: string, candidate: string) {
+    if (candidate === "") {
+      return;
+    }
+    const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
+    const oldCandidate = target.get(word) ?? [];
+    target.set(
+      word,
+      Array.from(new Set([candidate, ...oldCandidate])),
+    );
+    this.#cachedPrefix = "";
+  }
+
+  private async readFile(path: string) {
+    const lines = (await Deno.readTextFile(path)).split("\n");
+
+    const okuriAriIndex = lines.indexOf(okuriAriMarker);
+    const okuriNasiIndex = lines.indexOf(okuriNasiMarker);
+
+    const okuriAriEntries = parseEntries(lines.slice(
+      okuriAriIndex + 1,
+      okuriNasiIndex,
+    ));
+    const okuriNasiEntries = parseEntries(lines.slice(
+      okuriNasiIndex + 1,
+      lines.length,
+    ));
+
+    this.#okuriAri = new Map(okuriAriEntries);
+    this.#okuriNasi = new Map(okuriNasiEntries);
+  }
+
+  async load(path = "") {
+    path = this.#path = path ?? this.#path;
+    if (path) {
+      try {
+        const stat = await Deno.stat(path);
+        const time = stat.mtime?.getTime() ?? -1;
+        if (time === this.#loadTime) {
+          return;
+        }
+        this.#loadTime = time;
+        await this.readFile(path);
+      } catch {
+        // do nothing
+      }
+    }
+  }
+
+  private async writeFile(path: string) {
+    // Note: in SKK dictionary reverses candidates sort order if okuriari
+    const okuriAri = Array.from(this.#okuriAri).sort((a, b) =>
+      b[0].localeCompare(a[0])
+    ).map((e) => `${e[0]} /${e[1].join("/")}/`);
+    const okuriNasi = Array.from(this.#okuriNasi).sort((a, b) =>
+      a[0].localeCompare(b[0])
+    ).map((e) => `${e[0]} /${e[1].join("/")}/`);
+    const data = [
+      [okuriAriMarker],
+      okuriAri,
+      [okuriNasiMarker],
+      okuriNasi,
+      [""],
+    ].flat().join("\n");
+    try {
+      await Deno.writeTextFile(path, data);
+    } catch (e) {
+      console.log(
+        `warning(skkeleton): can't write userJisyo to ${path}`,
+      );
+      throw e;
+    }
+  }
+
+  async save() {
+    if (!this.#path) {
+      return;
+    }
+    try {
+      await this.writeFile(this.#path);
+    } catch (e) {
+      if (config.debug) {
+        console.log(e);
+      }
+      return;
+    }
+    const stat = await Deno.stat(this.#path).catch(() => void 0);
+    this.#loadTime = stat?.mtime?.getTime() ?? -1;
+  }
 }
 
 export type HenkanType = "okuriari" | "okurinasi";
@@ -121,7 +301,7 @@ function decode(str: Uint8Array, encode: Encoding): string {
   return decoder.decode(str);
 }
 
-export class SkkServer {
+export class SkkServer implements Dictionary {
   #conn: Deno.Conn | undefined;
   responseEncoding: Encoding;
   requestEncoding: Encoding;
@@ -151,9 +331,9 @@ export class SkkServer {
     }
     return result;
   }
-  getCandidates(_prefix: string): [string, string[]][] {
+  async getCandidates(_prefix: string): Promise<[string, string[]][]> {
     // TODO: add support for ddc.vim
-    return [["", [""]]];
+    return await Promise.resolve([["", [""]]]);
   }
   close() {
     this.#conn?.write(encode("0", this.requestEncoding));
@@ -161,205 +341,108 @@ export class SkkServer {
   }
 }
 
+function gatherCandidates(
+  collector: Map<string, Set<string>>,
+  candidates: [string, string[]][],
+) {
+  for (const [kana, cs] of candidates) {
+    const set = collector.get(kana) ?? new Set();
+    cs.forEach(set.add.bind(set));
+    collector.set(kana, set);
+  }
+}
+
 export class Library {
-  #globalJisyo: LocalJisyo;
-  #userJisyo: LocalJisyo;
-  #userJisyoPath: string;
-  #userJisyoTimestamp = -1;
-  #skkServer: SkkServer | undefined;
+  #dictionaries: Dictionary[];
+
+  #userDictionary: UserDictionary;
 
   constructor(
-    globalJisyo?: LocalJisyo,
-    userJisyo?: LocalJisyo,
-    userJisyoPath?: string,
-    skkServer?: SkkServer,
+    dictionaries?: Dictionary[],
+    userDictionary?: UserDictionary,
   ) {
-    this.#globalJisyo = globalJisyo ?? new LocalJisyo();
-    this.#userJisyo = userJisyo ?? new LocalJisyo();
-    this.#userJisyoPath = userJisyoPath ?? "";
-    this.#skkServer = skkServer;
+    this.#userDictionary = userDictionary ?? new UserDictionary();
+    this.#dictionaries = [wrapDictionary(this.#userDictionary)].concat(
+      dictionaries ?? [],
+    );
   }
 
   async getCandidate(type: HenkanType, word: string): Promise<string[]> {
-    const userCandidates = await this.#userJisyo.getCandidate(type, word);
-    const merged = userCandidates.slice();
-    const globalCandidates = await this.#globalJisyo.getCandidate(type, word);
-    const remoteCandidates = await this.#skkServer?.getCandidate(word);
-    if (globalCandidates) {
-      for (const c of globalCandidates) {
-        if (!merged.includes(c)) {
-          merged.push(c);
-        }
+    const merged = new Set<string>();
+    for (const dic of this.#dictionaries) {
+      for (const c of await dic.getCandidate(type, word)) {
+        merged.add(c);
       }
     }
-    if (remoteCandidates) {
-      for (const c of remoteCandidates) {
-        if (!merged.includes(c)) {
-          merged.push(c);
-        }
-      }
-    }
-    return merged;
+    return Array.from(merged);
   }
 
   async getCandidates(prefix: string): Promise<[string, string[]][]> {
     if (prefix.length < 2) {
       return [];
     }
-    const candidates = new Map<string, string[]>();
-    for (const [key, value] of await this.#userJisyo.getCandidates(prefix)) {
-      candidates.set(
-        key,
-        Array.from(new Set([...candidates.get(key) ?? [], ...value])),
-      );
+    const collector = new Map<string, Set<string>>();
+    for (const dic of this.#dictionaries) {
+      gatherCandidates(collector, await dic.getCandidates(prefix));
     }
-    for (const [key, value] of await this.#globalJisyo.getCandidates(prefix)) {
-      candidates.set(
-        key,
-        Array.from(new Set([...candidates.get(key) ?? [], ...value])),
-      );
-    }
-    return Array.from(candidates.entries());
+    return Array.from(collector.entries())
+      .map(([kana, cset]) => [kana, Array.from(cset)]);
   }
 
-  registerCandidate(type: HenkanType, word: string, candidate: string) {
-    if (!candidate) {
-      return;
-    }
-    this.#userJisyo.registerCandidate(type, word, candidate);
+  async registerCandidate(type: HenkanType, word: string, candidate: string) {
+    this.#userDictionary.registerCandidate(type, word, candidate);
     if (config.immediatelyJisyoRW) {
-      this.saveJisyo();
+      await this.#userDictionary.save();
     }
   }
 
-  async loadJisyo() {
-    if (this.#userJisyoPath) {
-      try {
-        const stat = await Deno.stat(this.#userJisyoPath);
-        const time = stat.mtime?.getTime() ?? -1;
-        if (time === this.#userJisyoTimestamp) {
-          return;
-        }
-        this.#userJisyoTimestamp = time;
-        this.#userJisyo = decodeJisyo(
-          await Deno.readTextFile(this.#userJisyoPath),
-        );
-      } catch {
-        // do nothing
-      }
-    }
+  async load() {
+    await this.#userDictionary.load();
   }
 
-  async saveJisyo() {
-    if (this.#userJisyoPath) {
-      try {
-        await Deno.writeTextFile(
-          this.#userJisyoPath,
-          encodeJisyo(this.#userJisyo),
-        );
-      } catch {
-        console.log(
-          `warning(skkeleton): can't write userJisyo to ${this.#userJisyoPath}`,
-        );
-        return;
-      }
-      const stat = await Deno.stat(this.#userJisyoPath);
-      const time = stat.mtime?.getTime() ?? -1;
-      this.#userJisyoTimestamp = time;
-    }
+  async save() {
+    await this.#userDictionary.save();
   }
-}
-
-export function decodeJisyo(data: string): LocalJisyo {
-  const lines = data.split("\n");
-
-  const okuriAriIndex = lines.indexOf(okuriAriMarker);
-  const okuriNasiIndex = lines.indexOf(okuriNasiMarker);
-
-  const okuriAriEntries = lines.slice(okuriAriIndex + 1, okuriNasiIndex).map(
-    (s) => s.match(lineRegexp),
-  ).filter((m) => m).map((m) =>
-    [m![1], m![2].split("/")] as [string, string[]]
-  );
-  const okuriNasiEntries = lines.slice(okuriNasiIndex + 1, lines.length).map(
-    (s) => s.match(lineRegexp),
-  ).filter((m) => m).map((m) =>
-    [m![1], m![2].split("/")] as [string, string[]]
-  );
-
-  return new LocalJisyo(
-    new Map(okuriAriEntries),
-    new Map(okuriNasiEntries),
-  );
-}
-
-/**
- * load SKK jisyo from `path`
- */
-export async function loadJisyo(
-  path: string,
-  jisyoEncoding: string,
-): Promise<LocalJisyo> {
-  const decoder = new TextDecoder(jisyoEncoding);
-  return decodeJisyo(decoder.decode(await Deno.readFile(path)));
-}
-
-function linesToString(entries: [string, string[]][]): string[] {
-  return entries.sort((a, b) => a[0].localeCompare(b[0])).map((entry) =>
-    `${entry[0]} /${entry[1].join("/")}/`
-  );
-}
-
-export function ensureJisyo(x: unknown): asserts x is Jisyo {
-  if (x instanceof LocalJisyo) {
-    return;
-  }
-  throw new Error("corrupt jisyo detected");
 }
 
 export async function load(
-  globalJisyoPath: string,
-  userJisyoPath: string,
-  jisyoEncoding = "euc-jp",
+  globalDictionaryPath: string,
+  userDictionaryPath: string,
+  dictonaryEncoding = "euc-jp",
   skkServer?: SkkServer,
 ): Promise<Library> {
-  let globalJisyo = new LocalJisyo();
-  let userJisyo = new LocalJisyo();
+  const globalDictionary = new SKKDictionary();
+  const userDictionary = new UserDictionary();
   try {
-    globalJisyo = await loadJisyo(
-      globalJisyoPath,
-      jisyoEncoding,
-    );
+    await globalDictionary.load(globalDictionaryPath, dictonaryEncoding);
   } catch (e) {
-    console.error("globalJisyo loading failed");
-    console.error(`at ${globalJisyoPath}`);
+    console.error("globalDictionary loading failed");
+    console.error(`at ${globalDictionaryPath}`);
     if (config.debug) {
       console.error(e);
     }
   }
   try {
-    userJisyo = await loadJisyo(
-      userJisyoPath,
-      "utf-8",
-    );
+    await userDictionary.load(userDictionaryPath);
   } catch (e) {
     if (config.debug) {
-      console.log("userJisyo loading failed");
+      console.log("userDictionary loading failed");
       console.log(e);
     }
     // do nothing
   }
   try {
-    if (skkServer) {
-      skkServer.connect();
-    }
+    skkServer?.connect();
   } catch (e) {
     if (config.debug) {
       console.log("connecting to skk server is failed");
       console.log(e);
     }
   }
-  return new Library(globalJisyo, userJisyo, userJisyoPath, skkServer);
+  const dictionaries = [globalDictionary].flatMap((d) =>
+    d ? [wrapDictionary(d)] : []
+  ).concat(skkServer ? [skkServer] : []);
+  return new Library(dictionaries, userDictionary);
 }
 
 export const currentLibrary = new Cell(() => new Library());
