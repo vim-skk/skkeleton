@@ -3,6 +3,7 @@ import type { Context } from "../context.ts";
 import type { Denops } from "../deps.ts";
 import { currentLibrary } from "../jisyo.ts";
 import { handleKey } from "../keymap.ts";
+import { keyToNotation } from "../notation.ts";
 import { getOkuriStr } from "../okuri.ts";
 import type { HenkanState } from "../state.ts";
 import { kakutei } from "./common.ts";
@@ -149,5 +150,5 @@ export async function henkanInput(context: Context, key: string) {
   }
 
   await kakutei(context);
-  await handleKey(context, key);
+  await handleKey(context, keyToNotation[key] ?? key);
 }
