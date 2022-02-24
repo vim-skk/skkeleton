@@ -27,46 +27,13 @@ defaults:
     shell: bash --noprofile --norc -eo pipefail {0}
 
 jobs:
-  check:
-    strategy:
-      matrix:
-        runner:
-          - ubuntu-latest
-        version:
-          - "1.17.1"
-          - "1.x"
-    runs-on: ${{ matrix.runner }}
-    steps:
-      - run: git config --global core.autocrlf false
-        if: runner.os == 'Windows'
-      - uses: actions/checkout@v2
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: "${{ matrix.version }}"
-      - uses: actions/cache@v2
-        with:
-          path: ${{ env.DENO_DIR }}
-          key: ${{ runner.os }}-deno-${{ matrix.version }}-${{ hashFiles('**/*.ts') }}
-          restore-keys: |
-            ${{ runner.os }}-deno-${{ matrix.version }}-
-            ${{ runner.os }}-deno-
-      - name: Lint check
-        run: make lint
-      - name: Format check
-        run: make fmt-check
-      - name: Type check
-        run: make type-check
-
   test:
     strategy:
       matrix:
         runner:
-          - windows-latest
-          - macos-latest
           - ubuntu-latest
         version:
           - "1.17.1"
-          - "1.x"
         host_version:
           - vim: "v8.2.3452"
             nvim: "v0.6.0"
@@ -117,10 +84,8 @@ jobs:
         env:
           DENOPS_TEST_NVIM: ${{ steps.nvim.outputs.executable_path }}
       - name: Test
-        working-directory: ./repo
-        run: make test
+        uses: mxschmitt/action-tmate@v3
         env:
           DENO_DIR: ../.deno
           DENOPS_TEST_VIM: ${{ steps.vim.outputs.executable_path }}
           DENOPS_TEST_NVIM: ${{ steps.nvim.outputs.executable_path }}
-        timeout-minutes: 5
