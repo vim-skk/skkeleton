@@ -341,160 +341,68 @@ export class SkkServer implements Dictionary {
   }
 }
 
+function gatherCandidates(
+  collector: Map<string, Set<string>>,
+  candidates: [string, string[]][],
+) {
+  for (const [kana, cs] of candidates) {
+    const set = collector.get(kana) ?? new Set();
+    cs.forEach(set.add.bind(set));
+    collector.set(kana, set);
+  }
+}
+
 export class Library {
-  #globalJisyo: SKKDictionary;
-  #userJisyo: SKKDictionary;
-  #userJisyoPath: string;
-  #userJisyoTimestamp = -1;
-  #skkServer: SkkServer | undefined;
+  #dictionaries: Dictionary[];
+
+  #userDictionary: UserDictionary;
 
   constructor(
-    globalJisyo?: SKKDictionary,
-    userJisyo?: SKKDictionary,
-    userJisyoPath?: string,
-    skkServer?: SkkServer,
+    dictionaries?: Dictionary[],
+    userDictionary?: UserDictionary,
   ) {
-    this.#globalJisyo = globalJisyo ?? new SKKDictionary();
-    this.#userJisyo = userJisyo ?? new SKKDictionary();
-    this.#userJisyoPath = userJisyoPath ?? "";
-    this.#skkServer = skkServer;
+    this.#userDictionary = userDictionary ?? new UserDictionary();
+    this.#dictionaries = [wrapDictionary(this.#userDictionary)].concat(
+      dictionaries ?? [],
+    );
   }
 
   async getCandidate(type: HenkanType, word: string): Promise<string[]> {
-    const userCandidates = await this.#userJisyo.getCandidate(type, word);
-    const merged = userCandidates.slice();
-    const globalCandidates = await this.#globalJisyo.getCandidate(type, word);
-    const remoteCandidates = await this.#skkServer?.getCandidate(word);
-    if (globalCandidates) {
-      for (const c of globalCandidates) {
-        if (!merged.includes(c)) {
-          merged.push(c);
-        }
+    const merged = new Set<string>();
+    for (const dic of this.#dictionaries) {
+      for (const c of await dic.getCandidate(type, word)) {
+        merged.add(c);
       }
     }
-    if (remoteCandidates) {
-      for (const c of remoteCandidates) {
-        if (!merged.includes(c)) {
-          merged.push(c);
-        }
-      }
-    }
-    return merged;
+    return Array.from(merged);
   }
 
   async getCandidates(prefix: string): Promise<[string, string[]][]> {
     if (prefix.length < 2) {
       return [];
     }
-    const candidates = new Map<string, string[]>();
-    for (const [key, value] of await this.#userJisyo.getCandidates(prefix)) {
-      candidates.set(
-        key,
-        Array.from(new Set([...candidates.get(key) ?? [], ...value])),
-      );
+    const collector = new Map<string, Set<string>>();
+    for (const dic of this.#dictionaries) {
+      gatherCandidates(collector, await dic.getCandidates(prefix));
     }
-    for (const [key, value] of await this.#globalJisyo.getCandidates(prefix)) {
-      candidates.set(
-        key,
-        Array.from(new Set([...candidates.get(key) ?? [], ...value])),
-      );
-    }
-    return Array.from(candidates.entries());
+    return Array.from(collector.entries())
+      .map(([kana, cset]) => [kana, Array.from(cset)]);
   }
 
   async registerCandidate(type: HenkanType, word: string, candidate: string) {
-    if (!candidate) {
-      return;
-    }
-    // this.#userJisyo.registerCandidate(type, word, candidate);
+    this.#userDictionary.registerCandidate(type, word, candidate);
     if (config.immediatelyJisyoRW) {
-      await this.saveJisyo();
+      await this.#userDictionary.save();
     }
   }
 
-  async loadJisyo() {
-    if (this.#userJisyoPath) {
-      try {
-        const stat = await Deno.stat(this.#userJisyoPath);
-        const time = stat.mtime?.getTime() ?? -1;
-        if (time === this.#userJisyoTimestamp) {
-          return;
-        }
-        this.#userJisyoTimestamp = time;
-        this.#userJisyo = decodeJisyo(
-          await Deno.readTextFile(this.#userJisyoPath),
-        );
-      } catch {
-        // do nothing
-      }
-    }
+  async load() {
+    await this.#userDictionary.load();
   }
 
-  async saveJisyo() {
-    if (this.#userJisyoPath) {
-      try {
-        await Deno.writeTextFile(
-          this.#userJisyoPath,
-          encodeJisyo(this.#userJisyo),
-        );
-      } catch {
-        console.log(
-          `warning(skkeleton): can't write userJisyo to ${this.#userJisyoPath}`,
-        );
-        return;
-      }
-      const stat = await Deno.stat(this.#userJisyoPath);
-      const time = stat.mtime?.getTime() ?? -1;
-      this.#userJisyoTimestamp = time;
-    }
+  async save() {
+    await this.#userDictionary.save();
   }
-}
-
-export function decodeJisyo(data: string): SKKDictionary {
-  const lines = data.split("\n");
-
-  const okuriAriIndex = lines.indexOf(okuriAriMarker);
-  const okuriNasiIndex = lines.indexOf(okuriNasiMarker);
-
-  const okuriAriEntries = lines.slice(okuriAriIndex + 1, okuriNasiIndex).map(
-    (s) => s.match(lineRegexp),
-  ).filter((m) => m).map((m) =>
-    [m![1], m![2].split("/")] as [string, string[]]
-  );
-  const okuriNasiEntries = lines.slice(okuriNasiIndex + 1, lines.length).map(
-    (s) => s.match(lineRegexp),
-  ).filter((m) => m).map((m) =>
-    [m![1], m![2].split("/")] as [string, string[]]
-  );
-
-  return new SKKDictionary(
-    new Map(okuriAriEntries),
-    new Map(okuriNasiEntries),
-  );
-}
-
-/**
- * load SKK jisyo from `path`
- */
-export async function loadJisyo(
-  path: string,
-  jisyoEncoding: string,
-): Promise<SKKDictionary> {
-  const decoder = new TextDecoder(jisyoEncoding);
-  return decodeJisyo(decoder.decode(await Deno.readFile(path)));
-}
-
-function linesToString(entries: [string, string[]][]): string[] {
-  return entries.sort((a, b) => a[0].localeCompare(b[0])).map((entry) =>
-    `${entry[0]} /${entry[1].join("/")}/`
-  );
-}
-
-export function ensureJisyo(x: unknown): asserts x is Dictionary {
-  if (x instanceof SKKDictionary) {
-    return;
-  }
-  throw new Error("corrupt jisyo detected");
 }
 
 export async function load(
@@ -531,7 +439,10 @@ export async function load(
       console.log(e);
     }
   }
-  return new Library(globalDictionary, userDictionary, userDictionaryPath, skkServer);
+  const dictionaries = [globalDictionary].flatMap((d) =>
+    d ? [wrapDictionary(d)] : []
+  ).concat(skkServer ? [skkServer] : []);
+  return new Library(dictionaries, userDictionary);
 }
 
 export const currentLibrary = new Cell(() => new Library());

@@ -28,7 +28,7 @@ export async function henkanFirst(context: Context, key: string) {
 
   const lib = currentLibrary.get();
   if (config.immediatelyJisyoRW) {
-    await lib.loadJisyo();
+    await lib.load();
   }
   const word = state.mode === "okurinasi"
     ? state.henkanFeed
