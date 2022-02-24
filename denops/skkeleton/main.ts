@@ -10,7 +10,7 @@ import { registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { resetState } from "./state.ts";
-import type { RankData, SkkServerOptions } from "./types.ts";
+import type { CompletionData, RankData, SkkServerOptions } from "./types.ts";
 import { Cell } from "./util.ts";
 
 let initialized = false;
@@ -283,7 +283,7 @@ export async function main(denops: Denops) {
       }
       return Promise.resolve(state.henkanFeed);
     },
-    getCandidates(): Promise<[string, string[]][]> {
+    getCandidates(): Promise<CompletionData> {
       const state = currentContext.get().state;
       if (state.type !== "input") {
         return Promise.resolve([]);

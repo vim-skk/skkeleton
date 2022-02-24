@@ -1,13 +1,18 @@
 import { config } from "./config.ts";
 import { encoding } from "./deps/encoding_japanese.ts";
+import { wrap } from "./deps/iterator_helpers.ts";
 import { JpNum } from "./deps/japanese_numeral.ts";
 import { zip } from "./deps/std/collections.ts";
 import { iter } from "./deps/std/io.ts";
-import { Encode, RankData } from "./types.ts";
-import type { Encoding, SkkServerOptions } from "./types.ts";
-import { Cell } from "./util.ts";
 import { ensureArray, isString } from "./deps/unknownutil.ts";
-import { wrap } from "./deps/iterator_helpers.ts";
+import { Encode } from "./types.ts";
+import type {
+  CompletionData,
+  Encoding,
+  RankData,
+  SkkServerOptions,
+} from "./types.ts";
+import { Cell } from "./util.ts";
 
 const okuriAriMarker = ";; okuri-ari entries.";
 const okuriNasiMarker = ";; okuri-nasi entries.";
@@ -56,7 +61,7 @@ function convertNumber(pattern: string, entry: string): string {
 
 export interface Dictionary {
   getCandidate(type: HenkanType, word: string): Promise<string[]>;
-  getCandidates(prefix: string): Promise<[string, string[]][]>;
+  getCandidates(prefix: string): Promise<CompletionData>;
 }
 
 function encode(str: string, encode: Encoding): Uint8Array {
@@ -84,7 +89,7 @@ export class NumberConvertWrapper implements Dictionary {
     }
   }
 
-  async getCandidates(prefix: string): Promise<[string, string[]][]> {
+  async getCandidates(prefix: string): Promise<CompletionData> {
     const realPrefix = prefix.replaceAll(/[0-9]+/g, "#");
     const candidates = await this.#inner.getCandidates(realPrefix);
     if (prefix === realPrefix) {
@@ -131,8 +136,8 @@ export class SKKDictionary implements Dictionary {
     return Promise.resolve(target.get(word) ?? []);
   }
 
-  getCandidates(prefix: string): Promise<[string, string[]][]> {
-    const candidates: [string, string[]][] = [];
+  getCandidates(prefix: string): Promise<CompletionData> {
+    const candidates: CompletionData = [];
     for (const entry of this.#okuriNasi) {
       if (entry[0].startsWith(prefix)) {
         candidates.push(entry);
@@ -178,7 +183,7 @@ export class UserDictionary implements Dictionary {
   #loadTime = -1;
 
   #cachedPrefix = "";
-  #cachedCandidates: [string, string[]][] = [];
+  #cachedCandidates: CompletionData = [];
 
   constructor(
     okuriAri?: Map<string, string[]>,
@@ -199,7 +204,7 @@ export class UserDictionary implements Dictionary {
     if (this.#cachedPrefix === prefix) {
       return;
     }
-    const candidates: [string, string[]][] = [];
+    const candidates: CompletionData = [];
     for (const entry of this.#okuriNasi) {
       if (entry[0].startsWith(prefix)) {
         candidates.push(entry);
@@ -209,7 +214,7 @@ export class UserDictionary implements Dictionary {
     this.#cachedCandidates = candidates;
   }
 
-  getCandidates(prefix: string): Promise<[string, string[]][]> {
+  getCandidates(prefix: string): Promise<CompletionData> {
     this.cacheCandidates(prefix);
     return Promise.resolve(this.#cachedCandidates);
   }
@@ -383,7 +388,7 @@ export class SkkServer implements Dictionary {
     }
     return result;
   }
-  async getCandidates(_prefix: string): Promise<[string, string[]][]> {
+  async getCandidates(_prefix: string): Promise<CompletionData> {
     // TODO: add support for ddc.vim
     return await Promise.resolve([["", [""]]]);
   }
@@ -429,7 +434,7 @@ export class Library {
     return Array.from(merged);
   }
 
-  async getCandidates(prefix: string): Promise<[string, string[]][]> {
+  async getCandidates(prefix: string): Promise<CompletionData> {
     if (prefix.length < 2) {
       return [];
     }
