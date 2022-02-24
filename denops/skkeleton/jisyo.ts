@@ -150,8 +150,137 @@ export class SKKDictionary implements Dictionary {
   }
 }
 
-export function encodeJisyo(jisyo: SKKDictionary) {
-  return jisyo.toString();
+export class UserDictionary implements Dictionary {
+  #okuriAri: Map<string, string[]>;
+  #okuriNasi: Map<string, string[]>;
+
+  #path = "";
+  #loadTime = -1;
+
+  #cachedPrefix = "";
+  #cachedCandidates: [string, string[]][] = [];
+
+  constructor(
+    okuriAri?: Map<string, string[]>,
+    okuriNasi?: Map<string, string[]>,
+  ) {
+    this.#okuriAri = okuriAri ?? new Map();
+    this.#okuriNasi = okuriNasi ?? new Map();
+  }
+
+  getCandidate(type: HenkanType, word: string): Promise<string[]> {
+    const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
+    return Promise.resolve(target.get(word) ?? []);
+  }
+
+  private cacheCandidates(prefix: string) {
+    if (this.#cachedPrefix === prefix) {
+      return;
+    }
+    const candidates: [string, string[]][] = [];
+    for (const entry of this.#okuriNasi) {
+      if (entry[0].startsWith(prefix)) {
+        candidates.push(entry);
+      }
+    }
+    this.#cachedPrefix = prefix;
+    this.#cachedCandidates = candidates;
+  }
+
+  getCandidates(prefix: string): Promise<[string, string[]][]> {
+    this.cacheCandidates(prefix);
+    return Promise.resolve(this.#cachedCandidates);
+  }
+
+  registerCandidate(type: HenkanType, word: string, candidate: string) {
+    if (candidate === "") {
+      return;
+    }
+    const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
+    const oldCandidate = target.get(word) ?? [];
+    target.set(
+      word,
+      Array.from(new Set([candidate, ...oldCandidate])),
+    );
+    this.#cachedPrefix = "";
+  }
+
+  private async readFile(path: string) {
+    const lines = (await Deno.readTextFile(path)).split("\n");
+
+    const okuriAriIndex = lines.indexOf(okuriAriMarker);
+    const okuriNasiIndex = lines.indexOf(okuriNasiMarker);
+
+    const okuriAriEntries = parseEntries(lines.slice(
+      okuriAriIndex + 1,
+      okuriNasiIndex,
+    ));
+    const okuriNasiEntries = parseEntries(lines.slice(
+      okuriNasiIndex + 1,
+      lines.length,
+    ));
+
+    this.#okuriAri = new Map(okuriAriEntries);
+    this.#okuriNasi = new Map(okuriNasiEntries);
+  }
+
+  async load(path = "") {
+    path = this.#path = path ?? this.#path;
+    if (path) {
+      try {
+        const stat = await Deno.stat(path);
+        const time = stat.mtime?.getTime() ?? -1;
+        if (time === this.#loadTime) {
+          return;
+        }
+        this.#loadTime = time;
+        await this.readFile(path);
+      } catch {
+        // do nothing
+      }
+    }
+  }
+
+  private async writeFile(path: string) {
+    // Note: in SKK dictionary reverses candidates sort order if okuriari
+    const okuriAri = Array.from(this.#okuriAri).sort((a, b) =>
+      b[0].localeCompare(a[0])
+    ).map((e) => `${e[0]} /${e[1].join("/")}/`);
+    const okuriNasi = Array.from(this.#okuriNasi).sort((a, b) =>
+      a[0].localeCompare(b[0])
+    ).map((e) => `${e[0]} /${e[1].join("/")}/`);
+    const data = [
+      [okuriAriMarker],
+      okuriAri,
+      [okuriNasiMarker],
+      okuriNasi,
+      [""],
+    ].flat().join("\n");
+    try {
+      await Deno.writeTextFile(path, data);
+    } catch (e) {
+      console.log(
+        `warning(skkeleton): can't write userJisyo to ${path}`,
+      );
+      throw e;
+    }
+  }
+
+  async save() {
+    if (!this.#path) {
+      return;
+    }
+    try {
+      await this.writeFile(this.#path);
+    } catch (e) {
+      if (config.debug) {
+        console.log(e);
+      }
+      return;
+    }
+    const stat = await Deno.stat(this.#path).catch(() => void 0);
+    this.#loadTime = stat?.mtime?.getTime() ?? -1;
+  }
 }
 
 export type HenkanType = "okuriari" | "okurinasi";
@@ -364,7 +493,7 @@ export async function load(
   skkServer?: SkkServer,
 ): Promise<Library> {
   const globalDictionary = new SKKDictionary();
-  const userDictionary = new SKKDictionary();
+  const userDictionary = new UserDictionary();
   try {
     await globalDictionary.load(globalDictionaryPath, dictonaryEncoding);
   } catch (e) {
@@ -375,7 +504,7 @@ export async function load(
     }
   }
   try {
-    await userDictionary.load(userDictionaryPath, "utf-8");
+    await userDictionary.load(userDictionaryPath);
   } catch (e) {
     if (config.debug) {
       console.log("userDictionary loading failed");
