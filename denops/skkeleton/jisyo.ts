@@ -101,7 +101,7 @@ export function wrapDictionary(dict: Dictionary): Dictionary {
   );
 }
 
-export class LocalJisyo implements Dictionary {
+export class SKKDictionary implements Dictionary {
   #okuriari: Map<string, string[]>;
   #okurinasi: Map<string, string[]>;
   constructor(
@@ -146,7 +146,7 @@ export class LocalJisyo implements Dictionary {
   }
 }
 
-export function encodeJisyo(jisyo: LocalJisyo) {
+export function encodeJisyo(jisyo: SKKDictionary) {
   return jisyo.toString();
 }
 
@@ -198,20 +198,20 @@ export class SkkServer implements Dictionary {
 }
 
 export class Library {
-  #globalJisyo: LocalJisyo;
-  #userJisyo: LocalJisyo;
+  #globalJisyo: SKKDictionary;
+  #userJisyo: SKKDictionary;
   #userJisyoPath: string;
   #userJisyoTimestamp = -1;
   #skkServer: SkkServer | undefined;
 
   constructor(
-    globalJisyo?: LocalJisyo,
-    userJisyo?: LocalJisyo,
+    globalJisyo?: SKKDictionary,
+    userJisyo?: SKKDictionary,
     userJisyoPath?: string,
     skkServer?: SkkServer,
   ) {
-    this.#globalJisyo = globalJisyo ?? new LocalJisyo();
-    this.#userJisyo = userJisyo ?? new LocalJisyo();
+    this.#globalJisyo = globalJisyo ?? new SKKDictionary();
+    this.#userJisyo = userJisyo ?? new SKKDictionary();
     this.#userJisyoPath = userJisyoPath ?? "";
     this.#skkServer = skkServer;
   }
@@ -306,7 +306,7 @@ export class Library {
   }
 }
 
-export function decodeJisyo(data: string): LocalJisyo {
+export function decodeJisyo(data: string): SKKDictionary {
   const lines = data.split("\n");
 
   const okuriAriIndex = lines.indexOf(okuriAriMarker);
@@ -323,7 +323,7 @@ export function decodeJisyo(data: string): LocalJisyo {
     [m![1], m![2].split("/")] as [string, string[]]
   );
 
-  return new LocalJisyo(
+  return new SKKDictionary(
     new Map(okuriAriEntries),
     new Map(okuriNasiEntries),
   );
@@ -335,7 +335,7 @@ export function decodeJisyo(data: string): LocalJisyo {
 export async function loadJisyo(
   path: string,
   jisyoEncoding: string,
-): Promise<LocalJisyo> {
+): Promise<SKKDictionary> {
   const decoder = new TextDecoder(jisyoEncoding);
   return decodeJisyo(decoder.decode(await Deno.readFile(path)));
 }
@@ -347,7 +347,7 @@ function linesToString(entries: [string, string[]][]): string[] {
 }
 
 export function ensureJisyo(x: unknown): asserts x is Dictionary {
-  if (x instanceof LocalJisyo) {
+  if (x instanceof SKKDictionary) {
     return;
   }
   throw new Error("corrupt jisyo detected");
@@ -359,8 +359,8 @@ export async function load(
   jisyoEncoding = "euc-jp",
   skkServer?: SkkServer,
 ): Promise<Library> {
-  let globalJisyo = new LocalJisyo();
-  let userJisyo = new LocalJisyo();
+  let globalJisyo = new SKKDictionary();
+  let userJisyo = new SKKDictionary();
   try {
     globalJisyo = await loadJisyo(
       globalJisyoPath,

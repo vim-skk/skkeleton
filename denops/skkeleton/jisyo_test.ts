@@ -7,7 +7,7 @@ import {
   Library,
   load,
   loadJisyo,
-  LocalJisyo,
+  SKKDictionary,
 } from "./jisyo.ts";
 
 const globalJisyo = join(
@@ -33,7 +33,7 @@ Deno.test({
   async fn() {
     const jisyo = await loadJisyo(globalJisyo, "euc-jp");
     ensureJisyo(jisyo);
-    const data = new LocalJisyo(
+    const data = new SKKDictionary(
       new Map([["てすt", ["テスト"]]]),
       new Map([["てすと", ["テスト", "test"]]]),
     );
