@@ -175,7 +175,7 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
     if (config.debug) {
       console.log("input after complete");
     }
-    const notation = keyToNotation[key];
+    const notation = keyToNotation[notationToKey[key]];
     if (notation === "<tab>" && config.tabCompletion) {
       if (isNativePum) {
         return notationToKey["<c-n>"];
