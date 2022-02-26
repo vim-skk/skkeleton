@@ -1,10 +1,10 @@
 import {
   BaseSource,
-  GatherCandidatesArguments,
+  GatherArguments,
   GetCompletePositionArguments,
   OnCompleteDoneArguments,
 } from "../skkeleton/deps/ddc/source.ts";
-import { Candidate } from "../skkeleton/deps/ddc/types.ts";
+import { DdcGatherItems } from "../skkeleton/deps/ddc/types.ts";
 import type { CompletionData, RankData } from "../skkeleton/types.ts";
 
 export type CompletionMetadata = {
@@ -13,8 +13,9 @@ export type CompletionMetadata = {
   rank: number;
 };
 
-export class Source
-  extends BaseSource<Record<string, never>, CompletionMetadata> {
+type Params = Record<never, never>;
+
+export class Source extends BaseSource<Params> {
   async getCompletePosition(
     args: GetCompletePositionArguments<Record<string, never>>,
   ): Promise<number> {
@@ -24,9 +25,9 @@ export class Source
     return inputLength - preEditLength;
   }
 
-  async gatherCandidates(
-    args: GatherCandidatesArguments<Record<string, never>>,
-  ): Promise<Candidate<CompletionMetadata>[]> {
+  async gather(
+    args: GatherArguments<Params>,
+  ): Promise<DdcGatherItems> {
     const candidates = (await args.denops.dispatch(
       "skkeleton",
       "getCandidates",
@@ -52,7 +53,10 @@ export class Source
       }));
     });
     ddcCandidates.sort((a, b) => b.user_data.rank - a.user_data.rank);
-    return Promise.resolve(ddcCandidates);
+    return {
+      items: ddcCandidates,
+      isIncomplete: false,
+    };
   }
 
   params() {
@@ -60,7 +64,7 @@ export class Source
   }
 
   async onCompleteDone(
-    args: OnCompleteDoneArguments<Record<string, never>, CompletionMetadata>,
+    args: OnCompleteDoneArguments<Params, CompletionMetadata>,
   ) {
     const meta = args.userData;
     await args.denops.dispatch(
