@@ -282,6 +282,8 @@ COMPLETION                                              *skkeleton-completion*
 
     |ddc|と連携した補完環境を提供します。
     送りなし変換の仮名入力時に動作し、入力された仮名で始まる候補を表示します。
+    候補の順番は|skkeleton-config-completionRankFile|で指定したファイルに
+    保存できます。
 >
     " 例
     call ddc#custom#patch_global('sources', ['skkeleton'])
@@ -297,6 +299,7 @@ COMPLETION                                              *skkeleton-completion*
         \     'minAutoCompleteLength': 2,
         \   },
         \ })
+    call skkeleton#config({'completionRankFile': '~/.skkeleton/rank.json'})
 <
 ==============================================================================
 FAQ                                                            *skkeleton-faq*
@@ -329,4 +332,10 @@ skkeletonを有効化、無効化する際にフックが使えますので
       autocmd User skkeleton-disable-pre let b:coc_suggest_disable = v:false
     augroup END
 <
+==============================================================================
+CHANGELOG                                                *skkeleton-changelog*
+
+2022-02-27~
+- |skkeleton-config-completionRankFile|オプションの追加
+
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
