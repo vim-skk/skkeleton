@@ -1,5 +1,8 @@
 import { isObject } from "./deps/unknownutil.ts";
 
+export type CompletionData = [string, string[]][];
+export type RankData = [string, number][];
+
 export type CompletionMetadata = {
   tag: "skkeleton";
   kana: string;

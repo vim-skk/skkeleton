@@ -96,7 +96,7 @@ Deno.test({
 
       // load
       const dic = new UserDictionary();
-      await dic.load(tmp);
+      await dic.load({ path: tmp });
       assertEquals(await dic.getCandidate("okurinasi", "あ"), ["あ"]);
 
       //save
@@ -125,5 +125,34 @@ Deno.test({
       await dic.getCandidate("okuriari", "ほげ"),
       [],
     );
+  },
+});
+
+Deno.test({
+  name: "getRanks",
+  async fn() {
+    // ランクは保存されていた順序あるいは登録された時刻で表される
+    // 適切に比較すると最近登録した物ほど先頭に並ぶようにソートできる
+    // 候補はgetCandidatesの結果によりフィルタリングされる
+    const dic = new UserDictionary();
+    dic.registerCandidate("okurinasi", "ほげ", "hoge");
+    dic.registerCandidate("okurinasi", "ぴよ", "piyo");
+    await new Promise((r) => setTimeout(r, 2));
+    dic.registerCandidate("okurinasi", "ほげほげ", "hogehoge");
+    const a = dic.getRanks("ほげ")
+      .sort((a, b) => b[1] - a[1])
+      .map((e) => e[0]);
+    assertEquals(a, ["hogehoge", "hoge"]);
+
+    await new Promise((r) => setTimeout(r, 2));
+    dic.registerCandidate("okurinasi", "ほげ", "hoge");
+    const b = dic.getRanks("ほげ")
+      .sort((a, b) => b[1] - a[1])
+      .map((e) => e[0]);
+    assertEquals(b, ["hoge", "hogehoge"]);
+
+    const c = dic.getRanks("ぴよ")
+      .map((e) => e[0]);
+    assertEquals(c, ["piyo"]);
   },
 });

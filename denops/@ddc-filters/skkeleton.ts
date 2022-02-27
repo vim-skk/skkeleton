@@ -1,19 +1,23 @@
 import { CompletionMetadata } from "../@ddc-sources/skkeleton.ts";
 import { BaseFilter, FilterArguments } from "../skkeleton/deps/ddc/filter.ts";
-import { Candidate } from "../skkeleton/deps/ddc/types.ts";
+import { Item } from "../skkeleton/deps/ddc/types.ts";
 
-export class Filter extends BaseFilter<Record<string, never>> {
+type Params = Record<never, never>;
+
+export class Filter extends BaseFilter<Params> {
   async filter(
-    args: FilterArguments<Record<string, never>>,
-  ): Promise<Candidate[]> {
+    args: FilterArguments<Params>,
+  ): Promise<Item<CompletionMetadata>[]> {
+    const items = args.items as Item<CompletionMetadata>[];
     const prefix =
       (await args.denops.dispatch("skkeleton", "getPrefix")) as string;
-    return Promise.resolve(args.candidates.filter(
-      (candidate) => {
-        const meta = candidate.user_data as unknown as CompletionMetadata;
-        return meta && meta.kana.startsWith(prefix);
-      },
-    ));
+    return Promise.resolve(items
+      .filter((item) =>
+        item
+          .user_data!
+          .kana
+          .startsWith(prefix)
+      ));
   }
 
   params() {
