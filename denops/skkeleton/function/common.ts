@@ -19,7 +19,10 @@ export async function kakutei(context: Context) {
           candidate,
         );
       }
-      const ret = (candidateStrip ?? "error") + state.okuriFeed;
+      const okuriStr = state.converter
+        ? state.converter(state.okuriFeed)
+        : state.okuriFeed;
+      const ret = (candidateStrip ?? "error") + okuriStr;
       context.kakuteiWithUndoPoint(ret);
       break;
     }
