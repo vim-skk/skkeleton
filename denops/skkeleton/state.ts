@@ -80,7 +80,10 @@ export type HenkanState = Omit<InputState, "type"> & {
 export function henkanStateToString(state: HenkanState): string {
   const candidate =
     state.candidates[state.candidateIndex]?.replace(/;.*/, "") ?? "error";
-  return config.markerHenkanSelect + candidate + state.okuriFeed;
+  const okuriStr = state.converter
+    ? state.converter(state.okuriFeed)
+    : state.okuriFeed;
+  return config.markerHenkanSelect + candidate + okuriStr;
 }
 
 export type EscapeState = {

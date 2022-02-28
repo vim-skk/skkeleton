@@ -1,9 +1,9 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { batch, fn, mapping, op, vars } from "../deps.ts";
-import { currentLibrary } from "../jisyo.ts";
 import { currentContext } from "../main.ts";
-import { HenkanState, initializeState } from "../state.ts";
+import { HenkanState } from "../state.ts";
+import { kakutei } from "./common.ts";
 
 const cmapKeys = ["<Esc>", "<C-g>"];
 
@@ -35,14 +35,9 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
     if (!input) {
       return false;
     }
-    currentLibrary.get().registerCandidate(
-      state.mode,
-      state.word,
-      input,
-    );
-    const result = input + (okuri ? state.okuriFeed : "");
-    context.kakuteiWithUndoPoint(result);
-    initializeState(state);
+    state.candidates = [input];
+    state.candidateIndex = 0;
+    await kakutei(context);
     return true;
   } catch (e) {
     if (config.debug) {
