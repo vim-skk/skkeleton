@@ -165,7 +165,7 @@ endfunction
 
 function! skkeleton#unmap() abort
   for c in skkeleton#get_default_mapped_keys()
-    execute printf('lunmap <buffer> %s', c)
+    silent! execute printf('lunmap <buffer> %s', c)
   endfor
 endfunction
 
