@@ -21,7 +21,6 @@ test({
       okuriFeed: "hoge",
       previousFeed: false,
       table: getKanaTable("rom"),
-      converterName: "",
       word: "",
       candidates: [],
       candidateIndex: -1,

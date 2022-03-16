@@ -13,7 +13,6 @@ export type InputState = {
   mode: InputMode;
   table: KanaTable;
   converter?: (input: string) => string;
-  converterName: string;
   feed: string;
   henkanFeed: string;
   okuriFeed: string;
@@ -45,7 +44,6 @@ const defaultInputState = new Cell((): InputState => ({
   mode: "direct",
   table: getKanaTable(),
   converter: void 0,
-  converterName: "",
   feed: "",
   henkanFeed: "",
   okuriFeed: "",

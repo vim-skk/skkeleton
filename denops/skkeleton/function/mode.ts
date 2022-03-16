@@ -35,7 +35,6 @@ export async function katakana(context: Context) {
       await modeChange(context, "hira");
     } else {
       state.converter = hiraToKata;
-      state.converterName = "katakana";
       await modeChange(context, "kata");
     }
     return;
@@ -69,7 +68,6 @@ export async function hankatakana(context: Context) {
         state.table = getKanaTable();
       }
       state.converter = hiraToHanKata;
-      state.converterName = "hankatakana";
       await modeChange(context, "hankata");
     }
     return;
