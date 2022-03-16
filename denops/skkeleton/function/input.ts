@@ -1,5 +1,6 @@
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
+import { getKanaTable } from "../kana.ts";
 import { KanaResult } from "../kana/type.ts";
 import { PreEdit } from "../preedit.ts";
 import type { InputState } from "../state.ts";
@@ -172,8 +173,15 @@ export function deleteChar(context: Context) {
       state.henkanFeed = state.henkanFeed.slice(0, -1);
     } else {
       state.mode = "direct";
+      state.table = getKanaTable();
     }
   } else {
     context.kakutei("\b");
   }
+}
+
+export function abbrev(context: Context) {
+  henkanPoint(context);
+  const s = context.state as InputState;
+  s.table = [];
 }
