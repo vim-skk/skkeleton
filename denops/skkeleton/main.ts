@@ -9,7 +9,7 @@ import { currentLibrary, SkkServer } from "./jisyo.ts";
 import { registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
-import { resetState } from "./state.ts";
+import { initializeState } from "./state.ts";
 import type { CompletionData, RankData, SkkServerOptions } from "./types.ts";
 import { Cell } from "./util.ts";
 
@@ -143,7 +143,7 @@ function handleCompleteKey(
   if (notation === "<c-y>") {
     if (completed) {
       const context = currentContext.get();
-      resetState(context.state);
+      initializeState(context.state, ["converter"]);
     }
     return notationToKey["<c-y>"];
   }
@@ -212,7 +212,7 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
           context: context.toString(),
         });
       }
-      resetState(context.state);
+      initializeState(context.state, ["converter"]);
       context.preEdit.output("");
     }
     const handled = handleCompleteKey(completed, notation);

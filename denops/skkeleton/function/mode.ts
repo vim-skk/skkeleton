@@ -5,7 +5,7 @@ import { currentLibrary } from "../jisyo.ts";
 import { currentKanaTable, getKanaTable } from "../kana.ts";
 import { hiraToHanKata } from "../kana/hira_hankata.ts";
 import { hiraToKata } from "../kana/hira_kata.ts";
-import { resetState } from "../state.ts";
+import { initializeState } from "../state.ts";
 import { kakutei } from "./common.ts";
 import { kakuteiFeed } from "./input.ts";
 
@@ -50,7 +50,7 @@ export async function katakana(context: Context) {
     }
   }
   context.kakuteiWithUndoPoint(result);
-  resetState(state);
+  initializeState(state, ["converter"]);
 }
 
 export async function hankatakana(context: Context) {
@@ -83,7 +83,7 @@ export async function hankatakana(context: Context) {
     }
   }
   context.kakuteiWithUndoPoint(result);
-  resetState(state);
+  initializeState(state, ["converter"]);
 }
 
 export async function zenkaku(context: Context) {

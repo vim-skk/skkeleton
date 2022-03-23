@@ -2,7 +2,7 @@ import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { currentLibrary } from "../jisyo.ts";
 import { currentKanaTable } from "../kana.ts";
-import { initializeState, resetState } from "../state.ts";
+import { initializeState } from "../state.ts";
 import { kakuteiFeed } from "./input.ts";
 import { modeChange } from "./mode.ts";
 
@@ -45,7 +45,7 @@ export async function kakutei(context: Context) {
         `initializing unknown phase state: ${JSON.stringify(state)}`,
       );
   }
-  resetState(state);
+  initializeState(state, ["converter"]);
 }
 
 export async function newline(context: Context) {
