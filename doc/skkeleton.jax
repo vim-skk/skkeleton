@@ -117,6 +117,8 @@ skkeleton#mode()                                            *skkeleton#mode()*
                 "hira":    ひらがな
                 "kata":    カタカナ
                 "hankata": 半角カタカナ
+                "zenkaku": 全角英数
+                "abbrev":  abbrev
 
 ------------------------------------------------------------------------------
 CONFIG                                                      *skkeleton-config*

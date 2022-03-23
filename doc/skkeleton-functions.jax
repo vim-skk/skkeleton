@@ -75,5 +75,9 @@ zenkaku                                          *skkeleton-functions-zenkaku*
         (input)
         全角英数モードに入ります。
 
+abbrev                                            *skkeleton-functions-abbrev*
+        (input)
+        abbrevモードに入ります。
+
 
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
