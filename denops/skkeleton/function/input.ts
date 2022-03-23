@@ -3,8 +3,9 @@ import type { Context } from "../context.ts";
 import { getKanaTable } from "../kana.ts";
 import { KanaResult } from "../kana/type.ts";
 import { PreEdit } from "../preedit.ts";
-import type { InputState } from "../state.ts";
+import { initializeState, InputState } from "../state.ts";
 import { henkanFirst } from "./henkan.ts";
+import { modeChange } from "./mode.ts";
 
 // feedが仮名に変換できる場合は確定
 export function kakuteiFeed(context: Context) {
@@ -81,7 +82,7 @@ export async function kanaInput(context: Context, char: string) {
   const state = context.state as InputState;
 
   const lower = char.toLowerCase();
-  if (char !== lower) {
+  if (!state.directInput && char !== lower) {
     const withShift = `<s-${lower}>`;
     if (state.table.some((e) => e[0].startsWith(state.feed + withShift))) {
       char = withShift;
@@ -155,7 +156,7 @@ export function henkanPoint(context: Context) {
   }
 }
 
-export function deleteChar(context: Context) {
+export async function deleteChar(context: Context) {
   if (context.state.type !== "input") {
     return;
   }
@@ -172,16 +173,14 @@ export function deleteChar(context: Context) {
     if (state.henkanFeed) {
       state.henkanFeed = state.henkanFeed.slice(0, -1);
     } else {
-      state.mode = "direct";
-      state.table = getKanaTable();
+      initializeState(state);
+      if (context.mode === "abbrev") {
+        // TODO: 元の状態を保持するように直す
+        context.mode = "hira";
+        await modeChange(context, "hira");
+      }
     }
   } else {
     context.kakutei("\b");
   }
-}
-
-export function abbrev(context: Context) {
-  henkanPoint(context);
-  const s = context.state as InputState;
-  s.table = [];
 }

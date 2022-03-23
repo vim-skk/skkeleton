@@ -11,6 +11,9 @@ export type InputMode = "direct" | HenkanType;
 export type InputState = {
   type: "input";
   mode: InputMode;
+  // trueだと大文字が打たれた時に変換ポイントを切らなくなる
+  // abbrevに必要
+  directInput: boolean;
   table: KanaTable;
   converter?: (input: string) => string;
   feed: string;
@@ -42,6 +45,7 @@ function inputStateToString(state: InputState): string {
 const defaultInputState = new Cell((): InputState => ({
   type: "input",
   mode: "direct",
+  directInput: false,
   table: getKanaTable(),
   converter: void 0,
   feed: "",

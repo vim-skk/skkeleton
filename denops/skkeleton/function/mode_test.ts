@@ -3,9 +3,11 @@ import { test } from "../deps/denops_test.ts";
 import { assertEquals } from "../deps/std/testing.ts";
 import { currentLibrary } from "../jisyo.ts";
 import { currentContext } from "../main.ts";
+import { InputState } from "../state.ts";
 import { initDenops } from "../testutil.ts";
 import { kakutei } from "./common.ts";
-import { hankatakana, katakana, zenkaku } from "./mode.ts";
+import { deleteChar, kanaInput } from "./input.ts";
+import { abbrev, hankatakana, katakana, zenkaku } from "./mode.ts";
 import { dispatch } from "./testutil.ts";
 
 test({
@@ -74,3 +76,30 @@ Deno.test({
     assertEquals(context.preEdit.output(""), "剥ｹﾞ");
   },
 });
+
+Deno.test({
+  name: "abbrev",
+  async fn () {
+    const c = currentContext.init();
+
+    // 確定するとモードが戻る
+    await abbrev(c);
+    assertEquals(c.mode, "abbrev");
+    await kakutei(c);
+    assertEquals(c.mode, "hira");
+
+    // 文字を消すとモードが戻る
+    await abbrev(c);
+    await deleteChar(c);
+    assertEquals(c.mode, "hira");
+
+    // 大文字をちゃんと打てる
+    await abbrev(c);
+    await kanaInput(c, "A");
+    assertEquals(c.toString(), "▽A");
+    // 確定したら元の状態に戻る
+    await kakutei(c);
+    await kanaInput(c, "A");
+    assertEquals(c.toString(), "▽あ");
+  }
+})

@@ -36,7 +36,6 @@ export async function kakutei(context: Context) {
       if (currentKanaTable.get() === "zen") {
         currentKanaTable.set("rom");
         state.converter = void 0;
-        await modeChange(context, "hira");
       }
       break;
     }
@@ -44,6 +43,10 @@ export async function kakutei(context: Context) {
       console.warn(
         `initializing unknown phase state: ${JSON.stringify(state)}`,
       );
+  }
+  if (context.mode !== "hira") {
+    context.mode = "hira";
+    await modeChange(context, "hira");
   }
   initializeState(state, ["converter"]);
 }

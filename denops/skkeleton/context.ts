@@ -6,7 +6,9 @@ import { initializeState, State, toString } from "./state.ts";
 export class Context {
   denops?: Denops;
   state: State = initializeState({});
-  mode = "hira";
+  // g:skkeleton#mode copy
+  // set from modeChange()
+  mode = "hira"; // state of skkeleton#mode
   preEdit = new PreEdit();
   vimMode = "";
 
