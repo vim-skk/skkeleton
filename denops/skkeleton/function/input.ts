@@ -173,11 +173,12 @@ export async function deleteChar(context: Context) {
     if (state.henkanFeed) {
       state.henkanFeed = state.henkanFeed.slice(0, -1);
     } else {
-      initializeState(state);
       if (context.mode === "abbrev") {
-        // TODO: 元の状態を保持するように直す
         context.mode = "hira";
         await modeChange(context, "hira");
+        initializeState(state);
+      } else {
+        initializeState(state, ["converter"]);
       }
     }
   } else {

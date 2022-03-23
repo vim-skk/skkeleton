@@ -37,16 +37,15 @@ export async function kakutei(context: Context) {
         currentKanaTable.set("rom");
         state.converter = void 0;
       }
+      if (state.directInput) {
+        await modeChange(context, "hira");
+      }
       break;
     }
     default:
       console.warn(
         `initializing unknown phase state: ${JSON.stringify(state)}`,
       );
-  }
-  if (context.mode !== "hira") {
-    context.mode = "hira";
-    await modeChange(context, "hira");
   }
   initializeState(state, ["converter"]);
 }
