@@ -7,6 +7,7 @@ import { hiraToHanKata } from "../kana/hira_hankata.ts";
 import { hiraToKata } from "../kana/hira_kata.ts";
 import { InputState, initializeState } from "../state.ts";
 import { kakutei } from "./common.ts";
+import { henkanFirst } from "./henkan.ts";
 import { henkanPoint, kakuteiFeed } from "./input.ts";
 
 export async function modeChange(context: Context, mode: string) {
@@ -27,7 +28,7 @@ export async function modeChange(context: Context, mode: string) {
 export async function abbrev(context: Context) {
   henkanPoint(context);
   const s = context.state as InputState;
-  s.table = [];
+  s.table = s.table.filter(([, func]) => func === henkanFirst);
   s.directInput = true;
   await modeChange(context, "abbrev");
 }
