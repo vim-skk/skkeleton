@@ -2,8 +2,8 @@ import { autocmd, Denops, vars } from "../deps.ts";
 import { test } from "../deps/denops_test.ts";
 import { assertEquals } from "../deps/std/testing.ts";
 import { currentLibrary } from "../jisyo.ts";
+import { currentKanaTable } from "../kana.ts";
 import { currentContext } from "../main.ts";
-import { InputState } from "../state.ts";
 import { initDenops } from "../testutil.ts";
 import { kakutei } from "./common.ts";
 import { deleteChar, kanaInput } from "./input.ts";
@@ -53,6 +53,7 @@ test({
     assertEquals(await vars.g.get(d, "skkeleton#mode_actual"), "hankata");
     await zenkaku(currentContext.get());
     assertEquals(await vars.g.get(d, "skkeleton#mode_actual"), "zenkaku");
+    currentKanaTable.set("rom");
   },
 });
 
