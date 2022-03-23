@@ -11,6 +11,9 @@ export type InputMode = "direct" | HenkanType;
 export type InputState = {
   type: "input";
   mode: InputMode;
+  // trueだと大文字が打たれた時に変換ポイントを切らなくなる
+  // abbrevに必要
+  directInput: boolean;
   table: KanaTable;
   converter?: (input: string) => string;
   feed: string;
@@ -42,6 +45,7 @@ function inputStateToString(state: InputState): string {
 const defaultInputState = new Cell((): InputState => ({
   type: "input",
   mode: "direct",
+  directInput: false,
   table: getKanaTable(),
   converter: void 0,
   feed: "",
@@ -50,21 +54,13 @@ const defaultInputState = new Cell((): InputState => ({
   previousFeed: false,
 }));
 
-export function initializeState(state: Record<string, unknown>): InputState {
-  const def = defaultInputState.get();
-  def.table = getKanaTable();
-  return Object.assign(state, def);
-}
-
-export function resetState(astate: State) {
-  astate.type = "input";
-  const state = astate as InputState;
-  state.mode = "direct";
-  state.feed = "";
-  state.henkanFeed = "";
-  state.okuriFeed = "";
-  state.previousFeed = false;
-  state.table = getKanaTable();
+export function initializeState(state: Record<string, unknown>, ignore: string[] = []): InputState {
+  const ignored: Record<string, unknown> = {};
+  for (const key of ignore) {
+    ignored[key] = state[key];
+  }
+  const def = defaultInputState.init();
+  return Object.assign(state, def, ignored);
 }
 
 export type HenkanState = Omit<InputState, "type"> & {

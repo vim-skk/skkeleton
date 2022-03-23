@@ -5,9 +5,9 @@ import { currentLibrary } from "../jisyo.ts";
 import { currentKanaTable, getKanaTable } from "../kana.ts";
 import { hiraToHanKata } from "../kana/hira_hankata.ts";
 import { hiraToKata } from "../kana/hira_kata.ts";
-import { resetState } from "../state.ts";
+import { InputState, initializeState } from "../state.ts";
 import { kakutei } from "./common.ts";
-import { kakuteiFeed } from "./input.ts";
+import { henkanPoint, kakuteiFeed } from "./input.ts";
 
 export async function modeChange(context: Context, mode: string) {
   context.mode = mode;
@@ -22,6 +22,14 @@ export async function modeChange(context: Context, mode: string) {
       // ignore
     }
   }
+}
+
+export async function abbrev(context: Context) {
+  henkanPoint(context);
+  const s = context.state as InputState;
+  s.table = [];
+  s.directInput = true;
+  await modeChange(context, "abbrev");
 }
 
 export async function katakana(context: Context) {
@@ -50,7 +58,7 @@ export async function katakana(context: Context) {
     }
   }
   context.kakuteiWithUndoPoint(result);
-  resetState(state);
+  initializeState(state, ["converter"]);
 }
 
 export async function hankatakana(context: Context) {
@@ -83,7 +91,7 @@ export async function hankatakana(context: Context) {
     }
   }
   context.kakuteiWithUndoPoint(result);
-  resetState(state);
+  initializeState(state, ["converter"]);
 }
 
 export async function zenkaku(context: Context) {

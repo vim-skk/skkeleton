@@ -98,7 +98,7 @@ Deno.test({
     }
     let result = context.toString();
     do {
-      deleteChar(context);
+      await deleteChar(context);
       result = result.slice(0, -1);
       assertEquals(context.toString(), result);
     } while (result);
