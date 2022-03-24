@@ -1,6 +1,5 @@
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
-import { getKanaTable } from "../kana.ts";
 import { KanaResult } from "../kana/type.ts";
 import { PreEdit } from "../preedit.ts";
 import { initializeState, InputState } from "../state.ts";

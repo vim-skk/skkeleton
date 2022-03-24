@@ -80,7 +80,7 @@ Deno.test({
 
 Deno.test({
   name: "abbrev",
-  async fn () {
+  async fn() {
     const c = currentContext.init();
 
     // 確定するとモードが戻る
@@ -102,5 +102,5 @@ Deno.test({
     await kakutei(c);
     await kanaInput(c, "A");
     assertEquals(c.toString(), "▽あ");
-  }
-})
+  },
+});

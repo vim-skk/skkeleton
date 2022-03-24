@@ -54,7 +54,10 @@ const defaultInputState = new Cell((): InputState => ({
   previousFeed: false,
 }));
 
-export function initializeState(state: Record<string, unknown>, ignore: string[] = []): InputState {
+export function initializeState(
+  state: Record<string, unknown>,
+  ignore: string[] = [],
+): InputState {
   const ignored: Record<string, unknown> = {};
   for (const key of ignore) {
     ignored[key] = state[key];

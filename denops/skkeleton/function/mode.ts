@@ -5,7 +5,7 @@ import { currentLibrary } from "../jisyo.ts";
 import { currentKanaTable, getKanaTable } from "../kana.ts";
 import { hiraToHanKata } from "../kana/hira_hankata.ts";
 import { hiraToKata } from "../kana/hira_kata.ts";
-import { InputState, initializeState } from "../state.ts";
+import { initializeState, InputState } from "../state.ts";
 import { kakutei } from "./common.ts";
 import { henkanFirst } from "./henkan.ts";
 import { henkanPoint, kakuteiFeed } from "./input.ts";

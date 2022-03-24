@@ -16,6 +16,7 @@ test({
     const state: HenkanState = {
       type: "henkan",
       mode: "okuriari",
+      directInput: false,
       feed: "",
       henkanFeed: "",
       okuriFeed: "hoge",
