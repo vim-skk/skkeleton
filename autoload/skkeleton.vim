@@ -116,8 +116,6 @@ function! skkeleton#get_default_mapped_keys() abort "{{{
                 \) + [
                 \   '<lt>',
                 \   '<Bar>',
-                \   '<Tab>',
-                \   '<S-Tab>',
                 \   '<BS>',
                 \   '<C-h>',
                 \   '<CR>',
@@ -129,8 +127,6 @@ function! skkeleton#get_default_mapped_keys() abort "{{{
                 \   '<PageDown>',
                 \   '<Up>',
                 \   '<Down>',
-                \   '<C-n>',
-                \   '<C-p>',
                 \   '<C-j>',
                 \   '<C-g>',
                 \   '<Esc>',

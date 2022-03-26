@@ -221,11 +221,6 @@ skkServerResEnc                 *skkeleton-config-skkServerResEnc*
         （デフォルト "euc-jp"）
         辞書サーバーから受け取る文字列のエンコード形式を指定します。
 
-tabCompletion                                 *skkeleton-config-tabCompletion*
-        (デフォルト v:true)
-        このオプションを有効にすると<Tab>キーで及び<S-Tab>キーで
-        補完候補を選択可能になります。
-
 usePopup                                           *skkeleton-config-usePopup*
         (デフォルト v:true)
         このオプションを有効にすると、変換候補がポップアップ表示されます。

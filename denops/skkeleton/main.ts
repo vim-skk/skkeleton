@@ -173,21 +173,6 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
       console.log("input after complete");
     }
     const notation = keyToNotation[notationToKey[key]];
-    if (notation === "<tab>" && config.tabCompletion) {
-      if (isNativePum) {
-        return notationToKey["<c-n>"];
-      } else {
-        return "<Cmd>call pum#map#insert_relative(+1)";
-      }
-    }
-    if (notation === "<s-tab>" && config.tabCompletion) {
-      if (isNativePum) {
-        return notationToKey["<c-p>"];
-      } else {
-        return "<Cmd>call pum#map#insert_relative(-1)";
-      }
-    }
-
     const completed = !!((isNativePum ||
       completeInfo.inserted) && completeInfo.selected >= 0);
     if (config.debug) {
