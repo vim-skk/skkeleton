@@ -163,7 +163,8 @@ globalJisyoEncoding                     *skkeleton-config-globalJisyoEncoding*
 immediatelyCancel                         *skkeleton-config-immediatelyCancel*
         (デフォルト v:true)
         このオプションを有効にすると
-        変換候補選択などから一気に未入力状態に戻るようになります。
+        変換候補選択などで |skkeleton-functions-cancel| を使った際に
+        一気に未入力状態に戻るようになります。
 
 immediatelyJisyoRW                       *skkeleton-config-immediatelyJisyoRW*
         (デフォルト v:true)
