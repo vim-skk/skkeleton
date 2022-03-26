@@ -145,6 +145,7 @@ function handleCompleteKey(
       return notationToKey["<c-y>"];
     }
   }
+  // TODO: pum.vim対応する
   return null;
 }
 
