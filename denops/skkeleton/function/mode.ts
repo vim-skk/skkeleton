@@ -26,8 +26,11 @@ export async function modeChange(context: Context, mode: string) {
 }
 
 export async function abbrev(context: Context) {
+  if (context.state.type !== "input" || context.state.mode !== "direct") {
+    return;
+  }
   henkanPoint(context);
-  const s = context.state as InputState;
+  const s = context.state;
   s.table = s.table.filter(([, func]) => func === henkanFirst);
   s.directInput = true;
   await modeChange(context, "abbrev");
