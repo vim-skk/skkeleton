@@ -125,8 +125,6 @@ function! skkeleton#get_default_mapped_keys() abort "{{{
                 \   '<C-Space>',
                 \   '<S-Space>',
                 \   '<C-q>',
-                \   '<C-y>',
-                \   '<C-e>',
                 \   '<PageUp>',
                 \   '<PageDown>',
                 \   '<Up>',

@@ -140,13 +140,6 @@ function handleCompleteKey(
   completed: boolean,
   notation: string,
 ): string | null {
-  if (notation === "<c-y>") {
-    if (completed) {
-      const context = currentContext.get();
-      initializeState(context.state, ["converter"]);
-    }
-    return notationToKey["<c-y>"];
-  }
   if (notation === "<enter>") {
     if (completed && config.eggLikeNewline) {
       return notationToKey["<c-y>"];
@@ -298,10 +291,16 @@ export async function main(denops: Denops) {
       }
       return Promise.resolve(currentLibrary.get().getRanks(state.henkanFeed));
     },
-    async registerCandidate(kana: unknown, word: unknown) {
+    async completeCallback(kana: unknown, word: unknown, initialize: unknown) {
       ensureString(kana);
       ensureString(word);
       await currentLibrary.get().registerCandidate("okurinasi", kana, word);
+      // <C-y>で呼ばれた際にstateの初期化を行う
+      if (initialize) {
+        const context = currentContext.get();
+        initializeState(context.state, ["converter"]);
+        context.preEdit.output("");
+      }
     },
   };
   if (config.debug) {
