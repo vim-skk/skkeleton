@@ -260,7 +260,8 @@ export async function main(denops: Denops) {
     },
     async toggle(key: unknown, vimStatus: unknown): Promise<string> {
       await init(denops);
-      if (await denops.eval("&l:iminsert") !== 1) {
+      const mode = await vars.g.get(denops, "skkeleton#mode", "");
+      if (await denops.eval("&l:iminsert") !== 1 || mode === "") {
         return await enable(key, vimStatus);
       } else {
         return await disable(key, vimStatus);
