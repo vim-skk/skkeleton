@@ -21,7 +21,7 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
   );
   await batch(denops, async (denops) => {
     for (const k of cmapKeys) {
-      await mapping.map(denops, k, "<C-c>", {
+      await mapping.map(denops, k, "__skkeleton_return__<CR>", {
         buffer: true,
         mode: "c",
       });
@@ -32,7 +32,8 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
     const okuri = state.mode === "okuriari" ? "*" + state.okuriFeed : "";
     currentContext.init().denops = denops;
     const input = await fn.input(denops, base + okuri + ": ");
-    if (!input) {
+    if (input === "" || input.includes("__skkeleton_return__")) {
+      await denops.cmd("echo '' | redraw");
       return false;
     }
     state.candidates = [input];
