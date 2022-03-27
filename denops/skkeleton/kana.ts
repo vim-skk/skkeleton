@@ -31,10 +31,10 @@ function asKanaResult(result: unknown): KanaResult {
     return fn;
   } else if (
     Array.isArray(result) &&
-    result.length === 2 &&
+    result.length >= 1 &&
     result.every(isString)
   ) {
-    return result as KanaResult;
+    return [result[0], result[1] ?? ""] as KanaResult;
   }
   throw Error(`Illegal result: ${result}`);
 }

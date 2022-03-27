@@ -9,11 +9,14 @@ Deno.test({
     registerKanaTable("rom", {
       "jj": "newline",
       "z,": ["―", ""],
+      "z.": ["―"],
     });
     const context = new Context();
     await dispatch(context, "jj");
     assertEquals(context.preEdit.output(""), "\n");
     await dispatch(context, "z,");
+    assertEquals(context.preEdit.output(""), "―");
+    await dispatch(context, "z.");
     assertEquals(context.preEdit.output(""), "―");
   },
 });
