@@ -7,6 +7,7 @@ const l = currentLibrary.get();
 await l.registerCandidate("okurinasi", "へんかん", "返還");
 await l.registerCandidate("okurinasi", "へんかん", "変換");
 await l.registerCandidate("okuriari", "おくr", "送");
+await l.registerCandidate("okuriari", "えらn", "選");
 
 Deno.test({
   name: "okurinasi henkan",
@@ -24,9 +25,16 @@ Deno.test({
 Deno.test({
   name: "okuriari henkan",
   async fn() {
-    const context = new Context();
-    await dispatch(context, ";oku;ri");
-    assertEquals(context.toString(), "▼送り");
+    {
+      const context = new Context();
+      await dispatch(context, ";oku;ri");
+      assertEquals(context.toString(), "▼送り");
+    }
+    {
+      const context = new Context();
+      await dispatch(context, ";era;nde");
+      assertEquals(context.toString(), "▼選んで");
+    }
   },
 });
 

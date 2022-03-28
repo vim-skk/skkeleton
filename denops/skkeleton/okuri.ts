@@ -85,6 +85,6 @@ const okuriTable: Record<string, string> = {
 };
 
 export function getOkuriStr(word: string, okuri: string): string {
-  const alpha = okuriTable[okuri.slice(-1)];
+  const alpha = okuriTable[okuri[0]];
   return word + alpha;
 }
