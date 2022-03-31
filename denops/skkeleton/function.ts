@@ -6,6 +6,7 @@ import {
   henkanFirst,
   henkanForward,
   henkanInput,
+  purgeCandidate,
 } from "./function/henkan.ts";
 import { deleteChar, henkanPoint, kakuteiFeed } from "./function/input.ts";
 import { hankatakana, katakana, zenkaku } from "./function/mode.ts";
@@ -28,6 +29,7 @@ export const functions = new Cell<Record<string, Func>>(() => ({
   henkanFirst,
   henkanForward,
   henkanBackward,
+  purgeCandidate,
   henkanInput,
   // input
   kakuteiFeed,
