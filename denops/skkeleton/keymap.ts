@@ -7,6 +7,7 @@ import {
   henkanBackward,
   henkanForward,
   henkanInput,
+  purgeCandidate,
 } from "./function/henkan.ts";
 import { deleteChar, kanaInput } from "./function/input.ts";
 import { hankatakana } from "./function/mode.ts";
@@ -38,6 +39,7 @@ const henkan: KeyMap = {
     "<nl>": kakutei,
     "<space>": henkanForward,
     "x": henkanBackward,
+    "X": purgeCandidate,
   },
 };
 

@@ -1,11 +1,11 @@
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
 import type { Denops } from "../deps.ts";
-import { currentLibrary } from "../jisyo.ts";
+import { currentLibrary, HenkanType } from "../jisyo.ts";
 import { handleKey } from "../keymap.ts";
 import { keyToNotation } from "../notation.ts";
 import { getOkuriStr } from "../okuri.ts";
-import type { HenkanState } from "../state.ts";
+import { HenkanState, initializeState } from "../state.ts";
 import { kakutei } from "./common.ts";
 import { kakuteiFeed } from "./input.ts";
 import { jisyoTouroku } from "./jisyo.ts";
@@ -124,6 +124,21 @@ async function selectCandidates(context: Context) {
     }
   }
   state.candidateIndex = config.showCandidatesCount - 1;
+}
+
+export async function purgeCandidate(context: Context) {
+  const state = context.state;
+  if (state.type !== "henkan") {
+    return;
+  }
+  const word = state.word;
+  const candidate = state.candidates[state.candidateIndex];
+  const msg = `Really purge? ${word} /${candidate}`;
+  if (await context.denops!.call("confirm", msg, "&Yes\n&No\n", 2) === 1) {
+    const lib = currentLibrary.get();
+    lib.purgeCandidate(state.mode as HenkanType, word, candidate);
+    initializeState(state);
+  }
 }
 
 async function showCandidates(denops: Denops, state: HenkanState) {

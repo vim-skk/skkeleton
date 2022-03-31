@@ -245,6 +245,16 @@ export class UserDictionary implements Dictionary {
     this.#cachedPrefix = "";
   }
 
+  purgeCandidate(type: HenkanType, word: string, candidate: string) {
+    const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
+    const newCandidate = (target.get(word) ?? []).filter((c) => c != candidate);
+    if (newCandidate.length > 0) {
+      target.set(word, newCandidate);
+    } else {
+      target.delete(word);
+    }
+  }
+
   private async readFile(path: string, rankPath: string) {
     // dictionary
     const lines = (await Deno.readTextFile(path)).split("\n");
@@ -452,6 +462,13 @@ export class Library {
 
   async registerCandidate(type: HenkanType, word: string, candidate: string) {
     this.#userDictionary.registerCandidate(type, word, candidate);
+    if (config.immediatelyJisyoRW) {
+      await this.#userDictionary.save();
+    }
+  }
+
+  async purgeCandidate(type: HenkanType, word: string, candidate: string) {
+    this.#userDictionary.purgeCandidate(type, word, candidate);
     if (config.immediatelyJisyoRW) {
       await this.#userDictionary.save();
     }

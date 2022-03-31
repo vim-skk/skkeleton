@@ -44,6 +44,11 @@ henkanBackward                             *skkeleton-function-henkanBackward*
         変換候補を前に戻します。
         戻りきった際は入力ステートに戻ります。
 
+purgeCandidate                             *skkeleton-function-purgeCandidate*
+        (henkan)
+        現在選択している変換候補をユーザー辞書から削除します。
+        削除が行われた場合は入力状態が解除されます。
+
 henkanInput                                  *skkeleton-functions-henkanInput*
         (henkan)!
         変換候補を確定して文字を入力します。
