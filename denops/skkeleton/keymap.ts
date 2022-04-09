@@ -5,6 +5,7 @@ import { cancel, kakutei, newline } from "./function/common.ts";
 import { escape } from "./function/disable.ts";
 import {
   henkanBackward,
+  henkanFirst,
   henkanForward,
   henkanInput,
   purgeCandidate,
@@ -28,6 +29,8 @@ const input: KeyMap = {
     "<esc>": escape,
     "<nl>": kakutei,
     "<c-q>": hankatakana,
+    "<c-space>": henkanFirst,
+    "<s-space>": henkanFirst,
   },
 };
 
@@ -38,6 +41,8 @@ const henkan: KeyMap = {
     "<cr>": newline,
     "<nl>": kakutei,
     "<space>": henkanForward,
+    "<s-space>": henkanForward,
+    "<c-space>": henkanForward,
     "x": henkanBackward,
     "X": purgeCandidate,
   },
