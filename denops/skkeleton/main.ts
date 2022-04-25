@@ -140,18 +140,12 @@ function handleCompleteKey(
   completed: boolean,
   notation: string,
 ): string | null {
-  if (notation === "<c-y>") {
-    if (completed) {
-      const context = currentContext.get();
-      initializeState(context.state, ["converter"]);
-    }
-    return notationToKey["<c-y>"];
-  }
   if (notation === "<enter>") {
     if (completed && config.eggLikeNewline) {
       return notationToKey["<c-y>"];
     }
   }
+  // TODO: pum.vim対応する
   return null;
 }
 
@@ -180,21 +174,6 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
       console.log("input after complete");
     }
     const notation = keyToNotation[notationToKey[key]];
-    if (notation === "<tab>" && config.tabCompletion) {
-      if (isNativePum) {
-        return notationToKey["<c-n>"];
-      } else {
-        return "<Cmd>call pum#map#insert_relative(+1)";
-      }
-    }
-    if (notation === "<s-tab>" && config.tabCompletion) {
-      if (isNativePum) {
-        return notationToKey["<c-p>"];
-      } else {
-        return "<Cmd>call pum#map#insert_relative(-1)";
-      }
-    }
-
     const completed = !!((isNativePum ||
       completeInfo.inserted) && completeInfo.selected >= 0);
     if (config.debug) {
@@ -298,10 +277,16 @@ export async function main(denops: Denops) {
       }
       return Promise.resolve(currentLibrary.get().getRanks(state.henkanFeed));
     },
-    async registerCandidate(kana: unknown, word: unknown) {
+    async completeCallback(kana: unknown, word: unknown, initialize: unknown) {
       ensureString(kana);
       ensureString(word);
       await currentLibrary.get().registerCandidate("okurinasi", kana, word);
+      // <C-y>で呼ばれた際にstateの初期化を行う
+      if (initialize) {
+        const context = currentContext.get();
+        initializeState(context.state, ["converter"]);
+        context.preEdit.output("");
+      }
     },
   };
   if (config.debug) {

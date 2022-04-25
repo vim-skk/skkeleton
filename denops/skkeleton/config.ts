@@ -25,7 +25,6 @@ export const config = {
   skkServerPort: 1178,
   skkServerReqEnc: "euc-jp" as Encoding,
   skkServerResEnc: "euc-jp" as Encoding,
-  tabCompletion: true,
   usePopup: true,
   useSkkServer: false,
   userJisyo: "~/.skkeleton",
@@ -70,7 +69,6 @@ const validators: Validators = {
       throw TypeError(`${x} is invalid encoding`);
     }
   },
-  tabCompletion: ensureBoolean,
   usePopup: ensureBoolean,
   useSkkServer: ensureBoolean,
   userJisyo: ensureString,
