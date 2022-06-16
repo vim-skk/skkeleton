@@ -330,6 +330,17 @@ skkeletonを有効化、無効化する際にフックが使えますので
       autocmd User skkeleton-disable-pre let b:coc_suggest_disable = v:false
     augroup END
 <
+sticky keyの挙動をeskk.vimに合わせる~
+
+|eskk.vim|ではsticky keyを使用している際に「察し」を「;sass;i」で入力できます。
+しかしskkeletonではsticky keyを仮名テーブルに配置しているため「;sass;si」と
+入力しないといけなくなっています。以下の設定を記述すると挙動を前者に寄せられ
+ます。
+
+>
+    call skkeleton#register_keymap('input', ';', 'henkanPoint')
+<
+
 ==============================================================================
 CHANGELOG                                                *skkeleton-changelog*
 
