@@ -17,8 +17,6 @@ import { Cell } from "./util.ts";
 const okuriAriMarker = ";; okuri-ari entries.";
 const okuriNasiMarker = ";; okuri-nasi entries.";
 
-const lineRegexp = /^(\S+) \/(.*)\/$/;
-
 function toZenkaku(n: number): string {
   return n.toString().replaceAll(/[0-9]/g, (c): string => {
     const zenkakuNumbers = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"];
