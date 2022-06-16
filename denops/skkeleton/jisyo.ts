@@ -108,17 +108,6 @@ export function wrapDictionary(dict: Dictionary): Dictionary {
   );
 }
 
-function parseEntries(lines: string[]): [string, string[]][] {
-  return lines.flatMap((s) => {
-    const m = s.match(lineRegexp);
-    if (m) {
-      return [[m[1], m[2].split("/")]];
-    } else {
-      return [];
-    }
-  });
-}
-
 export class SKKDictionary implements Dictionary {
   #okuriAri: Map<string, string[]>;
   #okuriNasi: Map<string, string[]>;
@@ -148,23 +137,27 @@ export class SKKDictionary implements Dictionary {
   }
 
   async load(path: string, encoding: string) {
+    let mode = -1;
+    this.#okuriAri = new Map();
+    this.#okuriNasi = new Map();
+    const a: Map<string, string[]>[] = [this.#okuriAri, this.#okuriNasi];
     const decoder = new TextDecoder(encoding);
     const lines = decoder.decode(await Deno.readFile(path)).split("\n");
-
-    const okuriAriIndex = lines.indexOf(okuriAriMarker);
-    const okuriNasiIndex = lines.indexOf(okuriNasiMarker);
-
-    const okuriAriEntries = parseEntries(lines.slice(
-      okuriAriIndex + 1,
-      okuriNasiIndex,
-    ));
-    const okuriNasiEntries = parseEntries(lines.slice(
-      okuriNasiIndex + 1,
-      lines.length,
-    ));
-
-    this.#okuriAri = new Map(okuriAriEntries);
-    this.#okuriNasi = new Map(okuriNasiEntries);
+    for (const line of lines) {
+      if (line === okuriAriMarker) {
+        mode = 0;
+        continue;
+      }
+      if (line === okuriNasiMarker) {
+        mode = 1;
+        continue;
+      }
+      if (mode == -1) continue;
+      const m = line.split(" ");
+      if (m.length) {
+        a[mode].set(m[0], m[1].slice(1, -1).split("/"));
+      }
+    }
   }
 }
 
@@ -256,23 +249,27 @@ export class UserDictionary implements Dictionary {
   }
 
   private async readFile(path: string, rankPath: string) {
-    // dictionary
+    let mode = -1;
+    this.#okuriAri = new Map();
+    this.#okuriNasi = new Map();
+    const a: Map<string, string[]>[] = [this.#okuriAri, this.#okuriNasi];
     const lines = (await Deno.readTextFile(path)).split("\n");
+    for (const line of lines) {
+      if (line === okuriAriMarker) {
+        mode = 0;
+        continue;
+      }
+      if (line === okuriNasiMarker) {
+        mode = 1;
+        continue;
+      }
+      if (mode == -1) continue;
+      const m = line.split(" ");
+      if (m.length) {
+        a[mode].set(m[0], m[1].slice(1, -1).split("/"));
+      }
+    }
 
-    const okuriAriIndex = lines.indexOf(okuriAriMarker);
-    const okuriNasiIndex = lines.indexOf(okuriNasiMarker);
-
-    const okuriAriEntries = parseEntries(lines.slice(
-      okuriAriIndex + 1,
-      okuriNasiIndex,
-    ));
-    const okuriNasiEntries = parseEntries(lines.slice(
-      okuriNasiIndex + 1,
-      lines.length,
-    ));
-
-    this.#okuriAri = new Map(okuriAriEntries);
-    this.#okuriNasi = new Map(okuriNasiEntries);
     // rank
     if (!rankPath) {
       return;
