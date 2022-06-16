@@ -153,9 +153,9 @@ export class SKKDictionary implements Dictionary {
         continue;
       }
       if (mode == -1) continue;
-      const m = line.split(" ");
-      if (m.length) {
-        a[mode].set(m[0], m[1].slice(1, -1).split("/"));
+      const pos = line.indexOf(" ");
+      if (pos !== -1) {
+        a[mode].set(line.substring(0, pos), line.slice(pos + 1, -1).split("/"));
       }
     }
   }
@@ -264,9 +264,9 @@ export class UserDictionary implements Dictionary {
         continue;
       }
       if (mode == -1) continue;
-      const m = line.split(" ");
-      if (m.length) {
-        a[mode].set(m[0], m[1].slice(1, -1).split("/"));
+      const pos = line.indexOf(" ");
+      if (pos !== -1) {
+        a[mode].set(line.substring(0, pos), line.slice(pos + 1, -1).split("/"));
       }
     }
 
