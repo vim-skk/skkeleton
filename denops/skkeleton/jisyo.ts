@@ -153,7 +153,7 @@ export class SKKDictionary implements Dictionary {
       if (mode == -1) continue;
       const pos = line.indexOf(" ");
       if (pos !== -1) {
-        a[mode].set(line.substring(0, pos), line.slice(pos + 1, -1).split("/"));
+        a[mode].set(line.substring(0, pos), line.slice(pos + 2, -1).split("/"));
       }
     }
   }
@@ -264,7 +264,7 @@ export class UserDictionary implements Dictionary {
       if (mode == -1) continue;
       const pos = line.indexOf(" ");
       if (pos !== -1) {
-        a[mode].set(line.substring(0, pos), line.slice(pos + 1, -1).split("/"));
+        a[mode].set(line.substring(0, pos), line.slice(pos + 2, -1).split("/"));
       }
     }
 
