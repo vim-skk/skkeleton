@@ -6,6 +6,11 @@ import { zip } from "./deps/std/collections.ts";
 import { iter } from "./deps/std/io.ts";
 import { ensureArray, isString } from "./deps/unknownutil.ts";
 import { Encode } from "./types.ts";
+
+import YAML from "https://esm.sh/yaml"
+import jsonschema from "https://esm.sh/jsonschema"
+import jisyoschema from "https://cdn.jsdelivr.net/gh/tani/jisyo/jisyo.schema.json" assert { type: 'json' }
+
 import type {
   CompletionData,
   Encoding,
@@ -135,6 +140,20 @@ export class SKKDictionary implements Dictionary {
   }
 
   async load(path: string, encoding: string) {
+    if (path.endsWith('.yaml')) {
+      const text = await Deno.readTextFile(path);
+      const jisyo = YAML.parse(text);
+      const validator = new jsonschema.Validator();
+      const result = validator.validate(jisyo, jisyoschema);
+      if (!result.valid) {
+        for(const error of result.errors) {
+          throw Error(error.message);
+        }
+      }
+      this.#okuriAri = new Map(Object.entries(jisyo.okuri_ari));
+      this.#okuriNasi = new Map(Object.entries(jisyo.okuri_nasi));
+      return;
+    }
     let mode = -1;
     this.#okuriAri = new Map();
     this.#okuriNasi = new Map();
