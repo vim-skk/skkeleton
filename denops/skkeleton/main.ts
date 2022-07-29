@@ -141,12 +141,12 @@ async function handleCompleteKey(
   completed: boolean,
   isNativePum: boolean,
   notation: string,
-): string | null {
+): Promise<string | null> {
   if (notation === "<enter>") {
     if (completed && config.eggLikeNewline) {
       return isNativePum
         ? notationToKey["<c-y>"]
-        : await denops.call("pum#map#confirm");
+        : await denops.call("pum#map#confirm") as string;
     }
   }
   return null;
