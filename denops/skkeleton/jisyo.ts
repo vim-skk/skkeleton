@@ -3,7 +3,7 @@ import { encoding } from "./deps/encoding_japanese.ts";
 import { wrap } from "./deps/iterator_helpers.ts";
 import { JpNum } from "./deps/japanese_numeral.ts";
 import { zip } from "./deps/std/collections.ts";
-import { iter } from "./deps/std/io.ts";
+import { iterateReader } from "./deps/std/streams.ts";
 import { ensureArray, isString } from "./deps/unknownutil.ts";
 import { Encode } from "./types.ts";
 import type {
@@ -383,7 +383,7 @@ export class SkkServer implements Dictionary {
     if (!this.#conn) return [];
     await this.#conn.write(encode(`1${word} `, this.requestEncoding));
     const result: string[] = [];
-    for await (const res of iter(this.#conn)) {
+    for await (const res of iterateReader(this.#conn)) {
       const str = decode(res, this.responseEncoding);
       result.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
 
