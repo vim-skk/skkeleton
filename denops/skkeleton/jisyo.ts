@@ -379,7 +379,7 @@ export class SkkServer implements Dictionary {
   async connect() {
     this.#conn = await Deno.connect(this.connectOptions);
   }
-  async getCandidate(word: string): Promise<string[]> {
+  async getCandidate(_type: HenkanType, word: string): Promise<string[]> {
     if (!this.#conn) return [];
     await this.#conn.write(encode(`1${word} `, this.requestEncoding));
     const result: string[] = [];
