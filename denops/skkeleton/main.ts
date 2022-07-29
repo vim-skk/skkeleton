@@ -136,16 +136,19 @@ async function disable(key?: unknown, vimStatus?: unknown): Promise<string> {
   return context.preEdit.output(context.toString());
 }
 
-function handleCompleteKey(
+async function handleCompleteKey(
+  denops: Denops,
   completed: boolean,
+  isNativePum: boolean,
   notation: string,
 ): string | null {
   if (notation === "<enter>") {
     if (completed && config.eggLikeNewline) {
-      return notationToKey["<c-y>"];
+      return isNativePum
+        ? notationToKey["<c-y>"]
+        : await denops.call("pum#map#confirm");
     }
   }
-  // TODO: pum.vim対応する
   return null;
 }
 
@@ -168,6 +171,7 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
   ensureString(key);
   const { completeInfo, isNativePum, mode } = vimStatus as VimStatus;
   const context = currentContext.get();
+  const denops = context.denops!;
   context.vimMode = mode;
   if (completeInfo.pum_visible) {
     if (config.debug) {
@@ -194,7 +198,12 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
       initializeState(context.state, ["converter"]);
       context.preEdit.output("");
     }
-    const handled = handleCompleteKey(completed, notation);
+    const handled = await handleCompleteKey(
+      denops,
+      completed,
+      isNativePum,
+      notation,
+    );
     if (isString(handled)) {
       return handled;
     }
