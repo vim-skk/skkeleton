@@ -295,6 +295,7 @@ COMPLETION                                              *skkeleton-completion*
         \     'matchers': ['skkeleton'],
         \     'sorters': [],
         \     'minAutoCompleteLength': 2,
+        \     'isVolatile': v:true,
         \   },
         \ })
     call skkeleton#config({'completionRankFile': '~/.skkeleton/rank.json'})
