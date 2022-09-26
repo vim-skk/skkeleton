@@ -110,6 +110,11 @@ async function enable(key?: unknown, vimStatus?: unknown): Promise<string> {
     } catch (e) {
       console.log(e);
     }
+
+    // NOTE: Disable textwidth
+    currentContext.get().textwidth = await op.textwidth.getLocal(denops);
+    await op.textwidth.setLocal(denops, 0);
+
     await denops.call("skkeleton#map");
     await op.iminsert.setLocal(denops, 1);
     await vars.b.set(denops, "keymap_name", "skkeleton");
