@@ -53,7 +53,7 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
           await mapping.map(denops, m.map.lhs, m.map.rhs, m.map);
         } else {
           // await mapping.unmap(denops, m.map.lhs);
-          await denops.cmd(`cunmap <buffer> ${m.key}`);
+          await denops.cmd(`silent! cunmap <buffer> ${m.key}`);
         }
       }
       // restore skkeleton mode
