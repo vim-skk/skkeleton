@@ -65,8 +65,15 @@ async function init(denops: Denops) {
       ? [[config.globalJisyo, config.globalJisyoEncoding]]
       : config.globalDictionaries)
       .map((
-        [path, encoding],
-      ): [string, string] => [homeExpand(path, homePath), encoding]);
+        cfg,
+      ): [string, string] => {
+        console.log(cfg);
+        if (typeof (cfg) === "string") {
+          return [homeExpand(cfg, homePath), ""];
+        } else {
+          return [homeExpand(cfg[0], homePath), cfg[1]];
+        }
+      });
   jisyo.currentLibrary.set(
     await jisyo.load(
       globalDictionaries,

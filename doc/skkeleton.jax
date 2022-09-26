@@ -151,13 +151,14 @@ eggLikeNewline                               *skkeleton-config-eggLikeNewline*
 globalDictionaries                             *skkeleton-config-Dictionaries*
         (デフォルト [])
         複数のグローバル辞書を使用する際に指定するオプションです。
-        指定する値はグローバル辞書のパスとエンコーディングからなるタプルの
-        配列になります。
+        指定する値はグローバル辞書のパスまたは
+        パスとエンコーディングからなるタプルの配列になります。
+        エンコーディングを指定しない場合は自動判定されます。
         圧縮された辞書をそのまま使う機能はないため
         辞書が圧縮されている場合は展開する必要があります。
 >
     値の例: [["/usr/share/skk/SKK-JISYO.L", "euc-jp"],
-             ["~/.skk/SKK-JISYO.emoji", "utf-8"]]
+             "~/.skk/SKK-JISYO.emoji"]
 <
 globalJisyo                                     *skkeleton-config-globalJisyo*
         (デフォルト "/usr/share/skk/SKK-JISYO.L")

@@ -478,16 +478,26 @@ export class Library {
   }
 }
 
+const encodingNames: Record<string, string> = {
+  "EUCJP": "euc-jp",
+  "SJIS": "shift-jis",
+  "UTF8": "utf-8",
+};
+
 export async function load(
-  globalDictionaryConfig: [string, string][],
+  globalDictionaryConfig: (string | [string, string])[],
   userDictionaryPath: UserDictionaryPath,
   skkServer?: SkkServer,
 ): Promise<Library> {
   const globalDictionaries = await Promise.all(
-    globalDictionaryConfig.map(async ([path, encoding]) => {
+    globalDictionaryConfig.map(async ([path, encodingName]) => {
+      if (encodingName === "") {
+        const data = await Deno.readFile(path);
+        encodingName = encodingNames[String(encoding.detect(data))];
+      }
       const dict = new SKKDictionary();
       try {
-        await dict.load(path, encoding);
+        await dict.load(path, encodingName);
       } catch (e) {
         console.error("globalDictionary loading failed");
         console.error(`at ${path}`);
