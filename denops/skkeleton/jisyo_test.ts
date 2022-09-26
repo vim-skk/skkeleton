@@ -2,6 +2,7 @@ import { dirname, fromFileUrl, join } from "./deps/std/path.ts";
 import { assertEquals } from "./deps/std/testing.ts";
 import {
   Library,
+  load as loadJisyo,
   SKKDictionary,
   UserDictionary,
   wrapDictionary,
@@ -11,6 +12,12 @@ const globalJisyo = join(
   dirname(fromFileUrl(import.meta.url)),
   "testdata",
   "globalJisyo",
+);
+
+const globalJisyo2 = join(
+  dirname(fromFileUrl(import.meta.url)),
+  "testdata",
+  "globalJisyo2",
 );
 
 const numJisyo = join(
@@ -154,5 +161,22 @@ Deno.test({
     const c = dic.getRanks("ぴよ")
       .map((e) => e[0]);
     assertEquals(c, ["piyo"]);
+  },
+});
+
+Deno.test({
+  name: "multi dictionary",
+  async fn() {
+    const lib = await loadJisyo([
+      [globalJisyo, "euc-jp"],
+      [globalJisyo2, "utf-8"],
+    ], {});
+    assertEquals(await lib.getCandidate("okurinasi", "てすと"), [
+      "テスト",
+      "test",
+      "ﾃｽﾄ",
+    ]);
+    assertEquals(await lib.getCandidate("okurinasi", "あ"), ["a"]);
+    assertEquals(await lib.getCandidate("okurinasi", "い"), ["i"]);
   },
 });

@@ -2,6 +2,8 @@ import {
   ensureBoolean,
   ensureNumber,
   ensureString,
+  isArray,
+  isString,
 } from "./deps/unknownutil.ts";
 import { Encode, Encoding } from "./types.ts";
 
@@ -10,6 +12,7 @@ export const config = {
   completionRankFile: "",
   debug: false,
   eggLikeNewline: false,
+  globalDictionaries: [] as [string, string][],
   globalJisyo: "/usr/share/skk/SKK-JISYO.L",
   globalJisyoEncoding: "euc-jp",
   immediatelyCancel: true,
@@ -39,6 +42,16 @@ const validators: Validators = {
   completionRankFile: ensureString,
   debug: ensureBoolean,
   eggLikeNewline: ensureBoolean,
+  globalDictionaries: (x): asserts x is [string, string][] => {
+    if (
+      !isArray(
+        x,
+        (x): x is [string, string] => isArray(x, isString) && x.length === 2,
+      )
+    ) {
+      throw TypeError("'globalDictionaries' must be array of two string tuple");
+    }
+  },
   globalJisyo: ensureString,
   globalJisyoEncoding: ensureString,
   immediatelyCancel: ensureBoolean,
