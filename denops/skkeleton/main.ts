@@ -41,9 +41,7 @@ async function init(denops: Denops) {
   currentContext.get().denops = denops;
   const {
     completionRankFile,
-    globalJisyo,
     userJisyo,
-    globalJisyoEncoding,
     useSkkServer,
     skkServerHost,
     skkServerPort,
@@ -62,14 +60,20 @@ async function init(denops: Denops) {
     skkServer = new SkkServer(skkServerOptions);
   }
   const homePath = await fn.expand(denops, "~") as string;
+  const globalDictionaries =
+    (config.globalDictionaries.length === 0
+      ? [[config.globalJisyo, config.globalJisyoEncoding]]
+      : config.globalDictionaries)
+      .map((
+        [path, encoding],
+      ): [string, string] => [homeExpand(path, homePath), encoding]);
   jisyo.currentLibrary.set(
     await jisyo.load(
-      homeExpand(globalJisyo, homePath),
+      globalDictionaries,
       {
         path: homeExpand(userJisyo, homePath),
         rankPath: homeExpand(completionRankFile, homePath),
       },
-      globalJisyoEncoding,
       skkServer,
     ),
   );

@@ -148,17 +148,32 @@ eggLikeNewline                               *skkeleton-config-eggLikeNewline*
         このオプションを有効にすると
         変換モードで改行キーを押した際に確定のみ行います。
 
+globalDictionaries                             *skkeleton-config-Dictionaries*
+        (デフォルト [])
+        複数のグローバル辞書を使用する際に指定するオプションです。
+        指定する値はグローバル辞書のパスとエンコーディングからなるタプルの
+        配列になります。
+        圧縮された辞書をそのまま使う機能はないため
+        辞書が圧縮されている場合は展開する必要があります。
+>
+    値の例: [["/usr/share/skk/SKK-JISYO.L", "euc-jp"],
+             ["~/.skk/SKK-JISYO.emoji", "utf-8"]]
+<
 globalJisyo                                     *skkeleton-config-globalJisyo*
         (デフォルト "/usr/share/skk/SKK-JISYO.L")
         グローバル辞書のパス
         圧縮された辞書をそのまま使う機能はないため
         辞書が圧縮されている場合は展開する必要があります。
+        互換性のために残しています。globalDictionariesが指定されていた場合は
+        無視されます。
 
 globalJisyoEncoding                     *skkeleton-config-globalJisyoEncoding*
         (デフォルト "euc-jp")
         グローバル辞書のエンコーディング
         SKK Openlab以外が配布している辞書を使う場合などは
         変更する必要があるかもしれません。
+        互換性のために残しています。globalDictionariesが指定されていた場合は
+        無視されます。
 
 immediatelyCancel                         *skkeleton-config-immediatelyCancel*
         (デフォルト v:true)

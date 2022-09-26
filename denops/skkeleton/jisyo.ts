@@ -479,22 +479,26 @@ export class Library {
 }
 
 export async function load(
-  globalDictionaryPath: string,
+  globalDictionaryConfig: [string, string][],
   userDictionaryPath: UserDictionaryPath,
-  dictonaryEncoding = "euc-jp",
   skkServer?: SkkServer,
 ): Promise<Library> {
-  const globalDictionary = new SKKDictionary();
+  const globalDictionaries = await Promise.all(
+    globalDictionaryConfig.map(async ([path, encoding]) => {
+      const dict = new SKKDictionary();
+      try {
+        await dict.load(path, encoding);
+      } catch (e) {
+        console.error("globalDictionary loading failed");
+        console.error(`at ${path}`);
+        if (config.debug) {
+          console.error(e);
+        }
+      }
+      return dict;
+    }),
+  );
   const userDictionary = new UserDictionary();
-  try {
-    await globalDictionary.load(globalDictionaryPath, dictonaryEncoding);
-  } catch (e) {
-    console.error("globalDictionary loading failed");
-    console.error(`at ${globalDictionaryPath}`);
-    if (config.debug) {
-      console.error(e);
-    }
-  }
   try {
     await userDictionary.load(userDictionaryPath);
   } catch (e) {
@@ -512,9 +516,8 @@ export async function load(
       console.log(e);
     }
   }
-  const dictionaries = [globalDictionary].flatMap((d) =>
-    d ? [wrapDictionary(d)] : []
-  ).concat(skkServer ? [skkServer] : []);
+  const dictionaries = globalDictionaries.map((d) => wrapDictionary(d))
+    .concat(skkServer ? [skkServer] : []);
   return new Library(dictionaries, userDictionary);
 }
 
