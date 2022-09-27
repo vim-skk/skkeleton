@@ -10,7 +10,8 @@ test({
   pluginName: "skkeleton",
   async fn(denops) {
     await initDenops(denops);
-    currentLibrary.get().registerCandidate("okurinasi", "あ", "亜");
+    const lib = await currentLibrary.get();
+    lib.registerCandidate("okurinasi", "あ", "亜");
     await denops.cmd('call skkeleton#register_keymap("henkan", "x", "")');
     await denops.cmd(
       'call skkeleton#register_keymap("henkan", "\\<BS>", "henkanBackward")',

@@ -3,7 +3,7 @@ import { assertEquals } from "../deps/std/testing.ts";
 import { currentLibrary } from "../jisyo.ts";
 import { dispatch } from "./testutil.ts";
 
-const l = currentLibrary.get();
+const l = await currentLibrary.get();
 await l.registerCandidate("okurinasi", "へんかん", "返還");
 await l.registerCandidate("okurinasi", "へんかん", "変換");
 await l.registerCandidate("okuriari", "おくr", "送");

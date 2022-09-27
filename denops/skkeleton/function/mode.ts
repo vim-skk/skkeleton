@@ -57,7 +57,7 @@ export async function katakana(context: Context) {
   if (!state.converter) {
     result = hiraToKata(result);
     if (config.registerConvertResult) {
-      const lib = currentLibrary.get();
+      const lib = await currentLibrary.get();
       await lib.registerCandidate("okurinasi", kana, result);
     }
   }
@@ -90,7 +90,7 @@ export async function hankatakana(context: Context) {
   if (state.converter !== hiraToHanKata) {
     result = hiraToHanKata(result);
     if (config.registerConvertResult) {
-      const lib = currentLibrary.get();
+      const lib = await currentLibrary.get();
       await lib.registerCandidate("okurinasi", kana, result);
     }
   }

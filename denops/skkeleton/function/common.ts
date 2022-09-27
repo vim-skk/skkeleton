@@ -13,7 +13,8 @@ export async function kakutei(context: Context) {
       const candidate = state.candidates[state.candidateIndex];
       const candidateStrip = candidate?.replace(/;.*/, "");
       if (candidate) {
-        await currentLibrary.get().registerCandidate(
+        const lib = await currentLibrary.get();
+        await lib.registerCandidate(
           state.mode,
           state.word,
           candidate,
