@@ -81,7 +81,7 @@ async function init(denops: Denops) {
         rankPath: homeExpand(completionRankFile, homePath),
       },
       skkServer,
-    ),
+    )
   );
   await receiveNotation(denops);
   const id = anonymous.add(denops, () => {
