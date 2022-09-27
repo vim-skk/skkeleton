@@ -47,7 +47,7 @@ export async function kakutei(context: Context) {
         `initializing unknown phase state: ${JSON.stringify(state)}`,
       );
   }
-  initializeState(state, ["converter"]);
+  initializeState(state, ["converter", "table"]);
 }
 
 export async function newline(context: Context) {
