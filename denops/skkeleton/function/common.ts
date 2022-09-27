@@ -39,6 +39,8 @@ export async function kakutei(context: Context) {
       }
       if (state.directInput) {
         await modeChange(context, "hira");
+        initializeState(state, []);
+        return;
       }
       break;
     }
