@@ -67,7 +67,6 @@ async function init(denops: Denops) {
       .map((
         cfg,
       ): [string, string] => {
-        console.log(cfg);
         if (typeof (cfg) === "string") {
           return [homeExpand(cfg, homePath), ""];
         } else {
