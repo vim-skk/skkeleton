@@ -37,7 +37,7 @@ export async function kakutei(context: Context) {
         currentKanaTable.set("rom");
         state.converter = void 0;
       }
-      if (state.directInput) {
+      if (context.mode === "abbrev") {
         await modeChange(context, "hira");
         initializeState(state, []);
         return;
