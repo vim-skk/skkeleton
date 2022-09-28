@@ -5,7 +5,7 @@ import { currentLibrary } from "../jisyo.ts";
 import { cancel, kakutei } from "./common.ts";
 import { dispatch } from "./testutil.ts";
 
-const lib = currentLibrary.get();
+const lib = await currentLibrary.get();
 
 await lib.registerCandidate("okurinasi", "あ", "い");
 await lib.registerCandidate("okurinasi", "ちゅうしゃく", "注釈;これは注釈です");

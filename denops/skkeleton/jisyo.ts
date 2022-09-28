@@ -12,7 +12,7 @@ import type {
   RankData,
   SkkServerOptions,
 } from "./types.ts";
-import { Cell } from "./util.ts";
+import { LazyCell } from "./util.ts";
 
 const okuriAriMarker = ";; okuri-ari entries.";
 const okuriNasiMarker = ";; okuri-nasi entries.";
@@ -531,4 +531,4 @@ export async function load(
   return new Library(dictionaries, userDictionary);
 }
 
-export const currentLibrary = new Cell(() => new Library());
+export const currentLibrary = new LazyCell(() => new Library());

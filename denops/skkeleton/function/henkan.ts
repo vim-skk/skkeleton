@@ -27,7 +27,7 @@ export async function henkanFirst(context: Context, key: string) {
   state.candidates = [];
   state.candidateIndex = -1;
 
-  const lib = currentLibrary.get();
+  const lib = await currentLibrary.get();
   if (config.immediatelyJisyoRW) {
     await lib.load();
   }
@@ -135,7 +135,7 @@ export async function purgeCandidate(context: Context) {
   const candidate = state.candidates[state.candidateIndex];
   const msg = `Really purge? ${word} /${candidate}`;
   if (await context.denops!.call("confirm", msg, "&Yes\n&No\n", 2) === 1) {
-    const lib = currentLibrary.get();
+    const lib = await currentLibrary.get();
     lib.purgeCandidate(state.mode as HenkanType, word, candidate);
     initializeState(state);
   }

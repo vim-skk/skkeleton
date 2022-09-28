@@ -73,7 +73,7 @@ async function init(denops: Denops) {
           return [homeExpand(cfg[0], homePath), cfg[1]];
         }
       });
-  jisyo.currentLibrary.set(
+  jisyo.currentLibrary.setInitializer(async () =>
     await jisyo.load(
       globalDictionaries,
       {
@@ -81,7 +81,7 @@ async function init(denops: Denops) {
         rankPath: homeExpand(completionRankFile, homePath),
       },
       skkServer,
-    ),
+    )
   );
   await receiveNotation(denops);
   const id = anonymous.add(denops, () => {
@@ -287,24 +287,27 @@ export async function main(denops: Denops) {
       }
       return Promise.resolve(state.henkanFeed);
     },
-    getCandidates(): Promise<CompletionData> {
+    async getCandidates(): Promise<CompletionData> {
       const state = currentContext.get().state;
       if (state.type !== "input") {
         return Promise.resolve([]);
       }
-      return currentLibrary.get().getCandidates(state.henkanFeed);
+      const lib = await currentLibrary.get();
+      return lib.getCandidates(state.henkanFeed);
     },
-    getRanks(): Promise<RankData> {
+    async getRanks(): Promise<RankData> {
       const state = currentContext.get().state;
       if (state.type !== "input") {
         return Promise.resolve([]);
       }
-      return Promise.resolve(currentLibrary.get().getRanks(state.henkanFeed));
+      const lib = await currentLibrary.get();
+      return Promise.resolve(lib.getRanks(state.henkanFeed));
     },
     async completeCallback(kana: unknown, word: unknown, initialize: unknown) {
       ensureString(kana);
       ensureString(word);
-      await currentLibrary.get().registerCandidate("okurinasi", kana, word);
+      const lib = await currentLibrary.get();
+      await lib.registerCandidate("okurinasi", kana, word);
       // <C-y>で呼ばれた際にstateの初期化を行う
       if (initialize) {
         const context = currentContext.get();
