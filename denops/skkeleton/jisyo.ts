@@ -126,7 +126,7 @@ export class SKKDictionary implements Dictionary {
 
   getCandidates(prefix: string, feed: string): Promise<CompletionData> {
     const candidates: CompletionData = [];
-    if (feed && feed != "") {
+    if (feed != "") {
       const table = getKanaTable("rom");
       for (const [key, kanas] of table) {
         if (key.startsWith(feed) && kanas.length > 1) {
@@ -212,7 +212,7 @@ export class UserDictionary implements Dictionary {
       return;
     }
     const candidates: CompletionData = [];
-    if (feed && feed != "") {
+    if (feed != "") {
       const table = getKanaTable("rom");
       for (const [key, kanas] of table) {
         if (key.startsWith(feed) && kanas.length > 1) {
@@ -244,7 +244,7 @@ export class UserDictionary implements Dictionary {
   getRanks(prefix: string): RankData {
     const set = new Set();
     const adder = set.add.bind(set);
-    this.cacheCandidates(prefix);
+    this.cacheCandidates(prefix, "");
     for (const [, cs] of this.#cachedCandidates) {
       cs.forEach(adder);
     }
