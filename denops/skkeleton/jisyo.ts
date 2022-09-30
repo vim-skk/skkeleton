@@ -1,4 +1,5 @@
 import { config } from "./config.ts";
+import { getKanaTable } from "./kana.ts";
 import { encoding } from "./deps/encoding_japanese.ts";
 import { wrap } from "./deps/iterator_helpers.ts";
 import { JpNum } from "./deps/japanese_numeral.ts";
@@ -59,7 +60,7 @@ function convertNumber(pattern: string, entry: string): string {
 
 export interface Dictionary {
   getCandidate(type: HenkanType, word: string): Promise<string[]>;
-  getCandidates(prefix: string): Promise<CompletionData>;
+  getCandidates(prefix: string, feed: string): Promise<CompletionData>;
 }
 
 function encode(str: string, encode: Encoding): Uint8Array {
@@ -87,9 +88,9 @@ export class NumberConvertWrapper implements Dictionary {
     }
   }
 
-  async getCandidates(prefix: string): Promise<CompletionData> {
+  async getCandidates(prefix: string, feed: string): Promise<CompletionData> {
     const realPrefix = prefix.replaceAll(/[0-9]+/g, "#");
-    const candidates = await this.#inner.getCandidates(realPrefix);
+    const candidates = await this.#inner.getCandidates(realPrefix, feed);
     if (prefix === realPrefix) {
       return candidates;
     } else {
@@ -123,11 +124,25 @@ export class SKKDictionary implements Dictionary {
     return Promise.resolve(target.get(word) ?? []);
   }
 
-  getCandidates(prefix: string): Promise<CompletionData> {
+  getCandidates(prefix: string, feed: string): Promise<CompletionData> {
     const candidates: CompletionData = [];
-    for (const entry of this.#okuriNasi) {
-      if (entry[0].startsWith(prefix)) {
-        candidates.push(entry);
+    if (feed != "") {
+      const table = getKanaTable();
+      for (const [key, kanas] of table) {
+        if (key.startsWith(feed) && kanas.length > 1) {
+          const feedPrefix = prefix + (kanas as string[])[0];
+          for (const entry of this.#okuriNasi) {
+            if (entry[0].startsWith(feedPrefix)) {
+              candidates.push(entry);
+            }
+          }
+        }
+      }
+    } else {
+      for (const entry of this.#okuriNasi) {
+        if (entry[0].startsWith(prefix)) {
+          candidates.push(entry);
+        }
       }
     }
     candidates.sort((a, b) => a[0].localeCompare(b[0]));
@@ -174,6 +189,7 @@ export class UserDictionary implements Dictionary {
   #loadTime = -1;
 
   #cachedPrefix = "";
+  #cachedFeed = "";
   #cachedCandidates: CompletionData = [];
 
   constructor(
@@ -191,29 +207,44 @@ export class UserDictionary implements Dictionary {
     return Promise.resolve(target.get(word) ?? []);
   }
 
-  private cacheCandidates(prefix: string) {
-    if (this.#cachedPrefix === prefix) {
+  private cacheCandidates(prefix: string, feed: string) {
+    if (this.#cachedPrefix === prefix && this.#cachedFeed == feed) {
       return;
     }
     const candidates: CompletionData = [];
-    for (const entry of this.#okuriNasi) {
-      if (entry[0].startsWith(prefix)) {
-        candidates.push(entry);
+    if (feed != "") {
+      const table = getKanaTable("rom");
+      for (const [key, kanas] of table) {
+        if (key.startsWith(feed) && kanas.length > 1) {
+          const feedPrefix = prefix + (kanas as string[])[0];
+          for (const entry of this.#okuriNasi) {
+            if (entry[0].startsWith(feedPrefix)) {
+              candidates.push(entry);
+            }
+          }
+        }
+      }
+    } else {
+      for (const entry of this.#okuriNasi) {
+        if (entry[0].startsWith(prefix)) {
+          candidates.push(entry);
+        }
       }
     }
     this.#cachedPrefix = prefix;
+    this.#cachedFeed = feed;
     this.#cachedCandidates = candidates;
   }
 
-  getCandidates(prefix: string): Promise<CompletionData> {
-    this.cacheCandidates(prefix);
+  getCandidates(prefix: string, feed: string): Promise<CompletionData> {
+    this.cacheCandidates(prefix, feed);
     return Promise.resolve(this.#cachedCandidates);
   }
 
   getRanks(prefix: string): RankData {
     const set = new Set();
     const adder = set.add.bind(set);
-    this.cacheCandidates(prefix);
+    this.cacheCandidates(prefix, "");
     for (const [, cs] of this.#cachedCandidates) {
       cs.forEach(adder);
     }
@@ -393,7 +424,7 @@ export class SkkServer implements Dictionary {
     }
     return result;
   }
-  async getCandidates(_prefix: string): Promise<CompletionData> {
+  async getCandidates(_prefix: string, _: string): Promise<CompletionData> {
     // TODO: add support for ddc.vim
     return await Promise.resolve([["", [""]]]);
   }
@@ -439,13 +470,13 @@ export class Library {
     return Array.from(merged);
   }
 
-  async getCandidates(prefix: string): Promise<CompletionData> {
+  async getCandidates(prefix: string, feed: string): Promise<CompletionData> {
     if (prefix.length < 2) {
       return [];
     }
     const collector = new Map<string, Set<string>>();
     for (const dic of this.#dictionaries) {
-      gatherCandidates(collector, await dic.getCandidates(prefix));
+      gatherCandidates(collector, await dic.getCandidates(prefix, feed));
     }
     return Array.from(collector.entries())
       .map(([kana, cset]) => [kana, Array.from(cset)]);
