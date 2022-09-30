@@ -293,7 +293,7 @@ export async function main(denops: Denops) {
         return Promise.resolve([]);
       }
       const lib = await currentLibrary.get();
-      return lib.getCandidates(state.henkanFeed);
+      return lib.getCandidates(state.henkanFeed, state.feed);
     },
     async getRanks(): Promise<RankData> {
       const state = currentContext.get().state;
