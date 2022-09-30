@@ -127,7 +127,7 @@ export class SKKDictionary implements Dictionary {
   getCandidates(prefix: string, feed: string): Promise<CompletionData> {
     const candidates: CompletionData = [];
     if (feed != "") {
-      const table = getKanaTable("rom");
+      const table = getKanaTable();
       for (const [key, kanas] of table) {
         if (key.startsWith(feed) && kanas.length > 1) {
           const feedPrefix = prefix + (kanas as string[])[0];
