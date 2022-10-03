@@ -1,7 +1,7 @@
 import { config, setConfig } from "./config.ts";
 import { Context } from "./context.ts";
 import { anonymous, autocmd, Denops, fn, op, vars } from "./deps.ts";
-import { ensureObject, ensureString, isString } from "./deps/unknownutil.ts";
+import { assertObject, assertString, isString } from "./deps/unknownutil.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { modeChange } from "./function/mode.ts";
 import * as jisyo from "./jisyo.ts";
@@ -183,7 +183,7 @@ type VimStatus = {
 };
 
 async function handle(key: unknown, vimStatus: unknown): Promise<string> {
-  ensureString(key);
+  assertString(key);
   const { completeInfo, isNativePum, mode } = vimStatus as VimStatus;
   const context = currentContext.get();
   const denops = context.denops!;
@@ -238,18 +238,18 @@ export async function main(denops: Denops) {
   }
   denops.dispatcher = {
     config(config: unknown) {
-      ensureObject(config);
+      assertObject(config);
       setConfig(config);
       return Promise.resolve();
     },
     async registerKeyMap(state: unknown, key: unknown, funcName: unknown) {
-      ensureString(state);
-      ensureString(key);
+      assertString(state);
+      assertString(key);
       await receiveNotation(denops);
       registerKeyMap(state, key, funcName);
     },
     registerKanaTable(tableName: unknown, table: unknown, create: unknown) {
-      ensureString(tableName);
+      assertString(tableName);
       registerKanaTable(tableName, table, !!create);
       return Promise.resolve();
     },
@@ -304,8 +304,8 @@ export async function main(denops: Denops) {
       return Promise.resolve(lib.getRanks(state.henkanFeed));
     },
     async completeCallback(kana: unknown, word: unknown, initialize: unknown) {
-      ensureString(kana);
-      ensureString(word);
+      assertString(kana);
+      assertString(word);
       const lib = await currentLibrary.get();
       await lib.registerCandidate("okurinasi", kana, word);
       // <C-y>で呼ばれた際にstateの初期化を行う

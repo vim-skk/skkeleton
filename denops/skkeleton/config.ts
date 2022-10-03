@@ -1,7 +1,7 @@
 import {
-  ensureBoolean,
-  ensureNumber,
-  ensureString,
+  assertBoolean,
+  assertNumber,
+  assertString,
   isArray,
   isString,
 } from "./deps/unknownutil.ts";
@@ -38,10 +38,10 @@ type Validators = {
 };
 
 const validators: Validators = {
-  acceptIllegalResult: ensureBoolean,
-  completionRankFile: ensureString,
-  debug: ensureBoolean,
-  eggLikeNewline: ensureBoolean,
+  acceptIllegalResult: assertBoolean,
+  completionRankFile: assertString,
+  debug: assertBoolean,
+  eggLikeNewline: assertBoolean,
   globalDictionaries: (x): asserts x is (string | [string, string])[] => {
     if (
       !isArray(
@@ -53,39 +53,39 @@ const validators: Validators = {
       throw TypeError("'globalDictionaries' must be array of two string tuple");
     }
   },
-  globalJisyo: ensureString,
-  globalJisyoEncoding: ensureString,
-  immediatelyCancel: ensureBoolean,
-  immediatelyJisyoRW: ensureBoolean,
-  keepState: ensureBoolean,
-  markerHenkan: ensureString,
-  markerHenkanSelect: ensureString,
-  registerConvertResult: ensureBoolean,
+  globalJisyo: assertString,
+  globalJisyoEncoding: assertString,
+  immediatelyCancel: assertBoolean,
+  immediatelyJisyoRW: assertBoolean,
+  keepState: assertBoolean,
+  markerHenkan: assertString,
+  markerHenkanSelect: assertString,
+  registerConvertResult: assertBoolean,
   selectCandidateKeys: (x): asserts x is string => {
-    ensureString(x);
+    assertString(x);
     if (x.length !== 7) {
       throw TypeError("selectCandidateKeys.length !== 7");
     }
   },
-  setUndoPoint: ensureBoolean,
-  showCandidatesCount: ensureNumber,
-  skkServerHost: ensureString,
-  skkServerPort: ensureNumber,
+  setUndoPoint: assertBoolean,
+  showCandidatesCount: assertNumber,
+  skkServerHost: assertString,
+  skkServerPort: assertNumber,
   skkServerReqEnc: (x): asserts x is Encoding => {
-    ensureString(x);
+    assertString(x);
     if (!(x in Encode)) {
       throw TypeError(`${x} is invalid encoding`);
     }
   },
   skkServerResEnc: (x): asserts x is Encoding => {
-    ensureString(x);
+    assertString(x);
     if (!(x in Encode)) {
       throw TypeError(`${x} is invalid encoding`);
     }
   },
-  usePopup: ensureBoolean,
-  useSkkServer: ensureBoolean,
-  userJisyo: ensureString,
+  usePopup: assertBoolean,
+  useSkkServer: assertBoolean,
+  userJisyo: assertString,
 };
 
 export function setConfig(newConfig: Record<string, unknown>) {

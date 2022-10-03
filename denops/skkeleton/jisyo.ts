@@ -5,7 +5,7 @@ import { wrap } from "./deps/iterator_helpers.ts";
 import { JpNum } from "./deps/japanese_numeral.ts";
 import { zip } from "./deps/std/collections.ts";
 import { iterateReader } from "./deps/std/streams.ts";
-import { ensureArray, isString } from "./deps/unknownutil.ts";
+import { assertArray, isString } from "./deps/unknownutil.ts";
 import { Encode } from "./types.ts";
 import type {
   CompletionData,
@@ -304,7 +304,7 @@ export class UserDictionary implements Dictionary {
       return;
     }
     const rankData = JSON.parse(await Deno.readTextFile(rankPath));
-    ensureArray(rankData, isString);
+    assertArray(rankData, isString);
     this.#rank = new Map(rankData.map((c, i) => [c, i]));
   }
 
