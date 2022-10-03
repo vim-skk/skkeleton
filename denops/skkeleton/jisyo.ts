@@ -213,7 +213,7 @@ export class UserDictionary implements Dictionary {
     }
     const candidates: CompletionData = [];
     if (feed != "") {
-      const table = getKanaTable("rom");
+      const table = getKanaTable(config.kanaTable);
       for (const [key, kanas] of table) {
         if (key.startsWith(feed) && kanas.length > 1) {
           const feedPrefix = prefix + (kanas as string[])[0];
