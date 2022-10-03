@@ -6,7 +6,7 @@ import { disable as disableFunc } from "./function/disable.ts";
 import { modeChange } from "./function/mode.ts";
 import * as jisyo from "./jisyo.ts";
 import { currentLibrary, SkkServer } from "./jisyo.ts";
-import { registerKanaTable } from "./kana.ts";
+import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { initializeState } from "./state.ts";
@@ -114,6 +114,9 @@ async function enable(key?: unknown, vimStatus?: unknown): Promise<string> {
     return handle(key, vimStatus);
   }
   if (await denops.eval("&l:iminsert") !== 1) {
+    // Note: must set before context initialization
+    currentKanaTable.set(config.kanaTable);
+
     currentContext.init().denops = denops;
     try {
       await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-pre");

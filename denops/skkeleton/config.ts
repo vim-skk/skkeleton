@@ -5,6 +5,7 @@ import {
   isArray,
   isString,
 } from "./deps/unknownutil.ts";
+import { getKanaTable } from "./kana.ts";
 import { Encode, Encoding } from "./types.ts";
 
 export const config = {
@@ -17,6 +18,7 @@ export const config = {
   globalJisyoEncoding: "euc-jp",
   immediatelyCancel: true,
   immediatelyJisyoRW: true,
+  kanaTable: "rom",
   keepState: false,
   markerHenkan: "▽",
   markerHenkanSelect: "▼",
@@ -57,6 +59,14 @@ const validators: Validators = {
   globalJisyoEncoding: assertString,
   immediatelyCancel: assertBoolean,
   immediatelyJisyoRW: assertBoolean,
+  kanaTable: (x): asserts x is string => {
+    assertString(x);
+    try {
+      getKanaTable(x);
+    } catch {
+      throw TypeError("can't use undefined kanaTable: " + x);
+    }
+  },
   keepState: assertBoolean,
   markerHenkan: assertString,
   markerHenkanSelect: assertString,

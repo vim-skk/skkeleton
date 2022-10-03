@@ -188,6 +188,13 @@ immediatelyJisyoRW                       *skkeleton-config-immediatelyJisyoRW*
         変換や確定の度にユーザー辞書を読み書きするようになります。
         複数のVimインスタンスを同時に使う場合に有用かもしれません。
 
+kanaTable                                         *skkeleton-config-kanaTable*
+        (デフォルト "rom")
+        使用する仮名テーブルを指定します。
+        存在するテーブルのみ指定できます。存在しないテーブルを指定したい場合は
+        |skkeleton#register_kanatable()| で先にテーブルを作成してください。
+
+
 keepState                                         *skkeleton-config-keepState*
         (デフォルト v:false)
         このオプションを有効にすると

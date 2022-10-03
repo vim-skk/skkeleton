@@ -35,7 +35,7 @@ export async function kakutei(context: Context) {
       }
       context.kakutei(result);
       if (currentKanaTable.get() === "zen") {
-        currentKanaTable.set("rom");
+        currentKanaTable.set(config.kanaTable);
         state.converter = void 0;
       }
       if (context.mode === "abbrev") {
