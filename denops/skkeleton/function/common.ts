@@ -38,17 +38,17 @@ export async function kakutei(context: Context) {
         currentKanaTable.set(config.kanaTable);
         state.converter = void 0;
       }
-      if (context.mode === "abbrev") {
-        await modeChange(context, "hira");
-        initializeState(state, []);
-        return;
-      }
       break;
     }
     default:
       console.warn(
         `initializing unknown phase state: ${JSON.stringify(state)}`,
       );
+  }
+  if (context.mode === "abbrev") {
+    await modeChange(context, "hira");
+    initializeState(state, []);
+    return;
   }
   initializeState(state, ["converter", "table"]);
 }
