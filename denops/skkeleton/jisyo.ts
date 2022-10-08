@@ -412,6 +412,7 @@ export class SkkServer implements Dictionary {
   }
   async getCandidate(_type: HenkanType, word: string): Promise<string[]> {
     if (!this.#conn) return [];
+
     await this.#conn.write(encode(`1${word} `, this.requestEncoding));
     const result: string[] = [];
     for await (const res of iterateReader(this.#conn)) {
@@ -424,9 +425,45 @@ export class SkkServer implements Dictionary {
     }
     return result;
   }
-  async getCandidates(_prefix: string, _: string): Promise<CompletionData> {
-    // TODO: add support for ddc.vim
-    return await Promise.resolve([["", [""]]]);
+  async getCandidates(prefix: string, feed: string): Promise<CompletionData> {
+    if (!this.#conn) return [];
+
+    let midashis: string[] = [];
+    if (feed != "") {
+      const table = getKanaTable();
+      for (const [key, kanas] of table) {
+        if (key.startsWith(feed) && kanas.length > 1) {
+          const feedPrefix = prefix + (kanas as string[])[0];
+          midashis = midashis.concat(await this.getMidashis(feedPrefix));
+        }
+      }
+    } else {
+      midashis = await this.getMidashis(prefix);
+    }
+
+    const candidates: CompletionData = [];
+    for (const midashi of midashis) {
+      candidates.push([midashi, await this.getCandidate("okurinasi", midashi)]);
+    }
+
+    return candidates;
+  }
+  private async getMidashis(prefix: string): Promise<string[]> {
+    // Get midashis from prefix
+    if (!this.#conn) return [];
+
+    await this.#conn.write(encode(`4${prefix} `, this.requestEncoding));
+    const midashis: string[] = [];
+    for await (const res of iterateReader(this.#conn)) {
+      const str = decode(res, this.responseEncoding);
+      midashis.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
+
+      if (str.endsWith("\n")) {
+        break;
+      }
+    }
+
+    return midashis;
   }
   close() {
     this.#conn?.write(encode("0", this.requestEncoding));
