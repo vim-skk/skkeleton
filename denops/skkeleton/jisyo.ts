@@ -25,7 +25,7 @@ function toKifu(n: number): string {
   if (0 < x && x < 10 && 0 < y && y < 10) {
     const a = toZenkaku(Math.floor(n / 10));
     const b = toKanjiModern(n % 10);
-    return a+b;
+    return a + b;
   } else {
     return n.toString();
   }
