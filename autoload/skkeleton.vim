@@ -99,7 +99,7 @@ function! skkeleton#handle(func, key) abort
     let ret = "\<Cmd>" .. ret[5:] .. "\<CR>"
   endif
   call skkeleton#doautocmd()
-  call feedkeys(ret, 'nt')
+  call feedkeys(ret, 'nit')
 endfunction
 
 " copied from eskk.vim
