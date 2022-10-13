@@ -3,6 +3,7 @@ import { getKanaTable } from "./kana.ts";
 import { encoding } from "./deps/encoding_japanese.ts";
 import { wrap } from "./deps/iterator_helpers.ts";
 import { JpNum } from "./deps/japanese_numeral.ts";
+import { RomanNum } from "./deps/roman.ts";
 import { zip } from "./deps/std/collections.ts";
 import { iterateReader } from "./deps/std/streams.ts";
 import { assertArray, isString } from "./deps/unknownutil.ts";
@@ -30,6 +31,7 @@ function toKanjiModern(n: number): string {
     return kanjiNumbers[parseInt(c)];
   });
 }
+const toRoman: (n: number) => string = RomanNum.convertNumberToRoman;
 const toKanjiClassic: (n: number) => string = JpNum.number2kanji;
 
 function convertNumber(pattern: string, entry: string): string {
@@ -42,7 +44,6 @@ function convertNumber(pattern: string, entry: string): string {
         case "#5":
         case "#6":
         case "#7":
-        case "#8":
         case "#9":
           return e;
         case "#1":
@@ -51,6 +52,8 @@ function convertNumber(pattern: string, entry: string): string {
           return toKanjiModern(parseInt(e));
         case "#3":
           return toKanjiClassic(parseInt(e));
+        case "#8":
+          return toRoman(parseInt(e));
         default:
           return k;
       }
