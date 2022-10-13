@@ -17,7 +17,7 @@ export async function disable(context: Context) {
     await op.iminsert.setLocal(denops, 0);
     await op.textwidth.setLocal(denops, context.textwidth);
     await kakutei(context);
-    await denops.cmd("stopinsert");
+    context.kakutei("\x1e");
     try {
       await denops.cmd("doautocmd <nomodeline> User skkeleton-disable-post");
     } catch (e) {

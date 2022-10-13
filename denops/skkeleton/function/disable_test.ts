@@ -14,23 +14,9 @@ test({
 
     await denops.dispatch("skkeleton", "enable");
     await dispatch(currentContext.get(), " ");
-    assertEquals(await denops.dispatch("skkeleton", "disable"), " ");
+    assertEquals(await denops.dispatch("skkeleton", "disable"), " \x1e");
     await denops.dispatch("skkeleton", "enable");
     await dispatch(currentContext.get(), "n");
-    assertEquals(await denops.dispatch("skkeleton", "disable"), "ん");
-  },
-});
-
-test({
-  mode: "nvim", // in vim, test executes in cmdline mode
-  name: "escape from insert mode",
-  pluginName: "skkeleton",
-  async fn(denops: Denops) {
-    await initDenops(denops);
-    await denops.cmd("startinsert");
-    await denops.dispatch("skkeleton", "enable");
-    assertEquals(await denops.call("mode"), "i");
-    await denops.dispatch("skkeleton", "disable");
-    assertEquals(await denops.call("mode"), "n");
+    assertEquals(await denops.dispatch("skkeleton", "disable"), "ん\x1e");
   },
 });
