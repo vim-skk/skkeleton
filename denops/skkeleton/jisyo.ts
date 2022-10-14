@@ -46,6 +46,24 @@ function toKanjiModern(n: number): string {
 const toRoman: (n: number) => string = RomanNum.convertNumberToRoman;
 const toKanjiClassic: (n: number) => string = JpNum.number2kanji;
 
+function toDaiji(n: number): string {
+  return toKanjiClassic(n)
+    .replace(/一/g, "壱")
+    .replace(/二/g, "弐")
+    .replace(/三/g, "参")
+    .replace(/四/g, "肆")
+    .replace(/五/g, "伍")
+    .replace(/六/g, "陸")
+    .replace(/七/g, "漆")
+    .replace(/八/g, "捌")
+    .replace(/九/g, "玖")
+    .replace(/〇/g, "零")
+    .replace(/十/g, "拾")
+    .replace(/百/g, "佰")
+    .replace(/千/g, "阡")
+    .replace(/万/g, "萬");
+}
+
 function convertNumber(pattern: string, entry: string): string {
   return zip(pattern.split(/(#[0-9]?)/g), entry.split(/([0-9]+)/g))
     .map(([k, e]) => {
@@ -53,7 +71,6 @@ function convertNumber(pattern: string, entry: string): string {
         case "#":
         case "#0":
         case "#4":
-        case "#5":
         case "#6":
         case "#7":
           return e;
@@ -67,6 +84,8 @@ function convertNumber(pattern: string, entry: string): string {
           return toKanjiClassic(parseInt(e));
         case "#8":
           return toRoman(parseInt(e));
+        case "#5":
+          return toDaiji(parseInt(e));
         default:
           return k;
       }
