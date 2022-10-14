@@ -55,6 +55,18 @@ Deno.test({
 });
 
 Deno.test({
+  name: "get num candidates (Kifu)",
+  async fn() {
+    const jisyo = wrapDictionary(await load(numJisyo, "euc-jp"));
+    const manager = new Library([jisyo]);
+    const nasi1 = await manager.getCandidate("okurinasi", "11おうて");
+    assertEquals(nasi1, ["１一王手"]);
+    const nasi2 = await manager.getCandidate("okurinasi", "111おうて");
+    assertEquals(nasi2, ["111王手"]);
+  },
+});
+
+Deno.test({
   name: "register candidate",
   async fn() {
     const manager = new Library();

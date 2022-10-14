@@ -19,6 +19,18 @@ import { LazyCell } from "./util.ts";
 const okuriAriMarker = ";; okuri-ari entries.";
 const okuriNasiMarker = ";; okuri-nasi entries.";
 
+function toKifu(n: number): string {
+  const x = Math.floor(n / 10);
+  const y = n % 10;
+  if (0 < x && x < 10 && 0 < y && y < 10) {
+    const a = toZenkaku(Math.floor(n / 10));
+    const b = toKanjiModern(n % 10);
+    return a + b;
+  } else {
+    return n.toString();
+  }
+}
+
 function toZenkaku(n: number): string {
   return n.toString().replaceAll(/[0-9]/g, (c): string => {
     const zenkakuNumbers = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"];
@@ -61,8 +73,9 @@ function convertNumber(pattern: string, entry: string): string {
         case "#4":
         case "#6":
         case "#7":
-        case "#9":
           return e;
+        case "#9":
+          return toKifu(parseInt(e));
         case "#1":
           return toZenkaku(parseInt(e));
         case "#2":
