@@ -47,7 +47,7 @@ henkanBackward                             *skkeleton-function-henkanBackward*
 purgeCandidate                             *skkeleton-function-purgeCandidate*
         (input, henkan)
         現在選択している変換候補をユーザー辞書から削除します。
-        変換中以外は直前に変換した候補が対象になります。
+        変換中以外は直前に確定した候補が対象になります。
         (補完で確定した候補を消す際などに便利です)
         削除が行われた場合は入力状態が解除されます。
 

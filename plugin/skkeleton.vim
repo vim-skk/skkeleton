@@ -12,5 +12,3 @@ autocmd User DenopsPluginPost:skkeleton let g:skkeleton#init = v:true
 " (enable action was failed)
 " so makes dummy mapping
 lnoremap <Plug>(skkeleton-dummy) :
-
-call skkeleton#register_keymap('input', 'X', 'purgeCandidate')

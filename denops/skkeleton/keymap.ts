@@ -68,7 +68,7 @@ export async function handleKey(context: Context, key: string) {
 
 export function registerKeyMap(state: string, key: string, func: unknown) {
   if (config.debug) {
-    console.log(`registerKeyMap: state = {state} key = ${key} func = ${func}`);
+    console.log(`registerKeyMap: state = ${state} key = ${key} func = ${func}`);
   }
   const keyMap = keyMaps[state];
   if (!keyMap) {
