@@ -311,9 +311,14 @@ export async function main(denops: Denops) {
       assertString(word);
       const lib = await currentLibrary.get();
       await lib.registerCandidate("okurinasi", kana, word);
+      const context = currentContext.get();
+      context.lastCandidate = {
+        type: "okurinasi",
+        word: kana,
+        candidate: word,
+      };
       // <C-y>で呼ばれた際にstateの初期化を行う
       if (initialize) {
-        const context = currentContext.get();
         initializeState(context.state, ["converter"]);
         context.preEdit.output("");
       }

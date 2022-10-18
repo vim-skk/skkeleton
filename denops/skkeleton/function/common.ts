@@ -1,6 +1,6 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
-import { currentLibrary } from "../jisyo.ts";
+import { currentLibrary, HenkanType } from "../jisyo.ts";
 import { currentKanaTable } from "../kana.ts";
 import { initializeState } from "../state.ts";
 import { kakuteiFeed } from "./input.ts";
@@ -19,6 +19,11 @@ export async function kakutei(context: Context) {
           state.word,
           candidate,
         );
+        context.lastCandidate = {
+          type: state.mode,
+          word: state.word,
+          candidate,
+        };
       }
       const okuriStr = state.converter
         ? state.converter(state.okuriFeed)
@@ -83,5 +88,35 @@ export function cancel(context: Context) {
     case "henkan":
       context.state.type = "input";
       break;
+  }
+}
+
+export async function purgeCandidate(context: Context) {
+  const state = context.state;
+  let type: HenkanType;
+  let word: string;
+  let candidate: string;
+  if (state.type === "input") {
+    type = context.lastCandidate.type;
+    word = context.lastCandidate.word;
+    candidate = context.lastCandidate.candidate;
+  } else if (state.type === "henkan") {
+    type = state.mode;
+    word = state.word;
+    candidate = state.candidates[state.candidateIndex];
+  } else {
+    console.log("purgeCandidate: reach illegal state");
+    console.log(context);
+    return;
+  }
+  if (word === "") {
+    return;
+  }
+  const msg = `Really purge? ${word} /${candidate}/`;
+  if (await context.denops!.call("confirm", msg, "&Yes\n&No\n", 2) === 1) {
+    const lib = await currentLibrary.get();
+    lib.purgeCandidate(type, word, candidate);
+    initializeState(state);
+    context.lastCandidate.word = "";
   }
 }

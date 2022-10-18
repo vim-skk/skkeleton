@@ -1,12 +1,11 @@
 import { Context } from "./context.ts";
-import { cancel, kakutei, newline } from "./function/common.ts";
+import { cancel, kakutei, newline, purgeCandidate } from "./function/common.ts";
 import { disable, escape } from "./function/disable.ts";
 import {
   henkanBackward,
   henkanFirst,
   henkanForward,
   henkanInput,
-  purgeCandidate,
 } from "./function/henkan.ts";
 import { deleteChar, henkanPoint, kakuteiFeed } from "./function/input.ts";
 import { hankatakana, katakana, zenkaku } from "./function/mode.ts";

@@ -126,21 +126,6 @@ async function selectCandidates(context: Context) {
   state.candidateIndex = config.showCandidatesCount - 1;
 }
 
-export async function purgeCandidate(context: Context) {
-  const state = context.state;
-  if (state.type !== "henkan") {
-    return;
-  }
-  const word = state.word;
-  const candidate = state.candidates[state.candidateIndex];
-  const msg = `Really purge? ${word} /${candidate}`;
-  if (await context.denops!.call("confirm", msg, "&Yes\n&No\n", 2) === 1) {
-    const lib = await currentLibrary.get();
-    lib.purgeCandidate(state.mode as HenkanType, word, candidate);
-    initializeState(state);
-  }
-}
-
 async function showCandidates(denops: Denops, state: HenkanState) {
   const idx = state.candidateIndex;
   const candidates = state.candidates.slice(idx, idx + 7);

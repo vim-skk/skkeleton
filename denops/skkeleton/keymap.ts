@@ -1,14 +1,13 @@
 import { config } from "./config.ts";
 import type { Context } from "./context.ts";
 import { Func, functions } from "./function.ts";
-import { cancel, kakutei, newline } from "./function/common.ts";
+import { cancel, kakutei, newline, purgeCandidate } from "./function/common.ts";
 import { escape } from "./function/disable.ts";
 import {
   henkanBackward,
   henkanFirst,
   henkanForward,
   henkanInput,
-  purgeCandidate,
 } from "./function/henkan.ts";
 import { deleteChar, kanaInput } from "./function/input.ts";
 import { hankatakana } from "./function/mode.ts";
