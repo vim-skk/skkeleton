@@ -68,6 +68,9 @@ export async function handleKey(context: Context, key: string) {
 }
 
 export function registerKeyMap(state: string, key: string, func: unknown) {
+  if (config.debug) {
+    console.log(`registerKeyMap: state = {state} key = ${key} func = ${func}`);
+  }
   const keyMap = keyMaps[state];
   if (!keyMap) {
     throw Error(`unknown state: ${state}`);
@@ -81,4 +84,7 @@ export function registerKeyMap(state: string, key: string, func: unknown) {
     throw Error(`unknown function: ${func}`);
   }
   keyMap.map[key] = fn;
+  if (config.debug) {
+    console.log(keyMap);
+  }
 }

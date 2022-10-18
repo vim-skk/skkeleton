@@ -51,10 +51,10 @@ function! skkeleton#register_keymap(state, key, func_name)
   " normalize notation
   if len(a:key) > 1 && a:key[0] ==# '<'
     let key = g:skkeleton#notation#notation_to_key[tolower(a:key)]
+    let key = get(g:skkeleton#notation#key_to_notation, key, key)
   else
     let key = a:key
   endif
-  let key = get(g:skkeleton#notation#key_to_notation, key, key)
   call skkeleton#request_async('registerKeyMap', [a:state, key, a:func_name])
 endfunction
 
