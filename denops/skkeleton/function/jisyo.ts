@@ -27,6 +27,9 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
       });
     }
   });
+  // Note: use virtualedit for fix slip cursor position at line ending.
+  const saveVirtualedit = await op.virtualedit.getLocal(denops);
+  await op.virtualedit.setLocal(denops, "all");
   try {
     const base = "[辞書登録] " + state.henkanFeed;
     const okuri = state.mode === "okuriari" ? "*" + state.okuriFeed : "";
@@ -62,6 +65,7 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
       await vars.g.set(denops, "skkeleton#enabled", true);
       await denops.cmd("redrawstatus");
     });
+    await op.virtualedit.setLocal(denops, saveVirtualedit);
     // restore stashed context
     currentContext.set(context);
   }
