@@ -1,11 +1,11 @@
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
 import type { Denops } from "../deps.ts";
-import { currentLibrary, HenkanType } from "../jisyo.ts";
+import { currentLibrary } from "../jisyo.ts";
 import { handleKey } from "../keymap.ts";
 import { keyToNotation } from "../notation.ts";
 import { getOkuriStr } from "../okuri.ts";
-import { HenkanState, initializeState } from "../state.ts";
+import { HenkanState } from "../state.ts";
 import { kakutei } from "./common.ts";
 import { kakuteiFeed } from "./input.ts";
 import { jisyoTouroku } from "./jisyo.ts";

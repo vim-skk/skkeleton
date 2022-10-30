@@ -9,7 +9,7 @@ import { currentLibrary, SkkServer } from "./jisyo.ts";
 import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
-import { initializeState, InputState } from "./state.ts";
+import { initializeState } from "./state.ts";
 import type { CompletionData, RankData, SkkServerOptions } from "./types.ts";
 import { Cell } from "./util.ts";
 
