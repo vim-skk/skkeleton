@@ -9,7 +9,7 @@ import { currentLibrary, SkkServer } from "./jisyo.ts";
 import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
-import { initializeState } from "./state.ts";
+import { initializeState, InputState } from "./state.ts";
 import type { CompletionData, RankData, SkkServerOptions } from "./types.ts";
 import { Cell } from "./util.ts";
 
@@ -306,7 +306,7 @@ export async function main(denops: Denops) {
       const lib = await currentLibrary.get();
       return Promise.resolve(lib.getRanks(state.henkanFeed));
     },
-    async completeCallback(kana: unknown, word: unknown, initialize: unknown) {
+    async completeCallback(kana: unknown, word: unknown) {
       assertString(kana);
       assertString(word);
       const lib = await currentLibrary.get();
@@ -318,7 +318,12 @@ export async function main(denops: Denops) {
         candidate: word,
       };
       // <C-y>で呼ばれた際にstateの初期化を行う
-      if (initialize) {
+      // この際、preEditと候補の仮名の先頭が一致している
+      const preEdit = context.toString();
+      if (
+        preEdit.length > config.markerHenkan.length &&
+        preEdit.startsWith(config.markerHenkan)
+      ) {
         initializeState(context.state, ["converter"]);
         context.preEdit.output("");
       }
