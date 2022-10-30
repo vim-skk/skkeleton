@@ -218,7 +218,7 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
     }
     const handled = await handleCompleteKey(
       denops,
-      completed,
+      completeInfo.selected >= 0,
       isNativePum,
       notation,
     );
