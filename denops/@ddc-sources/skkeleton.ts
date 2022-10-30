@@ -78,7 +78,6 @@ export class Source extends BaseSource<Params> {
     if (preEdit !== "" && bufferInput.endsWith(preEdit)) {
       return;
     }
-    console.log([preEdit, args.userData.kana, bufferInput])
     const meta = args.userData;
     await args.denops.dispatch(
       "skkeleton",
