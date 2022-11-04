@@ -146,12 +146,15 @@ export class SKKDictionary implements Dictionary {
   #okuriAri: Map<string, string[]>;
   #okuriNasi: Map<string, string[]>;
 
+  #cachedCandidates: Map<string, CompletionData>;
+
   constructor(
     okuriAri?: Map<string, string[]>,
     okuriNasi?: Map<string, string[]>,
   ) {
     this.#okuriAri = okuriAri ?? new Map();
     this.#okuriNasi = okuriNasi ?? new Map();
+    this.#cachedCandidates = new Map();
   }
 
   getCandidate(type: HenkanType, word: string): Promise<string[]> {
@@ -166,7 +169,7 @@ export class SKKDictionary implements Dictionary {
       for (const [key, kanas] of table) {
         if (key.startsWith(feed) && kanas.length > 1) {
           const feedPrefix = prefix + (kanas as string[])[0];
-          for (const entry of this.#okuriNasi) {
+          for (const entry of this.getCachedCandidates(prefix[0])) {
             if (entry[0].startsWith(feedPrefix)) {
               candidates.push(entry);
             }
@@ -174,14 +177,32 @@ export class SKKDictionary implements Dictionary {
         }
       }
     } else {
-      for (const entry of this.#okuriNasi) {
+      for (const entry of this.getCachedCandidates(prefix[0])) {
         if (entry[0].startsWith(prefix)) {
           candidates.push(entry);
         }
       }
     }
+
     candidates.sort((a, b) => a[0].localeCompare(b[0]));
     return Promise.resolve(candidates);
+  }
+
+  private getCachedCandidates(prefix: string): CompletionData {
+    if (this.#cachedCandidates.has(prefix)) {
+      const candidates = this.#cachedCandidates.get(prefix)
+      return candidates ?? [];
+    }
+
+    const candidates: CompletionData = [];
+    for (const entry of this.#okuriNasi) {
+      if (entry[0].startsWith(prefix)) {
+        candidates.push(entry);
+      }
+    }
+
+    this.#cachedCandidates.set(prefix, candidates);
+    return candidates;
   }
 
   async load(path: string, encoding: string) {
