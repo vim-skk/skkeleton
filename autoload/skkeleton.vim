@@ -301,3 +301,7 @@ function! skkeleton#getchar(msg) abort
   call input(a:msg)
   return s:char
 endfunction
+
+function skkeleton#get_config() abort
+  return denops#request('skkeleton', 'getConfig', [])
+endfunction

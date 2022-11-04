@@ -328,6 +328,9 @@ export async function main(denops: Denops) {
         context.preEdit.output("");
       }
     },
+    async getConfig() {
+      return config;
+    }
   };
   if (config.debug) {
     await denops.cmd(`echomsg "loaded skkeleton"`);
