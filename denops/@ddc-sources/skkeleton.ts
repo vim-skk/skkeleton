@@ -44,6 +44,8 @@ export class Source extends BaseSource<Params> {
     const ddcCandidates = candidates.flatMap((e) => {
       return e[1].map((word) => ({
         word: word.replace(/;.*$/, ""),
+        // NOTE: add space for workaround of neovim draw screen bug
+        abbr: " " + word.replace(/;.*$/, ""),
         info: word.indexOf(";") > 1 ? word.replace(/.*;/, "") : "",
         user_data: {
           kana: e[0],
