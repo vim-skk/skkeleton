@@ -331,7 +331,7 @@ export async function main(denops: Denops) {
     // deno-lint-ignore require-await
     async getConfig() {
       return config;
-    }
+    },
   };
   if (config.debug) {
     await denops.cmd(`echomsg "loaded skkeleton"`);
