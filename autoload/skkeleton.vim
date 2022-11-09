@@ -93,13 +93,17 @@ function! skkeleton#vim_status() abort
   \ }
 endfunction
 
-function! skkeleton#handle(func, key) abort
-  let ret = denops#request('skkeleton', a:func, [a:key, skkeleton#vim_status()])
+function! skkeleton#handle(func, opts) abort
+  let ret = denops#request('skkeleton', a:func, [a:opts, skkeleton#vim_status()])
   if ret =~# "^<Cmd>"
     let ret = "\<Cmd>" .. ret[5:] .. "\<CR>"
   endif
   call skkeleton#doautocmd()
-  call feedkeys(ret, 'nit')
+  if get(a:opts, 'expr', v:false)
+    return ret
+  else
+    call feedkeys(ret, 'nit')
+  endif
 endfunction
 
 " copied from eskk.vim
@@ -155,7 +159,7 @@ function! skkeleton#map() abort
         let func = match[1]
       endif
     endfor
-    execute printf('lnoremap <buffer> <nowait> %s <Cmd>call skkeleton#handle(%s, %s)<CR>', c, string(func), string(k))
+    execute printf('lnoremap <buffer> <nowait> %s <Cmd>call skkeleton#handle(%s, {"key": %s})<CR>', c, string(func), string(k))
   endfor
 endfunction
 

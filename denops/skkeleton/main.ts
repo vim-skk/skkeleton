@@ -1,7 +1,8 @@
 import { config, setConfig } from "./config.ts";
 import { Context } from "./context.ts";
 import { anonymous, autocmd, Denops, fn, op, vars } from "./deps.ts";
-import { assertObject, assertString, isString } from "./deps/unknownutil.ts";
+import { AssertError, assertObject, assertString, isString } from "./deps/unknownutil.ts";
+import { functions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { modeChange } from "./function/mode.ts";
 import * as jisyo from "./jisyo.ts";
@@ -12,6 +13,19 @@ import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { initializeState } from "./state.ts";
 import type { CompletionData, RankData, SkkServerOptions } from "./types.ts";
 import { Cell } from "./util.ts";
+
+type Opts = {
+  key: string;
+  func?: string;
+  expr?: boolean;
+};
+
+// deno-lint-ignore no-explicit-any
+function assertOpts(x: any): asserts x is Opts {
+  if (typeof x?.key !== "string") {
+    throw new AssertError("value must be Opts");
+  }
+}
 
 let initialized = false;
 
@@ -102,7 +116,7 @@ async function init(denops: Denops) {
   initialized = true;
 }
 
-async function enable(key?: unknown, vimStatus?: unknown): Promise<string> {
+async function enable(opts?: unknown, vimStatus?: unknown): Promise<string> {
   const context = currentContext.get();
   const state = context.state;
   const denops = context.denops!;
@@ -110,8 +124,10 @@ async function enable(key?: unknown, vimStatus?: unknown): Promise<string> {
     console.log("skkeleton doesn't allowed in replace mode");
     return "";
   }
-  if ((state.type !== "input" || state.mode !== "direct") && key && vimStatus) {
-    return handle(key, vimStatus);
+  if (
+    (state.type !== "input" || state.mode !== "direct") && opts && vimStatus
+  ) {
+    return handle(opts, vimStatus);
   }
   if (await denops.eval("&l:iminsert") !== 1) {
     // Note: must set before context initialization
@@ -144,11 +160,13 @@ async function enable(key?: unknown, vimStatus?: unknown): Promise<string> {
   }
 }
 
-async function disable(key?: unknown, vimStatus?: unknown): Promise<string> {
+async function disable(opts?: unknown, vimStatus?: unknown): Promise<string> {
   const context = currentContext.get();
   const state = currentContext.get().state;
-  if ((state.type !== "input" || state.mode !== "direct") && key && vimStatus) {
-    return handle(key, vimStatus);
+  if (
+    (state.type !== "input" || state.mode !== "direct") && opts && vimStatus
+  ) {
+    return handle(opts, vimStatus);
   }
   await disableFunc(context);
   return context.preEdit.output(context.toString());
@@ -185,8 +203,12 @@ type VimStatus = {
   mode: string;
 };
 
-async function handle(key: unknown, vimStatus: unknown): Promise<string> {
-  assertString(key);
+async function handle(
+  opts: unknown,
+  vimStatus: unknown,
+): Promise<string> {
+  assertOpts(opts);
+  const key = opts.key;
   const { completeInfo, isNativePum, mode } = vimStatus as VimStatus;
   const context = currentContext.get();
   const denops = context.denops!;
@@ -227,7 +249,11 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
     }
   }
   const before = context.mode;
-  await handleKey(context, key);
+  if (opts.func) {
+    await functions.get()[opts.func](context, key);
+  } else {
+    await handleKey(context, key);
+  }
   const output = context.preEdit.output(context.toString());
   if (output === "" && before !== context.mode) {
     return " \x08";
@@ -256,25 +282,25 @@ export async function main(denops: Denops) {
       registerKanaTable(tableName, table, !!create);
       return Promise.resolve();
     },
-    async enable(key: unknown, vimStatus: unknown): Promise<string> {
+    async enable(opts: unknown, vimStatus: unknown): Promise<string> {
       await init(denops);
-      return await enable(key, vimStatus);
+      return await enable(opts, vimStatus);
     },
-    async disable(key: unknown, vimStatus: unknown): Promise<string> {
+    async disable(opts: unknown, vimStatus: unknown): Promise<string> {
       await init(denops);
-      return await disable(key, vimStatus);
+      return await disable(opts, vimStatus);
     },
-    async toggle(key: unknown, vimStatus: unknown): Promise<string> {
+    async toggle(opts: unknown, vimStatus: unknown): Promise<string> {
       await init(denops);
       const mode = await vars.g.get(denops, "skkeleton#mode", "");
       if (await denops.eval("&l:iminsert") !== 1 || mode === "") {
-        return await enable(key, vimStatus);
+        return await enable(opts, vimStatus);
       } else {
-        return await disable(key, vimStatus);
+        return await disable(opts, vimStatus);
       }
     },
-    handleKey(key: unknown, vimStatus: unknown): Promise<string> {
-      return handle(key, vimStatus);
+    handleKey(opts: unknown, vimStatus: unknown): Promise<string> {
+      return handle(opts, vimStatus);
     },
     //completion
     getPreEditLength(): Promise<number> {
@@ -330,7 +356,7 @@ export async function main(denops: Denops) {
     },
     async getConfig() {
       return config;
-    }
+    },
   };
   if (config.debug) {
     await denops.cmd(`echomsg "loaded skkeleton"`);
