@@ -190,7 +190,7 @@ export class SKKDictionary implements Dictionary {
 
   private getCachedCandidates(prefix: string): CompletionData {
     if (this.#cachedCandidates.has(prefix)) {
-      const candidates = this.#cachedCandidates.get(prefix)
+      const candidates = this.#cachedCandidates.get(prefix);
       return candidates ?? [];
     }
 
