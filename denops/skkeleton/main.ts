@@ -328,6 +328,7 @@ export async function main(denops: Denops) {
         context.preEdit.output("");
       }
     },
+    // deno-lint-ignore require-await
     async getConfig() {
       return config;
     }
