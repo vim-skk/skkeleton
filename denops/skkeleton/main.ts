@@ -16,7 +16,7 @@ import { Cell } from "./util.ts";
 
 type Opts = {
   key: string;
-  func?: string;
+  function?: string;
   expr?: boolean;
 };
 
@@ -249,8 +249,8 @@ async function handle(
     }
   }
   const before = context.mode;
-  if (opts.func) {
-    await functions.get()[opts.func](context, key);
+  if (opts.function) {
+    await functions.get()[opts.function](context, key);
   } else {
     await handleKey(context, key);
   }
