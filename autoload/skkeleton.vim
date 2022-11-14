@@ -137,13 +137,15 @@ function! skkeleton#get_default_mapped_keys() abort "{{{
                 \]
 endfunction "}}}
 
+let g:skkeleton#mapped_keys = skkeleton#get_default_mapped_keys()
+
 function! skkeleton#map() abort
   if mode() ==# 'n'
     let modes = ['i', 'c']
   else
     let modes = [mode()]
   endif
-  for c in skkeleton#get_default_mapped_keys()
+  for c in g:skkeleton#mapped_keys
     " notation to lower
     if len(c) > 1 && c[0] ==# '<'
       let k = '<lt>' .. tolower(c[1:])

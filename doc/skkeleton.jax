@@ -297,6 +297,16 @@ skkeleton#register_keymap({state}, {key}, {funcName})
     call skkeleton#register_keymap('henkan', "\<BS>", 'henkanBackward')
     call skkeleton#register_keymap('henkan', "x", '')
 <
+------------------------------------------------------------------------------
+                                                     *g:skkeleton#mapped_keys*
+g:skkeleton#mapped_keys
+        (デフォルト `skkeleton#get_default_mapped_keys()`の返値)
+        skkeletonにマッピングするキーの配列です。ここにキーを追加すると
+        |skkeleton#register_keymap()|で指定できるようになります。
+>
+    " 例: <C-l>で全角モードに入れるようにします
+    call add(g:skkeleton#mapped_keys, '<C-l>')
+    call skkeleton#register_keymap('input', '<C-l>', 'zenkaku')
 
 ==============================================================================
 COMPLETION                                              *skkeleton-completion*
