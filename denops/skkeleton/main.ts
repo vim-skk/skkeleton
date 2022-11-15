@@ -1,7 +1,12 @@
 import { config, setConfig } from "./config.ts";
 import { Context } from "./context.ts";
 import { anonymous, autocmd, Denops, fn, op, vars } from "./deps.ts";
-import { AssertError, assertObject, assertString, isString } from "./deps/unknownutil.ts";
+import {
+  AssertError,
+  assertObject,
+  assertString,
+  isString,
+} from "./deps/unknownutil.ts";
 import { functions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { modeChange } from "./function/mode.ts";
@@ -172,17 +177,21 @@ async function disable(opts?: unknown, vimStatus?: unknown): Promise<string> {
   return context.preEdit.output(context.toString());
 }
 
-async function handleCompleteKey(
-  denops: Denops,
+function handleCompleteKey(
   completed: boolean,
-  isNativePum: boolean,
+  completeType: string,
   notation: string,
-): Promise<string | null> {
+): string | null {
   if (notation === "<enter>") {
     if (completed && config.eggLikeNewline) {
-      return isNativePum
-        ? notationToKey["<c-y>"]
-        : await denops.call("pum#map#confirm") as string;
+      switch (completeType) {
+        case "native":
+          return notationToKey["<c-y>"];
+        case "pum.vim":
+          return "<Cmd>call pum#map#confirm()";
+        case "cmp":
+          return "<Cmd>lua require('cmp').confirm({select = true})";
+      }
     }
   }
   return null;
@@ -191,7 +200,7 @@ async function handleCompleteKey(
 type CompleteInfo = {
   // Note: This is not implemeted in native completion
   inserted?: string;
-  items: string[];
+  items?: string[];
   // deno-lint-ignore camelcase
   pum_visible: boolean;
   selected: number;
@@ -199,7 +208,7 @@ type CompleteInfo = {
 
 type VimStatus = {
   completeInfo: CompleteInfo;
-  isNativePum: boolean;
+  completeType: string;
   mode: string;
 };
 
@@ -209,7 +218,7 @@ async function handle(
 ): Promise<string> {
   assertOpts(opts);
   const key = opts.key;
-  const { completeInfo, isNativePum, mode } = vimStatus as VimStatus;
+  const { completeInfo, completeType, mode } = vimStatus as VimStatus;
   const context = currentContext.get();
   const denops = context.denops!;
   context.vimMode = mode;
@@ -218,11 +227,14 @@ async function handle(
       console.log("input after complete");
     }
     const notation = keyToNotation[notationToKey[key]];
-    const completed = !!((isNativePum ||
-      completeInfo.inserted) && completeInfo.selected >= 0);
+    const completed = !!(
+      completeType === "native"
+        ? completeInfo.inserted
+        : completeInfo.selected >= 0
+    );
     if (config.debug) {
       console.log({
-        isNativePum,
+        completeType,
         inserted: completeInfo.inserted,
         selected: completeInfo.selected,
       });
@@ -231,17 +243,16 @@ async function handle(
       if (config.debug) {
         console.log("candidate selected");
         console.log({
-          candidate: completeInfo.items[completeInfo.selected],
+          candidate: completeInfo.items?.[completeInfo.selected],
           context: context.toString(),
         });
       }
       initializeState(context.state, ["converter"]);
       context.preEdit.output("");
     }
-    const handled = await handleCompleteKey(
-      denops,
+    const handled = handleCompleteKey(
       completeInfo.selected >= 0,
-      isNativePum,
+      completeType,
       notation,
     );
     if (isString(handled)) {

@@ -75,20 +75,24 @@ function! skkeleton#mode() abort
   endif
 endfunction
 
-" Handling Shougo/pum.vim
+" return [complete_type, complete_info]
 function! s:complete_info() abort
   if exists('*pum#visible') && pum#visible()
-    return pum#complete_info()
+    return ['pum.vim', pum#complete_info()]
+  elseif luaeval('pcall(require, "cmp") and require("cmp").visible()')
+    let selected = luaeval('require("cmp").get_active_entry() ~= nil')
+    return ['cmp', {'pum_visible': v:true, 'selected': selected ? 1 : -1}]
   else
-    return complete_info()
+    return ['native', complete_info()]
   endif
 endfunction
 
 function! skkeleton#vim_status() abort
+  let [complete_type, complete_info] = s:complete_info()
   let m = mode()
   return {
-  \ 'completeInfo': s:complete_info(),
-  \ 'isNativePum': pumvisible(),
+  \ 'completeInfo': complete_info,
+  \ 'completeType': complete_type,
   \ 'mode': m,
   \ }
 endfunction
