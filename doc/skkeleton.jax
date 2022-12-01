@@ -8,6 +8,13 @@ INTRODUCTION                                          *skkeleton-introduction*
 
 *skkeleton* は |denops.vim| を利用したSKK環境を提供します。
 
+REQUIRED                                                  *skkeleton-required*
+
+基本的に作者が最新のVimを利用しているため古いバージョンのVimでの動作は
+保証しませんが、テストはVim v9.0.0449 Neovim 0.8.0 以降で動かしているので
+それ以降であれば動くと思います。
+他の条件は|denops.vim|に準拠します。
+
 ==============================================================================
 INTERFACE                                                *skkeleton-interface*
 
