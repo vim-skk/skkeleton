@@ -16,20 +16,21 @@ test({
     await denops.cmd(
       'call skkeleton#register_keymap("henkan", "\\<BS>", "henkanBackward")',
     );
+
     await denops.cmd("call skkeleton#request('enable', [])");
 
     // fallback to default mapping because "x" was unmapped
-    await denops.cmd('call skkeleton#handle("handleKey", "A")');
-    await denops.cmd('call skkeleton#handle("handleKey", " ")');
-    await denops.cmd('call skkeleton#handle("handleKey", "x")');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "A"})');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": " "})');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "x"})');
     assertEquals(currentContext.get().toString(), "x");
 
     currentContext.init().denops = denops;
 
     // backward state with <BS>
-    await denops.cmd('call skkeleton#handle("handleKey", "A")');
-    await denops.cmd('call skkeleton#handle("handleKey", " ")');
-    await denops.cmd('call skkeleton#handle("handleKey", "<bs>")');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "A"})');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": " "})');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "<bs>"})');
     assertEquals(currentContext.get().toString(), "▽あ");
   },
 });

@@ -220,7 +220,6 @@ async function handle(
   const key = opts.key;
   const { completeInfo, completeType, mode } = vimStatus as VimStatus;
   const context = currentContext.get();
-  const denops = context.denops!;
   context.vimMode = mode;
   if (completeInfo.pum_visible) {
     if (config.debug) {
