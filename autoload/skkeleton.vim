@@ -48,12 +48,10 @@ function! skkeleton#config(config) abort
 endfunction
 
 function! skkeleton#register_keymap(state, key, func_name)
+    let key = keytrans(a:key)
   " normalize notation
-  if len(a:key) > 1 && a:key[0] ==# '<'
-    let key = g:skkeleton#notation#notation_to_key[tolower(a:key)]
-    let key = get(g:skkeleton#notation#key_to_notation, key, key)
-  else
-    let key = a:key
+  if len(key) != 1
+    let key = tolower(key)
   endif
   call skkeleton#request_async('registerKeyMap', [a:state, key, a:func_name])
 endfunction
