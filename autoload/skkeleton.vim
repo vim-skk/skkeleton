@@ -150,10 +150,9 @@ function! skkeleton#map() abort
   endif
   for c in g:skkeleton#mapped_keys
     " notation to lower
-    if len(c) > 1 && c[0] ==# '<'
-      let k = '<lt>' .. tolower(c[1:])
-      " normalize notation
-      let k = get(g:skkeleton#notation#key_to_notation, get(g:skkeleton#notation#notation_to_key, k), k)
+    if len(c) > 1 && c[0] ==# '<' && c !=? '<bar>'
+      let k = keytrans(eval('"\' .. c .. '"'))
+      let k = '<lt>' .. tolower(k[1:])
     else
       let k = c
     endif
