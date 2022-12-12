@@ -288,6 +288,13 @@ skkeleton#register_kanatable({tableName}, {table}, {create})
           \ 'z,': ['―'],
           \ "z\<Space>": ["\u3000"],
           \ })
+    " ヘボン式入力
+    call skkeleton#register_kanatable('rom', {
+          \   'mb': ['ん', 'b'],
+          \   'mm': ['ん', 'm'],
+          \   'mp': ['ん', 'p'],
+          \   'tch': ['っ', 'ch'],
+          \ })
 <
                                                  *skkeleton#register_keymap()*
 skkeleton#register_keymap({state}, {key}, {funcName})
