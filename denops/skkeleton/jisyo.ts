@@ -3,7 +3,7 @@ import { getKanaTable } from "./kana.ts";
 import { encoding } from "./deps/encoding_japanese.ts";
 import { wrap } from "./deps/iterator_helpers.ts";
 import { JpNum } from "./deps/japanese_numeral.ts";
-import { RomanNum } from "./deps/roman.ts";
+import { RomanNum } from "./deps/roman.js";
 import { zip } from "./deps/std/collections.ts";
 import { iterateReader } from "./deps/std/streams.ts";
 import { assertArray, isString } from "./deps/unknownutil.ts";

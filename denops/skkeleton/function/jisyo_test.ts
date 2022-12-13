@@ -28,7 +28,9 @@ test({
     };
     const context = currentContext.get();
     context.state = state;
-    await denops.cmd('autocmd CmdlineEnter * ++once call feedkeys("\\<Esc>", "n")');
+    await denops.cmd(
+      'autocmd CmdlineEnter * ++once call feedkeys("\\<Esc>", "n")',
+    );
     await jisyoTouroku(context);
 
     assertEquals(context.preEdit.output(""), "");

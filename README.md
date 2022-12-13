@@ -25,7 +25,7 @@ See
 
 This plugin is using [denops.vim](https://github.com/vim-denops/denops.vim).
 
-Required version is the same as `denops.vim`.
+Required Deno 1.28 or later, (Vim 9.0.0449 or later | Neovim 0.8.0 or later)
 
 # License
 
