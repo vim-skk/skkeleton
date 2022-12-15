@@ -2,7 +2,7 @@ import { config } from "./config.ts";
 import { Context } from "./context.ts";
 import { assertEquals } from "./deps/std/testing.ts";
 import { dispatch } from "./function/testutil.ts";
-import { currentLibrary } from "./jisyo.ts";
+import { currentLibrary } from "./store.ts";
 
 const defaultConfig = { ...config };
 

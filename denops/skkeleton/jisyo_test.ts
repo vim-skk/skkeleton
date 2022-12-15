@@ -50,7 +50,14 @@ Deno.test({
     const jisyo = wrapDictionary(await load(numJisyo, "euc-jp"));
     const manager = new Library([jisyo]);
     const nasi = await manager.getCandidate("okurinasi", "101ばん");
-    assertEquals(nasi, ["101番", "１０１番", "一〇一番", "百一番", "CI番", "佰壱番"]);
+    assertEquals(nasi, [
+      "101番",
+      "１０１番",
+      "一〇一番",
+      "百一番",
+      "CI番",
+      "佰壱番",
+    ]);
   },
 });
 
