@@ -224,8 +224,8 @@ async function handle(
     const notation = keyToNotation[notationToKey[key]];
     const completed = !!(
       completeType === "native"
-        ? completeInfo.inserted
-        : completeInfo.selected >= 0
+        ? completeInfo.selected >= 0
+        : completeInfo.inserted
     );
     if (config.debug) {
       console.log({
