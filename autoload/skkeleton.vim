@@ -77,8 +77,7 @@ endfunction
 function! s:complete_info() abort
   if exists('*pum#visible') && pum#visible()
     return ['pum.vim', pum#complete_info()]
-  elseif has('nvim') && type(luaeval('pcall(require, "cmp")')) == v:t_dict
-        \ && luaeval('require("cmp").visible()')
+  elseif has('nvim') && luaeval('select(2, pcall(function() return require("cmp").visible() == true end))')
     let selected = luaeval('require("cmp").get_active_entry() ~= nil')
     return ['cmp', {'pum_visible': v:true, 'selected': selected ? 1 : -1}]
   else
