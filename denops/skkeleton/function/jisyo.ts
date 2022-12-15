@@ -1,7 +1,7 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { batch, fn, mapping, op, vars } from "../deps.ts";
-import { currentContext } from "../main.ts";
+import { currentContext } from "../store.ts";
 import { HenkanState } from "../state.ts";
 import { kakutei } from "./common.ts";
 

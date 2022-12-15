@@ -1,7 +1,7 @@
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
 import type { Denops } from "../deps.ts";
-import { currentLibrary } from "../jisyo.ts";
+import { currentLibrary } from "../store.ts";
 import { handleKey } from "../keymap.ts";
 import { keyToNotation } from "../notation.ts";
 import { getOkuriStr } from "../okuri.ts";

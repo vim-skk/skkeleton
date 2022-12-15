@@ -1,5 +1,4 @@
 import { config, setConfig } from "./config.ts";
-import { Context } from "./context.ts";
 import { anonymous, autocmd, Denops, fn, op, vars } from "./deps.ts";
 import {
   AssertError,
@@ -10,14 +9,13 @@ import {
 import { functions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { modeChange } from "./function/mode.ts";
-import * as jisyo from "./jisyo.ts";
-import { currentLibrary, SkkServer } from "./jisyo.ts";
+import { load as jisyoLoad, SkkServer } from "./jisyo.ts";
 import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { initializeState } from "./state.ts";
+import { currentContext, currentLibrary } from "./store.ts";
 import type { CompletionData, RankData, SkkServerOptions } from "./types.ts";
-import { Cell } from "./util.ts";
 
 type Opts = {
   key: string;
@@ -33,8 +31,6 @@ function assertOpts(x: any): asserts x is Opts {
 }
 
 let initialized = false;
-
-export const currentContext = new Cell(() => new Context());
 
 function homeExpand(path: string, homePath: string): string {
   if (path[0] === "~") {
@@ -92,8 +88,8 @@ async function init(denops: Denops) {
           return [homeExpand(cfg[0], homePath), cfg[1]];
         }
       });
-  jisyo.currentLibrary.setInitializer(async () =>
-    await jisyo.load(
+  currentLibrary.setInitializer(async () =>
+    await jisyoLoad(
       globalDictionaries,
       {
         path: homeExpand(userJisyo, homePath),

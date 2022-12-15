@@ -142,7 +142,11 @@ test({
       "inoremap <expr> J denops#request('skkeleton', 'enable', [])",
     );
     await denops.call("feedkeys", "iJ\thoge\x0dhoge;hoge\x0d", "tx");
-    assertEquals(await denops.call("getline", 1, "$"), ["\tほげ", "\tほげほげ", ""]);
+    assertEquals(await denops.call("getline", 1, "$"), [
+      "\tほげ",
+      "\tほげほげ",
+      "",
+    ]);
   },
 });
 

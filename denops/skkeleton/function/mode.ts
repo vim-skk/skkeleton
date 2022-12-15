@@ -1,7 +1,7 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { autocmd, vars } from "../deps.ts";
-import { currentLibrary } from "../jisyo.ts";
+import { currentLibrary } from "../store.ts";
 import { currentKanaTable, getKanaTable } from "../kana.ts";
 import { hiraToHanKata } from "../kana/hira_hankata.ts";
 import { hiraToKata } from "../kana/hira_kata.ts";

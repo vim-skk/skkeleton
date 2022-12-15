@@ -14,7 +14,6 @@ import type {
   RankData,
   SkkServerOptions,
 } from "./types.ts";
-import { LazyCell } from "./util.ts";
 
 const okuriAriMarker = ";; okuri-ari entries.";
 const okuriNasiMarker = ";; okuri-nasi entries.";
@@ -33,13 +32,35 @@ function toKifu(n: number): string {
 
 function toZenkaku(n: number): string {
   return n.toString().replaceAll(/[0-9]/g, (c): string => {
-    const zenkakuNumbers = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"];
+    const zenkakuNumbers = [
+      "０",
+      "１",
+      "２",
+      "３",
+      "４",
+      "５",
+      "６",
+      "７",
+      "８",
+      "９",
+    ];
     return zenkakuNumbers[parseInt(c)];
   });
 }
 function toKanjiModern(n: number): string {
   return n.toString().replaceAll(/[0-9]/g, (c): string => {
-    const kanjiNumbers = ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+    const kanjiNumbers = [
+      "〇",
+      "一",
+      "二",
+      "三",
+      "四",
+      "五",
+      "六",
+      "七",
+      "八",
+      "九",
+    ];
     return kanjiNumbers[parseInt(c)];
   });
 }
@@ -654,5 +675,3 @@ export async function load(
     .concat(skkServer ? [skkServer] : []);
   return new Library(dictionaries, userDictionary);
 }
-
-export const currentLibrary = new LazyCell(() => new Library());

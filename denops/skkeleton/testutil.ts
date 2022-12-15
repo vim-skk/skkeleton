@@ -1,6 +1,7 @@
 import { fromFileUrl } from "./deps/std/path.ts";
 import { autocmd, Denops } from "./deps.ts";
-import { currentContext, main } from "./main.ts";
+import { main } from "./main.ts";
+import { currentContext } from "./store.ts";
 
 export async function initDenops(denops: Denops): Promise<void> {
   const cfile = fromFileUrl(new URL(import.meta.url));

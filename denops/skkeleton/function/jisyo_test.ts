@@ -2,7 +2,7 @@ import { Denops } from "../deps.ts";
 import { test } from "../deps/denops_test.ts";
 import { assertEquals } from "../deps/std/testing.ts";
 import { currentKanaTable, getKanaTable } from "../kana.ts";
-import { currentContext } from "../main.ts";
+import { currentContext } from "../store.ts";
 import { HenkanState } from "../state.ts";
 import { initDenops } from "../testutil.ts";
 import { jisyoTouroku } from "./jisyo.ts";
@@ -28,7 +28,9 @@ test({
     };
     const context = currentContext.get();
     context.state = state;
-    await denops.cmd('autocmd CmdlineEnter * ++once call feedkeys("\\<Esc>", "n")');
+    await denops.cmd(
+      'autocmd CmdlineEnter * ++once call feedkeys("\\<Esc>", "n")',
+    );
     await jisyoTouroku(context);
 
     assertEquals(context.preEdit.output(""), "");

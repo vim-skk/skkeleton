@@ -1,7 +1,7 @@
 import { test } from "./deps/denops_test.ts";
 import { assertEquals } from "./deps/std/testing.ts";
-import { currentLibrary } from "./jisyo.ts";
-import { currentContext } from "./main.ts";
+import { currentLibrary } from "./store.ts";
+import { currentContext } from "./store.ts";
 import { initDenops } from "./testutil.ts";
 
 test({

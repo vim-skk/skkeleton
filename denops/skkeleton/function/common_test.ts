@@ -1,7 +1,7 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { assertEquals } from "../deps/std/testing.ts";
-import { currentLibrary } from "../jisyo.ts";
+import { currentLibrary } from "../store.ts";
 import { cancel, kakutei } from "./common.ts";
 import { dispatch } from "./testutil.ts";
 
@@ -37,6 +37,9 @@ Deno.test({
     await dispatch(context, ";tyuusyaku ");
     await kakutei(context);
     assertEquals("注釈", context.preEdit.output(""));
-    assertEquals(["注釈;これは注釈です"], await lib.getCandidate("okurinasi", "ちゅうしゃく"));
+    assertEquals(
+      ["注釈;これは注釈です"],
+      await lib.getCandidate("okurinasi", "ちゅうしゃく"),
+    );
   },
 });

@@ -1,8 +1,9 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
-import { currentLibrary, HenkanType } from "../jisyo.ts";
+import { HenkanType } from "../jisyo.ts";
 import { currentKanaTable } from "../kana.ts";
 import { initializeState } from "../state.ts";
+import { currentLibrary } from "../store.ts";
 import { kakuteiFeed } from "./input.ts";
 import { modeChange } from "./mode.ts";
 
