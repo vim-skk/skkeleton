@@ -150,7 +150,7 @@ function! skkeleton#get_default_mapped_keys() abort "{{{
                 \]
 endfunction "}}}
 
-let g:skkeleton#mapped_keys = skkeleton#get_default_mapped_keys()
+let g:skkeleton#mapped_keys = extend(get(g:, 'skkeleton#mapped_keys', []), skkeleton#get_default_mapped_keys())
 
 function! skkeleton#map() abort
   if mode() ==# 'n'
