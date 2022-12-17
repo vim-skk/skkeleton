@@ -14,7 +14,7 @@ test({
     lib.registerCandidate("okurinasi", "あ", "亜");
     await denops.cmd('call skkeleton#register_keymap("henkan", "x", "")');
     await denops.cmd(
-      'call skkeleton#register_keymap("henkan", "\\<BS>", "henkanBackward")',
+      'call skkeleton#register_keymap("henkan", "<BS>", "henkanBackward")',
     );
 
     // Note: `skkeleton#handle` requires consistency of vim buffer and pre-edit buffer.
