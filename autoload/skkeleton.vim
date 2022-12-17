@@ -88,7 +88,13 @@ endfunction
 function! skkeleton#vim_status() abort
   let [complete_type, complete_info] = s:complete_info()
   let m = mode()
+  if m ==# 'i'
+    let prev_input = getline('.')[:col('.')-2]
+  else
+    let prev_input = getcmdline()[:getcmdpos()-2]
+  endif
   return {
+  \ 'prevInput': prev_input,
   \ 'completeInfo': complete_info,
   \ 'completeType': complete_type,
   \ 'mode': m,

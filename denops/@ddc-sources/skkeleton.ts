@@ -68,24 +68,11 @@ export class Source extends BaseSource<Params> {
   async onCompleteDone(
     args: OnCompleteDoneArguments<Params, CompletionMetadata>,
   ) {
-    const bufferInput = String(
-      await args.denops.eval("getline('.')[:col('.')-2]"),
-    );
-    const preEdit = String(
-      await args.denops.dispatch("skkeleton", "getPreEdit"),
-    );
-    // console.log([preEdit, args.userData.kana, bufferInput])
-    // 候補を選んだ状態でキャンセルした際も呼ばれるので弾く
-    // この際、preEditが空ではなくバッファの一部とpreEditが一致している
-    if (preEdit !== "" && bufferInput.endsWith(preEdit)) {
-      return;
-    }
-    const meta = args.userData;
     await args.denops.dispatch(
       "skkeleton",
       "completeCallback",
-      meta.kana,
-      meta.word,
+      args.userData.kana,
+      args.userData.word,
     );
   }
 }
