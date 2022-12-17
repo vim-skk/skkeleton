@@ -5,7 +5,7 @@ import { currentContext } from "./store.ts";
 import { initDenops } from "./testutil.ts";
 
 test({
-  mode: "all",
+  mode: "nvim", // can input mode test only in nvim
   name: "registerKeyMap",
   pluginName: "skkeleton",
   async fn(denops) {
@@ -17,7 +17,8 @@ test({
       'call skkeleton#register_keymap("henkan", "\\<BS>", "henkanBackward")',
     );
 
-    await denops.cmd("call skkeleton#request('enable', [])");
+    // Note: `skkeleton#handle` requires consistency of vim buffer and pre-edit buffer.
+    await denops.cmd("startinsert");
 
     // fallback to default mapping because "x" was unmapped
     await denops.cmd('call skkeleton#handle("handleKey", {"key": "A"})');

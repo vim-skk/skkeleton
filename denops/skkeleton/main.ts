@@ -194,15 +194,12 @@ function handleCompleteKey(
 }
 
 type CompleteInfo = {
-  // Note: This is not implemeted in native completion
-  inserted?: string;
-  items?: string[];
-  // deno-lint-ignore camelcase
   pum_visible: boolean;
   selected: number;
 };
 
 type VimStatus = {
+  prevInput: string;
   completeInfo: CompleteInfo;
   completeType: string;
   mode: string;
@@ -214,7 +211,8 @@ async function handle(
 ): Promise<string> {
   assertOpts(opts);
   const key = opts.key;
-  const { completeInfo, completeType, mode } = vimStatus as VimStatus;
+  const { prevInput, completeInfo, completeType, mode } =
+    vimStatus as VimStatus;
   const context = currentContext.get();
   context.vimMode = mode;
   if (completeInfo.pum_visible) {
@@ -222,28 +220,11 @@ async function handle(
       console.log("input after complete");
     }
     const notation = keyToNotation[notationToKey[key]];
-    const completed = !!(
-      completeType === "native"
-        ? completeInfo.selected >= 0
-        : completeInfo.inserted
-    );
     if (config.debug) {
       console.log({
         completeType,
-        inserted: completeInfo.inserted,
         selected: completeInfo.selected,
       });
-    }
-    if (completed) {
-      if (config.debug) {
-        console.log("candidate selected");
-        console.log({
-          candidate: completeInfo.items?.[completeInfo.selected],
-          context: context.toString(),
-        });
-      }
-      initializeState(context.state, ["converter"]);
-      context.preEdit.output("");
     }
     const handled = handleCompleteKey(
       completeInfo.selected >= 0,
@@ -253,6 +234,11 @@ async function handle(
     if (isString(handled)) {
       return handled;
     }
+  }
+  // 補完の後などpreEditとバッファが不一致している状態の時にリセットする
+  if (!prevInput.endsWith(context.toString())) {
+    initializeState(context.state, ["converter"]);
+    context.preEdit.output("");
   }
   const before = context.mode;
   if (opts.function) {
@@ -349,18 +335,6 @@ export async function main(denops: Denops) {
         word: kana,
         candidate: word,
       };
-
-      // <C-y>で呼ばれた際にstateの初期化を行う
-      // この際、preEditと候補の仮名の先頭が一致している必要がある
-      const preEdit = context.toString();
-      if (
-        config.markerHenkan.length > 0 &&
-        preEdit.length > config.markerHenkan.length &&
-        preEdit.startsWith(config.markerHenkan)
-      ) {
-        initializeState(context.state, ["converter"]);
-        context.preEdit.output("");
-      }
     },
     // deno-lint-ignore require-await
     async getConfig() {
