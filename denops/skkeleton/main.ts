@@ -349,10 +349,12 @@ export async function main(denops: Denops) {
         word: kana,
         candidate: word,
       };
+
       // <C-y>で呼ばれた際にstateの初期化を行う
-      // この際、preEditと候補の仮名の先頭が一致している
+      // この際、preEditと候補の仮名の先頭が一致している必要がある
       const preEdit = context.toString();
       if (
+        config.markerHenkan.length > 0 &&
         preEdit.length > config.markerHenkan.length &&
         preEdit.startsWith(config.markerHenkan)
       ) {
