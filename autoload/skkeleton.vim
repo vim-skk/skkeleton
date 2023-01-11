@@ -7,13 +7,10 @@ let g:skkeleton#enabled = v:false
 let g:skkeleton#mode = ''
 
 function! skkeleton#request(funcname, args) abort
-  call denops#plugin#wait('skkeleton')
-  let ret = denops#request('skkeleton', a:funcname, a:args)
-  if mode() ==# 'n'
+  if denops#plugin#wait('skkeleton') != 0
     return ''
-  else
-    return ret
   endif
+  return denops#request('skkeleton', a:funcname, a:args)
 endfunction
 
 function! s:doautocmd() abort
@@ -106,7 +103,7 @@ function! skkeleton#vim_status() abort
 endfunction
 
 function! skkeleton#handle(func, opts) abort
-  let ret = denops#request('skkeleton', a:func, [a:opts, skkeleton#vim_status()])
+  let ret = skkeleton#request(a:func, [a:opts, skkeleton#vim_status()])
   if ret =~# "^<Cmd>"
     let ret = "\<Cmd>" .. ret[5:] .. "\<CR>"
   endif
