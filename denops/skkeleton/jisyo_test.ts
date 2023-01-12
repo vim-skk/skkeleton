@@ -26,6 +26,12 @@ const numJisyo = join(
   "numJisyo",
 );
 
+const numIncludingJisyo = join(
+  dirname(fromFileUrl(import.meta.url)),
+  "testdata",
+  "numIncludingJisyo",
+);
+
 async function load(path: string, encoding: string): Promise<SKKDictionary> {
   const dic = new SKKDictionary();
   await dic.load(path, encoding);
@@ -70,6 +76,18 @@ Deno.test({
     assertEquals(nasi1, ["１一王手"]);
     const nasi2 = await manager.getCandidate("okurinasi", "111おうて");
     assertEquals(nasi2, ["111王手"]);
+  },
+});
+
+Deno.test({
+  name: "get candidates from words that include numbers",
+  async fn() {
+    const jisyo = wrapDictionary(await load(numIncludingJisyo, "utf-8"));
+    const manager = new Library([jisyo]);
+    const nasi1 = await manager.getCandidate("okurinasi", "cat2");
+    assertEquals(nasi1, ["🐈"]);
+    const nasi2 = await manager.getCandidate("okurinasi", "1000001");
+    assertEquals(nasi2, ["東京都千代田区千代田"]);
   },
 });
 
