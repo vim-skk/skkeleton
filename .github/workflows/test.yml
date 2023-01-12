@@ -1,7 +1,7 @@
 name: test
 
 env:
-  DENOPS_PATH: "../denops.vim"
+  DENOPS_TEST_DENOPS_PATH: "../denops.vim"
   DENO_DIR: ".deno"
 
 on:
