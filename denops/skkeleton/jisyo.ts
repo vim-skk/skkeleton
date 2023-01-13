@@ -140,6 +140,7 @@ export class NumberConvertWrapper implements Dictionary {
     if (word === realWord) {
       return candidate;
     } else {
+      candidate.unshift(...(await this.#inner.getCandidate(type, word)));
       return candidate.map((c) => convertNumber(c, word));
     }
   }
@@ -150,6 +151,7 @@ export class NumberConvertWrapper implements Dictionary {
     if (prefix === realPrefix) {
       return candidates;
     } else {
+      candidates.unshift(...(await this.#inner.getCandidates(prefix, feed)));
       return candidates.map((
         [kana, cand],
       ) => [kana, cand.map((c) => convertNumber(c, prefix))]);
