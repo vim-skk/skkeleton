@@ -2,9 +2,9 @@ import { config } from "../config.ts";
 import type { Context } from "../context.ts";
 import { KanaResult } from "../kana/type.ts";
 import { PreEdit } from "../preedit.ts";
-import { initializeState, InputState } from "../state.ts";
+import { InputState } from "../state.ts";
 import { henkanFirst } from "./henkan.ts";
-import { modeChange } from "./mode.ts";
+import { initializeStateWithAbbrev } from "../mode.ts";
 
 // feedが仮名に変換できる場合は確定
 export function kakuteiFeed(context: Context) {
@@ -173,13 +173,7 @@ export async function deleteChar(context: Context) {
     if (state.henkanFeed) {
       state.henkanFeed = state.henkanFeed.slice(0, -1);
     } else {
-      if (context.mode === "abbrev") {
-        context.mode = "hira";
-        await modeChange(context, "hira");
-        initializeState(state);
-      } else {
-        initializeState(state, ["converter"]);
-      }
+      await initializeStateWithAbbrev(context, ["converter"]);
     }
   } else {
     context.kakutei("\b");

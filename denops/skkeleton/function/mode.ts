@@ -1,29 +1,14 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
-import { autocmd, vars } from "../deps.ts";
-import { currentLibrary } from "../store.ts";
 import { currentKanaTable, getKanaTable } from "../kana.ts";
 import { hiraToHanKata } from "../kana/hira_hankata.ts";
 import { hiraToKata } from "../kana/hira_kata.ts";
+import { modeChange } from "../mode.ts";
 import { initializeState } from "../state.ts";
+import { currentLibrary } from "../store.ts";
 import { kakutei } from "./common.ts";
 import { henkanFirst } from "./henkan.ts";
 import { henkanPoint, kakuteiFeed } from "./input.ts";
-
-export async function modeChange(context: Context, mode: string) {
-  context.mode = mode;
-  const d = context.denops;
-  if (d) {
-    await vars.g.set(d, "skkeleton#mode", mode);
-    try {
-      await autocmd.emit(d, "User", "skkeleton-mode-changed", {
-        nomodeline: true,
-      });
-    } catch {
-      // ignore
-    }
-  }
-}
 
 export async function abbrev(context: Context) {
   if (context.state.type !== "input" || context.state.mode !== "direct") {

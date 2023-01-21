@@ -3,7 +3,7 @@ import type { Context } from "../context.ts";
 import { autocmd, op, vars } from "../deps.ts";
 import { initializeState } from "../state.ts";
 import { kakutei } from "./common.ts";
-import { modeChange } from "./mode.ts";
+import { modeChange } from "../mode.ts";
 
 export async function disable(context: Context) {
   const denops = context.denops!;

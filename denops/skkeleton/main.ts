@@ -8,7 +8,7 @@ import {
 } from "./deps/unknownutil.ts";
 import { functions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
-import { modeChange } from "./function/mode.ts";
+import { modeChange } from "./mode.ts";
 import { load as jisyoLoad, SkkServer } from "./jisyo.ts";
 import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";

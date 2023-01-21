@@ -5,7 +5,7 @@ import { currentKanaTable } from "../kana.ts";
 import { initializeState } from "../state.ts";
 import { currentLibrary } from "../store.ts";
 import { kakuteiFeed } from "./input.ts";
-import { modeChange } from "./mode.ts";
+import { initializeStateWithAbbrev } from "../mode.ts";
 
 export async function kakutei(context: Context) {
   const state = context.state;
@@ -51,12 +51,7 @@ export async function kakutei(context: Context) {
         `initializing unknown phase state: ${JSON.stringify(state)}`,
       );
   }
-  if (context.mode === "abbrev") {
-    await modeChange(context, "hira");
-    initializeState(state, []);
-    return;
-  }
-  initializeState(state, ["converter", "table"]);
+  await initializeStateWithAbbrev(context, ["converter", "table"]);
 }
 
 export async function newline(context: Context) {
