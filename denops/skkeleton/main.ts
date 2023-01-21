@@ -177,7 +177,7 @@ function handleCompleteKey(
   completeType: string,
   notation: string,
 ): string | null {
-  if (notation === "<enter>") {
+  if (notation === "<cr>") {
     if (completed && config.eggLikeNewline) {
       switch (completeType) {
         case "native":
