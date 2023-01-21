@@ -45,12 +45,13 @@ function! skkeleton#config(config) abort
 endfunction
 
 function! skkeleton#register_keymap(state, key, func_name)
-  if a:key[0] !=# '<'
-    let key = keytrans(a:key)
-  else
-    let key = a:key
-  endif
   " normalize notation
+  let key = a:key
+  if 1 < strlen(key) && key[0] ==# '<'
+    let key = eval('"\' .. key .. '"')
+  endif
+  let key = get(g:skkeleton#notation#key_to_notation, key, key)
+
   if len(key) != 1
     let key = tolower(key)
   endif
@@ -157,7 +158,7 @@ function! skkeleton#map() abort
   for c in g:skkeleton#mapped_keys
     " notation to lower
     if len(c) > 1 && c[0] ==# '<' && c !=? '<bar>'
-      let k = keytrans(eval('"\' .. c .. '"'))
+      let k = g:skkeleton#notation#key_to_notation[eval('"\' .. c .. '"')]
       let k = '<lt>' .. tolower(k[1:])
     else
       let k = c
