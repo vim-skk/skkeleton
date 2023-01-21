@@ -8,12 +8,11 @@ import {
 } from "./deps/unknownutil.ts";
 import { functions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
-import { modeChange } from "./mode.ts";
+import { initializeStateWithAbbrev, modeChange } from "./mode.ts";
 import { load as jisyoLoad, SkkServer } from "./jisyo.ts";
 import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
-import { initializeState } from "./state.ts";
 import { currentContext, currentLibrary } from "./store.ts";
 import type { CompletionData, RankData, SkkServerOptions } from "./types.ts";
 
@@ -232,12 +231,13 @@ async function handle(
       notation,
     );
     if (isString(handled)) {
+      await initializeStateWithAbbrev(context, ["converter"]);
       return handled;
     }
   }
   // 補完の後などpreEditとバッファが不一致している状態の時にリセットする
   if (!prevInput.endsWith(context.toString())) {
-    initializeState(context.state, ["converter"]);
+    await initializeStateWithAbbrev(context, ["converter"]);
     context.preEdit.output("");
   }
   const before = context.mode;
