@@ -22,6 +22,10 @@ export async function henkanFirst(context: Context, key: string) {
     return;
   }
 
+  if (context.state.henkanFeed === "") {
+    return;
+  }
+
   const state = context.state as unknown as HenkanState;
   state.type = "henkan";
   state.candidates = [];
