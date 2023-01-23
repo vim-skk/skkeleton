@@ -104,3 +104,20 @@ Deno.test({
     assertEquals(c.toString(), "▽あ");
   },
 });
+
+test({
+  mode: "all",
+  name: "mode change  at enable",
+  pluginName: "skkeleton",
+  async fn(d: Denops) {
+    await initDenops(d);
+    await autocmd.define(
+      d,
+      "User",
+      "skkeleton-mode-changed",
+      "let g:skkeleton#mode_actual = skkeleton#mode()",
+    );
+    await d.call("skkeleton#handle", "enable", {});
+    assertEquals(await vars.g.get(d, "skkeleton#mode_actual"), "hira");
+  },
+});

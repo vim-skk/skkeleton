@@ -147,8 +147,8 @@ async function enable(opts?: unknown, vimStatus?: unknown): Promise<string> {
     await denops.call("skkeleton#map");
     await op.iminsert.setLocal(denops, 1);
     await vars.b.set(denops, "keymap_name", "skkeleton");
-    await modeChange(currentContext.get(), "hira");
     await vars.g.set(denops, "skkeleton#enabled", true);
+    await modeChange(currentContext.get(), "hira");
     try {
       await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-post");
     } catch (e) {
