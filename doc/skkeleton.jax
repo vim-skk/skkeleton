@@ -159,7 +159,12 @@ skkeleton#config(dict)                                    *skkeleton#config()*
         一部の設定(現時点では辞書関係)は初回起動前に渡す必要があります。
         パスに関しては、ホームディレクトリを示す `~` のみVimの|expand()|と
         同じ方法で展開されます。
-
+>
+    " 例
+    call skkeleton#config({
+      \ 'eggLikeNewline': v:true
+      \ })
+<
 acceptIllegalResult                     *skkeleton-config-acceptIllegalResult*
         (デフォルト v:false)
         このオプションを有効にすると、Microsoft IME等と同様に
