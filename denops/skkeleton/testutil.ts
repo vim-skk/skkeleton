@@ -9,7 +9,7 @@ export async function initDenops(denops: Denops): Promise<void> {
   await denops.cmd(`set runtimepath^=${path.replaceAll("\\", "/")}`);
   await denops.cmd("source " + path + "plugin/skkeleton.vim");
   await main(denops);
-  await autocmd.emit(denops, "User", "DenopsPluginPost:skkeleton", {
+  await autocmd.emit(denops, "User", "DenopsSystemPluginPost:skkeleton", {
     nomodeline: true,
   });
   currentContext.init().denops = denops;
