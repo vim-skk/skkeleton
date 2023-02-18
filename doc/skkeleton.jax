@@ -369,7 +369,6 @@ COMPLETION                                              *skkeleton-completion*
         \     'mark': 'skkeleton',
         \     'matchers': ['skkeleton'],
         \     'sorters': [],
-        \     'minAutoCompleteLength': 2,
         \     'isVolatile': v:true,
         \   },
         \ })
@@ -419,6 +418,9 @@ sticky keyの挙動をeskk.vimに合わせる~
 
 ==============================================================================
 CHANGELOG                                                *skkeleton-changelog*
+
+2023-02-18~
+- 補完で入力が1文字の場合に完全一致した候補を出すようにした
 
 2023-01-24~
 - 有効化直後のモード切り替えイベントでモードの取得ができていなかった

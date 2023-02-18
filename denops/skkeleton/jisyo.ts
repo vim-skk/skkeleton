@@ -587,12 +587,20 @@ export class Library {
   }
 
   async getCandidates(prefix: string, feed: string): Promise<CompletionData> {
-    if (prefix.length < 2) {
-      return [];
-    }
     const collector = new Map<string, Set<string>>();
-    for (const dic of this.#dictionaries) {
-      gatherCandidates(collector, await dic.getCandidates(prefix, feed));
+    if (prefix.length == 0) {
+      return [];
+    } else if (prefix.length == 1) {
+      for (const dic of this.#dictionaries) {
+        gatherCandidates(collector, [[
+          prefix,
+          await dic.getCandidate("okurinasi", prefix),
+        ]]);
+      }
+    } else {
+      for (const dic of this.#dictionaries) {
+        gatherCandidates(collector, await dic.getCandidates(prefix, feed));
+      }
     }
     return Array.from(collector.entries())
       .map(([kana, cset]) => [kana, Array.from(cset)]);
