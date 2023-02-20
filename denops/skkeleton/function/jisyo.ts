@@ -4,6 +4,7 @@ import { batch, fn, mapping, op, vars } from "../deps.ts";
 import { currentContext } from "../store.ts";
 import { HenkanState } from "../state.ts";
 import { kakutei } from "./common.ts";
+import { modeChange } from "../mode.ts";
 
 const cmapKeys = ["<Esc>", "<C-g>"];
 
@@ -68,6 +69,8 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
     await op.virtualedit.setLocal(denops, saveVirtualedit);
     // restore stashed context
     currentContext.set(context);
+    // and mode
+    await modeChange(context, context.mode);
   }
   return false;
 }

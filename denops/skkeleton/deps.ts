@@ -1,4 +1,3 @@
-export * as anonymous from "https://deno.land/x/denops_std@v4.0.0/anonymous/mod.ts";
 export * as autocmd from "https://deno.land/x/denops_std@v4.0.0/autocmd/mod.ts";
 export * as fn from "https://deno.land/x/denops_std@v4.0.0/function/mod.ts";
 export {
