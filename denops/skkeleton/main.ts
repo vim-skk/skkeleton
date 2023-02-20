@@ -1,5 +1,5 @@
 import { config, setConfig } from "./config.ts";
-import { anonymous, autocmd, Denops, fn, op, vars } from "./deps.ts";
+import { autocmd, Denops, fn, op, vars } from "./deps.ts";
 import {
   AssertError,
   assertObject,
@@ -98,14 +98,24 @@ async function init(denops: Denops) {
     )
   );
   await receiveNotation(denops);
-  const id = anonymous.add(denops, () => {
-    currentContext.init().denops = denops;
-  })[0];
-  autocmd.group(denops, "skkeleton", (helper) => {
+  autocmd.group(denops, "skkeleton-internal-denops", (helper) => {
+    helper.remove("*");
+    // Note: 使い終わったステートを初期化する
+    //       CmdlineEnterにしてしまうと辞書登録時の呼び出しで壊れる
     helper.define(
-      ["InsertEnter"],
+      ["InsertLeave", "CmdlineLeave"],
       "*",
-      `call denops#notify('${denops.name}', '${id}', [])`,
+      `call denops#request('${denops.name}', 'reset', [])`,
+    );
+    helper.define(
+      ["InsertLeave", "CmdlineLeave"],
+      "*",
+      `setlocal iminsert=0`,
+    );
+    helper.define(
+      ["InsertLeave", "CmdlineLeave"],
+      "*",
+      `let g:skkeleton#enabled = v:false`,
     );
   });
   try {
@@ -293,6 +303,10 @@ export async function main(denops: Denops) {
     },
     handleKey(opts: unknown, vimStatus: unknown): Promise<string> {
       return handle(opts, vimStatus);
+    },
+    reset() {
+      currentContext.init().denops = denops;
+      return Promise.resolve();
     },
     //completion
     getPreEditLength(): Promise<number> {
