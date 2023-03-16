@@ -29,7 +29,7 @@ function! s:send_notify() abort
 endfunction
 
 function! skkeleton#request_async(funcname, args) abort
-  if get(g:, 'skkeleton#init', v:false)
+  if denops#plugin#is_loaded('skkeleton')
     call denops#request('skkeleton', a:funcname, a:args)
   else
     let s:pending_notify = add(get(s:, 'pending_notify', []), [a:funcname, a:args])
