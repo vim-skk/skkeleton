@@ -27,8 +27,9 @@ Vimのautocmd機能によるフック機能を提供しています。
 
 skkeleton-initialize-pre                            *skkeleton-initialize-pre*
 
-        skkeletonが初期化される前に実行されます。
-        |denops.vim|はVimと独立して再起動する場合があるので
+        skkeletonが最初に有効化された際に実行されます。
+        |denops.vim|のランタイムはVimと独立して再起動する場合があり、設定も
+        消えてしまいますが、その場合はもう一度このフックも実行されるので
         こちらのフックを利用して設定を行うことをおすすめします。
 >
     " 例
@@ -47,7 +48,7 @@ skkeleton-initialize-pre                            *skkeleton-initialize-pre*
 <
 skkeleton-initialize-post                          *skkeleton-initialize-post*
 
-        skkeletonが初期化された後に実行されます。
+        skkeletonが最初に有効化された後に実行されます。
 
 skkeleton-disable-pre                                  *skkeleton-disable-pre*
 
