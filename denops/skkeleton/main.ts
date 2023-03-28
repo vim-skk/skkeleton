@@ -242,6 +242,7 @@ async function handle(
     );
     if (isString(handled)) {
       await initializeStateWithAbbrev(context, ["converter"]);
+      context.preEdit.output("");
       return handled;
     }
   }
