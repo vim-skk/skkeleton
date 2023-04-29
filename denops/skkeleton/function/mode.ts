@@ -21,6 +21,20 @@ export async function abbrev(context: Context) {
   await modeChange(context, "abbrev");
 }
 
+export async function hirakana(context: Context) {
+  if (context.state.type !== "input") {
+    return;
+  }
+  const state = context.state;
+  if (state.mode !== "direct") {
+    await kakutei(context);
+  }
+  currentKanaTable.set("rom");
+  if (state.type === "input") state.converter = void 0;
+  initializeState(state, ["converter"]);
+  await modeChange(context, "hira");
+}
+
 export async function katakana(context: Context) {
   if (context.state.type !== "input") {
     return;

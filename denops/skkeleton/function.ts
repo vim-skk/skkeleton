@@ -8,7 +8,13 @@ import {
   henkanInput,
 } from "./function/henkan.ts";
 import { deleteChar, henkanPoint, kakuteiFeed } from "./function/input.ts";
-import { abbrev, hankatakana, katakana, zenkaku } from "./function/mode.ts";
+import {
+  abbrev,
+  hankatakana,
+  hirakana,
+  katakana,
+  zenkaku,
+} from "./function/mode.ts";
 import { Cell } from "./util.ts";
 
 export type Func = (
@@ -36,6 +42,7 @@ export const functions = new Cell<Record<string, Func>>(() => ({
   deleteChar,
   // mode
   abbrev,
+  hirakana,
   katakana,
   hankatakana,
   zenkaku,

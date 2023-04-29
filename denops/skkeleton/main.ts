@@ -9,6 +9,7 @@ import {
 import { functions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { initializeStateWithAbbrev, modeChange } from "./mode.ts";
+import { hirakana } from "./function/mode.ts";
 import { load as jisyoLoad, SkkServer } from "./jisyo.ts";
 import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
@@ -166,6 +167,9 @@ async function enable(opts?: unknown, vimStatus?: unknown): Promise<string> {
     }
     return "\x1e"; // <C-^>
   } else {
+    if (context.mode === "zenkaku") {
+      hirakana(context);
+    }
     return "";
   }
 }
