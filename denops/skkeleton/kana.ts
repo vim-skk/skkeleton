@@ -14,6 +14,7 @@ const tables: Cell<Record<string, KanaTable>> = new Cell(() => ({
 
 export const currentKanaTable = new Cell(() => "rom");
 
+
 export function getKanaTable(name = currentKanaTable.get()): KanaTable {
   const table = tables.get()[name];
   if (!table) {
@@ -21,6 +22,7 @@ export function getKanaTable(name = currentKanaTable.get()): KanaTable {
   }
   return table;
 }
+
 
 function asKanaResult(result: unknown): KanaResult {
   if (typeof result === "string") {
@@ -52,11 +54,20 @@ export function registerKanaTable(
   const table: KanaTable = Object.entries(rawTable).map((
     e,
   ) => [e[0], asKanaResult(e[1])]);
+  injectKanaTable(name, table, create);
+}
+
+
+
+/*
+ * Concat given kanaTable to the table named `name`.
+ * When the table is not found, create if create=true; otherwise throws `table ${name} is not found`.
+ */
+function injectKanaTable(name: string, table: KanaTable, create = false) {
   const t = tables.get();
   if (!t[name] && !create) {
     throw Error(`table ${name} is not found.`);
   }
-  const newTable = distinctBy([...table, ...t[name] ?? []], (it) => it[0])
+  t[name] = distinctBy([...table, ...t[name]], (it) => it[0])
     .sort((a, b) => a[0].localeCompare(b[0]));
-  t[name] = newTable;
 }
