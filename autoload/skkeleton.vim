@@ -172,7 +172,9 @@ function! skkeleton#map() abort
         let func = match[1]
       endif
     endfor
-    execute printf('lnoremap <buffer> <nowait> %s <Cmd>call skkeleton#handle(%s, {"key": %s})<CR>', c, string(func), string(k))
+    execute printf('%snoremap <buffer> <nowait> %s <Cmd>call skkeleton#handle(%s, {"key": %s})<CR>',
+          \ mode() ==# 't' ? 't' : 'l',
+          \ c, string(func), string(k))
   endfor
 endfunction
 
