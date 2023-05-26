@@ -196,6 +196,7 @@ globalDictionaries                       *skkeleton-config-globalDictionaries*
     値の例: [["/usr/share/skk/SKK-JISYO.L", "euc-jp"],
              "~/.skk/SKK-JISYO.emoji"]
 <
+
 globalJisyo                                     *skkeleton-config-globalJisyo*
         (デフォルト "/usr/share/skk/SKK-JISYO.L")
         グローバル辞書のパス
@@ -230,7 +231,15 @@ kanaTable                                         *skkeleton-config-kanaTable*
         存在するテーブルのみ指定できます。存在しないテーブルを指定したい場合は
         |skkeleton#register_kanatable()| で先にテーブルを作成してください。
 
-
+globalKanaTableFiles                    *skkeleton-config-globalKanaTableFiles*
+        (デフォルト [])
+        複数のカナ変換テーブルを使用する際に指定するオプションです。
+        指定する値はグローバル辞書のパスまたは
+        パスとエンコーディングからなるタプルの配列になります。
+        エンコーディングを指定しない場合は自動判定されます。
+>
+    値の例: [["/usr/share/skk/azik_us.rule, "euc-jp"]]
+<
 keepState                                         *skkeleton-config-keepState*
         (デフォルト v:false)
         このオプションを有効にすると
