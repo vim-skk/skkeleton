@@ -7,21 +7,21 @@ import {
   isString,
 } from "./deps/unknownutil.ts";
 import { getKanaTable, loadKanaTableFiles } from "./kana.ts";
-import { Encode, Encoding } from "./types.ts";
+import { ConfigOptions, Encode, Encoding } from "./types.ts";
 import { homeExpand } from "./util.ts";
 
-export const config = {
+export const config: ConfigOptions = {
   acceptIllegalResult: false,
   completionRankFile: "",
   debug: false,
   eggLikeNewline: false,
-  globalDictionaries: [] as (string | [string, string])[],
+  globalDictionaries: [],
   globalJisyo: "/usr/share/skk/SKK-JISYO.L",
   globalJisyoEncoding: "euc-jp",
   immediatelyCancel: true,
   immediatelyJisyoRW: true,
   kanaTable: "rom",
-  globalKanaTableFiles: [] as (string | [string, string])[],
+  globalKanaTableFiles: [],
   keepState: false,
   markerHenkan: "▽",
   markerHenkanSelect: "▼",
@@ -31,8 +31,8 @@ export const config = {
   showCandidatesCount: 4,
   skkServerHost: "127.0.0.1",
   skkServerPort: 1178,
-  skkServerReqEnc: "euc-jp" as Encoding,
-  skkServerResEnc: "euc-jp" as Encoding,
+  skkServerReqEnc: "euc-jp",
+  skkServerResEnc: "euc-jp",
   usePopup: true,
   useSkkServer: false,
   userJisyo: "~/.skkeleton",
