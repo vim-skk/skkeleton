@@ -1,3 +1,4 @@
+import { Denops } from "./deps.ts";
 import {
   assertBoolean,
   assertNumber,
@@ -5,8 +6,9 @@ import {
   isArray,
   isString,
 } from "./deps/unknownutil.ts";
-import { getKanaTable } from "./kana.ts";
+import { getKanaTable, loadKanaTableFiles } from "./kana.ts";
 import { Encode, Encoding } from "./types.ts";
+import { homeExpand } from "./util.ts";
 
 export const config = {
   acceptIllegalResult: false,
@@ -112,7 +114,10 @@ const validators: Validators = {
   userJisyo: assertString,
 };
 
-export function setConfig(newConfig: Record<string, unknown>) {
+export async function setConfig(
+  newConfig: Record<string, unknown>,
+  denops: Denops,
+) {
   const cfg = config as Record<string, unknown>;
   const val = validators as Record<string, (x: unknown) => void>;
   if (config.debug) {
@@ -131,4 +136,13 @@ export function setConfig(newConfig: Record<string, unknown>) {
       throw Error(`Illegal option detected: ${e}`);
     }
   }
+
+  const files = config.globalKanaTableFiles.map(async (
+    x,
+  ): Promise<string | [string, string]> =>
+    Array.isArray(x)
+      ? [await homeExpand(x[0], denops), x[1]]
+      : await homeExpand(x, denops)
+  );
+  console.log(await loadKanaTableFiles(await Promise.all(files)));
 }

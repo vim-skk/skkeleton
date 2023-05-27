@@ -57,8 +57,9 @@ export function registerKanaTable(
 
 export async function loadKanaTableFiles(
   payload: (string | [string, string])[],
-): Promise<void> {
+): Promise<KanaTable> {
   const table: KanaTable = [];
+
   const tasks = payload.map(async (v) => {
     const [path, encodingName] = Array.isArray(v) ? v : [v, undefined];
     const file = await readFileWithEncoding(path, encodingName);
@@ -76,8 +77,8 @@ export async function loadKanaTableFiles(
   });
 
   await Promise.all(tasks);
-  console.log(`table: ${table}`);
   injectKanaTable("rom", table);
+  return table;
 }
 
 /*

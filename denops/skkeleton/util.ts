@@ -1,3 +1,4 @@
+import { Denops, fn } from "./deps.ts";
 import { encoding } from "./deps/encoding_japanese.ts";
 
 export class Cell<T> {
@@ -62,6 +63,18 @@ export class LazyCell<T> {
 
   setInitializer(initializer: () => Promise<T>) {
     this.lazyInitializer = initializer;
+  }
+}
+
+export async function homeExpand(
+  path: string,
+  denops: Denops,
+): Promise<string> {
+  const homePath = await fn.expand(denops, "~") as string;
+  if (path[0] === "~") {
+    return homePath + path.slice(1);
+  } else {
+    return path;
   }
 }
 
