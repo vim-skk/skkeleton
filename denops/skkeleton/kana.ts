@@ -55,12 +55,12 @@ export function registerKanaTable(
   injectKanaTable(name, table, create);
 }
 
-
-export async function loadKanaTableFiles(payload: (string | [string, string])[]): Promise<void> {
-  
+export async function loadKanaTableFiles(
+  payload: (string | [string, string])[],
+): Promise<void> {
   const table: KanaTable = [];
-
-  const tasks = payload.map(async ([path, encodingName]) => {
+  const tasks = payload.map(async (v) => {
+    const [path, encodingName] = Array.isArray(v) ? v : [v, undefined];
     const file = await readFileWithEncoding(path, encodingName);
     const lines = file.split("\n");
     for (const line of lines) {
@@ -76,6 +76,7 @@ export async function loadKanaTableFiles(payload: (string | [string, string])[])
   });
 
   await Promise.all(tasks);
+  console.log(`table: ${table}`);
   injectKanaTable("rom", table);
 }
 
