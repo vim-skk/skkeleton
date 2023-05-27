@@ -57,7 +57,7 @@ export function registerKanaTable(
 
 export async function loadKanaTableFiles(
   payload: (string | [string, string])[],
-): Promise<KanaTable> {
+): Promise<void> {
   const table: KanaTable = [];
 
   const tasks = payload.map(async (v) => {
@@ -78,7 +78,6 @@ export async function loadKanaTableFiles(
 
   await Promise.all(tasks);
   injectKanaTable("rom", table);
-  return table;
 }
 
 /*

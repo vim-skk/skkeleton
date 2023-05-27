@@ -144,5 +144,5 @@ export async function setConfig(
       ? [await homeExpand(x[0], denops), x[1]]
       : await homeExpand(x, denops)
   );
-  console.log(await loadKanaTableFiles(await Promise.all(files)));
+  await loadKanaTableFiles(await Promise.all(files));
 }
