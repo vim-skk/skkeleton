@@ -89,6 +89,6 @@ function injectKanaTable(name: string, table: KanaTable, create = false) {
   if (!t[name] && !create) {
     throw Error(`table ${name} is not found.`);
   }
-  t[name] = distinctBy([...table, ...t[name]], (it) => it[0])
+  t[name] = distinctBy([...table, ...t[name] ?? []], (it) => it[0])
     .sort((a, b) => a[0].localeCompare(b[0]));
 }
