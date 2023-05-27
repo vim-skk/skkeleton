@@ -66,12 +66,12 @@ export class LazyCell<T> {
   }
 }
 
-let homePath: string | null = null;
+let homePath: string | undefined = undefined;
 export async function homeExpand(
   path: string,
   denops: Denops,
 ): Promise<string> {
-  if (homePath === null) {
+  if (homePath === undefined) {
     homePath = await fn.expand(denops, "~") as string;
   }
   if (path[0] === "~") {
