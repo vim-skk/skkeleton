@@ -19,6 +19,7 @@ export const config = {
   immediatelyCancel: true,
   immediatelyJisyoRW: true,
   kanaTable: "rom",
+  globalKanaTableFiles: [] as (string | [string, string])[],
   keepState: false,
   markerHenkan: "▽",
   markerHenkanSelect: "▼",
@@ -65,6 +66,19 @@ const validators: Validators = {
       getKanaTable(x);
     } catch {
       throw TypeError("can't use undefined kanaTable: " + x);
+    }
+  },
+  globalKanaTableFiles: (x): asserts x is (string | [string, string])[] => {
+    if (
+      !isArray(
+        x,
+        (x): x is string | [string, string] =>
+          isString(x) || isArray(x, isString) && x.length === 2,
+      )
+    ) {
+      throw TypeError(
+        "'globalKanaTableFiles' must be array of two string tuple",
+      );
     }
   },
   keepState: assertBoolean,

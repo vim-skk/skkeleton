@@ -5,7 +5,7 @@ import { functions } from "./function.ts";
 import { romToHira } from "./kana/rom_hira.ts";
 import { romToZen } from "./kana/rom_zen.ts";
 import type { KanaResult, KanaTable } from "./kana/type.ts";
-import { Cell } from "./util.ts";
+import { Cell, readFileWithEncoding } from "./util.ts";
 
 const tables: Cell<Record<string, KanaTable>> = new Cell(() => ({
   "rom": romToHira,
@@ -14,7 +14,6 @@ const tables: Cell<Record<string, KanaTable>> = new Cell(() => ({
 
 export const currentKanaTable = new Cell(() => "rom");
 
-
 export function getKanaTable(name = currentKanaTable.get()): KanaTable {
   const table = tables.get()[name];
   if (!table) {
@@ -22,7 +21,6 @@ export function getKanaTable(name = currentKanaTable.get()): KanaTable {
   }
   return table;
 }
-
 
 function asKanaResult(result: unknown): KanaResult {
   if (typeof result === "string") {
@@ -58,6 +56,28 @@ export function registerKanaTable(
 }
 
 
+export async function loadKanaTableFiles(payload: (string | [string, string])[]): Promise<void> {
+  
+  const table: KanaTable = [];
+
+  const tasks = payload.map(async ([path, encodingName]) => {
+    const file = await readFileWithEncoding(path, encodingName);
+    const lines = file.split("\n");
+    for (const line of lines) {
+      if (line.startsWith("#")) {
+        continue;
+      }
+      if (line.trim() === "") {
+        continue;
+      }
+      const [from, result] = line.split(",");
+      table.push([from, [result, ""]]);
+    }
+  });
+
+  await Promise.all(tasks);
+  injectKanaTable("rom", table);
+}
 
 /*
  * Concat given kanaTable to the table named `name`.

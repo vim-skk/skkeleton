@@ -10,7 +10,11 @@ import { functions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { initializeStateWithAbbrev, modeChange } from "./mode.ts";
 import { load as jisyoLoad, SkkServer } from "./jisyo.ts";
-import { currentKanaTable, registerKanaTable } from "./kana.ts";
+import {
+  currentKanaTable,
+  loadKanaTableFiles,
+  registerKanaTable,
+} from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { currentContext, currentLibrary } from "./store.ts";
@@ -87,6 +91,7 @@ async function init(denops: Denops) {
           return [homeExpand(cfg[0], homePath), cfg[1]];
         }
       });
+  await loadKanaTableFiles(config.globalKanaTableFiles);
   currentLibrary.setInitializer(async () =>
     await jisyoLoad(
       globalDictionaries,
