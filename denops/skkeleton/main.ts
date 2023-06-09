@@ -339,6 +339,10 @@ export async function main(denops: Denops) {
       const lib = await currentLibrary.get();
       return Promise.resolve(lib.getRanks(state.henkanFeed));
     },
+    async registerCandidate(kana: unknown, word: unknown) {
+      // Note: This method is compatible to completion source
+      await denops.dispatcher.completeCallback(kana, word);
+    },
     async completeCallback(kana: unknown, word: unknown) {
       assertString(kana);
       assertString(word);
