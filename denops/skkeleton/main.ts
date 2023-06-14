@@ -23,8 +23,12 @@ type Opts = {
 };
 
 // deno-lint-ignore no-explicit-any
-function assertOpts(x: any): asserts x is Opts {
-  if (typeof x?.key !== "string") {
+function isOpts(x: any): x is Opts {
+  return typeof x?.key === "string";
+}
+
+function assertOpts(x: unknown): asserts x is Opts {
+  if (!isOpts(x)) {
     throw new AssertError("value must be Opts");
   }
 }
@@ -135,7 +139,7 @@ async function enable(opts?: unknown, vimStatus?: unknown): Promise<string> {
     return "";
   }
   if (
-    (state.type !== "input" || state.mode !== "direct") && opts && vimStatus
+    (state.type !== "input" || state.mode !== "direct") && isOpts(opts) && vimStatus
   ) {
     return handle(opts, vimStatus);
   }
@@ -174,7 +178,7 @@ async function disable(opts?: unknown, vimStatus?: unknown): Promise<string> {
   const context = currentContext.get();
   const state = currentContext.get().state;
   if (
-    (state.type !== "input" || state.mode !== "direct") && opts && vimStatus
+    (state.type !== "input" || state.mode !== "direct") && isOpts(opts) && vimStatus
   ) {
     return handle(opts, vimStatus);
   }
