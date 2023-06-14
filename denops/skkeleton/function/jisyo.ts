@@ -61,7 +61,6 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
         }
       }
       // restore skkeleton mode
-      await op.iminsert.setLocal(denops, 1);
       await denops.call("skkeleton#map");
       await vars.g.set(denops, "skkeleton#enabled", true);
       await denops.cmd("redrawstatus");

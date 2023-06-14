@@ -151,12 +151,20 @@ endfunction "}}}
 
 let g:skkeleton#mapped_keys = extend(get(g:, 'skkeleton#mapped_keys', []), skkeleton#get_default_mapped_keys())
 
+let s:mapbuf = {}
+
 function! skkeleton#map() abort
   if mode() ==# 'n'
     let modes = ['i', 'c']
+    let mode = 'i'
   else
     let modes = [mode()]
+    let mode = mode()
   endif
+  let b = bufnr()
+  let s:mapbuf[b] = get(s:mapbuf, b, {})
+  let s:mapbuf[b][mode] = get(s:mapbuf[b], mode, {})
+  let mapbuf = s:mapbuf[b][mode]
   for c in g:skkeleton#mapped_keys
     " notation to lower
     if len(c) > 1 && c[0] ==# '<' && c !=? '<bar>'
@@ -172,16 +180,35 @@ function! skkeleton#map() abort
         let func = match[1]
       endif
     endfor
+    let mapbuf[c] = get(mapbuf, c, maparg(c, mode, v:false, v:true))
     execute printf('%snoremap <buffer> <nowait> %s <Cmd>call skkeleton#handle(%s, {"key": %s})<CR>',
-          \ mode() ==# 't' ? 't' : 'l',
+          \ mode,
           \ c, string(func), string(k))
   endfor
 endfunction
 
 function! skkeleton#unmap() abort
-  for c in skkeleton#get_default_mapped_keys()
-    silent! execute printf('lunmap <buffer> %s', c)
+  let b = bufnr()
+  let mapbuf = get(s:mapbuf, b, {})
+  for [mode, keys] in items(mapbuf)
+    for [key, map] in items(keys)
+      if get(map, 'buffer', 0)
+        call mapset(mode, v:false, map)
+      else
+        execute printf('%sunmap <buffer> %s', mode, key)
+      endif
+    endfor
   endfor
+  let s:mapbuf[b] = {}
+endfunction
+
+function! skkeleton#disable()
+  if g:skkeleton#enabled
+    doautocmd <nomodeline> User skkeleton-disable-pre
+    call skkeleton#unmap()
+    doautocmd <nomodeline> User skkeleton-disable-post
+    let g:skkeleton#enabled = v:false
+  endif
 endfunction
 
 let s:windows = []
