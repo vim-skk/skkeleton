@@ -1,6 +1,6 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
-import { batch, fn, mapping, op, vars } from "../deps.ts";
+import { autocmd, batch, fn, mapping, op, vars } from "../deps.ts";
 import { currentContext } from "../store.ts";
 import { HenkanState } from "../state.ts";
 import { kakutei } from "./common.ts";
@@ -10,7 +10,6 @@ const cmapKeys = ["<Esc>", "<C-g>"];
 
 export async function jisyoTouroku(context: Context): Promise<boolean> {
   const denops = context.denops!;
-  await Promise.resolve();
   const state = context.state as HenkanState;
   const cmap = await Promise.all(
     cmapKeys.map(async (
@@ -35,6 +34,9 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
     const base = "[辞書登録] " + state.henkanFeed;
     const okuri = state.mode === "okuriari" ? "*" + state.okuriFeed : "";
     currentContext.init().denops = denops;
+    await autocmd.define(denops, "CmdlineEnter", "*", "call skkeleton#map()", {
+      once: true,
+    });
     const input = await fn.input(denops, base + okuri + ": ");
     if (input === "" || input.includes("__skkeleton_return__")) {
       await denops.cmd("echo '' | redraw");
