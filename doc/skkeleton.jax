@@ -324,6 +324,11 @@ skkeleton#register_kanatable({tableName}, {table}, {create})
           \   'mp': ['ん', 'p'],
           \   'tch': ['っ', 'ch'],
           \ })
+    " 句読点を全角英字に変える
+    call skkeleton#register_kanatable('rom', {
+          \   ',': ['，', ''],
+          \   '.': ['．', ''],
+          \ })
 <
                                                  *skkeleton#register_keymap()*
 skkeleton#register_keymap({state}, {key}, {funcName})
