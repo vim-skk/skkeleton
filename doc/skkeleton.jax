@@ -78,6 +78,10 @@ skkeleton-mode-changed                                *skkeleton-mode-changed*
       autocmd User skkeleton-mode-changed redrawstatus
     augroup END
 <
+skkeleton-handled                                          *skkeleton-handled*
+
+        入力がハンドリングされた後に呼び出されます。
+        呼び出しの前に|g:skkeleton#state|に状態が代入されます。
 
 ------------------------------------------------------------------------------
 KEYMAPPINGS                                            *skkeleton-keymappings*
@@ -146,6 +150,17 @@ skkeleton#mode()                                            *skkeleton#mode()*
                 "hankata": 半角カタカナ
                 "zenkaku": 全角英数
                 "abbrev":  abbrev
+
+g:skkeleton#state                                          *g:skkeleton#state*
+
+        最後にハンドリングが実行された際の状態から生成される値です。
+        以下の内容から構成されます
+
+                phase: 入力の段階
+                    "input"            直接入力
+                    "input:okurinasi"  送りなし入力
+                    "input:okuriari"   送りあり入力
+                    "henkan"           変換
 
 ------------------------------------------------------------------------------
 CONFIG                                                      *skkeleton-config*
@@ -420,6 +435,9 @@ sticky keyの挙動をeskk.vimに合わせる~
 
 ==============================================================================
 CHANGELOG                                                *skkeleton-changelog*
+
+2023-06-23~
+- 状態取得のために|g:skkeleton#state|を追加した
 
 2023-06-17~
 - 伸ばし棒が半角カナの変換対象になっていなかったので修正

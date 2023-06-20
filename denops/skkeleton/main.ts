@@ -22,6 +22,25 @@ type Opts = {
   expr?: boolean;
 };
 
+type CompleteInfo = {
+  pum_visible: boolean;
+  selected: number;
+};
+
+type VimStatus = {
+  prevInput: string;
+  completeInfo: CompleteInfo;
+  completeType: string;
+  mode: string;
+};
+
+type HandleResult = {
+  state: {
+    phase: string;
+  };
+  result: string;
+};
+
 // deno-lint-ignore no-explicit-any
 function isOpts(x: any): x is Opts {
   return typeof x?.key === "string";
@@ -208,18 +227,6 @@ function handleCompleteKey(
   return null;
 }
 
-type CompleteInfo = {
-  pum_visible: boolean;
-  selected: number;
-};
-
-type VimStatus = {
-  prevInput: string;
-  completeInfo: CompleteInfo;
-  completeType: string;
-  mode: string;
-};
-
 async function handle(
   opts: unknown,
   vimStatus: unknown,
@@ -270,6 +277,28 @@ async function handle(
   return output;
 }
 
+function buildResult(result: string): HandleResult {
+  const state = currentContext.get().state;
+  let phase = "";
+  if (state.type === "input") {
+    if (state.mode === "okurinasi") {
+      phase = "input:okurinasi";
+    } else if (state.mode === "okuriari") {
+      phase = "input:okuriari";
+    } else {
+      phase = "input";
+    }
+  } else {
+    phase = "henkan";
+  }
+  return {
+    state: {
+      phase,
+    },
+    result,
+  };
+}
+
 export async function main(denops: Denops) {
   if (await vars.g.get(denops, "skkeleton#debug", false)) {
     config.debug = true;
@@ -291,25 +320,25 @@ export async function main(denops: Denops) {
       registerKanaTable(tableName, table, !!create);
       return Promise.resolve();
     },
-    async enable(opts: unknown, vimStatus: unknown): Promise<string> {
+    async enable(opts: unknown, vimStatus: unknown): Promise<HandleResult> {
       await init(denops);
-      return await enable(opts, vimStatus);
+      return buildResult(await enable(opts, vimStatus));
     },
-    async disable(opts: unknown, vimStatus: unknown): Promise<string> {
+    async disable(opts: unknown, vimStatus: unknown): Promise<HandleResult> {
       await init(denops);
-      return await disable(opts, vimStatus);
+      return buildResult(await disable(opts, vimStatus));
     },
-    async toggle(opts: unknown, vimStatus: unknown): Promise<string> {
+    async toggle(opts: unknown, vimStatus: unknown): Promise<HandleResult> {
       await init(denops);
       const mode = await vars.g.get(denops, "skkeleton#mode", "");
       if (await denops.eval("&l:iminsert") !== 1 || mode === "") {
-        return await enable(opts, vimStatus);
+        return buildResult(await enable(opts, vimStatus));
       } else {
-        return await disable(opts, vimStatus);
+        return buildResult(await disable(opts, vimStatus));
       }
     },
-    handleKey(opts: unknown, vimStatus: unknown): Promise<string> {
-      return handle(opts, vimStatus);
+    async handleKey(opts: unknown, vimStatus: unknown): Promise<HandleResult> {
+      return buildResult(await handle(opts, vimStatus));
     },
     reset() {
       currentContext.init().denops = denops;

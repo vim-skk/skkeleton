@@ -5,6 +5,9 @@ augroup END
 
 let g:skkeleton#enabled = v:false
 let g:skkeleton#mode = ''
+let g:skkeleton#state = #{
+\   phase: '',
+\ }
 
 function! skkeleton#request(funcname, args) abort
   if denops#plugin#wait('skkeleton') != 0
@@ -105,14 +108,16 @@ endfunction
 
 function! skkeleton#handle(func, opts) abort
   let ret = skkeleton#request(a:func, [a:opts, skkeleton#vim_status()])
-  if ret =~# "^<Cmd>"
-    let ret = "\<Cmd>" .. ret[5:] .. "\<CR>"
+  let g:skkeleton#state = ret.state
+  let result = ret.result
+  if result =~# "^<Cmd>"
+    let result = "\<Cmd>" .. result[5:] .. "\<CR>"
   endif
   call skkeleton#doautocmd()
   if get(a:opts, 'expr', v:false)
-    return ret
+    return result
   else
-    call feedkeys(ret, 'nit')
+    call feedkeys(result, 'nit')
   endif
 endfunction
 
