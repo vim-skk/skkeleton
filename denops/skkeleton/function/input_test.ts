@@ -139,7 +139,7 @@ test({
     await op.autoindent.setLocal(denops, true);
     await denops.cmd("startinsert");
     await denops.cmd(
-      "inoremap <expr> J denops#request('skkeleton', 'enable', [])",
+      "inoremap J <Cmd>call skkeleton#handle('enable', {})<CR>",
     );
     await denops.call("feedkeys", "iJ\thoge\x0dhoge;hoge\x0d", "tx");
     assertEquals(await denops.call("getline", 1, "$"), [
