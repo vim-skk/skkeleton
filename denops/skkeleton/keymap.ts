@@ -5,7 +5,6 @@ import { cancel, kakutei, newline, purgeCandidate } from "./function/common.ts";
 import { escape } from "./function/disable.ts";
 import {
   henkanBackward,
-  henkanFirst,
   henkanForward,
   henkanInput,
 } from "./function/henkan.ts";
