@@ -115,20 +115,16 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
 
 input:
         <BS>      : |skkeleton-functions-deleteChar|
-        <C-Space> : |skkeleton-functions-henkanFirst|
         <C-g>     : |skkeleton-functions-cancel|
         <C-h>     : |skkeleton-functions-deleteChar|
         <C-q>     : |skkeleton-functions-hankatakana|
         <CR>      : |skkeleton-functions-newline|
         <Esc>     : |skkeleton-functions-escape|
         <NL>      : |skkeleton-functions-kakutei|
-        <S-Space> : |skkeleton-functions-henkanFirst|
 henkan:
-        <C-Space> : |skkeleton-functions-henkanForward|
         <C-g>     : |skkeleton-functions-cancel|
         <CR>      : |skkeleton-functions-newline|
         <NL>      : |skkeleton-functions-kakutei|
-        <S-Space> : |skkeleton-functions-henkanForward|
         <Space>   : |skkeleton-functions-henkanForward|
         X         : |skkeleton-function-purgeCandidate|
         x         : |skkeleton-function-henkanBackward|
