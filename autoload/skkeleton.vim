@@ -116,7 +116,6 @@ function! skkeleton#handle(func, opts) abort
   endif
 endfunction
 
-" copied from eskk.vim
 function! skkeleton#get_default_mapped_keys() abort "{{{
     return split(
                 \   'abcdefghijklmnopqrstuvwxyz'
@@ -134,8 +133,6 @@ function! skkeleton#get_default_mapped_keys() abort "{{{
                 \   '<C-h>',
                 \   '<CR>',
                 \   '<Space>',
-                \   '<C-Space>',
-                \   '<S-Space>',
                 \   '<C-q>',
                 \   '<PageUp>',
                 \   '<PageDown>',
