@@ -53,6 +53,9 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
     }
   } finally {
     await batch(denops, async (denops) => {
+      await autocmd.emit(denops, "User", "skkeleton-enable-pre", {
+        nomodeline: true,
+      });
       // restore mapping
       for (const m of cmap) {
         if (m.map?.buffer) {
@@ -72,6 +75,9 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
     currentContext.set(context);
     // and mode
     await modeChange(context, context.mode);
+    await autocmd.emit(denops, "User", "skkeleton-enable-post", {
+      nomodeline: true,
+    });
   }
   return false;
 }
