@@ -95,6 +95,10 @@ function! skkeleton#vim_status() abort
   let m = mode()
   if m ==# 'i'
     let prev_input = getline('.')[:col('.')-2]
+  elseif m ==# 't'
+    let current_line = has('nvim') ? getline('.') : term_getline('', '.')
+    let col = has('nvim') ? col('.') : term_getcursor(bufnr('%'))[1]
+    let prev_input = current_line[:col-2]
   else
     let prev_input = getcmdline()[:getcmdpos()-2]
   endif
