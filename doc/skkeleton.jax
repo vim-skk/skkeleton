@@ -95,6 +95,7 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
     " 例
     imap <C-j> <Plug>(skkeleton-enable)
     cmap <C-j> <Plug>(skkeleton-enable)
+    tmap <C-j> <Plug>(skkeleton-enable)
 <
 
 <Plug>(skkeleton-disable) (ic)                       *<Plug>(skkeleton-disable)*
@@ -104,6 +105,7 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
     " 例
     imap <C-j> <Plug>(skkeleton-disable)
     cmap <C-j> <Plug>(skkeleton-disable)
+    tmap <C-j> <Plug>(skkeleton-disable)
 <
 
 <Plug>(skkeleton-toggle) (ic)                       *<Plug>(skkeleton-toggle)*
@@ -113,6 +115,7 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
     " 例
     imap <C-j> <Plug>(skkeleton-toggle)
     cmap <C-j> <Plug>(skkeleton-toggle)
+    tmap <C-j> <Plug>(skkeleton-toggle)
 <
 有効時のマッピングは以下の通りです。
 こちらの定義は|skkeleton#register_keymap()|で変更できます
@@ -441,6 +444,11 @@ sticky keyの挙動をeskk.vimに合わせる~
 >
     call skkeleton#register_keymap('input', ';', 'henkanPoint')
 <
+
+Vim の端末モードで漢字変換ができない~
+
+Vim は |:terminal| の挙動が異なるので漢字の変換をサポートしていません。neovim
+は動作します。
 
 ==============================================================================
 CHANGELOG                                                *skkeleton-changelog*
