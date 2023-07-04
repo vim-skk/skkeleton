@@ -1,3 +1,4 @@
+import { Denops } from "./deps.ts";
 import {
   assertBoolean,
   assertNumber,
@@ -5,20 +6,22 @@ import {
   isArray,
   isString,
 } from "./deps/unknownutil.ts";
-import { getKanaTable } from "./kana.ts";
-import { Encode, Encoding } from "./types.ts";
+import { getKanaTable, loadKanaTableFiles } from "./kana.ts";
+import { ConfigOptions, Encode, Encoding } from "./types.ts";
+import { homeExpand } from "./util.ts";
 
-export const config = {
+export const config: ConfigOptions = {
   acceptIllegalResult: false,
   completionRankFile: "",
   debug: false,
   eggLikeNewline: false,
-  globalDictionaries: [] as (string | [string, string])[],
+  globalDictionaries: [],
   globalJisyo: "/usr/share/skk/SKK-JISYO.L",
   globalJisyoEncoding: "euc-jp",
   immediatelyCancel: true,
   immediatelyJisyoRW: true,
   kanaTable: "rom",
+  globalKanaTableFiles: [],
   keepState: false,
   markerHenkan: "▽",
   markerHenkanSelect: "▼",
@@ -28,8 +31,8 @@ export const config = {
   showCandidatesCount: 4,
   skkServerHost: "127.0.0.1",
   skkServerPort: 1178,
-  skkServerReqEnc: "euc-jp" as Encoding,
-  skkServerResEnc: "euc-jp" as Encoding,
+  skkServerReqEnc: "euc-jp",
+  skkServerResEnc: "euc-jp",
   usePopup: true,
   useSkkServer: false,
   userJisyo: "~/.skkeleton",
@@ -67,6 +70,19 @@ const validators: Validators = {
       throw TypeError("can't use undefined kanaTable: " + x);
     }
   },
+  globalKanaTableFiles: (x): asserts x is (string | [string, string])[] => {
+    if (
+      !isArray(
+        x,
+        (x): x is string | [string, string] =>
+          isString(x) || isArray(x, isString) && x.length === 2,
+      )
+    ) {
+      throw TypeError(
+        "'globalKanaTableFiles' must be array of two string tuple",
+      );
+    }
+  },
   keepState: assertBoolean,
   markerHenkan: assertString,
   markerHenkanSelect: assertString,
@@ -98,7 +114,10 @@ const validators: Validators = {
   userJisyo: assertString,
 };
 
-export function setConfig(newConfig: Record<string, unknown>) {
+export async function setConfig(
+  newConfig: Record<string, unknown>,
+  denops: Denops,
+) {
   const cfg = config as Record<string, unknown>;
   const val = validators as Record<string, (x: unknown) => void>;
   if (config.debug) {
@@ -117,4 +136,13 @@ export function setConfig(newConfig: Record<string, unknown>) {
       throw Error(`Illegal option detected: ${e}`);
     }
   }
+
+  const files = config.globalKanaTableFiles.map(async (
+    x,
+  ): Promise<string | [string, string]> =>
+    Array.isArray(x)
+      ? [await homeExpand(x[0], denops), x[1]]
+      : await homeExpand(x, denops)
+  );
+  await loadKanaTableFiles(await Promise.all(files));
 }

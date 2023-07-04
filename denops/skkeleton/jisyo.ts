@@ -14,6 +14,7 @@ import type {
   RankData,
   SkkServerOptions,
 } from "./types.ts";
+import { readFileWithEncoding } from "./util.ts";
 
 const okuriAriMarker = ";; okuri-ari entries.";
 const okuriNasiMarker = ";; okuri-nasi entries.";
@@ -228,13 +229,12 @@ export class SKKDictionary implements Dictionary {
     return candidates;
   }
 
-  async load(path: string, encoding: string) {
+  load(data: string) {
     let mode = -1;
     this.#okuriAri = new Map();
     this.#okuriNasi = new Map();
     const a: Map<string, string[]>[] = [this.#okuriAri, this.#okuriNasi];
-    const decoder = new TextDecoder(encoding);
-    const lines = decoder.decode(await Deno.readFile(path)).split("\n");
+    const lines = data.split("\n");
     for (const line of lines) {
       if (line === okuriAriMarker) {
         mode = 0;
@@ -633,12 +633,6 @@ export class Library {
   }
 }
 
-const encodingNames: Record<string, string> = {
-  "EUCJP": "euc-jp",
-  "SJIS": "shift-jis",
-  "UTF8": "utf-8",
-};
-
 export async function load(
   globalDictionaryConfig: (string | [string, string])[],
   userDictionaryPath: UserDictionaryPath,
@@ -646,13 +640,10 @@ export async function load(
 ): Promise<Library> {
   const globalDictionaries = await Promise.all(
     globalDictionaryConfig.map(async ([path, encodingName]) => {
-      if (encodingName === "") {
-        const data = await Deno.readFile(path);
-        encodingName = encodingNames[String(encoding.detect(data))];
-      }
       const dict = new SKKDictionary();
       try {
-        await dict.load(path, encodingName);
+        const file = await readFileWithEncoding(path, encodingName);
+        dict.load(file);
       } catch (e) {
         console.error("globalDictionary loading failed");
         console.error(`at ${path}`);

@@ -7,6 +7,7 @@ import {
   UserDictionary,
   wrapDictionary,
 } from "./jisyo.ts";
+import { readFileWithEncoding } from "./util.ts";
 
 const globalJisyo = join(
   dirname(fromFileUrl(import.meta.url)),
@@ -34,7 +35,7 @@ const numIncludingJisyo = join(
 
 async function load(path: string, encoding: string): Promise<SKKDictionary> {
   const dic = new SKKDictionary();
-  await dic.load(path, encoding);
+  dic.load(await readFileWithEncoding(path, encoding));
   return dic;
 }
 

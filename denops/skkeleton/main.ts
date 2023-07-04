@@ -16,6 +16,7 @@ import { handleKey, registerKeyMap } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { currentContext, currentLibrary } from "./store.ts";
 import type { CompletionData, RankData, SkkServerOptions } from "./types.ts";
+import { homeExpand } from "./util.ts";
 
 type Opts = {
   key: string;
@@ -55,14 +56,6 @@ function assertOpts(x: unknown): asserts x is Opts {
 
 let initialized = false;
 
-function homeExpand(path: string, homePath: string): string {
-  if (path[0] === "~") {
-    return homePath + path.slice(1);
-  } else {
-    return path;
-  }
-}
-
 async function init(denops: Denops) {
   if (initialized) {
     return;
@@ -97,26 +90,26 @@ async function init(denops: Denops) {
     };
     skkServer = new SkkServer(skkServerOptions);
   }
-  const homePath = await fn.expand(denops, "~") as string;
-  const globalDictionaries =
+  const globalDictionaries = await Promise.all(
     (config.globalDictionaries.length === 0
       ? [[config.globalJisyo, config.globalJisyoEncoding]]
       : config.globalDictionaries)
-      .map((
+      .map(async (
         cfg,
-      ): [string, string] => {
+      ): Promise<[string, string]> => {
         if (typeof (cfg) === "string") {
-          return [homeExpand(cfg, homePath), ""];
+          return [await homeExpand(cfg, denops), ""];
         } else {
-          return [homeExpand(cfg[0], homePath), cfg[1]];
+          return [await homeExpand(cfg[0], denops), cfg[1]];
         }
-      });
+      }),
+  );
   currentLibrary.setInitializer(async () =>
     await jisyoLoad(
       globalDictionaries,
       {
-        path: homeExpand(userJisyo, homePath),
-        rankPath: homeExpand(completionRankFile, homePath),
+        path: await homeExpand(userJisyo, denops),
+        rankPath: await homeExpand(completionRankFile, denops),
       },
       skkServer,
     )
@@ -308,10 +301,10 @@ export async function main(denops: Denops) {
     config.debug = true;
   }
   denops.dispatcher = {
-    config(config: unknown) {
+    async config(config: unknown) {
       assertObject(config);
-      setConfig(config);
-      return Promise.resolve();
+      await setConfig(config, denops);
+      return;
     },
     async registerKeyMap(state: unknown, key: unknown, funcName: unknown) {
       assertString(state);
