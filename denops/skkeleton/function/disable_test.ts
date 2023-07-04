@@ -21,13 +21,13 @@ test({
     await dispatch(currentContext.get(), " ");
     assertEquals(
       await getResult(denops.dispatch("skkeleton", "disable")),
-      " \x1e",
+      " ",
     );
     await denops.dispatch("skkeleton", "enable");
     await dispatch(currentContext.get(), "n");
     assertEquals(
       await getResult(denops.dispatch("skkeleton", "disable")),
-      "ん\x1e",
+      "ん",
     );
   },
 });
