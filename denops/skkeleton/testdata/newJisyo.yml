@@ -1,0 +1,10 @@
+version: 0.0.0
+description: An exmample dictionary file
+copyright: See LICENSE file
+license: See LICENSE file
+okuri_ari:
+  わるs:
+    - 悪
+okuri_nasi:
+  あかね:
+    - 茜
