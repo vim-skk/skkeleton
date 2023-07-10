@@ -127,12 +127,7 @@ async function init(denops: Denops) {
     helper.define(
       ["InsertLeave", "CmdlineLeave"],
       "*",
-      `setlocal iminsert=0`,
-    );
-    helper.define(
-      ["InsertLeave", "CmdlineLeave"],
-      "*",
-      `let g:skkeleton#enabled = v:false`,
+      `call skkeleton#disable()`,
     );
   });
   try {
@@ -157,38 +152,34 @@ async function enable(opts?: unknown, vimStatus?: unknown): Promise<string> {
   ) {
     return handle(opts, vimStatus);
   }
-  if (await denops.eval("&l:iminsert") !== 1) {
-    // Note: must set before context initialization
-    currentKanaTable.set(config.kanaTable);
+  // Note: must set before context initialization
+  currentKanaTable.set(config.kanaTable);
 
-    currentContext.init().denops = denops;
-    try {
-      await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-pre");
-    } catch (e) {
-      console.log(e);
-    }
-
-    // NOTE: Disable textwidth
-    currentContext.get().textwidth = await op.textwidth.getLocal(denops);
-    await op.textwidth.setLocal(denops, 0);
-
-    await denops.call("skkeleton#map");
-    await op.iminsert.setLocal(denops, 1);
-    await vars.b.set(denops, "keymap_name", "skkeleton");
-    await vars.g.set(denops, "skkeleton#enabled", true);
-    await modeChange(currentContext.get(), "hira");
-    try {
-      await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-post");
-    } catch (e) {
-      console.log(e);
-    }
-    return "\x1e"; // <C-^>
-  } else {
-    if (context.mode === "zenkaku") {
-      hirakana(context);
-    }
-    return "";
+  currentContext.init().denops = denops;
+  try {
+    await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-pre");
+  } catch (e) {
+    console.log(e);
   }
+
+  if (context.mode === "zenkaku") {
+    hirakana(context);
+  }
+
+  // NOTE: Disable textwidth
+  currentContext.get().textwidth = await op.textwidth.getLocal(denops);
+  await op.textwidth.setLocal(denops, 0);
+
+  await denops.call("skkeleton#map");
+  await vars.b.set(denops, "keymap_name", "skkeleton");
+  await vars.g.set(denops, "skkeleton#enabled", true);
+  await modeChange(currentContext.get(), "hira");
+  try {
+    await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-post");
+  } catch (e) {
+    console.log(e);
+  }
+  return "";
 }
 
 async function disable(opts?: unknown, vimStatus?: unknown): Promise<string> {
@@ -328,7 +319,7 @@ export async function main(denops: Denops) {
     async toggle(opts: unknown, vimStatus: unknown): Promise<HandleResult> {
       await init(denops);
       const mode = await vars.g.get(denops, "skkeleton#mode", "");
-      if (await denops.eval("&l:iminsert") !== 1 || mode === "") {
+      if (!await denops.eval("g:skkeleton#enabled") || mode === "") {
         return buildResult(await enable(opts, vimStatus));
       } else {
         return buildResult(await disable(opts, vimStatus));
