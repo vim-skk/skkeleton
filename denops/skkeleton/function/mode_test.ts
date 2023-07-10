@@ -1,9 +1,9 @@
 import { autocmd, Denops, vars } from "../deps.ts";
 import { test } from "../deps/denops_test.ts";
 import { assertEquals } from "../deps/std/testing.ts";
-import { currentLibrary } from "../jisyo.ts";
+import { currentLibrary } from "../store.ts";
 import { currentKanaTable } from "../kana.ts";
-import { currentContext } from "../main.ts";
+import { currentContext } from "../store.ts";
 import { initDenops } from "../testutil.ts";
 import { kakutei } from "./common.ts";
 import { deleteChar, kanaInput } from "./input.ts";
@@ -102,5 +102,22 @@ Deno.test({
     await kakutei(c);
     await kanaInput(c, "A");
     assertEquals(c.toString(), "▽あ");
+  },
+});
+
+test({
+  mode: "all",
+  name: "mode change  at enable",
+  pluginName: "skkeleton",
+  async fn(d: Denops) {
+    await initDenops(d);
+    await autocmd.define(
+      d,
+      "User",
+      "skkeleton-mode-changed",
+      "let g:skkeleton#mode_actual = skkeleton#mode()",
+    );
+    await d.call("skkeleton#handle", "enable", {});
+    assertEquals(await vars.g.get(d, "skkeleton#mode_actual"), "hira");
   },
 });

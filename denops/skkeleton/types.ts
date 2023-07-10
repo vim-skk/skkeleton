@@ -36,3 +36,31 @@ export type SkkServerOptions = {
   requestEnc: Encoding;
   responseEnc: Encoding;
 } & Deno.ConnectOptions;
+
+export type ConfigOptions = {
+  acceptIllegalResult: boolean;
+  completionRankFile: string;
+  debug: boolean;
+  eggLikeNewline: boolean;
+  globalDictionaries: (string | [string, string])[];
+  globalJisyo: string;
+  globalJisyoEncoding: Encoding;
+  immediatelyCancel: boolean;
+  immediatelyJisyoRW: boolean;
+  kanaTable: string;
+  globalKanaTableFiles: (string | [string, string])[];
+  keepState: boolean;
+  markerHenkan: string;
+  markerHenkanSelect: string;
+  registerConvertResult: boolean;
+  selectCandidateKeys: string;
+  setUndoPoint: boolean;
+  showCandidatesCount: number;
+  skkServerHost: string;
+  skkServerPort: number;
+  skkServerReqEnc: Encoding;
+  skkServerResEnc: Encoding;
+  usePopup: boolean;
+  useSkkServer: boolean;
+  userJisyo: string;
+};

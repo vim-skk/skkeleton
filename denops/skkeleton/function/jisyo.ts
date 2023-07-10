@@ -1,9 +1,10 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { batch, fn, mapping, op, vars } from "../deps.ts";
-import { currentContext } from "../main.ts";
+import { currentContext } from "../store.ts";
 import { HenkanState } from "../state.ts";
 import { kakutei } from "./common.ts";
+import { modeChange } from "../mode.ts";
 
 const cmapKeys = ["<Esc>", "<C-g>"];
 
@@ -27,6 +28,9 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
       });
     }
   });
+  // Note: use virtualedit for fix slip cursor position at line ending.
+  const saveVirtualedit = await op.virtualedit.getLocal(denops);
+  await op.virtualedit.setLocal(denops, "all");
   try {
     const base = "[辞書登録] " + state.henkanFeed;
     const okuri = state.mode === "okuriari" ? "*" + state.okuriFeed : "";
@@ -62,8 +66,11 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
       await vars.g.set(denops, "skkeleton#enabled", true);
       await denops.cmd("redrawstatus");
     });
+    await op.virtualedit.setLocal(denops, saveVirtualedit);
     // restore stashed context
     currentContext.set(context);
+    // and mode
+    await modeChange(context, context.mode);
   }
   return false;
 }

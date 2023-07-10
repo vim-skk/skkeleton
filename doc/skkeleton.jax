@@ -8,6 +8,13 @@ INTRODUCTION                                          *skkeleton-introduction*
 
 *skkeleton* は |denops.vim| を利用したSKK環境を提供します。
 
+REQUIRED                                                  *skkeleton-required*
+
+基本的に作者が最新のVimを利用しているため古いバージョンのVimでの動作は
+保証しませんが、テストはVim v9.0.0449 Neovim 0.8.0 以降で動かしているので
+それ以降であれば動くと思います。
+他の条件は|denops.vim|に準拠します。
+
 ==============================================================================
 INTERFACE                                                *skkeleton-interface*
 
@@ -20,8 +27,9 @@ Vimのautocmd機能によるフック機能を提供しています。
 
 skkeleton-initialize-pre                            *skkeleton-initialize-pre*
 
-        skkeletonが初期化される前に実行されます。
-        |denops.vim|はVimと独立して再起動する場合があるので
+        skkeletonが最初に有効化された際に実行されます。
+        |denops.vim|のランタイムはVimと独立して再起動する場合があり、設定も
+        消えてしまいますが、その場合はもう一度このフックも実行されるので
         こちらのフックを利用して設定を行うことをおすすめします。
 >
     " 例
@@ -40,7 +48,7 @@ skkeleton-initialize-pre                            *skkeleton-initialize-pre*
 <
 skkeleton-initialize-post                          *skkeleton-initialize-post*
 
-        skkeletonが初期化された後に実行されます。
+        skkeletonが最初に有効化された後に実行されます。
 
 skkeleton-disable-pre                                  *skkeleton-disable-pre*
 
@@ -70,6 +78,10 @@ skkeleton-mode-changed                                *skkeleton-mode-changed*
       autocmd User skkeleton-mode-changed redrawstatus
     augroup END
 <
+skkeleton-handled                                          *skkeleton-handled*
+
+        入力がハンドリングされた後に呼び出されます。
+        呼び出しの前に|g:skkeleton#state|に状態が代入されます。
 
 ------------------------------------------------------------------------------
 KEYMAPPINGS                                            *skkeleton-keymappings*
@@ -102,6 +114,25 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
     imap <C-j> <Plug>(skkeleton-toggle)
     cmap <C-j> <Plug>(skkeleton-toggle)
 <
+有効時のマッピングは以下の通りです。
+こちらの定義は|skkeleton#register_keymap()|で変更できます
+
+input:
+        <BS>      : |skkeleton-functions-deleteChar|
+        <C-g>     : |skkeleton-functions-cancel|
+        <C-h>     : |skkeleton-functions-deleteChar|
+        <C-q>     : |skkeleton-functions-hankatakana|
+        <CR>      : |skkeleton-functions-newline|
+        <Esc>     : |skkeleton-functions-escape|
+        <NL>      : |skkeleton-functions-kakutei|
+henkan:
+        <C-g>     : |skkeleton-functions-cancel|
+        <CR>      : |skkeleton-functions-newline|
+        <NL>      : |skkeleton-functions-kakutei|
+        <Space>   : |skkeleton-functions-henkanForward|
+        X         : |skkeleton-function-purgeCandidate|
+        x         : |skkeleton-function-henkanBackward|
+
 ------------------------------------------------------------------------------
 API                                                            *skkeleton-api*
 
@@ -120,6 +151,17 @@ skkeleton#mode()                                            *skkeleton#mode()*
                 "zenkaku": 全角英数
                 "abbrev":  abbrev
 
+g:skkeleton#state                                          *g:skkeleton#state*
+
+        最後にハンドリングが実行された際の状態から生成される値です。
+        以下の内容から構成されます
+
+                phase: 入力の段階
+                    "input"            直接入力
+                    "input:okurinasi"  送りなし入力
+                    "input:okuriari"   送りあり入力
+                    "henkan"           変換
+
 ------------------------------------------------------------------------------
 CONFIG                                                      *skkeleton-config*
 
@@ -129,7 +171,12 @@ skkeleton#config(dict)                                    *skkeleton#config()*
         一部の設定(現時点では辞書関係)は初回起動前に渡す必要があります。
         パスに関しては、ホームディレクトリを示す `~` のみVimの|expand()|と
         同じ方法で展開されます。
-
+>
+    " 例
+    call skkeleton#config({
+      \ 'eggLikeNewline': v:true
+      \ })
+<
 acceptIllegalResult                     *skkeleton-config-acceptIllegalResult*
         (デフォルト v:false)
         このオプションを有効にすると、Microsoft IME等と同様に
@@ -160,6 +207,7 @@ globalDictionaries                       *skkeleton-config-globalDictionaries*
     値の例: [["/usr/share/skk/SKK-JISYO.L", "euc-jp"],
              "~/.skk/SKK-JISYO.emoji"]
 <
+
 globalJisyo                                     *skkeleton-config-globalJisyo*
         (デフォルト "/usr/share/skk/SKK-JISYO.L")
         グローバル辞書のパス
@@ -194,7 +242,15 @@ kanaTable                                         *skkeleton-config-kanaTable*
         存在するテーブルのみ指定できます。存在しないテーブルを指定したい場合は
         |skkeleton#register_kanatable()| で先にテーブルを作成してください。
 
-
+globalKanaTableFiles                    *skkeleton-config-globalKanaTableFiles*
+        (デフォルト [])
+        複数のカナ変換テーブルを使用する際に指定するオプションです。
+        指定する値はグローバル辞書のパスまたは
+        パスとエンコーディングからなるタプルの配列になります。
+        エンコーディングを指定しない場合は自動判定されます。
+>
+    値の例: [["/usr/share/skk/azik_us.rule, "euc-jp"]]
+<
 keepState                                         *skkeleton-config-keepState*
         (デフォルト v:false)
         このオプションを有効にすると
@@ -281,6 +337,18 @@ skkeleton#register_kanatable({tableName}, {table}, {create})
           \ 'z,': ['―'],
           \ "z\<Space>": ["\u3000"],
           \ })
+    " ヘボン式入力
+    call skkeleton#register_kanatable('rom', {
+          \   'mb': ['ん', 'b'],
+          \   'mm': ['ん', 'm'],
+          \   'mp': ['ん', 'p'],
+          \   'tch': ['っ', 'ch'],
+          \ })
+    " 句読点を全角英字に変える
+    call skkeleton#register_kanatable('rom', {
+          \   ',': ['，', ''],
+          \   '.': ['．', ''],
+          \ })
 <
                                                  *skkeleton#register_keymap()*
 skkeleton#register_keymap({state}, {key}, {funcName})
@@ -297,6 +365,16 @@ skkeleton#register_keymap({state}, {key}, {funcName})
     call skkeleton#register_keymap('henkan', "\<BS>", 'henkanBackward')
     call skkeleton#register_keymap('henkan', "x", '')
 <
+------------------------------------------------------------------------------
+                                                     *g:skkeleton#mapped_keys*
+g:skkeleton#mapped_keys
+        (デフォルト `skkeleton#get_default_mapped_keys()`の返値)
+        skkeletonにマッピングするキーの配列です。ここにキーを追加すると
+        |skkeleton#register_keymap()|で指定できるようになります。
+>
+    " 例: <C-l>で全角モードに入れるようにします
+    call add(g:skkeleton#mapped_keys, '<C-l>')
+    call skkeleton#register_keymap('input', '<C-l>', 'zenkaku')
 
 ==============================================================================
 COMPLETION                                              *skkeleton-completion*
@@ -317,7 +395,6 @@ COMPLETION                                              *skkeleton-completion*
         \     'mark': 'skkeleton',
         \     'matchers': ['skkeleton'],
         \     'sorters': [],
-        \     'minAutoCompleteLength': 2,
         \     'isVolatile': v:true,
         \   },
         \ })
@@ -367,6 +444,24 @@ sticky keyの挙動をeskk.vimに合わせる~
 
 ==============================================================================
 CHANGELOG                                                *skkeleton-changelog*
+
+2023-06-23~
+- 状態取得のために|g:skkeleton#state|を追加した
+
+2023-06-17~
+- 伸ばし棒が半角カナの変換対象になっていなかったので修正
+
+2023-03-05~
+- ローマ字入力時に`z(`及び`z)`が使えなかったので修正
+
+2023-02-18~
+- 補完で入力が1文字の場合に完全一致した候補を出すようにした
+
+2023-01-24~
+- 有効化直後のモード切り替えイベントでモードの取得ができていなかった
+
+2023-01-21~
+- ロジックの問題により<Enter>表記の使用を禁止
 
 2022-04-25~
 - 補完ハンドリングの修正

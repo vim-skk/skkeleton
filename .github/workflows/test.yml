@@ -1,7 +1,7 @@
 name: test
 
 env:
-  DENOPS_PATH: "../denops.vim"
+  DENOPS_TEST_DENOPS_PATH: "../denops.vim"
   DENO_DIR: ".deno"
 
 on:
@@ -27,36 +27,6 @@ defaults:
     shell: bash --noprofile --norc -eo pipefail {0}
 
 jobs:
-  check:
-    strategy:
-      matrix:
-        runner:
-          - ubuntu-latest
-        version:
-          - "1.17.1"
-          - "1.x"
-    runs-on: ${{ matrix.runner }}
-    steps:
-      - run: git config --global core.autocrlf false
-        if: runner.os == 'Windows'
-      - uses: actions/checkout@v2
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: "${{ matrix.version }}"
-      - uses: actions/cache@v2
-        with:
-          path: ${{ env.DENO_DIR }}
-          key: ${{ runner.os }}-deno-${{ matrix.version }}-${{ hashFiles('**/*.ts') }}
-          restore-keys: |
-            ${{ runner.os }}-deno-${{ matrix.version }}-
-            ${{ runner.os }}-deno-
-      - name: Lint check
-        run: make lint
-      - name: Format check
-        run: make fmt-check
-      - name: Type check
-        run: make type-check
-
   test:
     strategy:
       matrix:
@@ -65,11 +35,11 @@ jobs:
           - macos-latest
           - ubuntu-latest
         version:
-          - "1.17.1"
+          - "1.28.0"
           - "1.x"
         host_version:
-          - vim: "v8.2.3452"
-            nvim: "v0.6.0"
+          - vim: "v9.0.0449"
+            nvim: "v0.8.0"
     runs-on: ${{ matrix.runner }}
     steps:
       - run: git config --global init.defaultBranch main
@@ -93,6 +63,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-deno-${{ matrix.version }}-
             ${{ runner.os }}-deno-
+      - name: Lint check
+        working-directory: ./repo
+        run: deno lint
+      - name: Format check
+        working-directory: ./repo
+        run: deno fmt --check
       - uses: thinca/action-setup-vim@v1
         id: vim
         with:
@@ -118,7 +94,7 @@ jobs:
           DENOPS_TEST_NVIM: ${{ steps.nvim.outputs.executable_path }}
       - name: Test
         working-directory: ./repo
-        run: make test
+        run: deno test -A
         env:
           DENO_DIR: ../.deno
           DENOPS_TEST_VIM: ${{ steps.vim.outputs.executable_path }}

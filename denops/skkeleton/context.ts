@@ -1,7 +1,14 @@
 import { config } from "./config.ts";
 import type { Denops } from "./deps.ts";
+import { HenkanType } from "./jisyo.ts";
 import { PreEdit } from "./preedit.ts";
 import { initializeState, State, toString } from "./state.ts";
+
+type CandidateResult = {
+  type: HenkanType;
+  word: string;
+  candidate: string;
+};
 
 export class Context {
   denops?: Denops;
@@ -12,6 +19,11 @@ export class Context {
   preEdit = new PreEdit();
   vimMode = "";
   textwidth = 0;
+  lastCandidate: CandidateResult = {
+    type: "okurinasi",
+    word: "",
+    candidate: "",
+  };
 
   kakutei(str: string) {
     this.preEdit.doKakutei(str);

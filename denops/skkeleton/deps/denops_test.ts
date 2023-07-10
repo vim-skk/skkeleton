@@ -1,1 +1,1 @@
-export { test } from "https://deno.land/x/denops_core@v3.2.0/test/mod.ts";
+export { test } from "https://deno.land/x/denops_test@v1.1.0/tester.ts";

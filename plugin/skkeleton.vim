@@ -3,10 +3,9 @@ if exists('g:loaded_skkeleton') && g:loaded_skkeleton
 endif
 let g:loaded_skkeleton = v:true
 
-noremap! <expr> <Plug>(skkeleton-enable) skkeleton#request('enable', [])
-noremap! <expr> <Plug>(skkeleton-disable) skkeleton#request('disable', [])
-noremap! <expr> <Plug>(skkeleton-toggle) skkeleton#request('toggle', [])
-autocmd User DenopsPluginPost:skkeleton let g:skkeleton#init = v:true
+noremap! <Plug>(skkeleton-enable)  <Cmd>call skkeleton#handle('enable', {})<CR>
+noremap! <Plug>(skkeleton-disable) <Cmd>call skkeleton#handle('disable', {})<CR>
+noremap! <Plug>(skkeleton-toggle)  <Cmd>call skkeleton#handle('toggle', {})<CR>
 
 " Cause unexpected behavior when lmap is empty
 " (enable action was failed)

@@ -84,6 +84,7 @@ const hankataTable: Record<string, string> = {
   "ゾ": "ｿﾞ",
   "ズ": "ｽﾞ",
   "ヴ": "ｳﾞ",
+  "ー": "ｰ",
 };
 
 export function hiraToHanKata(input: string): string {

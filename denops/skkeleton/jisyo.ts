@@ -16,10 +16,22 @@ import type {
   RankData,
   SkkServerOptions,
 } from "./types.ts";
-import { LazyCell } from "./util.ts";
+import { readFileWithEncoding } from "./util.ts";
 
 const okuriAriMarker = ";; okuri-ari entries.";
 const okuriNasiMarker = ";; okuri-nasi entries.";
+
+function toKifu(n: number): string {
+  const x = Math.floor(n / 10);
+  const y = n % 10;
+  if (0 < x && x < 10 && 0 < y && y < 10) {
+    const a = toZenkaku(Math.floor(n / 10));
+    const b = toKanjiModern(n % 10);
+    return a + b;
+  } else {
+    return n.toString();
+  }
+}
 
 function toZenkaku(n: number): string {
   return n.toString().replaceAll(/[0-9]/g, (c): string => {
@@ -85,8 +97,9 @@ function convertNumber(pattern: string, entry: string): string {
         case "#4":
         case "#6":
         case "#7":
-        case "#9":
           return e;
+        case "#9":
+          return toKifu(parseInt(e));
         case "#1":
           return toZenkaku(parseInt(e));
         case "#2":
@@ -130,6 +143,7 @@ export class NumberConvertWrapper implements Dictionary {
     if (word === realWord) {
       return candidate;
     } else {
+      candidate.unshift(...(await this.#inner.getCandidate(type, word)));
       return candidate.map((c) => convertNumber(c, word));
     }
   }
@@ -140,6 +154,7 @@ export class NumberConvertWrapper implements Dictionary {
     if (prefix === realPrefix) {
       return candidates;
     } else {
+      candidates.unshift(...(await this.#inner.getCandidates(prefix, feed)));
       return candidates.map((
         [kana, cand],
       ) => [kana, cand.map((c) => convertNumber(c, prefix))]);
@@ -162,12 +177,15 @@ export class SKKDictionary implements Dictionary {
   #okuriAri: Map<string, string[]>;
   #okuriNasi: Map<string, string[]>;
 
+  #cachedCandidates: Map<string, CompletionData>;
+
   constructor(
     okuriAri?: Map<string, string[]>,
     okuriNasi?: Map<string, string[]>,
   ) {
     this.#okuriAri = okuriAri ?? new Map();
     this.#okuriNasi = okuriNasi ?? new Map();
+    this.#cachedCandidates = new Map();
   }
 
   getCandidate(type: HenkanType, word: string): Promise<string[]> {
@@ -182,7 +200,7 @@ export class SKKDictionary implements Dictionary {
       for (const [key, kanas] of table) {
         if (key.startsWith(feed) && kanas.length > 1) {
           const feedPrefix = prefix + (kanas as string[])[0];
-          for (const entry of this.#okuriNasi) {
+          for (const entry of this.getCachedCandidates(prefix[0])) {
             if (entry[0].startsWith(feedPrefix)) {
               candidates.push(entry);
             }
@@ -190,37 +208,53 @@ export class SKKDictionary implements Dictionary {
         }
       }
     } else {
-      for (const entry of this.#okuriNasi) {
+      for (const entry of this.getCachedCandidates(prefix[0])) {
         if (entry[0].startsWith(prefix)) {
           candidates.push(entry);
         }
       }
     }
+
     candidates.sort((a, b) => a[0].localeCompare(b[0]));
     return Promise.resolve(candidates);
   }
 
-  async load(path: string, encoding: string) {
-    if (path.endsWith(".yaml")) {
-      const text = await Deno.readTextFile(path);
-      const jisyo = yaml.parse(text) as Jisyo;
-      const validator = new jsonschema.Validator();
-      const result = validator.validate(jisyo, jisyoschema);
-      if (!result.valid) {
-        for (const error of result.errors) {
-          throw Error(error.message);
-        }
-      }
-      this.#okuriAri = new Map(Object.entries(jisyo.okuri_ari));
-      this.#okuriNasi = new Map(Object.entries(jisyo.okuri_nasi));
-      return;
+  private getCachedCandidates(prefix: string): CompletionData {
+    if (this.#cachedCandidates.has(prefix)) {
+      const candidates = this.#cachedCandidates.get(prefix);
+      return candidates ?? [];
     }
+
+    const candidates: CompletionData = [];
+    for (const entry of this.#okuriNasi) {
+      if (entry[0].startsWith(prefix)) {
+        candidates.push(entry);
+      }
+    }
+
+    this.#cachedCandidates.set(prefix, candidates);
+    return candidates;
+  }
+
+  loadYaml(data: string) {
+    const jisyo = yaml.parse(data) as Jisyo;
+    const validator = new jsonschema.Validator();
+    const result = validator.validate(jisyo, jisyoschema);
+    if (!result.valid) {
+      for (const error of result.errors) {
+        throw Error(error.message);
+      }
+    }
+    this.#okuriAri = new Map(Object.entries(jisyo.okuri_ari));
+    this.#okuriNasi = new Map(Object.entries(jisyo.okuri_nasi));
+  }
+
+  load(data: string) {
     let mode = -1;
     this.#okuriAri = new Map();
     this.#okuriNasi = new Map();
     const a: Map<string, string[]>[] = [this.#okuriAri, this.#okuriNasi];
-    const decoder = new TextDecoder(encoding);
-    const lines = decoder.decode(await Deno.readFile(path)).split("\n");
+    const lines = data.split("\n");
     for (const line of lines) {
       if (line === okuriAriMarker) {
         mode = 0;
@@ -573,12 +607,20 @@ export class Library {
   }
 
   async getCandidates(prefix: string, feed: string): Promise<CompletionData> {
-    if (prefix.length < 2) {
-      return [];
-    }
     const collector = new Map<string, Set<string>>();
-    for (const dic of this.#dictionaries) {
-      gatherCandidates(collector, await dic.getCandidates(prefix, feed));
+    if (prefix.length == 0) {
+      return [];
+    } else if (prefix.length == 1) {
+      for (const dic of this.#dictionaries) {
+        gatherCandidates(collector, [[
+          prefix,
+          await dic.getCandidate("okurinasi", prefix),
+        ]]);
+      }
+    } else {
+      for (const dic of this.#dictionaries) {
+        gatherCandidates(collector, await dic.getCandidates(prefix, feed));
+      }
     }
     return Array.from(collector.entries())
       .map(([kana, cset]) => [kana, Array.from(cset)]);
@@ -611,12 +653,6 @@ export class Library {
   }
 }
 
-const encodingNames: Record<string, string> = {
-  "EUCJP": "euc-jp",
-  "SJIS": "shift-jis",
-  "UTF8": "utf-8",
-};
-
 export async function load(
   globalDictionaryConfig: (string | [string, string])[],
   userDictionaryPath: UserDictionaryPath,
@@ -624,13 +660,14 @@ export async function load(
 ): Promise<Library> {
   const globalDictionaries = await Promise.all(
     globalDictionaryConfig.map(async ([path, encodingName]) => {
-      if (encodingName === "") {
-        const data = await Deno.readFile(path);
-        encodingName = encodingNames[String(encoding.detect(data))];
-      }
       const dict = new SKKDictionary();
       try {
-        await dict.load(path, encodingName);
+        const file = await readFileWithEncoding(path, encodingName);
+        if (path.endsWith(".yaml") || path.endsWith(".yml")) {
+          dict.loadYaml(file);
+        } else {
+          dict.load(file);
+        }
       } catch (e) {
         console.error("globalDictionary loading failed");
         console.error(`at ${path}`);
@@ -663,5 +700,3 @@ export async function load(
     .concat(skkServer ? [skkServer] : []);
   return new Library(dictionaries, userDictionary);
 }
-
-export const currentLibrary = new LazyCell(() => new Library());

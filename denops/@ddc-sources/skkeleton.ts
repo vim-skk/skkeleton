@@ -44,7 +44,9 @@ export class Source extends BaseSource<Params> {
     const ddcCandidates = candidates.flatMap((e) => {
       return e[1].map((word) => ({
         word: word.replace(/;.*$/, ""),
-        abbr: " " + word, // add space for workaround of neovim draw screen bug
+        // NOTE: add space for workaround of neovim draw screen bug
+        abbr: " " + word.replace(/;.*$/, ""),
+        info: word.indexOf(";") > 1 ? word.replace(/.*;/, "") : "",
         user_data: {
           kana: e[0],
           word,
@@ -66,30 +68,11 @@ export class Source extends BaseSource<Params> {
   async onCompleteDone(
     args: OnCompleteDoneArguments<Params, CompletionMetadata>,
   ) {
-    let initialize = false;
-    const bufferInput = String(
-      await args.denops.eval("getline('.')[:col('.')-2]"),
-    );
-    const preEdit = String(
-      await args.denops.dispatch("skkeleton", "getPreEdit"),
-    );
-    // console.log([preEdit, args.userData.kana, bufferInput])
-    // <C-e>及び<C-y>で呼ばれた時はpreEditと候補の仮名が一致している
-    if (preEdit.endsWith(args.userData.kana)) {
-      // <C-e>でキャンセルされた際はバッファの一部とpreEditが一致している
-      if (bufferInput.endsWith(preEdit)) {
-        return;
-      } else {
-        initialize = true;
-      }
-    }
-    const meta = args.userData;
     await args.denops.dispatch(
       "skkeleton",
       "completeCallback",
-      meta.kana,
-      meta.word,
-      initialize,
+      args.userData.kana,
+      args.userData.word,
     );
   }
 }

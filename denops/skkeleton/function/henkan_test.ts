@@ -1,6 +1,6 @@
 import { Context } from "../context.ts";
 import { assertEquals } from "../deps/std/testing.ts";
-import { currentLibrary } from "../jisyo.ts";
+import { currentLibrary } from "../store.ts";
 import { dispatch } from "./testutil.ts";
 
 const l = await currentLibrary.get();

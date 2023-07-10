@@ -1,14 +1,12 @@
 import { config } from "./config.ts";
 import type { Context } from "./context.ts";
 import { Func, functions } from "./function.ts";
-import { cancel, kakutei, newline } from "./function/common.ts";
+import { cancel, kakutei, newline, purgeCandidate } from "./function/common.ts";
 import { escape } from "./function/disable.ts";
 import {
   henkanBackward,
-  henkanFirst,
   henkanForward,
   henkanInput,
-  purgeCandidate,
 } from "./function/henkan.ts";
 import { deleteChar, kanaInput } from "./function/input.ts";
 import { hankatakana } from "./function/mode.ts";
@@ -29,8 +27,6 @@ const input: KeyMap = {
     "<esc>": escape,
     "<nl>": kakutei,
     "<c-q>": hankatakana,
-    "<c-space>": henkanFirst,
-    "<s-space>": henkanFirst,
   },
 };
 
@@ -41,8 +37,6 @@ const henkan: KeyMap = {
     "<cr>": newline,
     "<nl>": kakutei,
     "<space>": henkanForward,
-    "<s-space>": henkanForward,
-    "<c-space>": henkanForward,
     "x": henkanBackward,
     "X": purgeCandidate,
   },
@@ -68,6 +62,9 @@ export async function handleKey(context: Context, key: string) {
 }
 
 export function registerKeyMap(state: string, key: string, func: unknown) {
+  if (config.debug) {
+    console.log(`registerKeyMap: state = ${state} key = ${key} func = ${func}`);
+  }
   const keyMap = keyMaps[state];
   if (!keyMap) {
     throw Error(`unknown state: ${state}`);
@@ -81,4 +78,7 @@ export function registerKeyMap(state: string, key: string, func: unknown) {
     throw Error(`unknown function: ${func}`);
   }
   keyMap.map[key] = fn;
+  if (config.debug) {
+    console.log(keyMap);
+  }
 }

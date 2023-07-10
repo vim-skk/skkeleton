@@ -1,10 +1,11 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
-import { currentLibrary } from "../jisyo.ts";
+import { HenkanType } from "../jisyo.ts";
 import { currentKanaTable } from "../kana.ts";
 import { initializeState } from "../state.ts";
+import { currentLibrary } from "../store.ts";
 import { kakuteiFeed } from "./input.ts";
-import { modeChange } from "./mode.ts";
+import { initializeStateWithAbbrev } from "../mode.ts";
 
 export async function kakutei(context: Context) {
   const state = context.state;
@@ -19,6 +20,11 @@ export async function kakutei(context: Context) {
           state.word,
           candidate,
         );
+        context.lastCandidate = {
+          type: state.mode,
+          word: state.word,
+          candidate,
+        };
       }
       const okuriStr = state.converter
         ? state.converter(state.okuriFeed)
@@ -45,12 +51,7 @@ export async function kakutei(context: Context) {
         `initializing unknown phase state: ${JSON.stringify(state)}`,
       );
   }
-  if (context.mode === "abbrev") {
-    await modeChange(context, "hira");
-    initializeState(state, []);
-    return;
-  }
-  initializeState(state, ["converter", "table"]);
+  await initializeStateWithAbbrev(context, ["converter", "table"]);
 }
 
 export async function newline(context: Context) {
@@ -83,5 +84,35 @@ export function cancel(context: Context) {
     case "henkan":
       context.state.type = "input";
       break;
+  }
+}
+
+export async function purgeCandidate(context: Context) {
+  const state = context.state;
+  let type: HenkanType;
+  let word: string;
+  let candidate: string;
+  if (state.type === "input") {
+    type = context.lastCandidate.type;
+    word = context.lastCandidate.word;
+    candidate = context.lastCandidate.candidate;
+  } else if (state.type === "henkan") {
+    type = state.mode;
+    word = state.word;
+    candidate = state.candidates[state.candidateIndex];
+  } else {
+    console.log("purgeCandidate: reach illegal state");
+    console.log(context);
+    return;
+  }
+  if (word === "") {
+    return;
+  }
+  const msg = `Really purge? ${word} /${candidate}/`;
+  if (await context.denops!.call("confirm", msg, "&Yes\n&No\n", 2) === 1) {
+    const lib = await currentLibrary.get();
+    lib.purgeCandidate(type, word, candidate);
+    initializeState(state);
+    context.lastCandidate.word = "";
   }
 }

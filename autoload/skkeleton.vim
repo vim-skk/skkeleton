@@ -5,15 +5,15 @@ augroup END
 
 let g:skkeleton#enabled = v:false
 let g:skkeleton#mode = ''
+let g:skkeleton#state = #{
+\   phase: '',
+\ }
 
 function! skkeleton#request(funcname, args) abort
-  call denops#plugin#wait('skkeleton')
-  let ret = denops#request('skkeleton', a:funcname, a:args)
-  if mode() ==# 'n'
+  if denops#plugin#wait('skkeleton') != 0
     return ''
-  else
-    return ret
   endif
+  return denops#request('skkeleton', a:funcname, a:args)
 endfunction
 
 function! s:doautocmd() abort
@@ -32,7 +32,7 @@ function! s:send_notify() abort
 endfunction
 
 function! skkeleton#request_async(funcname, args) abort
-  if get(g:, 'skkeleton#init', v:false)
+  if denops#plugin#is_loaded('skkeleton')
     call denops#request('skkeleton', a:funcname, a:args)
   else
     let s:pending_notify = add(get(s:, 'pending_notify', []), [a:funcname, a:args])
@@ -49,12 +49,15 @@ endfunction
 
 function! skkeleton#register_keymap(state, key, func_name)
   " normalize notation
-  if len(a:key) > 1 && a:key[0] ==# '<'
-    let key = g:skkeleton#notation#notation_to_key[tolower(a:key)]
-  else
-    let key = a:key
+  let key = a:key
+  if 1 < strlen(key) && key[0] ==# '<'
+    let key = eval('"\' .. key .. '"')
   endif
   let key = get(g:skkeleton#notation#key_to_notation, key, key)
+
+  if len(key) != 1
+    let key = tolower(key)
+  endif
   call skkeleton#request_async('registerKeyMap', [a:state, key, a:func_name])
 endfunction
 
@@ -75,34 +78,49 @@ function! skkeleton#mode() abort
   endif
 endfunction
 
-" Handling Shougo/pum.vim
+" return [complete_type, complete_info]
 function! s:complete_info() abort
   if exists('*pum#visible') && pum#visible()
-    return pum#complete_info()
+    return ['pum.vim', pum#complete_info()]
+  elseif has('nvim') && luaeval('select(2, pcall(function() return package.loaded["cmp"].visible() end)) == true')
+    let selected = luaeval('require("cmp").get_active_entry() ~= nil')
+    return ['cmp', {'pum_visible': v:true, 'selected': selected ? 1 : -1}]
   else
-    return complete_info()
+    return ['native', complete_info()]
   endif
 endfunction
 
 function! skkeleton#vim_status() abort
+  let [complete_type, complete_info] = s:complete_info()
   let m = mode()
+  if m ==# 'i'
+    let prev_input = getline('.')[:col('.')-2]
+  else
+    let prev_input = getcmdline()[:getcmdpos()-2]
+  endif
   return {
-  \ 'completeInfo': s:complete_info(),
-  \ 'isNativePum': pumvisible(),
+  \ 'prevInput': prev_input,
+  \ 'completeInfo': complete_info,
+  \ 'completeType': complete_type,
   \ 'mode': m,
   \ }
 endfunction
 
-function! skkeleton#handle(func, key) abort
-  let ret = denops#request('skkeleton', a:func, [a:key, skkeleton#vim_status()])
-  if ret =~# "^<Cmd>"
-    let ret = "\<Cmd>" .. ret[5:] .. "\<CR>"
+function! skkeleton#handle(func, opts) abort
+  let ret = skkeleton#request(a:func, [a:opts, skkeleton#vim_status()])
+  let g:skkeleton#state = ret.state
+  let result = ret.result
+  if result =~# "^<Cmd>"
+    let result = "\<Cmd>" .. result[5:] .. "\<CR>"
   endif
   call skkeleton#doautocmd()
-  call feedkeys(ret, 'nit')
+  if get(a:opts, 'expr', v:false)
+    return result
+  else
+    call feedkeys(result, 'nit')
+  endif
 endfunction
 
-" copied from eskk.vim
 function! skkeleton#get_default_mapped_keys() abort "{{{
     return split(
                 \   'abcdefghijklmnopqrstuvwxyz'
@@ -120,8 +138,6 @@ function! skkeleton#get_default_mapped_keys() abort "{{{
                 \   '<C-h>',
                 \   '<CR>',
                 \   '<Space>',
-                \   '<C-Space>',
-                \   '<S-Space>',
                 \   '<C-q>',
                 \   '<PageUp>',
                 \   '<PageDown>',
@@ -133,18 +149,19 @@ function! skkeleton#get_default_mapped_keys() abort "{{{
                 \]
 endfunction "}}}
 
+let g:skkeleton#mapped_keys = extend(get(g:, 'skkeleton#mapped_keys', []), skkeleton#get_default_mapped_keys())
+
 function! skkeleton#map() abort
   if mode() ==# 'n'
     let modes = ['i', 'c']
   else
     let modes = [mode()]
   endif
-  for c in skkeleton#get_default_mapped_keys()
+  for c in g:skkeleton#mapped_keys
     " notation to lower
-    if len(c) > 1 && c[0] ==# '<'
-      let k = '<lt>' .. tolower(c[1:])
-      " normalize notation
-      let k = get(g:skkeleton#notation#key_to_notation, get(g:skkeleton#notation#notation_to_key, k), k)
+    if len(c) > 1 && c[0] ==# '<' && c !=? '<bar>'
+      let k = g:skkeleton#notation#key_to_notation[eval('"\' .. c .. '"')]
+      let k = '<lt>' .. tolower(k[1:])
     else
       let k = c
     endif
@@ -155,7 +172,7 @@ function! skkeleton#map() abort
         let func = match[1]
       endif
     endfor
-    execute printf('lnoremap <buffer> <nowait> %s <Cmd>call skkeleton#handle(%s, %s)<CR>', c, string(func), string(k))
+    execute printf('lnoremap <buffer> <nowait> %s <Cmd>call skkeleton#handle(%s, {"key": %s})<CR>', c, string(func), string(k))
   endfor
 endfunction
 
@@ -163,81 +180,6 @@ function! skkeleton#unmap() abort
   for c in skkeleton#get_default_mapped_keys()
     silent! execute printf('lunmap <buffer> %s', c)
   endfor
-endfunction
-
-function! skkeleton#get_key_notations() abort
-  let keys = {}
-  let keys['<nul>'] = "\<nul>"
-  let keys['<bs>'] = "\<bs>"
-  let keys['<tab>'] = "\<tab>"
-  let keys['<s-tab>'] = "\<s-tab>"
-  let keys['<nl>'] = "\<nl>"
-  let keys['<ff>'] = "\<ff>"
-  let keys['<cr>'] = "\<cr>"
-  let keys['<return>'] = "\<return>"
-  let keys['<enter>'] = "\<enter>"
-  let keys['<esc>'] = "\<esc>"
-  let keys['<space>'] = "\<space>"
-  let keys['<lt>'] = "\<lt>"
-  let keys['<bslash>'] = "\<bslash>"
-  let keys['<bar>'] = "\<bar>"
-  let keys['<del>'] = "\<del>"
-  let keys['<csi>'] = "\<csi>"
-  let keys['<xcsi>'] = "\<xcsi>"
-  let keys['<eol>'] = "\<eol>"
-  let keys['<ignore>'] = "\<ignore>"
-  let keys['<nop>'] = "\<nop>"
-  let keys['<up>'] = "\<up>"
-  let keys['<down>'] = "\<down>"
-  let keys['<left>'] = "\<left>"
-  let keys['<right>'] = "\<right>"
-  let keys['<s-up>'] = "\<s-up>"
-  let keys['<s-down>'] = "\<s-down>"
-  let keys['<s-left>'] = "\<s-left>"
-  let keys['<s-right>'] = "\<s-right>"
-  let keys['<c-left>'] = "\<c-left>"
-  let keys['<c-right>'] = "\<c-right>"
-  let keys['<help>'] = "\<help>"
-  let keys['<undo>'] = "\<undo>"
-  let keys['<insert>'] = "\<insert>"
-  let keys['<home>'] = "\<home>"
-  let keys['<end>'] = "\<end>"
-  let keys['<pageup>'] = "\<pageup>"
-  let keys['<pagedown>'] = "\<pagedown>"
-  let keys['<kup>'] = "\<kup>"
-  let keys['<kdown>'] = "\<kdown>"
-  let keys['<kleft>'] = "\<kleft>"
-  let keys['<kright>'] = "\<kright>"
-  let keys['<khome>'] = "\<khome>"
-  let keys['<kend>'] = "\<kend>"
-  let keys['<korigin>'] = "\<korigin>"
-  let keys['<kpageup>'] = "\<kpageup>"
-  let keys['<kpagedown>'] = "\<kpagedown>"
-  let keys['<kdel>'] = "\<kdel>"
-  let keys['<kplus>'] = "\<kplus>"
-  let keys['<kminus>'] = "\<kminus>"
-  let keys['<kmultiply>'] = "\<kmultiply>"
-  let keys['<kdivide>'] = "\<kdivide>"
-  let keys['<kpoint>'] = "\<kpoint>"
-  let keys['<kcomma>'] = "\<kcomma>"
-  let keys['<kequal>'] = "\<kequal>"
-  let keys['<kenter>'] = "\<kenter>"
-  for i in range(1, 12)
-    execute printf('let keys["<f%s>"] = "\<f%s>"', i, i)
-    execute printf('let keys["<s-f%s>"] = "\<s-f%s>"', i, i)
-  endfor
-  for i in range(0, 9)
-    execute printf('let keys["<k%s>"] = "\<k%s>"', i, i)
-  endfor
-  for i in range(26)
-    let c = nr2char(i + 97)
-    execute printf('let keys["<s-%s>"] = "\<s-%s>"', c, c)
-    execute printf('let keys["<c-%s>"] = "\<c-%s>"', c, c)
-    execute printf('let keys["<m-%s>"] = "\<m-%s>"', c, c)
-    execute printf('let keys["<a-%s>"] = "\<a-%s>"', c, c)
-    execute printf('let keys["<d-%s>"] = "\<d-%s>"', c, c)
-  endfor
-  return keys
 endfunction
 
 let s:windows = []
@@ -296,8 +238,10 @@ function! skkeleton#close_candidates() abort
 endfunction
 
 function! skkeleton#getchar(msg) abort
-  autocmd CmdlineEnter * ++once let s:char = getchar()
-  autocmd CmdlineEnter * ++once call feedkeys("\<Esc>", 'n')
-  call input(a:msg)
-  return s:char
+  echo a:msg
+  return getchar()
+endfunction
+
+function skkeleton#get_config() abort
+  return denops#request('skkeleton', 'getConfig', [])
 endfunction

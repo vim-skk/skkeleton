@@ -1,3 +1,5 @@
+" for key notation normalize
+
 function s:init() abort
   let n2k = {}
   let n2k['<nul>'] = "\<nul>"
@@ -8,11 +10,10 @@ function s:init() abort
   let n2k['<ff>'] = "\<ff>"
   let n2k['<cr>'] = "\<cr>"
   let n2k['<return>'] = "\<return>"
-  let n2k['<enter>'] = "\<enter>"
   let n2k['<esc>'] = "\<esc>"
   let n2k['<space>'] = "\<space>"
-  let n2k['<s-space>'] = "\<space>"
-  let n2k['<c-space>'] = "\<space>"
+  let n2k['<s-space>'] = "\<s-space>"
+  let n2k['<c-space>'] = "\<c-space>"
   let n2k['<lt>'] = "\<lt>"
   let n2k['<bslash>'] = "\<bslash>"
   let n2k['<bar>'] = "\<bar>"
