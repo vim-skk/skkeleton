@@ -47,7 +47,13 @@ const numIncludingJisyo = join(
 
 async function load(path: string, encoding: string): Promise<SKKDictionary> {
   const dic = new SKKDictionary();
-  dic.load(await readFileWithEncoding(path, encoding));
+  if (path.endsWith(".json")) {
+    dic.loadJson(await readFileWithEncoding(path, encoding));
+  } else if (path.endsWith(".yaml") || path.endsWith(".yml")) {
+    dic.loadYaml(await readFileWithEncoding(path, encoding));
+  } else {
+    dic.load(await readFileWithEncoding(path, encoding));
+  }
   return dic;
 }
 
