@@ -8,10 +8,7 @@ import { zip } from "./deps/std/collections.ts";
 import { iterateReader } from "./deps/std/streams.ts";
 import { assertArray, isString } from "./deps/unknownutil.ts";
 import { Encode } from "./types.ts";
-
-import YAML from "https://esm.sh/yaml"
-import jsonschema from "https://esm.sh/jsonschema"
-import jisyoschema from "https://cdn.jsdelivr.net/gh/tani/jisyo/jisyo.schema.json" assert { type: 'json' }
+import { jisyoschema, jsonschema, yaml } from "./deps/jisyo.ts";
 
 import type {
   CompletionData,
@@ -26,13 +23,35 @@ const okuriNasiMarker = ";; okuri-nasi entries.";
 
 function toZenkaku(n: number): string {
   return n.toString().replaceAll(/[0-9]/g, (c): string => {
-    const zenkakuNumbers = ["０", "１", "２", "３", "４", "５", "６", "７", "８", "９"];
+    const zenkakuNumbers = [
+      "０",
+      "１",
+      "２",
+      "３",
+      "４",
+      "５",
+      "６",
+      "７",
+      "８",
+      "９",
+    ];
     return zenkakuNumbers[parseInt(c)];
   });
 }
 function toKanjiModern(n: number): string {
   return n.toString().replaceAll(/[0-9]/g, (c): string => {
-    const kanjiNumbers = ["〇", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+    const kanjiNumbers = [
+      "〇",
+      "一",
+      "二",
+      "三",
+      "四",
+      "五",
+      "六",
+      "七",
+      "八",
+      "九",
+    ];
     return kanjiNumbers[parseInt(c)];
   });
 }
@@ -134,6 +153,11 @@ export function wrapDictionary(dict: Dictionary): Dictionary {
   );
 }
 
+interface Jisyo {
+  okuri_ari: Record<string, string[]>;
+  okuri_nasi: Record<string, string[]>;
+}
+
 export class SKKDictionary implements Dictionary {
   #okuriAri: Map<string, string[]>;
   #okuriNasi: Map<string, string[]>;
@@ -177,13 +201,13 @@ export class SKKDictionary implements Dictionary {
   }
 
   async load(path: string, encoding: string) {
-    if (path.endsWith('.yaml')) {
+    if (path.endsWith(".yaml")) {
       const text = await Deno.readTextFile(path);
-      const jisyo = YAML.parse(text);
+      const jisyo = yaml.parse(text) as Jisyo;
       const validator = new jsonschema.Validator();
       const result = validator.validate(jisyo, jisyoschema);
       if (!result.valid) {
-        for(const error of result.errors) {
+        for (const error of result.errors) {
           throw Error(error.message);
         }
       }
