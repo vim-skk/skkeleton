@@ -678,7 +678,7 @@ export async function load(
         const file = await readFileWithEncoding(path, encodingName);
         if (path.endsWith(".yaml") || path.endsWith(".yml")) {
           dict.loadYaml(file);
-        } else if(path.endsWith(".json")) {
+        } else if (path.endsWith(".json")) {
           dict.loadJson(file);
         } else {
           dict.load(file);
