@@ -170,6 +170,9 @@ async function enable(opts?: unknown, vimStatus?: unknown): Promise<string> {
   currentContext.get().textwidth = await op.textwidth.getLocal(denops);
   await op.textwidth.setLocal(denops, 0);
 
+  // NOTE: Initialize dictionary
+  await currentLibrary.get();
+
   await denops.call("skkeleton#map");
   await vars.b.set(denops, "keymap_name", "skkeleton");
   await vars.g.set(denops, "skkeleton#enabled", true);
