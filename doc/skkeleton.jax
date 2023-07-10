@@ -139,6 +139,10 @@ henkan:
 ------------------------------------------------------------------------------
 API                                                            *skkeleton-api*
 
+skkeleton#initialize()                                *skkeleton#initialize()*
+
+        skkeletonを手動で初期化します。辞書のロードも行います。
+
 skkeleton#is_enabled()                                *skkeleton#is_enabled()*
 
         skkeletonが有効化されているかどうかを返します。
