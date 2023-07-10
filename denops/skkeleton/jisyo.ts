@@ -236,6 +236,19 @@ export class SKKDictionary implements Dictionary {
     return candidates;
   }
 
+  loadJson(data: string) {
+    const jisyo = JSON.parse(data) as Jisyo;
+    const validator = new jsonschema.Validator();
+    const result = validator.validate(jisyo, jisyoschema);
+    if (!result.valid) {
+      for (const error of result.errors) {
+        throw Error(error.message);
+      }
+    }
+    this.#okuriAri = new Map(Object.entries(jisyo.okuri_ari));
+    this.#okuriNasi = new Map(Object.entries(jisyo.okuri_nasi));
+  }
+
   loadYaml(data: string) {
     const jisyo = yaml.parse(data) as Jisyo;
     const validator = new jsonschema.Validator();
@@ -665,6 +678,8 @@ export async function load(
         const file = await readFileWithEncoding(path, encodingName);
         if (path.endsWith(".yaml") || path.endsWith(".yml")) {
           dict.loadYaml(file);
+        } else if(path.endsWith(".json")) {
+          dict.loadJson(file);
         } else {
           dict.load(file);
         }
