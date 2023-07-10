@@ -57,7 +57,7 @@ export async function katakana(context: Context) {
   if (!state.converter) {
     result = hiraToKata(result);
     if (config.registerConvertResult) {
-      const lib = currentLibrary.get();
+      const lib = await currentLibrary.get();
       await lib.registerCandidate("okurinasi", kana, result);
     }
   }
@@ -76,7 +76,7 @@ export async function hankatakana(context: Context) {
       await modeChange(context, "hira");
     } else {
       if (currentKanaTable.get() === "zen") {
-        currentKanaTable.set("rom");
+        currentKanaTable.set(config.kanaTable);
         state.table = getKanaTable();
       }
       state.converter = hiraToHanKata;
@@ -90,7 +90,7 @@ export async function hankatakana(context: Context) {
   if (state.converter !== hiraToHanKata) {
     result = hiraToHanKata(result);
     if (config.registerConvertResult) {
-      const lib = currentLibrary.get();
+      const lib = await currentLibrary.get();
       await lib.registerCandidate("okurinasi", kana, result);
     }
   }

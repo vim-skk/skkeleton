@@ -1,8 +1,11 @@
 import {
-  ensureBoolean,
-  ensureNumber,
-  ensureString,
+  assertBoolean,
+  assertNumber,
+  assertString,
+  isArray,
+  isString,
 } from "./deps/unknownutil.ts";
+import { getKanaTable } from "./kana.ts";
 import { Encode, Encoding } from "./types.ts";
 
 export const config = {
@@ -10,10 +13,12 @@ export const config = {
   completionRankFile: "",
   debug: false,
   eggLikeNewline: false,
+  globalDictionaries: [] as (string | [string, string])[],
   globalJisyo: "/usr/share/skk/SKK-JISYO.L",
   globalJisyoEncoding: "euc-jp",
   immediatelyCancel: true,
   immediatelyJisyoRW: true,
+  kanaTable: "rom",
   keepState: false,
   markerHenkan: "▽",
   markerHenkanSelect: "▼",
@@ -35,43 +40,62 @@ type Validators = {
 };
 
 const validators: Validators = {
-  acceptIllegalResult: ensureBoolean,
-  completionRankFile: ensureString,
-  debug: ensureBoolean,
-  eggLikeNewline: ensureBoolean,
-  globalJisyo: ensureString,
-  globalJisyoEncoding: ensureString,
-  immediatelyCancel: ensureBoolean,
-  immediatelyJisyoRW: ensureBoolean,
-  keepState: ensureBoolean,
-  markerHenkan: ensureString,
-  markerHenkanSelect: ensureString,
-  registerConvertResult: ensureBoolean,
+  acceptIllegalResult: assertBoolean,
+  completionRankFile: assertString,
+  debug: assertBoolean,
+  eggLikeNewline: assertBoolean,
+  globalDictionaries: (x): asserts x is (string | [string, string])[] => {
+    if (
+      !isArray(
+        x,
+        (x): x is string | [string, string] =>
+          isString(x) || isArray(x, isString) && x.length === 2,
+      )
+    ) {
+      throw TypeError("'globalDictionaries' must be array of two string tuple");
+    }
+  },
+  globalJisyo: assertString,
+  globalJisyoEncoding: assertString,
+  immediatelyCancel: assertBoolean,
+  immediatelyJisyoRW: assertBoolean,
+  kanaTable: (x): asserts x is string => {
+    assertString(x);
+    try {
+      getKanaTable(x);
+    } catch {
+      throw TypeError("can't use undefined kanaTable: " + x);
+    }
+  },
+  keepState: assertBoolean,
+  markerHenkan: assertString,
+  markerHenkanSelect: assertString,
+  registerConvertResult: assertBoolean,
   selectCandidateKeys: (x): asserts x is string => {
-    ensureString(x);
+    assertString(x);
     if (x.length !== 7) {
       throw TypeError("selectCandidateKeys.length !== 7");
     }
   },
-  setUndoPoint: ensureBoolean,
-  showCandidatesCount: ensureNumber,
-  skkServerHost: ensureString,
-  skkServerPort: ensureNumber,
+  setUndoPoint: assertBoolean,
+  showCandidatesCount: assertNumber,
+  skkServerHost: assertString,
+  skkServerPort: assertNumber,
   skkServerReqEnc: (x): asserts x is Encoding => {
-    ensureString(x);
+    assertString(x);
     if (!(x in Encode)) {
       throw TypeError(`${x} is invalid encoding`);
     }
   },
   skkServerResEnc: (x): asserts x is Encoding => {
-    ensureString(x);
+    assertString(x);
     if (!(x in Encode)) {
       throw TypeError(`${x} is invalid encoding`);
     }
   },
-  usePopup: ensureBoolean,
-  useSkkServer: ensureBoolean,
-  userJisyo: ensureString,
+  usePopup: assertBoolean,
+  useSkkServer: assertBoolean,
+  userJisyo: assertString,
 };
 
 export function setConfig(newConfig: Record<string, unknown>) {

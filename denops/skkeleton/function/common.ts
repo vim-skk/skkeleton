@@ -13,7 +13,8 @@ export async function kakutei(context: Context) {
       const candidate = state.candidates[state.candidateIndex];
       const candidateStrip = candidate?.replace(/;.*/, "");
       if (candidate) {
-        await currentLibrary.get().registerCandidate(
+        const lib = await currentLibrary.get();
+        await lib.registerCandidate(
           state.mode,
           state.word,
           candidate,
@@ -34,11 +35,8 @@ export async function kakutei(context: Context) {
       }
       context.kakutei(result);
       if (currentKanaTable.get() === "zen") {
-        currentKanaTable.set("rom");
+        currentKanaTable.set(config.kanaTable);
         state.converter = void 0;
-      }
-      if (state.directInput) {
-        await modeChange(context, "hira");
       }
       break;
     }
@@ -47,7 +45,12 @@ export async function kakutei(context: Context) {
         `initializing unknown phase state: ${JSON.stringify(state)}`,
       );
   }
-  initializeState(state, ["converter"]);
+  if (context.mode === "abbrev") {
+    await modeChange(context, "hira");
+    initializeState(state, []);
+    return;
+  }
+  initializeState(state, ["converter", "table"]);
 }
 
 export async function newline(context: Context) {

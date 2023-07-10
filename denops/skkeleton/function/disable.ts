@@ -15,6 +15,7 @@ export async function disable(context: Context) {
     }
     await denops.call("skkeleton#unmap");
     await op.iminsert.setLocal(denops, 0);
+    await op.textwidth.setLocal(denops, context.textwidth);
     await kakutei(context);
     context.kakutei("\x1e");
     try {

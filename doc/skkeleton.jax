@@ -148,17 +148,33 @@ eggLikeNewline                               *skkeleton-config-eggLikeNewline*
         このオプションを有効にすると
         変換モードで改行キーを押した際に確定のみ行います。
 
+globalDictionaries                       *skkeleton-config-globalDictionaries*
+        (デフォルト [])
+        複数のグローバル辞書を使用する際に指定するオプションです。
+        指定する値はグローバル辞書のパスまたは
+        パスとエンコーディングからなるタプルの配列になります。
+        エンコーディングを指定しない場合は自動判定されます。
+        圧縮された辞書をそのまま使う機能はないため
+        辞書が圧縮されている場合は展開する必要があります。
+>
+    値の例: [["/usr/share/skk/SKK-JISYO.L", "euc-jp"],
+             "~/.skk/SKK-JISYO.emoji"]
+<
 globalJisyo                                     *skkeleton-config-globalJisyo*
         (デフォルト "/usr/share/skk/SKK-JISYO.L")
         グローバル辞書のパス
         圧縮された辞書をそのまま使う機能はないため
         辞書が圧縮されている場合は展開する必要があります。
+        互換性のために残しています。globalDictionariesが指定されていた場合は
+        無視されます。
 
 globalJisyoEncoding                     *skkeleton-config-globalJisyoEncoding*
         (デフォルト "euc-jp")
         グローバル辞書のエンコーディング
         SKK Openlab以外が配布している辞書を使う場合などは
         変更する必要があるかもしれません。
+        互換性のために残しています。globalDictionariesが指定されていた場合は
+        無視されます。
 
 immediatelyCancel                         *skkeleton-config-immediatelyCancel*
         (デフォルト v:true)
@@ -171,6 +187,13 @@ immediatelyJisyoRW                       *skkeleton-config-immediatelyJisyoRW*
         このオプションを有効にすると
         変換や確定の度にユーザー辞書を読み書きするようになります。
         複数のVimインスタンスを同時に使う場合に有用かもしれません。
+
+kanaTable                                         *skkeleton-config-kanaTable*
+        (デフォルト "rom")
+        使用する仮名テーブルを指定します。
+        存在するテーブルのみ指定できます。存在しないテーブルを指定したい場合は
+        |skkeleton#register_kanatable()| で先にテーブルを作成してください。
+
 
 keepState                                         *skkeleton-config-keepState*
         (デフォルト v:false)
@@ -295,6 +318,7 @@ COMPLETION                                              *skkeleton-completion*
         \     'matchers': ['skkeleton'],
         \     'sorters': [],
         \     'minAutoCompleteLength': 2,
+        \     'isVolatile': v:true,
         \   },
         \ })
     call skkeleton#config({'completionRankFile': '~/.skkeleton/rank.json'})

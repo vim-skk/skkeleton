@@ -1,12 +1,12 @@
 import { config, setConfig } from "./config.ts";
 import { Context } from "./context.ts";
 import { anonymous, autocmd, Denops, fn, op, vars } from "./deps.ts";
-import { ensureObject, ensureString, isString } from "./deps/unknownutil.ts";
+import { assertObject, assertString, isString } from "./deps/unknownutil.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { modeChange } from "./function/mode.ts";
 import * as jisyo from "./jisyo.ts";
 import { currentLibrary, SkkServer } from "./jisyo.ts";
-import { registerKanaTable } from "./kana.ts";
+import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { initializeState } from "./state.ts";
@@ -41,9 +41,7 @@ async function init(denops: Denops) {
   currentContext.get().denops = denops;
   const {
     completionRankFile,
-    globalJisyo,
     userJisyo,
-    globalJisyoEncoding,
     useSkkServer,
     skkServerHost,
     skkServerPort,
@@ -62,16 +60,28 @@ async function init(denops: Denops) {
     skkServer = new SkkServer(skkServerOptions);
   }
   const homePath = await fn.expand(denops, "~") as string;
-  jisyo.currentLibrary.set(
+  const globalDictionaries =
+    (config.globalDictionaries.length === 0
+      ? [[config.globalJisyo, config.globalJisyoEncoding]]
+      : config.globalDictionaries)
+      .map((
+        cfg,
+      ): [string, string] => {
+        if (typeof (cfg) === "string") {
+          return [homeExpand(cfg, homePath), ""];
+        } else {
+          return [homeExpand(cfg[0], homePath), cfg[1]];
+        }
+      });
+  jisyo.currentLibrary.setInitializer(async () =>
     await jisyo.load(
-      homeExpand(globalJisyo, homePath),
+      globalDictionaries,
       {
         path: homeExpand(userJisyo, homePath),
         rankPath: homeExpand(completionRankFile, homePath),
       },
-      globalJisyoEncoding,
       skkServer,
-    ),
+    )
   );
   await receiveNotation(denops);
   const id = anonymous.add(denops, () => {
@@ -104,12 +114,20 @@ async function enable(key?: unknown, vimStatus?: unknown): Promise<string> {
     return handle(key, vimStatus);
   }
   if (await denops.eval("&l:iminsert") !== 1) {
+    // Note: must set before context initialization
+    currentKanaTable.set(config.kanaTable);
+
     currentContext.init().denops = denops;
     try {
       await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-pre");
     } catch (e) {
       console.log(e);
     }
+
+    // NOTE: Disable textwidth
+    currentContext.get().textwidth = await op.textwidth.getLocal(denops);
+    await op.textwidth.setLocal(denops, 0);
+
     await denops.call("skkeleton#map");
     await op.iminsert.setLocal(denops, 1);
     await vars.b.set(denops, "keymap_name", "skkeleton");
@@ -136,16 +154,19 @@ async function disable(key?: unknown, vimStatus?: unknown): Promise<string> {
   return context.preEdit.output(context.toString());
 }
 
-function handleCompleteKey(
+async function handleCompleteKey(
+  denops: Denops,
   completed: boolean,
+  isNativePum: boolean,
   notation: string,
-): string | null {
+): Promise<string | null> {
   if (notation === "<enter>") {
     if (completed && config.eggLikeNewline) {
-      return notationToKey["<c-y>"];
+      return isNativePum
+        ? notationToKey["<c-y>"]
+        : await denops.call("pum#map#confirm") as string;
     }
   }
-  // TODO: pum.vim対応する
   return null;
 }
 
@@ -165,9 +186,10 @@ type VimStatus = {
 };
 
 async function handle(key: unknown, vimStatus: unknown): Promise<string> {
-  ensureString(key);
+  assertString(key);
   const { completeInfo, isNativePum, mode } = vimStatus as VimStatus;
   const context = currentContext.get();
+  const denops = context.denops!;
   context.vimMode = mode;
   if (completeInfo.pum_visible) {
     if (config.debug) {
@@ -194,7 +216,12 @@ async function handle(key: unknown, vimStatus: unknown): Promise<string> {
       initializeState(context.state, ["converter"]);
       context.preEdit.output("");
     }
-    const handled = handleCompleteKey(completed, notation);
+    const handled = await handleCompleteKey(
+      denops,
+      completed,
+      isNativePum,
+      notation,
+    );
     if (isString(handled)) {
       return handled;
     }
@@ -214,18 +241,18 @@ export async function main(denops: Denops) {
   }
   denops.dispatcher = {
     config(config: unknown) {
-      ensureObject(config);
+      assertObject(config);
       setConfig(config);
       return Promise.resolve();
     },
     async registerKeyMap(state: unknown, key: unknown, funcName: unknown) {
-      ensureString(state);
-      ensureString(key);
+      assertString(state);
+      assertString(key);
       await receiveNotation(denops);
       registerKeyMap(state, key, funcName);
     },
     registerKanaTable(tableName: unknown, table: unknown, create: unknown) {
-      ensureString(tableName);
+      assertString(tableName);
       registerKanaTable(tableName, table, !!create);
       return Promise.resolve();
     },
@@ -263,24 +290,27 @@ export async function main(denops: Denops) {
       }
       return Promise.resolve(state.henkanFeed);
     },
-    getCandidates(): Promise<CompletionData> {
+    async getCandidates(): Promise<CompletionData> {
       const state = currentContext.get().state;
       if (state.type !== "input") {
         return Promise.resolve([]);
       }
-      return currentLibrary.get().getCandidates(state.henkanFeed);
+      const lib = await currentLibrary.get();
+      return lib.getCandidates(state.henkanFeed, state.feed);
     },
-    getRanks(): Promise<RankData> {
+    async getRanks(): Promise<RankData> {
       const state = currentContext.get().state;
       if (state.type !== "input") {
         return Promise.resolve([]);
       }
-      return Promise.resolve(currentLibrary.get().getRanks(state.henkanFeed));
+      const lib = await currentLibrary.get();
+      return Promise.resolve(lib.getRanks(state.henkanFeed));
     },
     async completeCallback(kana: unknown, word: unknown, initialize: unknown) {
-      ensureString(kana);
-      ensureString(word);
-      await currentLibrary.get().registerCandidate("okurinasi", kana, word);
+      assertString(kana);
+      assertString(word);
+      const lib = await currentLibrary.get();
+      await lib.registerCandidate("okurinasi", kana, word);
       // <C-y>で呼ばれた際にstateの初期化を行う
       if (initialize) {
         const context = currentContext.get();

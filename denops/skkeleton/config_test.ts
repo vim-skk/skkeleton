@@ -6,7 +6,7 @@ import { currentLibrary } from "./jisyo.ts";
 
 const defaultConfig = { ...config };
 
-const lib = currentLibrary.get();
+const lib = await currentLibrary.get();
 lib.registerCandidate("okurinasi", "あ", "あ");
 
 Deno.test({

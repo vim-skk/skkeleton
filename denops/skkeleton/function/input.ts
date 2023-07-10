@@ -57,7 +57,8 @@ async function doKakutei(
     return;
   }
   kakuteiKana(state, preEdit, kana, feed);
-  if (state.mode === "okuriari" && !feed) {
+  // 直接入力などで「使った」のように打つ時「つかっ」の段階では変換をしない
+  if (state.mode === "okuriari" && !feed && state.okuriFeed.at(-1) !== "っ") {
     await henkanFirst(context, "");
   }
 }

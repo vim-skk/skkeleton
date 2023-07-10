@@ -99,7 +99,7 @@ function! skkeleton#handle(func, key) abort
     let ret = "\<Cmd>" .. ret[5:] .. "\<CR>"
   endif
   call skkeleton#doautocmd()
-  return ret
+  call feedkeys(ret, 'nit')
 endfunction
 
 " copied from eskk.vim
@@ -155,7 +155,7 @@ function! skkeleton#map() abort
         let func = match[1]
       endif
     endfor
-    execute printf('lnoremap <buffer> <expr> <nowait> %s skkeleton#handle(%s, %s)', c, string(func), string(k))
+    execute printf('lnoremap <buffer> <nowait> %s <Cmd>call skkeleton#handle(%s, %s)<CR>', c, string(func), string(k))
   endfor
 endfunction
 
