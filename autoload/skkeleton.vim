@@ -275,6 +275,10 @@ function! skkeleton#getchar(msg) abort
   return getchar()
 endfunction
 
-function skkeleton#get_config() abort
+function! skkeleton#get_config() abort
   return denops#request('skkeleton', 'getConfig', [])
+endfunction
+
+function! skkeleton#initialize() abort
+  call denops#notify('skkeleton', 'initialize', [])
 endfunction

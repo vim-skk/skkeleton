@@ -382,6 +382,12 @@ export async function main(denops: Denops) {
     async getConfig() {
       return config;
     },
+    async initialize() {
+      await init(denops);
+
+      // NOTE: Initialize dictionary
+      await currentLibrary.get();
+    },
   };
   if (config.debug) {
     await denops.cmd(`echomsg "loaded skkeleton"`);
