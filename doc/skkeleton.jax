@@ -342,7 +342,6 @@ skkeleton#register_kanatable({tableName}, {table}, {create})
           \ 'hh': ['お', 'h'],
           \ 'jj': 'escape',
           \ 'z,': ['―'],
-          \ "z\<Space>": ["\u3000"],
           \ })
     " ヘボン式入力
     call skkeleton#register_kanatable('rom', {
@@ -461,6 +460,9 @@ Vim は |:terminal| の挙動が異なるので漢字の変換をサポートし
 
 ==============================================================================
 CHANGELOG                                                *skkeleton-changelog*
+
+2023-07-11~
+- ローマ字テーブルに `z<Space>` を全角スペースにするルールを追加
 
 2023-07-10~
 - ターミナルモードで動作するようにした(thanks @Shougo)
