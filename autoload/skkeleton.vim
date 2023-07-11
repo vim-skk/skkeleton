@@ -280,5 +280,5 @@ function! skkeleton#get_config() abort
 endfunction
 
 function! skkeleton#initialize() abort
-  call denops#notify('initialize', [])
+  call denops#notify('skkeleton', 'initialize', [])
 endfunction
