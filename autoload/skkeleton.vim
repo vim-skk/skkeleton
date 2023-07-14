@@ -292,5 +292,5 @@ function! skkeleton#get_config() abort
 endfunction
 
 function! skkeleton#initialize() abort
-  call skkeleton#notify_async('skkeleton', 'initialize', [])
+  call skkeleton#notify_async('initialize', [])
 endfunction
