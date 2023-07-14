@@ -35,12 +35,24 @@ function! skkeleton#request_async(funcname, args) abort
   if denops#plugin#is_loaded('skkeleton')
     call denops#request('skkeleton', a:funcname, a:args)
   else
-    let s:pending_notify = add(get(s:, 'pending_notify', []), [a:funcname, a:args])
-    augroup skkeleton-notify
-      autocmd!
-      autocmd User DenopsPluginPost:skkeleton call s:send_notify()
-    augroup END
+    call s:notify_later(a:funcname, a:args)
   endif
+endfunction
+
+function! skkeleton#notify_async(funcname, args) abort
+  if denops#plugin#is_loaded('skkeleton')
+    call denops#notify('skkeleton', a:funcname, a:args)
+  else
+    call s:notify_later(a:funcname, a:args)
+  endif
+endfunction
+
+function! s:notify_later(funcname, args) abort
+  let s:pending_notify = add(get(s:, 'pending_notify', []), [a:funcname, a:args])
+  augroup skkeleton-notify
+    autocmd!
+    autocmd User DenopsPluginPost:skkeleton ++once call s:send_notify()
+  augroup END
 endfunction
 
 function! skkeleton#config(config) abort
@@ -280,5 +292,5 @@ function! skkeleton#get_config() abort
 endfunction
 
 function! skkeleton#initialize() abort
-  call denops#notify('skkeleton', 'initialize', [])
+  call skkeleton#notify_async('skkeleton', 'initialize', [])
 endfunction
