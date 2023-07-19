@@ -124,15 +124,21 @@ endfunction
 
 function! skkeleton#handle(func, opts) abort
   let ret = skkeleton#request(a:func, [a:opts, skkeleton#vim_status()])
+
   let g:skkeleton#state = ret.state
+
   let result = ret.result
   if result =~# "^<Cmd>"
     let result = "\<Cmd>" .. result[5:] .. "\<CR>"
   endif
+
   call skkeleton#doautocmd()
+
   if get(a:opts, 'expr', v:false)
     return result
-  else
+  endif
+
+  if result !=# ''
     call feedkeys(result, 'nit')
   endif
 endfunction
