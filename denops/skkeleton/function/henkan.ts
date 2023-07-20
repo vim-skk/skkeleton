@@ -32,9 +32,6 @@ export async function henkanFirst(context: Context, key: string) {
   state.candidateIndex = -1;
 
   const lib = await currentLibrary.get();
-  if (config.immediatelyJisyoRW) {
-    await lib.load();
-  }
   const word = state.mode === "okurinasi"
     ? state.henkanFeed
     : getOkuriStr(state.henkanFeed, state.okuriFeed);
