@@ -577,6 +577,9 @@ export class Library {
   }
 
   async getCandidate(type: HenkanType, word: string): Promise<string[]> {
+    if (config.immediatelyJisyoRW) {
+      await this.load();
+    }
     const merged = new Set<string>();
     for (const dic of this.#dictionaries) {
       for (const c of await dic.getCandidate(type, word)) {
@@ -587,6 +590,9 @@ export class Library {
   }
 
   async getCandidates(prefix: string, feed: string): Promise<CompletionData> {
+    if (config.immediatelyJisyoRW) {
+      await this.load();
+    }
     const collector = new Map<string, Set<string>>();
     if (prefix.length == 0) {
       return [];
