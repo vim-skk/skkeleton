@@ -45,10 +45,11 @@ export type ConfigOptions = {
   globalDictionaries: (string | [string, string])[];
   globalJisyo: string;
   globalJisyoEncoding: Encoding;
+  globalKanaTableFiles: (string | [string, string])[];
   immediatelyCancel: boolean;
   immediatelyJisyoRW: boolean;
+  immediatelyOkuriConvert: boolean;
   kanaTable: string;
-  globalKanaTableFiles: (string | [string, string])[];
   keepState: boolean;
   markerHenkan: string;
   markerHenkanSelect: string;

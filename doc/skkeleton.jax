@@ -243,6 +243,16 @@ immediatelyJisyoRW                       *skkeleton-config-immediatelyJisyoRW*
         変換や確定の度にユーザー辞書を読み書きするようになります。
         複数のVimインスタンスを同時に使う場合に有用かもしれません。
 
+immediatelyOkuriConvert             *skkeleton-config-immediatelyOkuriConvert*
+        (デフォルト v:true)
+        有効にすると、送りあり変換時に直接「っ」を打った時点で
+        タ行の送り仮名が打たれたと判断し変換を開始します。
+        Note: ローマ時入力で連続入力で「っ」を入力する場合など、続く文字が
+              入力される場合には影響しません。
+        Note: 機能追加に際しタ行決め打ちにする根拠を調査して頂いたので
+              載せておきます。
+              https://blog.atusy.net/2023/08/01/skk-azik-and-sokuon-okuri/
+
 kanaTable                                         *skkeleton-config-kanaTable*
         (デフォルト "rom")
         使用する仮名テーブルを指定します。

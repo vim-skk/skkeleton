@@ -18,10 +18,11 @@ export const config: ConfigOptions = {
   globalDictionaries: [],
   globalJisyo: "/usr/share/skk/SKK-JISYO.L",
   globalJisyoEncoding: "euc-jp",
+  globalKanaTableFiles: [],
   immediatelyCancel: true,
   immediatelyJisyoRW: true,
+  immediatelyOkuriConvert: true,
   kanaTable: "rom",
-  globalKanaTableFiles: [],
   keepState: false,
   markerHenkan: "▽",
   markerHenkanSelect: "▼",
@@ -60,16 +61,6 @@ const validators: Validators = {
   },
   globalJisyo: assertString,
   globalJisyoEncoding: assertString,
-  immediatelyCancel: assertBoolean,
-  immediatelyJisyoRW: assertBoolean,
-  kanaTable: (x): asserts x is string => {
-    assertString(x);
-    try {
-      getKanaTable(x);
-    } catch {
-      throw TypeError("can't use undefined kanaTable: " + x);
-    }
-  },
   globalKanaTableFiles: (x): asserts x is (string | [string, string])[] => {
     if (
       !isArray(
@@ -81,6 +72,17 @@ const validators: Validators = {
       throw TypeError(
         "'globalKanaTableFiles' must be array of two string tuple",
       );
+    }
+  },
+  immediatelyCancel: assertBoolean,
+  immediatelyJisyoRW: assertBoolean,
+  immediatelyOkuriConvert: assertBoolean,
+  kanaTable: (x): asserts x is string => {
+    assertString(x);
+    try {
+      getKanaTable(x);
+    } catch {
+      throw TypeError("can't use undefined kanaTable: " + x);
     }
   },
   keepState: assertBoolean,
