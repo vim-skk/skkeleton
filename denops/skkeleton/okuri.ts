@@ -85,6 +85,13 @@ const okuriTable: Record<string, string> = {
 };
 
 export function getOkuriStr(word: string, okuri: string): string {
+  // 「送っ」のような段階で変換する際は、タ行の入力がされているように振る舞う
+  // libskkなどはこの動作を行う
+  // 根拠として、促音のほとんどがタ行という調査結果が挙げられる
+  // https://blog.atusy.net/2023/08/01/skk-azik-and-sokuon-okuri/
+  if (okuri === "っ") {
+    return word + "t";
+  }
   const alpha = okuriTable[okuri.match(/[^っ]/)?.[0] ?? ""];
   return word + alpha;
 }
