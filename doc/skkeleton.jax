@@ -445,7 +445,7 @@ sticky keyの挙動をeskk.vimに合わせる~
 
 skkeletonでは旧来の ddskkにある辞書形式の他に JISYO形式と呼ばれる JSON/ YAMLで
 整形された辞書形式をサポートしています。これらは、SKK-JISYO.L.yamlのように
-拡張子に yaml, yml, jsonのいずれかが指定されているとき有効化されます。
+拡張子に yaml, yml, json, mpk (msgpack) のいずれかが指定されているとき有効化されます。
 くわしくは、https://github.com/skk-dict/jisyo を参照してください。
 
 ==============================================================================
