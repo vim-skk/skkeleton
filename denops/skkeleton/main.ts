@@ -97,7 +97,7 @@ async function init(denops: Denops) {
       .map(async (
         cfg,
       ): Promise<[string, string]> => {
-        if (typeof (cfg) === "string") {
+        if (typeof cfg === "string") {
           return [await homeExpand(cfg, denops), ""];
         } else {
           return [await homeExpand(cfg[0], denops), cfg[1]];
