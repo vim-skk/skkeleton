@@ -1,5 +1,5 @@
 import { Denops } from "./deps.ts";
-import { assert, is } from "./deps/unknownutil.ts";
+import { ensure, is } from "./deps/unknownutil.ts";
 import { getKanaTable, loadKanaTableFiles } from "./kana.ts";
 import { ConfigOptions, Encode, Encoding } from "./types.ts";
 import { homeExpand } from "./util.ts";
@@ -34,80 +34,79 @@ export const config: ConfigOptions = {
 };
 
 type Validators = {
-  [P in keyof typeof config]: (x: unknown) => asserts x is typeof config[P];
+  [P in keyof typeof config]: (x: unknown) => typeof config[P];
 };
 
+function ensureEncoding(x: unknown): Encoding {
+  if (is.String(x) && x in Encode) {
+    return x as Encoding;
+  }
+  throw TypeError(`${x} is invalid encoding`);
+}
+
 const validators: Validators = {
-  acceptIllegalResult: (x) => assert(x, is.Boolean),
-  completionRankFile: (x) => assert(x, is.String),
-  debug: (x) => assert(x, is.Boolean),
-  eggLikeNewline: (x) => assert(x, is.Boolean),
-  globalDictionaries: (x): asserts x is (string | [string, string])[] => {
+  acceptIllegalResult: (x) => ensure(x, is.Boolean),
+  completionRankFile: (x) => ensure(x, is.String),
+  debug: (x) => ensure(x, is.Boolean),
+  eggLikeNewline: (x) => ensure(x, is.Boolean),
+  globalDictionaries: (x): (string | [string, string])[] => {
     if (
-      !is.Array(
-        x,
+      !is.ArrayOf(
         (x): x is string | [string, string] =>
           is.String(x) || is.ArrayOf(is.String)(x) && x.length === 2,
-      )
+      )(x)
     ) {
       throw TypeError("'globalDictionaries' must be array of two string tuple");
     }
+    return x;
   },
-  globalJisyo: (x) => assert(x, is.String),
-  globalJisyoEncoding: (x) => assert(x, is.String),
-  globalKanaTableFiles: (x): asserts x is (string | [string, string])[] => {
+  globalJisyo: (x) => ensure(x, is.String),
+  globalJisyoEncoding: ensureEncoding,
+  globalKanaTableFiles: (x): (string | [string, string])[] => {
     if (
-      !is.Array(
-        x,
+      !is.ArrayOf(
         (x): x is string | [string, string] =>
           is.String(x) || is.ArrayOf(is.String)(x) && x.length === 2,
-      )
+      )(x)
     ) {
       throw TypeError(
         "'globalKanaTableFiles' must be array of two string tuple",
       );
     }
+    return x;
   },
-  immediatelyCancel: (x) => assert(x, is.Boolean),
-  immediatelyJisyoRW: (x) => assert(x, is.Boolean),
-  immediatelyOkuriConvert: (x) => assert(x, is.Boolean),
-  kanaTable: (x): asserts x is string => {
-    assert(x, is.String);
+  immediatelyCancel: (x) => ensure(x, is.Boolean),
+  immediatelyJisyoRW: (x) => ensure(x, is.Boolean),
+  immediatelyOkuriConvert: (x) => ensure(x, is.Boolean),
+  kanaTable: (x): string => {
+    const name = ensure(x, is.String);
     try {
-      getKanaTable(x);
+      getKanaTable(name);
     } catch {
       throw TypeError("can't use undefined kanaTable: " + x);
     }
+    return name;
   },
-  keepState: (x) => assert(x, is.Boolean),
-  markerHenkan: (x) => assert(x, is.String),
-  markerHenkanSelect: (x) => assert(x, is.String),
-  registerConvertResult: (x) => assert(x, is.Boolean),
-  selectCandidateKeys: (x): asserts x is string => {
-    assert(x, is.String);
-    if (x.length !== 7) {
+  keepState: (x) => ensure(x, is.Boolean),
+  markerHenkan: (x) => ensure(x, is.String),
+  markerHenkanSelect: (x) => ensure(x, is.String),
+  registerConvertResult: (x) => ensure(x, is.Boolean),
+  selectCandidateKeys: (x) => {
+    const keys = ensure(x, is.String);
+    if (keys.length !== 7) {
       throw TypeError("selectCandidateKeys.length !== 7");
     }
+    return keys;
   },
-  setUndoPoint: (x) => assert(x, is.Boolean),
-  showCandidatesCount: (x) => assert(x, is.Number),
-  skkServerHost: (x) => assert(x, is.String),
-  skkServerPort: (x) => assert(x, is.Number),
-  skkServerReqEnc: (x): asserts x is Encoding => {
-    assert(x, is.String);
-    if (!(x in Encode)) {
-      throw TypeError(`${x} is invalid encoding`);
-    }
-  },
-  skkServerResEnc: (x): asserts x is Encoding => {
-    assert(x, is.String);
-    if (!(x in Encode)) {
-      throw TypeError(`${x} is invalid encoding`);
-    }
-  },
-  usePopup: (x) => assert(x, is.Boolean),
-  useSkkServer: (x) => assert(x, is.Boolean),
-  userJisyo: (x) => assert(x, is.String),
+  setUndoPoint: (x) => ensure(x, is.Boolean),
+  showCandidatesCount: (x) => ensure(x, is.Number),
+  skkServerHost: (x) => ensure(x, is.String),
+  skkServerPort: (x) => ensure(x, is.Number),
+  skkServerReqEnc: ensureEncoding,
+  skkServerResEnc: ensureEncoding,
+  usePopup: (x) => ensure(x, is.Boolean),
+  useSkkServer: (x) => ensure(x, is.Boolean),
+  userJisyo: (x) => ensure(x, is.String),
 };
 
 export async function setConfig(
@@ -123,8 +122,7 @@ export async function setConfig(
   for (const k in newConfig) {
     try {
       if (val[k]) {
-        val[k](newConfig[k]);
-        cfg[k] = newConfig[k];
+        cfg[k] = val[k](newConfig[k]);
       } else {
         throw TypeError(`unknown option: ${k}`);
       }
