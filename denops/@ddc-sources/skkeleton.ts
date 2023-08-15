@@ -13,7 +13,7 @@ export type CompletionMetadata = {
   rank: number;
 };
 
-type Params = Record<never, never>;
+type Params = Record<string, never>;
 
 export class Source extends BaseSource<Params> {
   async getCompletePosition(
