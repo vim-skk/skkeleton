@@ -1,1 +1,1 @@
-export { iterateReader } from "https://deno.land/std@0.198.0/streams/conversion.ts";
+export { iterateReader } from "https://deno.land/std@0.198.0/streams/mod.ts";
