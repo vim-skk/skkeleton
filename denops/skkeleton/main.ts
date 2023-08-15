@@ -1,11 +1,6 @@
 import { config, setConfig } from "./config.ts";
 import { autocmd, Denops, fn, op, vars } from "./deps.ts";
-import {
-  AssertError,
-  assertObject,
-  assertString,
-  isString,
-} from "./deps/unknownutil.ts";
+import { assert, AssertError, is } from "./deps/unknownutil.ts";
 import { functions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { initializeStateWithAbbrev, modeChange } from "./mode.ts";
@@ -241,7 +236,7 @@ async function handle(
       completeType,
       notation,
     );
-    if (isString(handled)) {
+    if (is.String(handled)) {
       await initializeStateWithAbbrev(context, ["converter"]);
       context.preEdit.output("");
       return handled;
@@ -293,18 +288,18 @@ export async function main(denops: Denops) {
   }
   denops.dispatcher = {
     async config(config: unknown) {
-      assertObject(config);
+      assert(config, is.Record);
       await setConfig(config, denops);
       return;
     },
     async registerKeyMap(state: unknown, key: unknown, funcName: unknown) {
-      assertString(state);
-      assertString(key);
+      assert(state, is.String);
+      assert(key, is.String);
       await receiveNotation(denops);
       registerKeyMap(state, key, funcName);
     },
     registerKanaTable(tableName: unknown, table: unknown, create: unknown) {
-      assertString(tableName);
+      assert(tableName, is.String);
       registerKanaTable(tableName, table, !!create);
       return Promise.resolve();
     },
@@ -367,8 +362,8 @@ export async function main(denops: Denops) {
       await denops.dispatcher.completeCallback(kana, word);
     },
     async completeCallback(kana: unknown, word: unknown) {
-      assertString(kana);
-      assertString(word);
+      assert(kana, is.String);
+      assert(word, is.String);
       const lib = await currentLibrary.get();
       await lib.registerCandidate("okurinasi", kana, word);
       const context = currentContext.get();

@@ -1,11 +1,5 @@
 import { Denops } from "./deps.ts";
-import {
-  assertBoolean,
-  assertNumber,
-  assertString,
-  isArray,
-  isString,
-} from "./deps/unknownutil.ts";
+import { assert, is } from "./deps/unknownutil.ts";
 import { getKanaTable, loadKanaTableFiles } from "./kana.ts";
 import { ConfigOptions, Encode, Encoding } from "./types.ts";
 import { homeExpand } from "./util.ts";
@@ -44,29 +38,29 @@ type Validators = {
 };
 
 const validators: Validators = {
-  acceptIllegalResult: assertBoolean,
-  completionRankFile: assertString,
-  debug: assertBoolean,
-  eggLikeNewline: assertBoolean,
+  acceptIllegalResult: (x) => assert(x, is.Boolean),
+  completionRankFile: (x) => assert(x, is.String),
+  debug: (x) => assert(x, is.Boolean),
+  eggLikeNewline: (x) => assert(x, is.Boolean),
   globalDictionaries: (x): asserts x is (string | [string, string])[] => {
     if (
-      !isArray(
+      !is.Array(
         x,
         (x): x is string | [string, string] =>
-          isString(x) || isArray(x, isString) && x.length === 2,
+          is.String(x) || is.ArrayOf(is.String)(x) && x.length === 2,
       )
     ) {
       throw TypeError("'globalDictionaries' must be array of two string tuple");
     }
   },
-  globalJisyo: assertString,
-  globalJisyoEncoding: assertString,
+  globalJisyo: (x) => assert(x, is.String),
+  globalJisyoEncoding: (x) => assert(x, is.String),
   globalKanaTableFiles: (x): asserts x is (string | [string, string])[] => {
     if (
-      !isArray(
+      !is.Array(
         x,
         (x): x is string | [string, string] =>
-          isString(x) || isArray(x, isString) && x.length === 2,
+          is.String(x) || is.ArrayOf(is.String)(x) && x.length === 2,
       )
     ) {
       throw TypeError(
@@ -74,46 +68,46 @@ const validators: Validators = {
       );
     }
   },
-  immediatelyCancel: assertBoolean,
-  immediatelyJisyoRW: assertBoolean,
-  immediatelyOkuriConvert: assertBoolean,
+  immediatelyCancel: (x) => assert(x, is.Boolean),
+  immediatelyJisyoRW: (x) => assert(x, is.Boolean),
+  immediatelyOkuriConvert: (x) => assert(x, is.Boolean),
   kanaTable: (x): asserts x is string => {
-    assertString(x);
+    assert(x, is.String);
     try {
       getKanaTable(x);
     } catch {
       throw TypeError("can't use undefined kanaTable: " + x);
     }
   },
-  keepState: assertBoolean,
-  markerHenkan: assertString,
-  markerHenkanSelect: assertString,
-  registerConvertResult: assertBoolean,
+  keepState: (x) => assert(x, is.Boolean),
+  markerHenkan: (x) => assert(x, is.String),
+  markerHenkanSelect: (x) => assert(x, is.String),
+  registerConvertResult: (x) => assert(x, is.Boolean),
   selectCandidateKeys: (x): asserts x is string => {
-    assertString(x);
+    assert(x, is.String);
     if (x.length !== 7) {
       throw TypeError("selectCandidateKeys.length !== 7");
     }
   },
-  setUndoPoint: assertBoolean,
-  showCandidatesCount: assertNumber,
-  skkServerHost: assertString,
-  skkServerPort: assertNumber,
+  setUndoPoint: (x) => assert(x, is.Boolean),
+  showCandidatesCount: (x) => assert(x, is.Number),
+  skkServerHost: (x) => assert(x, is.String),
+  skkServerPort: (x) => assert(x, is.Number),
   skkServerReqEnc: (x): asserts x is Encoding => {
-    assertString(x);
+    assert(x, is.String);
     if (!(x in Encode)) {
       throw TypeError(`${x} is invalid encoding`);
     }
   },
   skkServerResEnc: (x): asserts x is Encoding => {
-    assertString(x);
+    assert(x, is.String);
     if (!(x in Encode)) {
       throw TypeError(`${x} is invalid encoding`);
     }
   },
-  usePopup: assertBoolean,
-  useSkkServer: assertBoolean,
-  userJisyo: assertString,
+  usePopup: (x) => assert(x, is.Boolean),
+  useSkkServer: (x) => assert(x, is.Boolean),
+  userJisyo: (x) => assert(x, is.String),
 };
 
 export async function setConfig(
