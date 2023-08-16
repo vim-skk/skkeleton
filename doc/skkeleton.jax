@@ -470,14 +470,16 @@ Vim は |:terminal| の挙動が異なるので漢字の変換をサポートし
 
 skkeleton有効時にカーソルの色がlCursorにならない~
 
-skkeletonは|:lmap|を使用しなくなりました。カーソルの色を|lCursor|に変えたい場
-合は以下のような設定をする必要があります。
+skkeletonは|:lmap|を使用しなくなりました。カーソルの色を動的に変更したい場合は
+以下のような設定をする必要があります。
 
 >
-    augroup skkeleton-lCursor
+    augroup skkeleton-cursor
       autocmd!
-      autocmd User skkeleton-enable-pre,skkeleton-disable-pre
-            \ call feedkeys("\<C-^>", 'nit')
+      autocmd User skkeleton-enable-pre
+            \ highlight Cursor       gui=NONE guibg=#80403f guifg=fg
+      autocmd User skkeleton-disable-pre
+            \ highlight Cursor       gui=NONE guibg=#606060 guifg=fg
     augroup END
 <
 ==============================================================================
