@@ -468,6 +468,18 @@ Vim の端末モードで漢字変換ができない~
 Vim は |:terminal| の挙動が異なるので漢字の変換をサポートしていません。neovim
 は動作します。
 
+skkeleton有効時にカーソルの色がlCursorにならない~
+
+skkeletonは|:lmap|を使用しなくなりました。カーソルの色を|lCursor|に変えたい場
+合は以下のような設定をする必要があります。
+
+>
+    augroup skkeleton-lCursor
+      autocmd!
+      autocmd User skkeleton-enable-pre,skkeleton-disable-pre
+            \ call feedkeys("\<C-^>", 'nit')
+    augroup END
+<
 ==============================================================================
 CHANGELOG                                                *skkeleton-changelog*
 
