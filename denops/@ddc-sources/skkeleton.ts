@@ -2,9 +2,10 @@ import {
   BaseSource,
   GatherArguments,
   GetCompletePositionArguments,
+  GetPreviewerArguments,
   OnCompleteDoneArguments,
 } from "../skkeleton/deps/ddc/source.ts";
-import { DdcGatherItems } from "../skkeleton/deps/ddc/types.ts";
+import { DdcGatherItems, Previewer } from "../skkeleton/deps/ddc/types.ts";
 import type { CompletionData, RankData } from "../skkeleton/types.ts";
 
 export type CompletionMetadata = {
@@ -63,6 +64,20 @@ export class Source extends BaseSource<Params> {
 
   params() {
     return {};
+  }
+
+  getPreviewer(
+    args: GetPreviewerArguments<Params, unknown>,
+  ): Promise<Previewer> {
+    if (args.item.info == null || args.item.info.length === 0) {
+      return Promise.resolve({
+        kind: "empty",
+      });
+    }
+    return Promise.resolve({
+      kind: "text",
+      contents: [args.item.info],
+    });
   }
 
   async onCompleteDone(
