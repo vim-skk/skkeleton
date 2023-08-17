@@ -69,11 +69,12 @@ export class Source extends BaseSource<Params> {
   getPreviewer(
     args: GetPreviewerArguments<Params, unknown>,
   ): Promise<Previewer> {
-    if (args.item.info == null || args.item.info.length === 0) {
+    if (!args.item.info || args.item.info.length === 0) {
       return Promise.resolve({
         kind: "empty",
       });
     }
+
     return Promise.resolve({
       kind: "text",
       contents: [args.item.info],
