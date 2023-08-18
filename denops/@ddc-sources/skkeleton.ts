@@ -6,7 +6,12 @@ import {
   OnCompleteDoneArguments,
 } from "../skkeleton/deps/ddc/source.ts";
 import { DdcGatherItems, Previewer } from "../skkeleton/deps/ddc/types.ts";
-import type { CompletionData, RankData } from "../skkeleton/types.ts";
+import { fn } from "../skkeleton/deps.ts";
+import type {
+  CompletionData,
+  ConfigOptions,
+  RankData,
+} from "../skkeleton/types.ts";
 
 export type CompletionMetadata = {
   kana: string;
@@ -42,11 +47,17 @@ export class Source extends BaseSource<Params> {
     // グローバル辞書由来の候補はユーザー辞書の末尾より配置する
     // 辞書順に並べるため先頭から順に負の方向にランクを振っていく
     let globalRank = -1;
+    const config = await args.denops.call(
+      "skkeleton#get_config",
+    ) as ConfigOptions;
+    const abbrPrefix = " ".repeat(
+      await fn.strwidth(args.denops, config.markerHenkan),
+    );
     const ddcCandidates = candidates.flatMap((e) => {
       return e[1].map((word) => ({
         word: word.replace(/;.*$/, ""),
         // NOTE: add space for workaround of neovim draw screen bug
-        abbr: " " + word.replace(/;.*$/, ""),
+        abbr: abbrPrefix + word.replace(/;.*$/, ""),
         info: word.indexOf(";") > 1 ? word.replace(/.*;/, "") : "",
         user_data: {
           kana: e[0],
