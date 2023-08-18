@@ -6,10 +6,8 @@ import {
   OnCompleteDoneArguments,
 } from "../skkeleton/deps/ddc/source.ts";
 import { DdcGatherItems, Previewer } from "../skkeleton/deps/ddc/types.ts";
-import type {
-  CompletionData,
-  RankData,
-} from "../skkeleton/types.ts";
+import { fn } from "../skkeleton/deps.ts";
+import type { CompletionData, RankData } from "../skkeleton/types.ts";
 
 export type CompletionMetadata = {
   kana: string;
@@ -45,9 +43,13 @@ export class Source extends BaseSource<Params> {
     // グローバル辞書由来の候補はユーザー辞書の末尾より配置する
     // 辞書順に並べるため先頭から順に負の方向にランクを振っていく
     let globalRank = -1;
-    // NOTE: neovim の場合、floatwin 境界にマルチバイトがあると表示が崩れるバグ
-    // がある
-    const abbrPrefix = args.denops.meta.host === "nvim" ? " " : "";
+
+    // NOTE: neovim < 0.10 の場合、floatwin 境界にマルチバイトがあると表示が崩
+    // れるバグがある
+    const abbrPrefix = args.denops.meta.host === "nvim" &&
+        !await fn.has(args.denops, "nvim-0.10")
+      ? " "
+      : "";
     const ddcCandidates = candidates.flatMap((e) => {
       return e[1].map((word) => ({
         word: word.replace(/;.*$/, ""),
