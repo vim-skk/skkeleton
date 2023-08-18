@@ -47,8 +47,9 @@ export class Source extends BaseSource<Params> {
     // グローバル辞書由来の候補はユーザー辞書の末尾より配置する
     // 辞書順に並べるため先頭から順に負の方向にランクを振っていく
     let globalRank = -1;
-    const config = await args.denops.call(
-      "skkeleton#get_config",
+    const config = await args.denops.dispatch(
+      "skkeleton",
+      "getConfig",
     ) as ConfigOptions;
     const abbrPrefix = " ".repeat(
       await fn.strwidth(args.denops, config.markerHenkan),
