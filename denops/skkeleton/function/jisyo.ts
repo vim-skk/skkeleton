@@ -11,15 +11,8 @@ const cmapKeys = ["<Esc>", "<C-g>"];
 export async function jisyoTouroku(context: Context): Promise<boolean> {
   const denops = context.denops!;
   const state = context.state as HenkanState;
-  const cmap = await Promise.all(
-    cmapKeys.map(async (
-      key,
-    ) => ({
-      key,
-      map: await mapping.read(denops, key, { mode: "c" }).catch(() => {}),
-    })),
-  );
   await batch(denops, async (denops) => {
+    await denops.call("skkeleton#save_map", "c", cmapKeys);
     for (const k of cmapKeys) {
       await mapping.map(denops, k, "__skkeleton_return__<CR>", {
         buffer: true,
@@ -56,15 +49,6 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
       await autocmd.emit(denops, "User", "skkeleton-enable-pre", {
         nomodeline: true,
       });
-      // restore mapping
-      for (const m of cmap) {
-        if (m.map?.buffer) {
-          await mapping.map(denops, m.map.lhs, m.map.rhs, m.map);
-        } else {
-          // await mapping.unmap(denops, m.map.lhs);
-          await denops.cmd(`silent! cunmap <buffer> ${m.key}`);
-        }
-      }
       // restore skkeleton mode
       await denops.call("skkeleton#map");
       await vars.g.set(denops, "skkeleton#enabled", true);
