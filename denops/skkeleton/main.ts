@@ -14,7 +14,7 @@ import type { CompletionData, RankData, SkkServerOptions } from "./types.ts";
 import { homeExpand } from "./util.ts";
 
 type Opts = {
-  key: string;
+  key: string | string[];
   function?: string;
   expr?: boolean;
 };
@@ -40,7 +40,7 @@ type HandleResult = {
 
 // deno-lint-ignore no-explicit-any
 function isOpts(x: any): x is Opts {
-  return is.String(x?.key);
+  return is.String(x?.key) || is.ArrayOf(is.String)(x?.key);
 }
 
 function assertOpts(x: unknown): asserts x is Opts {
@@ -215,7 +215,7 @@ async function handle(
   vimStatus: unknown,
 ): Promise<string> {
   assertOpts(opts);
-  const key = opts.key;
+  const keyList = is.String(opts.key) ? [opts.key] : opts.key;
   const { prevInput, completeInfo, completeType, mode } =
     vimStatus as VimStatus;
   const context = currentContext.get();
@@ -224,7 +224,9 @@ async function handle(
     if (config.debug) {
       console.log("input after complete");
     }
-    const notation = keyToNotation[notationToKey[key]];
+    const notation = keyList.map((key) => {
+      return keyToNotation[notationToKey[key]] || key;
+    }).join("");
     if (config.debug) {
       console.log({
         completeType,
@@ -249,9 +251,13 @@ async function handle(
   }
   const before = context.mode;
   if (opts.function) {
-    await functions.get()[opts.function](context, key);
+    for (const key of keyList) {
+      await functions.get()[opts.function](context, key);
+    }
   } else {
-    await handleKey(context, key);
+    for (const key of keyList) {
+      await handleKey(context, key);
+    }
   }
   const output = context.preEdit.output(context.toString());
   if (output === "" && before !== context.mode) {
