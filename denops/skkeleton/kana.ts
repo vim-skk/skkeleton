@@ -23,7 +23,7 @@ export function getKanaTable(name = currentKanaTable.get()): KanaTable {
 }
 
 function asKanaResult(result: unknown): KanaResult {
-  if (typeof result === "string") {
+  if (is.String(result)) {
     const fn = functions.get()[result];
     if (!fn) {
       throw Error(`function not found: ${result}`);

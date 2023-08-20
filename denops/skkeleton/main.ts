@@ -40,7 +40,7 @@ type HandleResult = {
 
 // deno-lint-ignore no-explicit-any
 function isOpts(x: any): x is Opts {
-  return typeof x?.key === "string";
+  return is.String(x?.key);
 }
 
 function assertOpts(x: unknown): asserts x is Opts {
@@ -92,7 +92,7 @@ async function init(denops: Denops) {
       .map(async (
         cfg,
       ): Promise<[string, string]> => {
-        if (typeof cfg === "string") {
+        if (is.String(cfg)) {
           return [await homeExpand(cfg, denops), ""];
         } else {
           return [await homeExpand(cfg[0], denops), cfg[1]];
