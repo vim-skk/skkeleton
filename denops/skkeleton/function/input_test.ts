@@ -2,7 +2,7 @@ import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { Denops, op } from "../deps.ts";
 import { test } from "../deps/denops_test.ts";
-import { assertEquals } from "../deps/std/testing.ts";
+import { assertEquals } from "../deps/std/assert.ts";
 import { initDenops } from "../testutil.ts";
 import { kakutei } from "./common.ts";
 import { deleteChar, henkanPoint } from "./input.ts";

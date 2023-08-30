@@ -1,6 +1,6 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
-import { assertEquals } from "../deps/std/testing.ts";
+import { assertEquals } from "../deps/std/assert.ts";
 import { currentLibrary } from "../store.ts";
 import { cancel, kakutei } from "./common.ts";
 import { dispatch } from "./testutil.ts";
