@@ -332,7 +332,7 @@ userJisyo                                     *skkeleton-config-userJisyo*
 
 ------------------------------------------------------------------------------
                                               *skkeleton#register_kanatable()*
-skkeleton#register_kanatable({tableName}, {table}, {create})
+skkeleton#register_kanatable({tableName}, {table} [, {create}])
         仮名入力のテーブルを登録できます。
         {tableName}で指定したテーブルに{table}で指定した辞書の定義が登録されま
         す。{create}が指定されていない場合は存在しないテーブル名を指定すると
