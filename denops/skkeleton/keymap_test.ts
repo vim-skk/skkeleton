@@ -33,6 +33,26 @@ test({
     await denops.cmd('call skkeleton#handle("handleKey", {"key": " "})');
     await denops.cmd('call skkeleton#handle("handleKey", {"key": "<bs>"})');
     assertEquals(currentContext.get().toString(), "▽あ");
+
+    currentContext.init().denops = denops;
+
+    // register a keymap that consists of a single capital letter
+    await denops.cmd(
+      'call skkeleton#register_keymap("henkan", "B", "henkanBackward")',
+    );
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "A"})');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": " "})');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "B"})');
+    assertEquals(currentContext.get().toString(), "▽あ");
+
+    currentContext.init().denops = denops;
+
+    // remove a keymap registered above
+    await denops.cmd('call skkeleton#register_keymap("henkan", "B", "")');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "A"})');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": " "})');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "B"})');
+    assertEquals(currentContext.get().toString(), "▽b");
   },
 });
 
