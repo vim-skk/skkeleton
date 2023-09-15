@@ -65,7 +65,9 @@ function! skkeleton#register_keymap(state, key, func_name)
   if 1 < strlen(key) && key[0] ==# '<'
     let key = eval('"\' .. key .. '"')
   endif
-  let key = get(g:skkeleton#notation#key_to_notation, key, key)
+  if key !~# '^[A-Z]$'
+    let key = get(g:skkeleton#notation#key_to_notation, key, key)
+  endif
 
   if len(key) != 1
     let key = tolower(key)
