@@ -1,5 +1,5 @@
 import { test } from "./deps/denops_test.ts";
-import { assertEquals } from "./deps/std/testing.ts";
+import { assertEquals } from "./deps/std/assert.ts";
 import { currentLibrary } from "./store.ts";
 import { currentContext } from "./store.ts";
 import { initDenops } from "./testutil.ts";
@@ -33,5 +33,49 @@ test({
     await denops.cmd('call skkeleton#handle("handleKey", {"key": " "})');
     await denops.cmd('call skkeleton#handle("handleKey", {"key": "<bs>"})');
     assertEquals(currentContext.get().toString(), "▽あ");
+
+    currentContext.init().denops = denops;
+
+    // register a keymap that consists of a single capital letter
+    await denops.cmd(
+      'call skkeleton#register_keymap("henkan", "B", "henkanBackward")',
+    );
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "A"})');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": " "})');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "B"})');
+    assertEquals(currentContext.get().toString(), "▽あ");
+
+    currentContext.init().denops = denops;
+
+    // remove a keymap registered above
+    await denops.cmd('call skkeleton#register_keymap("henkan", "B", "")');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "A"})');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": " "})');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "B"})');
+    assertEquals(currentContext.get().toString(), "▽b");
+  },
+});
+
+test({
+  mode: "all",
+  name: "send multiple keys into handleKey",
+  pluginName: "skkeleton",
+  async fn(denops) {
+    await initDenops(denops);
+    const lib = await currentLibrary.get();
+    lib.registerCandidate("okurinasi", "われ", "我");
+    lib.registerCandidate("okuriari", "おもu", "思");
+
+    await denops.cmd(
+      'call skkeleton#handle("handleKey", {"key": ["W", "a", "r", "e"]})',
+    );
+    assertEquals(currentContext.get().toString(), "▽われ");
+
+    currentContext.init().denops = denops;
+
+    await denops.cmd(
+      'call skkeleton#handle("handleKey", {"key": ["O", "m", "o", "U"]})',
+    );
+    assertEquals(currentContext.get().toString(), "▼思う");
   },
 });

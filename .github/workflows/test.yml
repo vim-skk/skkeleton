@@ -35,10 +35,10 @@ jobs:
           - macos-latest
           - ubuntu-latest
         version:
-          - "1.28.0"
+          - "1.32.0"
           - "1.x"
         host_version:
-          - vim: "v9.0.0449"
+          - vim: "v9.0.1499"
             nvim: "v0.8.0"
     runs-on: ${{ matrix.runner }}
     steps:

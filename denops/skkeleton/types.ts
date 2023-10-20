@@ -1,4 +1,4 @@
-import { isObject } from "./deps/unknownutil.ts";
+import { isRecord } from "./deps/unknownutil.ts";
 
 export type CompletionData = [string, string[]][];
 export type RankData = [string, number][];
@@ -9,7 +9,7 @@ export type CompletionMetadata = {
 };
 
 export function asCompletionMetadata(x: unknown): CompletionMetadata | null {
-  if (isObject(x) && x.tag === "skkeleton") {
+  if (isRecord(x) && x.tag === "skkeleton") {
     return x as CompletionMetadata;
   }
   return null;
@@ -45,10 +45,11 @@ export type ConfigOptions = {
   globalDictionaries: (string | [string, string])[];
   globalJisyo: string;
   globalJisyoEncoding: Encoding;
+  globalKanaTableFiles: (string | [string, string])[];
   immediatelyCancel: boolean;
   immediatelyJisyoRW: boolean;
+  immediatelyOkuriConvert: boolean;
   kanaTable: string;
-  globalKanaTableFiles: (string | [string, string])[];
   keepState: boolean;
   markerHenkan: string;
   markerHenkanSelect: string;

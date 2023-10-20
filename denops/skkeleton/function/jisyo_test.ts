@@ -1,6 +1,6 @@
 import { Denops } from "../deps.ts";
 import { test } from "../deps/denops_test.ts";
-import { assertEquals } from "../deps/std/testing.ts";
+import { assertEquals } from "../deps/std/assert.ts";
 import { currentKanaTable, getKanaTable } from "../kana.ts";
 import { currentContext } from "../store.ts";
 import { HenkanState } from "../state.ts";

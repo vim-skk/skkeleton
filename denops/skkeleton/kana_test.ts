@@ -1,7 +1,7 @@
 import { config } from "./config.ts";
 import { Context } from "./context.ts";
 import { test } from "./deps/denops_test.ts";
-import { assertEquals } from "./deps/std/testing.ts";
+import { assertEquals } from "./deps/std/assert.ts";
 import { dispatch } from "./function/testutil.ts";
 import { registerKanaTable } from "./kana.ts";
 import { currentContext } from "./store.ts";

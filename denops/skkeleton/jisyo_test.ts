@@ -1,5 +1,5 @@
 import { dirname, fromFileUrl, join } from "./deps/std/path.ts";
-import { assertEquals } from "./deps/std/testing.ts";
+import { assertEquals } from "./deps/std/assert.ts";
 import {
   Library,
   load as loadJisyo,

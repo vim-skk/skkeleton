@@ -6,7 +6,7 @@ import { JpNum } from "./deps/japanese_numeral.ts";
 import { RomanNum } from "./deps/roman.ts";
 import { zip } from "./deps/std/collections.ts";
 import { iterateReader } from "./deps/std/streams.ts";
-import { assertArray, isString } from "./deps/unknownutil.ts";
+import { assert, is } from "./deps/unknownutil.ts";
 import { Encode } from "./types.ts";
 import { jisyoschema, jsonschema, msgpack, yaml } from "./deps/jisyo.ts";
 
@@ -429,7 +429,7 @@ export class UserDictionary implements Dictionary {
       return;
     }
     const rankData = JSON.parse(await Deno.readTextFile(rankPath));
-    assertArray(rankData, isString);
+    assert(rankData, is.ArrayOf(is.String));
     this.#rank = new Map(rankData.map((c, i) => [c, i]));
   }
 
@@ -623,6 +623,9 @@ export class Library {
   }
 
   async getCandidate(type: HenkanType, word: string): Promise<string[]> {
+    if (config.immediatelyJisyoRW) {
+      await this.load();
+    }
     const merged = new Set<string>();
     for (const dic of this.#dictionaries) {
       for (const c of await dic.getCandidate(type, word)) {
@@ -633,6 +636,9 @@ export class Library {
   }
 
   async getCandidates(prefix: string, feed: string): Promise<CompletionData> {
+    if (config.immediatelyJisyoRW) {
+      await this.load();
+    }
     const collector = new Map<string, Set<string>>();
     if (prefix.length == 0) {
       return [];

@@ -95,6 +95,7 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
     " 例
     imap <C-j> <Plug>(skkeleton-enable)
     cmap <C-j> <Plug>(skkeleton-enable)
+    tmap <C-j> <Plug>(skkeleton-enable)
 <
 
 <Plug>(skkeleton-disable) (ic)                       *<Plug>(skkeleton-disable)*
@@ -104,6 +105,7 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
     " 例
     imap <C-j> <Plug>(skkeleton-disable)
     cmap <C-j> <Plug>(skkeleton-disable)
+    tmap <C-j> <Plug>(skkeleton-disable)
 <
 
 <Plug>(skkeleton-toggle) (ic)                       *<Plug>(skkeleton-toggle)*
@@ -113,6 +115,7 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
     " 例
     imap <C-j> <Plug>(skkeleton-toggle)
     cmap <C-j> <Plug>(skkeleton-toggle)
+    tmap <C-j> <Plug>(skkeleton-toggle)
 <
 有効時のマッピングは以下の通りです。
 こちらの定義は|skkeleton#register_keymap()|で変更できます
@@ -135,6 +138,10 @@ henkan:
 
 ------------------------------------------------------------------------------
 API                                                            *skkeleton-api*
+
+skkeleton#initialize()                                *skkeleton#initialize()*
+
+        skkeletonを手動で初期化します。辞書のロードも行います。
 
 skkeleton#is_enabled()                                *skkeleton#is_enabled()*
 
@@ -236,6 +243,16 @@ immediatelyJisyoRW                       *skkeleton-config-immediatelyJisyoRW*
         変換や確定の度にユーザー辞書を読み書きするようになります。
         複数のVimインスタンスを同時に使う場合に有用かもしれません。
 
+immediatelyOkuriConvert             *skkeleton-config-immediatelyOkuriConvert*
+        (デフォルト v:true)
+        有効にすると、送りあり変換時に直接「っ」を打った時点で
+        タ行の送り仮名が打たれたと判断し変換を開始します。
+        Note: ローマ時入力で連続入力で「っ」を入力する場合など、続く文字が
+              入力される場合には影響しません。
+        Note: 機能追加に際しタ行決め打ちにする根拠を調査して頂いたので
+              載せておきます。
+              https://blog.atusy.net/2023/08/01/skk-azik-and-sokuon-okuri/
+
 kanaTable                                         *skkeleton-config-kanaTable*
         (デフォルト "rom")
         使用する仮名テーブルを指定します。
@@ -315,7 +332,7 @@ userJisyo                                     *skkeleton-config-userJisyo*
 
 ------------------------------------------------------------------------------
                                               *skkeleton#register_kanatable()*
-skkeleton#register_kanatable({tableName}, {table}, {create})
+skkeleton#register_kanatable({tableName}, {table} [, {create}])
         仮名入力のテーブルを登録できます。
         {tableName}で指定したテーブルに{table}で指定した辞書の定義が登録されま
         す。{create}が指定されていない場合は存在しないテーブル名を指定すると
@@ -335,7 +352,6 @@ skkeleton#register_kanatable({tableName}, {table}, {create})
           \ 'hh': ['お', 'h'],
           \ 'jj': 'escape',
           \ 'z,': ['―'],
-          \ "z\<Space>": ["\u3000"],
           \ })
     " ヘボン式入力
     call skkeleton#register_kanatable('rom', {
@@ -410,6 +426,11 @@ https://skk-dev.github.io/dict/ で管理されているL辞書をダウンロ�
 展開するのをおすすめします。
 展開後は|skkeleton-config-globalJisyo|に展開したパスの指定をしてください。
 
+skkeleton のロード処理が遅い~
+
+デフォルトでは初回利用時にロードしますが、その間Vimをブロックしてしまいます。
+|skkeleton#initialize()| で明示的に初期化するようにしてください。
+
 変換ポイントの描画が乱れる~
 
 SKKではデフォルトで変換ポイントとして逆三角形を使いますが、この文字は
@@ -448,8 +469,40 @@ skkeletonでは旧来の ddskkにある辞書形式の他に JISYO形式と呼�
 拡張子に yaml, yml, json, mpk (msgpack) のいずれかが指定されているとき有効化されます。
 くわしくは、https://github.com/skk-dict/jisyo を参照してください。
 
+Vim の端末モードで漢字変換ができない~
+
+Vim は |:terminal| の挙動が異なるので漢字の変換をサポートしていません。neovim
+は動作します。
+
+skkeleton有効時にカーソルの色がlCursorにならない~
+
+skkeletonは|:lmap|を使用しなくなりました。カーソルの色を動的に変更したい場合は
+以下のような設定をする必要があります。
+
+>
+    augroup skkeleton-cursor
+      autocmd!
+      autocmd User skkeleton-enable-pre
+            \ highlight Cursor       gui=NONE guibg=#80403f guifg=fg
+      autocmd User skkeleton-disable-pre
+            \ highlight Cursor       gui=NONE guibg=#606060 guifg=fg
+    augroup END
+<
 ==============================================================================
 CHANGELOG                                                *skkeleton-changelog*
+
+2023-08-17~
+- |skkeleton-mode-changed|がcmdlineを抜けた際などに呼ばれていなかったので修正
+
+2023-08-01~
+- `immediatelyOkuriConvert`オプションを追加
+  - 直接かな入力を使っている場合などにデフォルトで発動するようになっています
+
+2023-07-11~
+- ローマ字テーブルに `z<Space>` を全角スペースにするルールを追加
+
+2023-07-10~
+- ターミナルモードで動作するようにした(thanks @Shougo)
 
 2023-06-23~
 - 状態取得のために|g:skkeleton#state|を追加した

@@ -2,7 +2,7 @@ import { CompletionMetadata } from "../@ddc-sources/skkeleton.ts";
 import { BaseFilter, FilterArguments } from "../skkeleton/deps/ddc/filter.ts";
 import { Item } from "../skkeleton/deps/ddc/types.ts";
 
-type Params = Record<never, never>;
+type Params = Record<string, never>;
 
 export class Filter extends BaseFilter<Params> {
   async filter(
