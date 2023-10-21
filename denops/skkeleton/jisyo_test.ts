@@ -9,6 +9,18 @@ import {
 } from "./jisyo.ts";
 import { readFileWithEncoding } from "./util.ts";
 
+const newJisyoJson = join(
+  dirname(fromFileUrl(import.meta.url)),
+  "testdata",
+  "newJisyo.json",
+);
+
+const newJisyoYaml = join(
+  dirname(fromFileUrl(import.meta.url)),
+  "testdata",
+  "newJisyo.yaml",
+);
+
 const globalJisyo = join(
   dirname(fromFileUrl(import.meta.url)),
   "testdata",
@@ -35,9 +47,39 @@ const numIncludingJisyo = join(
 
 async function load(path: string, encoding: string): Promise<SKKDictionary> {
   const dic = new SKKDictionary();
-  dic.load(await readFileWithEncoding(path, encoding));
+  if (path.endsWith(".json")) {
+    dic.loadJson(await readFileWithEncoding(path, encoding));
+  } else if (path.endsWith(".yaml") || path.endsWith(".yml")) {
+    dic.loadYaml(await readFileWithEncoding(path, encoding));
+  } else {
+    dic.load(await readFileWithEncoding(path, encoding));
+  }
   return dic;
 }
+
+Deno.test({
+  name: "load new JisyoJson",
+  async fn() {
+    const jisyo = await load(newJisyoJson, "utf-8");
+    const manager = new Library([jisyo]);
+    const ari = await manager.getCandidate("okuriari", "わるs");
+    assertEquals(["悪"], ari);
+    const nasi = await manager.getCandidate("okurinasi", "あかね");
+    assertEquals(nasi, ["茜"]);
+  },
+});
+
+Deno.test({
+  name: "load new JisyoYaml",
+  async fn() {
+    const jisyo = await load(newJisyoYaml, "utf-8");
+    const manager = new Library([jisyo]);
+    const ari = await manager.getCandidate("okuriari", "わるs");
+    assertEquals(["悪"], ari);
+    const nasi = await manager.getCandidate("okurinasi", "あかね");
+    assertEquals(nasi, ["茜"]);
+  },
+});
 
 Deno.test({
   name: "get candidates",
@@ -65,6 +107,8 @@ Deno.test({
       "CI番",
       "佰壱番",
     ]);
+    // HEAD
+    //
   },
 });
 
@@ -89,6 +133,7 @@ Deno.test({
     assertEquals(nasi1, ["🐈"]);
     const nasi2 = await manager.getCandidate("okurinasi", "1000001");
     assertEquals(nasi2, ["東京都千代田区千代田"]);
+    //vim-skk/main
   },
 });
 

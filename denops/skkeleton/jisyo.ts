@@ -8,6 +8,8 @@ import { zip } from "./deps/std/collections.ts";
 import { iterateReader } from "./deps/std/streams.ts";
 import { assert, is } from "./deps/unknownutil.ts";
 import { Encode } from "./types.ts";
+import { jisyoschema, jsonschema, msgpack, yaml } from "./deps/jisyo.ts";
+
 import type {
   CompletionData,
   Encoding,
@@ -166,6 +168,11 @@ export function wrapDictionary(dict: Dictionary): Dictionary {
   );
 }
 
+interface Jisyo {
+  okuri_ari: Record<string, string[]>;
+  okuri_nasi: Record<string, string[]>;
+}
+
 export class SKKDictionary implements Dictionary {
   #okuriAri: Map<string, string[]>;
   #okuriNasi: Map<string, string[]>;
@@ -227,6 +234,45 @@ export class SKKDictionary implements Dictionary {
 
     this.#cachedCandidates.set(prefix, candidates);
     return candidates;
+  }
+
+  loadJson(data: string) {
+    const jisyo = JSON.parse(data) as Jisyo;
+    const validator = new jsonschema.Validator();
+    const result = validator.validate(jisyo, jisyoschema);
+    if (!result.valid) {
+      for (const error of result.errors) {
+        throw Error(error.message);
+      }
+    }
+    this.#okuriAri = new Map(Object.entries(jisyo.okuri_ari));
+    this.#okuriNasi = new Map(Object.entries(jisyo.okuri_nasi));
+  }
+
+  loadYaml(data: string) {
+    const jisyo = yaml.parse(data) as Jisyo;
+    const validator = new jsonschema.Validator();
+    const result = validator.validate(jisyo, jisyoschema);
+    if (!result.valid) {
+      for (const error of result.errors) {
+        throw Error(error.message);
+      }
+    }
+    this.#okuriAri = new Map(Object.entries(jisyo.okuri_ari));
+    this.#okuriNasi = new Map(Object.entries(jisyo.okuri_nasi));
+  }
+
+  loadMsgpack(data: Uint8Array) {
+    const jisyo = msgpack.decode(data) as Jisyo;
+    const validator = new jsonschema.Validator();
+    const result = validator.validate(jisyo, jisyoschema);
+    if (!result.valid) {
+      for (const error of result.errors) {
+        throw Error(error.message);
+      }
+    }
+    this.#okuriAri = new Map(Object.entries(jisyo.okuri_ari));
+    this.#okuriNasi = new Map(Object.entries(jisyo.okuri_nasi));
   }
 
   load(data: string) {
@@ -648,8 +694,19 @@ export async function load(
     globalDictionaryConfig.map(async ([path, encodingName]) => {
       const dict = new SKKDictionary();
       try {
-        const file = await readFileWithEncoding(path, encodingName);
-        dict.load(file);
+        if (path.endsWith(".yaml") || path.endsWith(".yml")) {
+          const file = await Deno.readTextFile(path);
+          dict.loadYaml(file);
+        } else if (path.endsWith(".json")) {
+          const file = await Deno.readTextFile(path);
+          dict.loadJson(file);
+        } else if (path.endsWith(".mpk")) {
+          const file = await Deno.readFile(path);
+          dict.loadMsgpack(file);
+        } else {
+          const file = await readFileWithEncoding(path, encodingName);
+          dict.load(file);
+        }
       } catch (e) {
         console.error("globalDictionary loading failed");
         console.error(`at ${path}`);
