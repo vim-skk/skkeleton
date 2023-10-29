@@ -168,6 +168,7 @@ g:skkeleton#state                                          *g:skkeleton#state*
                     "input:okurinasi"  送りなし入力
                     "input:okuriari"   送りあり入力
                     "henkan"           変換
+                    "escape"           escapeした際
 
 ------------------------------------------------------------------------------
 CONFIG                                                      *skkeleton-config*
@@ -490,6 +491,10 @@ skkeletonは|:lmap|を使用しなくなりました。カーソルの色を動�
 <
 ==============================================================================
 CHANGELOG                                                *skkeleton-changelog*
+
+2023-10-29~
+- |g:skkeleton#state|にて、|skkeleton-functions-escape|使用後の状態が変換扱い
+  されていたので修正
 
 2023-08-17~
 - |skkeleton-mode-changed|がcmdlineを抜けた際などに呼ばれていなかったので修正

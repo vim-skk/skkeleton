@@ -278,7 +278,7 @@ function buildResult(result: string): HandleResult {
       phase = "input";
     }
   } else {
-    phase = "henkan";
+    phase = state.type;
   }
   return {
     state: {
