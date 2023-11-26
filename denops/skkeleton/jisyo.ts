@@ -596,6 +596,40 @@ export class SkkServer implements Dictionary {
   }
 }
 
+export class GoogleJapaneseInput implements Dictionary {
+  async connect() {}
+  async getCandidate(_type: HenkanType, word: string): Promise<string[]> {
+    return await this.getMidashis(word);
+  }
+  getCandidates(_prefix: string, _feed: string): Promise<CompletionData> {
+    // Note: It does not support completions
+    return Promise.resolve([]);
+  }
+  private async getMidashis(prefix: string): Promise<string[]> {
+    // Get midashis from prefix
+    const params = new URLSearchParams({
+      langpair: "ja-Hira|ja",
+      text: `${prefix},`,
+    });
+    try {
+      const resp = await fetch(
+        `http://www.google.com/transliterate?${params.toString()}`,
+        {
+          method: "GET",
+        },
+      );
+      const respJson = await resp.json();
+      return respJson[0][1];
+    } catch (e) {
+      if (config.debug) {
+        console.log(e);
+      }
+    }
+    return [];
+  }
+  close() {}
+}
+
 function gatherCandidates(
   collector: Map<string, Set<string>>,
   candidates: [string, string[]][],
@@ -689,6 +723,7 @@ export async function load(
   globalDictionaryConfig: (string | [string, string])[],
   userDictionaryPath: UserDictionaryPath,
   skkServer?: SkkServer,
+  googleJapaneseInput?: GoogleJapaneseInput,
 ): Promise<Library> {
   const globalDictionaries = await Promise.all(
     globalDictionaryConfig.map(async ([path, encodingName]) => {
@@ -735,7 +770,12 @@ export async function load(
       console.log(e);
     }
   }
-  const dictionaries = globalDictionaries.map((d) => wrapDictionary(d))
-    .concat(skkServer ? [skkServer] : []);
+  const dictionaries = globalDictionaries.map((d) => wrapDictionary(d));
+  if (skkServer) {
+    dictionaries.push(skkServer);
+  }
+  if (googleJapaneseInput) {
+    dictionaries.push(googleJapaneseInput);
+  }
   return new Library(dictionaries, userDictionary);
 }

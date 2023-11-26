@@ -318,6 +318,13 @@ skkServerResEnc                 *skkeleton-config-skkServerResEnc*
         （デフォルト "euc-jp"）
         辞書サーバーから受け取る文字列のエンコード形式を指定します。
 
+useGoogleJapaneseInput               *skkeleton-config-useGoogleJapaneseInput*
+        (デフォルト v:false)
+        Google 日本語入力 API による変換を有効にします。
+        https://www.google.co.jp/ime/cgiapi.html
+        Note: ネットワーク接続環境が必要です。
+        Note: パフォーマンスの問題により補完には対応しません。
+
 usePopup                                           *skkeleton-config-usePopup*
         (デフォルト v:true)
         このオプションを有効にすると、変換候補がポップアップ表示されます。
