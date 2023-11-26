@@ -642,7 +642,9 @@ export class GoogleJapaneseInput implements Dictionary {
       const respJson = await resp.json();
       return respJson[0][1];
     } catch (e) {
-      console.log(e);
+      if (config.debug) {
+        console.log(e);
+      }
     }
     return [];
   }
@@ -794,7 +796,7 @@ export async function load(
     dictionaries.push(skkServer);
   }
   if (googleJapaneseInput) {
-    //dictionaries.push(googleJapaneseInput);
+    dictionaries.push(googleJapaneseInput);
   }
   return new Library(dictionaries, userDictionary);
 }
