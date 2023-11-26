@@ -11,7 +11,7 @@ test({
   async fn(denops) {
     await initDenops(denops);
     const lib = await currentLibrary.get();
-    lib.registerCandidate("okurinasi", "あ", "亜");
+    lib.registerHenkanResult("okurinasi", "あ", "亜");
     await denops.cmd('call skkeleton#register_keymap("henkan", "x", "")');
     await denops.cmd(
       'call skkeleton#register_keymap("henkan", "<BS>", "henkanBackward")',
@@ -63,8 +63,8 @@ test({
   async fn(denops) {
     await initDenops(denops);
     const lib = await currentLibrary.get();
-    lib.registerCandidate("okurinasi", "われ", "我");
-    lib.registerCandidate("okuriari", "おもu", "思");
+    lib.registerHenkanResult("okurinasi", "われ", "我");
+    lib.registerHenkanResult("okuriari", "おもu", "思");
 
     await denops.cmd(
       'call skkeleton#handle("handleKey", {"key": ["W", "a", "r", "e"]})',

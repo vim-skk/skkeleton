@@ -118,8 +118,8 @@ function convertNumber(pattern: string, entry: string): string {
 }
 
 export interface Dictionary {
-  getCandidate(type: HenkanType, word: string): Promise<string[]>;
-  getCandidates(prefix: string, feed: string): Promise<CompletionData>;
+  getHenkanResult(type: HenkanType, word: string): Promise<string[]>;
+  getCompletionResult(prefix: string, feed: string): Promise<CompletionData>;
 }
 
 function encode(str: string, encode: Encoding): Uint8Array {
@@ -137,24 +137,29 @@ export class NumberConvertWrapper implements Dictionary {
     this.#inner = dict;
   }
 
-  async getCandidate(type: HenkanType, word: string): Promise<string[]> {
+  async getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
     const realWord = word.replaceAll(/[0-9]+/g, "#");
-    const candidate = await this.#inner.getCandidate(type, realWord);
+    const candidate = await this.#inner.getHenkanResult(type, realWord);
     if (word === realWord) {
       return candidate;
     } else {
-      candidate.unshift(...(await this.#inner.getCandidate(type, word)));
+      candidate.unshift(...(await this.#inner.getHenkanResult(type, word)));
       return candidate.map((c) => convertNumber(c, word));
     }
   }
 
-  async getCandidates(prefix: string, feed: string): Promise<CompletionData> {
+  async getCompletionResult(
+    prefix: string,
+    feed: string,
+  ): Promise<CompletionData> {
     const realPrefix = prefix.replaceAll(/[0-9]+/g, "#");
-    const candidates = await this.#inner.getCandidates(realPrefix, feed);
+    const candidates = await this.#inner.getCompletionResult(realPrefix, feed);
     if (prefix === realPrefix) {
       return candidates;
     } else {
-      candidates.unshift(...(await this.#inner.getCandidates(prefix, feed)));
+      candidates.unshift(
+        ...(await this.#inner.getCompletionResult(prefix, feed)),
+      );
       return candidates.map((
         [kana, cand],
       ) => [kana, cand.map((c) => convertNumber(c, prefix))]);
@@ -188,12 +193,12 @@ export class SKKDictionary implements Dictionary {
     this.#cachedCandidates = new Map();
   }
 
-  getCandidate(type: HenkanType, word: string): Promise<string[]> {
+  getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
     const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
     return Promise.resolve(target.get(word) ?? []);
   }
 
-  getCandidates(prefix: string, feed: string): Promise<CompletionData> {
+  getCompletionResult(prefix: string, feed: string): Promise<CompletionData> {
     const candidates: CompletionData = [];
     if (feed != "") {
       const table = getKanaTable();
@@ -327,7 +332,7 @@ export class UserDictionary implements Dictionary {
     this.#rank = rank ?? new Map();
   }
 
-  getCandidate(type: HenkanType, word: string): Promise<string[]> {
+  getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
     const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
     return Promise.resolve(target.get(word) ?? []);
   }
@@ -361,7 +366,7 @@ export class UserDictionary implements Dictionary {
     this.#cachedCandidates = candidates;
   }
 
-  getCandidates(prefix: string, feed: string): Promise<CompletionData> {
+  getCompletionResult(prefix: string, feed: string): Promise<CompletionData> {
     this.cacheCandidates(prefix, feed);
     return Promise.resolve(this.#cachedCandidates);
   }
@@ -378,7 +383,7 @@ export class UserDictionary implements Dictionary {
       .toArray();
   }
 
-  registerCandidate(type: HenkanType, word: string, candidate: string) {
+  registerHenkanResult(type: HenkanType, word: string, candidate: string) {
     if (candidate === "") {
       return;
     }
@@ -535,7 +540,7 @@ export class SkkServer implements Dictionary {
   async connect() {
     this.#conn = await Deno.connect(this.connectOptions);
   }
-  async getCandidate(_type: HenkanType, word: string): Promise<string[]> {
+  async getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
     if (!this.#conn) return [];
 
     await this.#conn.write(encode(`1${word} `, this.requestEncoding));
@@ -550,7 +555,10 @@ export class SkkServer implements Dictionary {
     }
     return result;
   }
-  async getCandidates(prefix: string, feed: string): Promise<CompletionData> {
+  async getCompletionResult(
+    prefix: string,
+    feed: string,
+  ): Promise<CompletionData> {
     if (!this.#conn) return [];
 
     let midashis: string[] = [];
@@ -568,7 +576,10 @@ export class SkkServer implements Dictionary {
 
     const candidates: CompletionData = [];
     for (const midashi of midashis) {
-      candidates.push([midashi, await this.getCandidate("okurinasi", midashi)]);
+      candidates.push([
+        midashi,
+        await this.getHenkanResult("okurinasi", midashi),
+      ]);
     }
 
     return candidates;
@@ -598,10 +609,10 @@ export class SkkServer implements Dictionary {
 
 export class GoogleJapaneseInput implements Dictionary {
   async connect() {}
-  async getCandidate(_type: HenkanType, word: string): Promise<string[]> {
+  async getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
     return await this.getMidashis(word);
   }
-  getCandidates(_prefix: string, _feed: string): Promise<CompletionData> {
+  getCompletionResult(_prefix: string, _feed: string): Promise<CompletionData> {
     // Note: It does not support completions
     return Promise.resolve([]);
   }
@@ -656,20 +667,23 @@ export class Library {
     );
   }
 
-  async getCandidate(type: HenkanType, word: string): Promise<string[]> {
+  async getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
     if (config.immediatelyJisyoRW) {
       await this.load();
     }
     const merged = new Set<string>();
     for (const dic of this.#dictionaries) {
-      for (const c of await dic.getCandidate(type, word)) {
+      for (const c of await dic.getHenkanResult(type, word)) {
         merged.add(c);
       }
     }
     return Array.from(merged);
   }
 
-  async getCandidates(prefix: string, feed: string): Promise<CompletionData> {
+  async getCompletionResult(
+    prefix: string,
+    feed: string,
+  ): Promise<CompletionData> {
     if (config.immediatelyJisyoRW) {
       await this.load();
     }
@@ -680,12 +694,15 @@ export class Library {
       for (const dic of this.#dictionaries) {
         gatherCandidates(collector, [[
           prefix,
-          await dic.getCandidate("okurinasi", prefix),
+          await dic.getHenkanResult("okurinasi", prefix),
         ]]);
       }
     } else {
       for (const dic of this.#dictionaries) {
-        gatherCandidates(collector, await dic.getCandidates(prefix, feed));
+        gatherCandidates(
+          collector,
+          await dic.getCompletionResult(prefix, feed),
+        );
       }
     }
     return Array.from(collector.entries())
@@ -696,8 +713,12 @@ export class Library {
     return this.#userDictionary.getRanks(prefix);
   }
 
-  async registerCandidate(type: HenkanType, word: string, candidate: string) {
-    this.#userDictionary.registerCandidate(type, word, candidate);
+  async registerHenkanResult(
+    type: HenkanType,
+    word: string,
+    candidate: string,
+  ) {
+    this.#userDictionary.registerHenkanResult(type, word, candidate);
     if (config.immediatelyJisyoRW) {
       await this.#userDictionary.save();
     }

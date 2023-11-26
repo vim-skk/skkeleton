@@ -353,13 +353,13 @@ export async function main(denops: Denops) {
       }
       return Promise.resolve(state.henkanFeed);
     },
-    async getCandidates(): Promise<CompletionData> {
+    async getCompletionResult(): Promise<CompletionData> {
       const state = currentContext.get().state;
       if (state.type !== "input") {
         return Promise.resolve([]);
       }
       const lib = await currentLibrary.get();
-      return lib.getCandidates(state.henkanFeed, state.feed);
+      return lib.getCompletionResult(state.henkanFeed, state.feed);
     },
     async getRanks(): Promise<RankData> {
       const state = currentContext.get().state;
@@ -369,7 +369,7 @@ export async function main(denops: Denops) {
       const lib = await currentLibrary.get();
       return Promise.resolve(lib.getRanks(state.henkanFeed));
     },
-    async registerCandidate(kana: unknown, word: unknown) {
+    async registerHenkanResult(kana: unknown, word: unknown) {
       // Note: This method is compatible to completion source
       await denops.dispatcher.completeCallback(kana, word);
     },
@@ -377,7 +377,7 @@ export async function main(denops: Denops) {
       assert(kana, is.String);
       assert(word, is.String);
       const lib = await currentLibrary.get();
-      await lib.registerCandidate("okurinasi", kana, word);
+      await lib.registerHenkanResult("okurinasi", kana, word);
       const context = currentContext.get();
       context.lastCandidate = {
         type: "okurinasi",

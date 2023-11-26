@@ -57,7 +57,7 @@ export async function katakana(context: Context) {
     result = hiraToKata(result);
     if (config.registerConvertResult) {
       const lib = await currentLibrary.get();
-      await lib.registerCandidate("okurinasi", kana, result);
+      await lib.registerHenkanResult("okurinasi", kana, result);
       context.lastCandidate = {
         type: "okurinasi",
         word: kana,
@@ -95,7 +95,7 @@ export async function hankatakana(context: Context) {
     result = hiraToHanKata(result);
     if (config.registerConvertResult) {
       const lib = await currentLibrary.get();
-      await lib.registerCandidate("okurinasi", kana, result);
+      await lib.registerHenkanResult("okurinasi", kana, result);
       context.lastCandidate = {
         type: "okurinasi",
         word: kana,

@@ -15,7 +15,7 @@ export async function kakutei(context: Context) {
       const candidateStrip = candidate?.replace(/;.*/, "");
       if (candidate) {
         const lib = await currentLibrary.get();
-        await lib.registerCandidate(
+        await lib.registerHenkanResult(
           state.mode,
           state.word,
           candidate,

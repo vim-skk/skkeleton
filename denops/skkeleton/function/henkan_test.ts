@@ -4,12 +4,12 @@ import { currentLibrary } from "../store.ts";
 import { dispatch } from "./testutil.ts";
 
 const l = await currentLibrary.get();
-await l.registerCandidate("okurinasi", "へんかん", "返還");
-await l.registerCandidate("okurinasi", "へんかん", "変換");
-await l.registerCandidate("okuriari", "おくr", "送");
-await l.registerCandidate("okuriari", "えらn", "選");
-await l.registerCandidate("okuriari", "うたがt", "疑");
-await l.registerCandidate("okuriari", "うたがc", "疑");
+await l.registerHenkanResult("okurinasi", "へんかん", "返還");
+await l.registerHenkanResult("okurinasi", "へんかん", "変換");
+await l.registerHenkanResult("okuriari", "おくr", "送");
+await l.registerHenkanResult("okuriari", "えらn", "選");
+await l.registerHenkanResult("okuriari", "うたがt", "疑");
+await l.registerHenkanResult("okuriari", "うたがc", "疑");
 
 Deno.test({
   name: "okurinasi henkan",

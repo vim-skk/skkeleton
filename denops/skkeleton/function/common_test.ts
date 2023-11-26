@@ -7,8 +7,12 @@ import { dispatch } from "./testutil.ts";
 
 const lib = await currentLibrary.get();
 
-await lib.registerCandidate("okurinasi", "あ", "い");
-await lib.registerCandidate("okurinasi", "ちゅうしゃく", "注釈;これは注釈です");
+await lib.registerHenkanResult("okurinasi", "あ", "い");
+await lib.registerHenkanResult(
+  "okurinasi",
+  "ちゅうしゃく",
+  "注釈;これは注釈です",
+);
 
 Deno.test({
   name: "input cancel",
@@ -39,7 +43,7 @@ Deno.test({
     assertEquals("注釈", context.preEdit.output(""));
     assertEquals(
       ["注釈;これは注釈です"],
-      await lib.getCandidate("okurinasi", "ちゅうしゃく"),
+      await lib.getHenkanResult("okurinasi", "ちゅうしゃく"),
     );
   },
 });
