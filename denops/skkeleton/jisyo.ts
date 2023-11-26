@@ -148,13 +148,18 @@ export class NumberConvertWrapper implements Dictionary {
     }
   }
 
-  async getCompletionResult(prefix: string, feed: string): Promise<CompletionData> {
+  async getCompletionResult(
+    prefix: string,
+    feed: string,
+  ): Promise<CompletionData> {
     const realPrefix = prefix.replaceAll(/[0-9]+/g, "#");
     const candidates = await this.#inner.getCompletionResult(realPrefix, feed);
     if (prefix === realPrefix) {
       return candidates;
     } else {
-      candidates.unshift(...(await this.#inner.getCompletionResult(prefix, feed)));
+      candidates.unshift(
+        ...(await this.#inner.getCompletionResult(prefix, feed)),
+      );
       return candidates.map((
         [kana, cand],
       ) => [kana, cand.map((c) => convertNumber(c, prefix))]);
@@ -550,7 +555,10 @@ export class SkkServer implements Dictionary {
     }
     return result;
   }
-  async getCompletionResult(prefix: string, feed: string): Promise<CompletionData> {
+  async getCompletionResult(
+    prefix: string,
+    feed: string,
+  ): Promise<CompletionData> {
     if (!this.#conn) return [];
 
     let midashis: string[] = [];
@@ -568,7 +576,10 @@ export class SkkServer implements Dictionary {
 
     const candidates: CompletionData = [];
     for (const midashi of midashis) {
-      candidates.push([midashi, await this.getHenkanResult("okurinasi", midashi)]);
+      candidates.push([
+        midashi,
+        await this.getHenkanResult("okurinasi", midashi),
+      ]);
     }
 
     return candidates;
@@ -669,7 +680,10 @@ export class Library {
     return Array.from(merged);
   }
 
-  async getCompletionResult(prefix: string, feed: string): Promise<CompletionData> {
+  async getCompletionResult(
+    prefix: string,
+    feed: string,
+  ): Promise<CompletionData> {
     if (config.immediatelyJisyoRW) {
       await this.load();
     }
@@ -685,7 +699,10 @@ export class Library {
       }
     } else {
       for (const dic of this.#dictionaries) {
-        gatherCandidates(collector, await dic.getCompletionResult(prefix, feed));
+        gatherCandidates(
+          collector,
+          await dic.getCompletionResult(prefix, feed),
+        );
       }
     }
     return Array.from(collector.entries())
@@ -696,7 +713,11 @@ export class Library {
     return this.#userDictionary.getRanks(prefix);
   }
 
-  async registerHenkanResult(type: HenkanType, word: string, candidate: string) {
+  async registerHenkanResult(
+    type: HenkanType,
+    word: string,
+    candidate: string,
+  ) {
     this.#userDictionary.registerHenkanResult(type, word, candidate);
     if (config.immediatelyJisyoRW) {
       await this.#userDictionary.save();

@@ -144,10 +144,16 @@ Deno.test({
     // most recently registered
     await manager.registerHenkanResult("okurinasi", "test", "a");
     await manager.registerHenkanResult("okurinasi", "test", "b");
-    assertEquals(["b", "a"], await manager.getHenkanResult("okurinasi", "test"));
+    assertEquals(
+      ["b", "a"],
+      await manager.getHenkanResult("okurinasi", "test"),
+    );
     // and remove duplicate
     await manager.registerHenkanResult("okurinasi", "test", "a");
-    assertEquals(["a", "b"], await manager.getHenkanResult("okurinasi", "test"));
+    assertEquals(
+      ["a", "b"],
+      await manager.getHenkanResult("okurinasi", "test"),
+    );
   },
 });
 
