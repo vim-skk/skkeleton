@@ -609,10 +609,10 @@ export class SkkServer implements Dictionary {
 
 export class GoogleJapaneseInput implements Dictionary {
   async connect() {}
-  async getCandidate(_type: HenkanType, word: string): Promise<string[]> {
+  async getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
     return await this.getMidashis(word);
   }
-  getCandidates(_prefix: string, _feed: string): Promise<CompletionData> {
+  getCompletionResult(_prefix: string, _feed: string): Promise<CompletionData> {
     // Note: It does not support completions
     return Promise.resolve([]);
   }
