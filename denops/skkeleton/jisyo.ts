@@ -601,30 +601,9 @@ export class GoogleJapaneseInput implements Dictionary {
   async getCandidate(_type: HenkanType, word: string): Promise<string[]> {
     return await this.getMidashis(word);
   }
-  async getCandidates(prefix: string, feed: string): Promise<CompletionData> {
-    if (feed.length === 0) {
-      return [];
-    }
-
-    let midashis: string[] = [];
-    if (feed != "") {
-      const table = getKanaTable();
-      for (const [key, kanas] of table) {
-        if (key.startsWith(feed) && kanas.length > 1) {
-          const feedPrefix = prefix + (kanas as string[])[0];
-          midashis = midashis.concat(await this.getMidashis(feedPrefix));
-        }
-      }
-    } else {
-      midashis = await this.getMidashis(prefix);
-    }
-
-    const candidates: CompletionData = [];
-    for (const midashi of midashis) {
-      candidates.push([midashi, await this.getCandidate("okurinasi", midashi)]);
-    }
-
-    return candidates;
+  getCandidates(_prefix: string, _feed: string): Promise<CompletionData> {
+    // Note: It does not support completions
+    return Promise.resolve([]);
   }
   private async getMidashis(prefix: string): Promise<string[]> {
     // Get midashis from prefix
