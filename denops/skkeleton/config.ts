@@ -28,6 +28,7 @@ export const config: ConfigOptions = {
   skkServerPort: 1178,
   skkServerReqEnc: "euc-jp",
   skkServerResEnc: "euc-jp",
+  useGoogleJapaneseInput: false,
   usePopup: true,
   useSkkServer: false,
   userJisyo: "~/.skkeleton",
@@ -105,6 +106,7 @@ const validators: Validators = {
   skkServerReqEnc: ensureEncoding,
   skkServerResEnc: ensureEncoding,
   usePopup: (x) => ensure(x, is.Boolean),
+  useGoogleJapaneseInput: (x) => ensure(x, is.Boolean),
   useSkkServer: (x) => ensure(x, is.Boolean),
   userJisyo: (x) => ensure(x, is.String),
 };

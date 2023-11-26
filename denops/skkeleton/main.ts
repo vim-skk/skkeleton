@@ -5,7 +5,7 @@ import { functions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { initializeStateWithAbbrev, modeChange } from "./mode.ts";
 import { hirakana } from "./function/mode.ts";
-import { load as jisyoLoad, SkkServer } from "./jisyo.ts";
+import { GoogleJapaneseInput, load as jisyoLoad, SkkServer } from "./jisyo.ts";
 import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
@@ -68,6 +68,7 @@ async function init(denops: Denops) {
   const {
     completionRankFile,
     userJisyo,
+    useGoogleJapaneseInput,
     useSkkServer,
     skkServerHost,
     skkServerPort,
@@ -75,6 +76,7 @@ async function init(denops: Denops) {
     skkServerReqEnc,
   } = config;
   let skkServer: SkkServer | undefined;
+  let googleJapaneseInput: GoogleJapaneseInput | undefined;
   let skkServerOptions: SkkServerOptions | undefined;
   if (useSkkServer) {
     skkServerOptions = {
@@ -84,6 +86,9 @@ async function init(denops: Denops) {
       responseEnc: skkServerResEnc,
     };
     skkServer = new SkkServer(skkServerOptions);
+  }
+  if (useGoogleJapaneseInput) {
+    googleJapaneseInput = new GoogleJapaneseInput();
   }
   const globalDictionaries = await Promise.all(
     (config.globalDictionaries.length === 0
@@ -107,6 +112,7 @@ async function init(denops: Denops) {
         rankPath: await homeExpand(completionRankFile, denops),
       },
       skkServer,
+      googleJapaneseInput,
     )
   );
   await receiveNotation(denops);
