@@ -119,7 +119,7 @@ function convertNumber(pattern: string, entry: string): string {
 
 export interface Dictionary {
   getHenkanResult(type: HenkanType, word: string): Promise<string[]>;
-  getCandidates(prefix: string, feed: string): Promise<CompletionData>;
+  getCompletionResult(prefix: string, feed: string): Promise<CompletionData>;
 }
 
 function encode(str: string, encode: Encoding): Uint8Array {
@@ -148,13 +148,13 @@ export class NumberConvertWrapper implements Dictionary {
     }
   }
 
-  async getCandidates(prefix: string, feed: string): Promise<CompletionData> {
+  async getCompletionResult(prefix: string, feed: string): Promise<CompletionData> {
     const realPrefix = prefix.replaceAll(/[0-9]+/g, "#");
-    const candidates = await this.#inner.getCandidates(realPrefix, feed);
+    const candidates = await this.#inner.getCompletionResult(realPrefix, feed);
     if (prefix === realPrefix) {
       return candidates;
     } else {
-      candidates.unshift(...(await this.#inner.getCandidates(prefix, feed)));
+      candidates.unshift(...(await this.#inner.getCompletionResult(prefix, feed)));
       return candidates.map((
         [kana, cand],
       ) => [kana, cand.map((c) => convertNumber(c, prefix))]);
@@ -193,7 +193,7 @@ export class SKKDictionary implements Dictionary {
     return Promise.resolve(target.get(word) ?? []);
   }
 
-  getCandidates(prefix: string, feed: string): Promise<CompletionData> {
+  getCompletionResult(prefix: string, feed: string): Promise<CompletionData> {
     const candidates: CompletionData = [];
     if (feed != "") {
       const table = getKanaTable();
@@ -361,7 +361,7 @@ export class UserDictionary implements Dictionary {
     this.#cachedCandidates = candidates;
   }
 
-  getCandidates(prefix: string, feed: string): Promise<CompletionData> {
+  getCompletionResult(prefix: string, feed: string): Promise<CompletionData> {
     this.cacheCandidates(prefix, feed);
     return Promise.resolve(this.#cachedCandidates);
   }
@@ -550,7 +550,7 @@ export class SkkServer implements Dictionary {
     }
     return result;
   }
-  async getCandidates(prefix: string, feed: string): Promise<CompletionData> {
+  async getCompletionResult(prefix: string, feed: string): Promise<CompletionData> {
     if (!this.#conn) return [];
 
     let midashis: string[] = [];
@@ -669,7 +669,7 @@ export class Library {
     return Array.from(merged);
   }
 
-  async getCandidates(prefix: string, feed: string): Promise<CompletionData> {
+  async getCompletionResult(prefix: string, feed: string): Promise<CompletionData> {
     if (config.immediatelyJisyoRW) {
       await this.load();
     }
@@ -685,7 +685,7 @@ export class Library {
       }
     } else {
       for (const dic of this.#dictionaries) {
-        gatherCandidates(collector, await dic.getCandidates(prefix, feed));
+        gatherCandidates(collector, await dic.getCompletionResult(prefix, feed));
       }
     }
     return Array.from(collector.entries())

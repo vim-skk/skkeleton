@@ -353,13 +353,13 @@ export async function main(denops: Denops) {
       }
       return Promise.resolve(state.henkanFeed);
     },
-    async getCandidates(): Promise<CompletionData> {
+    async getCompletionResult(): Promise<CompletionData> {
       const state = currentContext.get().state;
       if (state.type !== "input") {
         return Promise.resolve([]);
       }
       const lib = await currentLibrary.get();
-      return lib.getCandidates(state.henkanFeed, state.feed);
+      return lib.getCompletionResult(state.henkanFeed, state.feed);
     },
     async getRanks(): Promise<RankData> {
       const state = currentContext.get().state;

@@ -223,7 +223,7 @@ Deno.test({
   async fn() {
     // ランクは保存されていた順序あるいは登録された時刻で表される
     // 適切に比較すると最近登録した物ほど先頭に並ぶようにソートできる
-    // 候補はgetCandidatesの結果によりフィルタリングされる
+    // 候補はgetCompletionResultの結果によりフィルタリングされる
     const dic = new UserDictionary();
     dic.registerHenkanResult("okurinasi", "ほげ", "hoge");
     dic.registerHenkanResult("okurinasi", "ぴよ", "piyo");

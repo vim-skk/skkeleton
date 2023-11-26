@@ -32,7 +32,7 @@ export class Source extends BaseSource<Params> {
   ): Promise<DdcGatherItems> {
     const candidates = (await args.denops.dispatch(
       "skkeleton",
-      "getCandidates",
+      "getCompletionResult",
     )) as CompletionData;
     const ranks = new Map(
       (await args.denops
