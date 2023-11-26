@@ -635,7 +635,7 @@ export class GoogleJapaneseInput implements Dictionary {
     try {
       const resp = await fetch(
         `http://www.google.com/transliterate?${params.toString()}`,
-          {
+        {
           method: "GET",
         },
       );
