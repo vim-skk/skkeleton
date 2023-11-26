@@ -118,7 +118,7 @@ function convertNumber(pattern: string, entry: string): string {
 }
 
 export interface Dictionary {
-  getCandidate(type: HenkanType, word: string): Promise<string[]>;
+  getHenkanResult(type: HenkanType, word: string): Promise<string[]>;
   getCandidates(prefix: string, feed: string): Promise<CompletionData>;
 }
 
@@ -137,13 +137,13 @@ export class NumberConvertWrapper implements Dictionary {
     this.#inner = dict;
   }
 
-  async getCandidate(type: HenkanType, word: string): Promise<string[]> {
+  async getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
     const realWord = word.replaceAll(/[0-9]+/g, "#");
-    const candidate = await this.#inner.getCandidate(type, realWord);
+    const candidate = await this.#inner.getHenkanResult(type, realWord);
     if (word === realWord) {
       return candidate;
     } else {
-      candidate.unshift(...(await this.#inner.getCandidate(type, word)));
+      candidate.unshift(...(await this.#inner.getHenkanResult(type, word)));
       return candidate.map((c) => convertNumber(c, word));
     }
   }
@@ -188,7 +188,7 @@ export class SKKDictionary implements Dictionary {
     this.#cachedCandidates = new Map();
   }
 
-  getCandidate(type: HenkanType, word: string): Promise<string[]> {
+  getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
     const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
     return Promise.resolve(target.get(word) ?? []);
   }
@@ -327,7 +327,7 @@ export class UserDictionary implements Dictionary {
     this.#rank = rank ?? new Map();
   }
 
-  getCandidate(type: HenkanType, word: string): Promise<string[]> {
+  getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
     const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
     return Promise.resolve(target.get(word) ?? []);
   }
@@ -378,7 +378,7 @@ export class UserDictionary implements Dictionary {
       .toArray();
   }
 
-  registerCandidate(type: HenkanType, word: string, candidate: string) {
+  registerHenkanResult(type: HenkanType, word: string, candidate: string) {
     if (candidate === "") {
       return;
     }
@@ -535,7 +535,7 @@ export class SkkServer implements Dictionary {
   async connect() {
     this.#conn = await Deno.connect(this.connectOptions);
   }
-  async getCandidate(_type: HenkanType, word: string): Promise<string[]> {
+  async getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
     if (!this.#conn) return [];
 
     await this.#conn.write(encode(`1${word} `, this.requestEncoding));
@@ -568,7 +568,7 @@ export class SkkServer implements Dictionary {
 
     const candidates: CompletionData = [];
     for (const midashi of midashis) {
-      candidates.push([midashi, await this.getCandidate("okurinasi", midashi)]);
+      candidates.push([midashi, await this.getHenkanResult("okurinasi", midashi)]);
     }
 
     return candidates;
@@ -656,13 +656,13 @@ export class Library {
     );
   }
 
-  async getCandidate(type: HenkanType, word: string): Promise<string[]> {
+  async getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
     if (config.immediatelyJisyoRW) {
       await this.load();
     }
     const merged = new Set<string>();
     for (const dic of this.#dictionaries) {
-      for (const c of await dic.getCandidate(type, word)) {
+      for (const c of await dic.getHenkanResult(type, word)) {
         merged.add(c);
       }
     }
@@ -680,7 +680,7 @@ export class Library {
       for (const dic of this.#dictionaries) {
         gatherCandidates(collector, [[
           prefix,
-          await dic.getCandidate("okurinasi", prefix),
+          await dic.getHenkanResult("okurinasi", prefix),
         ]]);
       }
     } else {
@@ -696,8 +696,8 @@ export class Library {
     return this.#userDictionary.getRanks(prefix);
   }
 
-  async registerCandidate(type: HenkanType, word: string, candidate: string) {
-    this.#userDictionary.registerCandidate(type, word, candidate);
+  async registerHenkanResult(type: HenkanType, word: string, candidate: string) {
+    this.#userDictionary.registerHenkanResult(type, word, candidate);
     if (config.immediatelyJisyoRW) {
       await this.#userDictionary.save();
     }

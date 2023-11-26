@@ -61,7 +61,7 @@ Deno.test({
   name: "can convert okuri string properly when mode changed",
   async fn() {
     const lib = await currentLibrary.get();
-    await lib.registerCandidate("okuriari", "はg", "剥");
+    await lib.registerHenkanResult("okuriari", "はg", "剥");
     const context = currentContext.init();
 
     await katakana(context);
