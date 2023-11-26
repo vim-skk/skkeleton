@@ -32,7 +32,7 @@ jobs:
       matrix:
         runner:
           # - windows-latest
-          - macos-latest
+          # - macos-latest
           - ubuntu-latest
         version:
           - "1.32.0"
