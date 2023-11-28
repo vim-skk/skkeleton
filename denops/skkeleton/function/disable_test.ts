@@ -1,8 +1,7 @@
 import { Denops } from "../deps.ts";
-import { test } from "../deps/denops_test.ts";
 import { assertEquals } from "../deps/std/assert.ts";
 import { currentContext } from "../store.ts";
-import { initDenops } from "../testutil.ts";
+import { test } from "../testutil.ts";
 import { dispatch } from "./testutil.ts";
 
 // deno-lint-ignore no-explicit-any
@@ -13,10 +12,7 @@ async function getResult(x: Promise<any>): Promise<string> {
 test({
   mode: "all",
   name: "kakutei at disable",
-  pluginName: "skkeleton",
   async fn(denops: Denops) {
-    await initDenops(denops);
-
     await denops.dispatch("skkeleton", "enable");
     await dispatch(currentContext.get(), " ");
     assertEquals(

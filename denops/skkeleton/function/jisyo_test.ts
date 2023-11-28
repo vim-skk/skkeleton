@@ -1,17 +1,15 @@
 import { Denops } from "../deps.ts";
-import { test } from "../deps/denops_test.ts";
 import { assertEquals } from "../deps/std/assert.ts";
 import { currentKanaTable, getKanaTable } from "../kana.ts";
-import { currentContext } from "../store.ts";
 import { HenkanState } from "../state.ts";
-import { initDenops } from "../testutil.ts";
+import { currentContext } from "../store.ts";
+import { test } from "../testutil.ts";
 import { jisyoTouroku } from "./jisyo.ts";
 
 test({
   mode: "all",
   name: "Don't put string when register dictionary was cancelled",
   async fn(denops: Denops) {
-    await initDenops(denops);
     currentKanaTable.get();
     const state: HenkanState = {
       type: "henkan",

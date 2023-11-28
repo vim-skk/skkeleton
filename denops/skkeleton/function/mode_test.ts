@@ -1,10 +1,9 @@
 import { autocmd, Denops, vars } from "../deps.ts";
-import { test } from "../deps/denops_test.ts";
 import { assertEquals } from "../deps/std/assert.ts";
-import { currentLibrary } from "../store.ts";
 import { currentKanaTable } from "../kana.ts";
+import { currentLibrary } from "../store.ts";
 import { currentContext } from "../store.ts";
-import { initDenops } from "../testutil.ts";
+import { test } from "../testutil.ts";
 import { kakutei } from "./common.ts";
 import { deleteChar, kanaInput } from "./input.ts";
 import { abbrev, hankatakana, katakana, zenkaku } from "./mode.ts";
@@ -13,9 +12,7 @@ import { dispatch } from "./testutil.ts";
 test({
   mode: "all",
   name: "Can get skkeleton mode",
-  pluginName: "skkeleton",
   async fn(d: Denops) {
-    await initDenops(d);
     assertEquals(await d.call("skkeleton#mode"), "");
     await d.dispatch("skkeleton", "enable");
     assertEquals(await d.call("skkeleton#mode"), "hira");
@@ -36,9 +33,7 @@ test({
 test({
   mode: "all",
   name: "Fire autocmd for mode changed",
-  pluginName: "skkeleton",
   async fn(d: Denops) {
-    await initDenops(d);
     await autocmd.define(
       d,
       "User",
@@ -108,9 +103,7 @@ Deno.test({
 test({
   mode: "all",
   name: "mode change  at enable",
-  pluginName: "skkeleton",
   async fn(d: Denops) {
-    await initDenops(d);
     await autocmd.define(
       d,
       "User",
