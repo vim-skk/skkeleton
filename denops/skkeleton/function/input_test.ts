@@ -1,9 +1,8 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { Denops, op } from "../deps.ts";
-import { test } from "../deps/denops_test.ts";
 import { assertEquals } from "../deps/std/assert.ts";
-import { initDenops } from "../testutil.ts";
+import { test } from "../testutil.ts";
 import { kakutei } from "./common.ts";
 import { deleteChar, henkanPoint } from "./input.ts";
 import { hankatakana, katakana } from "./mode.ts";
@@ -132,10 +131,7 @@ config.userJisyo = "";
 test({
   mode: "nvim",
   name: "new line",
-  pluginName: "skkeleton",
   async fn(denops: Denops) {
-    await initDenops(denops);
-
     await op.autoindent.setLocal(denops, true);
     await denops.cmd("startinsert");
     await denops.cmd(

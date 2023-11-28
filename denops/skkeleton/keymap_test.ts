@@ -1,15 +1,12 @@
-import { test } from "./deps/denops_test.ts";
+import { test } from "./testutil.ts";
 import { assertEquals } from "./deps/std/assert.ts";
 import { currentLibrary } from "./store.ts";
 import { currentContext } from "./store.ts";
-import { initDenops } from "./testutil.ts";
 
 test({
   mode: "nvim", // can input mode test only in nvim
   name: "registerKeyMap",
-  pluginName: "skkeleton",
   async fn(denops) {
-    await initDenops(denops);
     const lib = await currentLibrary.get();
     lib.registerHenkanResult("okurinasi", "あ", "亜");
     await denops.cmd('call skkeleton#register_keymap("henkan", "x", "")');
@@ -59,9 +56,7 @@ test({
 test({
   mode: "all",
   name: "send multiple keys into handleKey",
-  pluginName: "skkeleton",
   async fn(denops) {
-    await initDenops(denops);
     const lib = await currentLibrary.get();
     lib.registerHenkanResult("okurinasi", "われ", "我");
     lib.registerHenkanResult("okuriari", "おもu", "思");
