@@ -50,6 +50,7 @@ export type ConfigOptions = {
   immediatelyJisyoRW: boolean;
   immediatelyOkuriConvert: boolean;
   kanaTable: string;
+  keepMode: boolean;
   keepState: boolean;
   markerHenkan: string;
   markerHenkanSelect: string;

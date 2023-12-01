@@ -269,6 +269,11 @@ globalKanaTableFiles                    *skkeleton-config-globalKanaTableFiles*
 >
     値の例: [["/usr/share/skk/azik_us.rule, "euc-jp"]]
 <
+keepMode                                           *skkeleton-config-keepMode*
+        (デフォルト v:false)
+        このオプションを有効にすると無効化しても前回のモード(カナ入力状態等)
+        を保持するようになります。
+
 keepState                                         *skkeleton-config-keepState*
         (デフォルト v:false)
         このオプションを有効にすると

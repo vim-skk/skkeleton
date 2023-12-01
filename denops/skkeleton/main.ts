@@ -1,15 +1,14 @@
 import { config, setConfig } from "./config.ts";
 import { autocmd, Denops, fn, op, vars } from "./deps.ts";
 import { assert, AssertError, is } from "./deps/unknownutil.ts";
-import { functions } from "./function.ts";
+import { functions, modeFunctions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
-import { initializeStateWithAbbrev, modeChange } from "./mode.ts";
-import { hirakana } from "./function/mode.ts";
 import { GoogleJapaneseInput, load as jisyoLoad, SkkServer } from "./jisyo.ts";
 import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
+import { initializeStateWithAbbrev } from "./mode.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
-import { currentContext, currentLibrary } from "./store.ts";
+import { currentContext, currentLibrary, variables } from "./store.ts";
 import type { CompletionData, RankData, SkkServerOptions } from "./types.ts";
 import { homeExpand } from "./util.ts";
 
@@ -140,41 +139,38 @@ async function init(denops: Denops) {
 }
 
 async function enable(opts?: unknown, vimStatus?: unknown): Promise<string> {
-  const context = currentContext.get();
-  const state = context.state;
-  const denops = context.denops!;
+  const oldContext = currentContext.get();
+  const oldState = oldContext.state;
+  const denops = oldContext.denops!;
   if (await fn.mode(denops) === "R") {
     console.log("skkeleton doesn't allowed in replace mode");
     return "";
   }
   if (
-    (state.type !== "input" || state.mode !== "direct") && isOpts(opts) &&
+    (oldState.type !== "input" || oldState.mode !== "direct") && isOpts(opts) &&
     vimStatus
   ) {
     return handle(opts, vimStatus);
   }
   // Note: must set before context initialization
   currentKanaTable.set(config.kanaTable);
+  const context = currentContext.init();
+  context.denops = denops;
 
-  currentContext.init().denops = denops;
   try {
     await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-pre");
   } catch (e) {
     console.log(e);
   }
 
-  if (context.mode === "zenkaku") {
-    hirakana(context);
-  }
-
   // NOTE: Disable textwidth
-  currentContext.get().textwidth = await op.textwidth.getLocal(denops);
+  context.textwidth = await op.textwidth.getLocal(denops);
   await op.textwidth.setLocal(denops, 0);
 
   await denops.call("skkeleton#map");
   await vars.b.set(denops, "keymap_name", "skkeleton");
   await vars.g.set(denops, "skkeleton#enabled", true);
-  await modeChange(currentContext.get(), "hira");
+  await modeFunctions.get()[variables.lastMode]?.(context, "");
   try {
     await denops.cmd("doautocmd <nomodeline> User skkeleton-enable-post");
   } catch (e) {
