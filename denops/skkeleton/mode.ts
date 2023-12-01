@@ -1,6 +1,8 @@
+import { config } from "./config.ts";
 import { Context } from "./context.ts";
 import { autocmd, vars } from "./deps.ts";
 import { initializeState } from "./state.ts";
+import { variables } from "./store.ts";
 
 export async function modeChange(context: Context, mode: string) {
   context.mode = mode;
@@ -14,6 +16,9 @@ export async function modeChange(context: Context, mode: string) {
     } catch {
       // ignore
     }
+  }
+  if (config.keepMode) {
+    variables.lastMode = mode;
   }
 }
 

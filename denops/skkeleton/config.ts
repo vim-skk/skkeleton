@@ -17,6 +17,7 @@ export const config: ConfigOptions = {
   immediatelyJisyoRW: true,
   immediatelyOkuriConvert: true,
   kanaTable: "rom",
+  keepMode: false,
   keepState: false,
   markerHenkan: "▽",
   markerHenkanSelect: "▼",
@@ -88,6 +89,7 @@ const validators: Validators = {
     }
     return name;
   },
+  keepMode: (x) => ensure(x, is.Boolean),
   keepState: (x) => ensure(x, is.Boolean),
   markerHenkan: (x) => ensure(x, is.String),
   markerHenkanSelect: (x) => ensure(x, is.String),

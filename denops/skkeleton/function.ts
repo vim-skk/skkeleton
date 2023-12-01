@@ -22,6 +22,14 @@ export type Func = (
   char: string,
 ) => void | Promise<void>;
 
+export const modeFunctions = new Cell<Record<string, Func>>(() => ({
+  abbrev: abbrev,
+  hankata: hankatakana,
+  hira: hirakana,
+  kata: katakana,
+  zenkaku: zenkaku,
+}));
+
 export const functions = new Cell<Record<string, Func>>(() => ({
   // common
   kakutei,
