@@ -29,7 +29,7 @@ export async function hirakana(context: Context) {
   if (state.mode !== "direct") {
     await kakutei(context);
   }
-  currentKanaTable.set("rom");
+  currentKanaTable.set(config.kanaTable);
   if (state.type === "input") state.converter = void 0;
   initializeState(state, ["converter"]);
   await modeChange(context, "hira");
