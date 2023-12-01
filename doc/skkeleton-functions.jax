@@ -7,6 +7,7 @@
 kakutei                                          *skkeleton-functions-kakutei*
         (input, henkan)
         入力中や変換中の文字列を確定します。
+        何も入力されていない場合、カナ入力などのモードを解除します。
 
 newline                                          *skkeleton-functions-newline*
         (input, henkan)

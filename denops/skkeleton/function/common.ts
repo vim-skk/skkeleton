@@ -1,11 +1,11 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { HenkanType } from "../jisyo.ts";
-import { currentKanaTable } from "../kana.ts";
+import { initializeStateWithAbbrev } from "../mode.ts";
 import { initializeState } from "../state.ts";
 import { currentLibrary } from "../store.ts";
 import { kakuteiFeed } from "./input.ts";
-import { initializeStateWithAbbrev } from "../mode.ts";
+import { hirakana } from "./mode.ts";
 
 export async function kakutei(context: Context) {
   const state = context.state;
@@ -34,16 +34,16 @@ export async function kakutei(context: Context) {
       break;
     }
     case "input": {
+      if (state.mode === "direct" && state.feed === "") {
+        await hirakana(context);
+        break;
+      }
       kakuteiFeed(context);
       let result = state.henkanFeed + state.okuriFeed + state.feed;
       if (state.converter) {
         result = state.converter(result);
       }
       context.kakutei(result);
-      if (currentKanaTable.get() === "zen") {
-        currentKanaTable.set(config.kanaTable);
-        state.converter = void 0;
-      }
       break;
     }
     default:

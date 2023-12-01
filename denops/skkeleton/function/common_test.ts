@@ -3,6 +3,7 @@ import { Context } from "../context.ts";
 import { assertEquals } from "../deps/std/assert.ts";
 import { currentLibrary } from "../store.ts";
 import { cancel, kakutei } from "./common.ts";
+import { katakana } from "./mode.ts";
 import { dispatch } from "./testutil.ts";
 
 const lib = await currentLibrary.get();
@@ -45,5 +46,18 @@ Deno.test({
       ["注釈;これは注釈です"],
       await lib.getHenkanResult("okurinasi", "ちゅうしゃく"),
     );
+  },
+});
+
+Deno.test({
+  name: "turn off mode when kakutei with empty input",
+  async fn() {
+    const context = new Context();
+    await katakana(context);
+    await dispatch(context, "k");
+    await kakutei(context);
+    assertEquals(context.mode, "kata");
+    await kakutei(context);
+    assertEquals(context.mode, "hira");
   },
 });
