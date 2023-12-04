@@ -1,6 +1,6 @@
 {
   "lock": false,
   "tasks": {
-    "check": "deno fmt --check && deno lint && deno test -A"
+    "check": "deno fmt --check denops && deno lint && deno test -A"
   }
 }
