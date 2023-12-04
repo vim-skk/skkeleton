@@ -65,10 +65,10 @@ jobs:
             ${{ runner.os }}-deno-
       - name: Lint check
         working-directory: ./repo
-        run: deno lint
+        run: deno task lint
       - name: Format check
         working-directory: ./repo
-        run: deno fmt --check
+        run: deno task fmt-check
       - uses: thinca/action-setup-vim@v1
         id: vim
         with:
@@ -94,7 +94,7 @@ jobs:
           DENOPS_TEST_NVIM: ${{ steps.nvim.outputs.executable_path }}
       - name: Test
         working-directory: ./repo
-        run: deno test -A
+        run: deno task test
         env:
           DENO_DIR: ../.deno
           DENOPS_TEST_VIM: ${{ steps.vim.outputs.executable_path }}
