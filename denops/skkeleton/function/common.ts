@@ -34,10 +34,6 @@ export async function kakutei(context: Context) {
       break;
     }
     case "input": {
-      if (state.mode === "direct" && state.feed === "") {
-        await hirakana(context);
-        break;
-      }
       kakuteiFeed(context);
       let result = state.henkanFeed + state.okuriFeed + state.feed;
       if (state.converter) {
@@ -52,6 +48,17 @@ export async function kakutei(context: Context) {
       );
   }
   await initializeStateWithAbbrev(context, ["converter", "table"]);
+}
+
+export async function kakuteiKey(context: Context) {
+  const { state } = context;
+  // 確定する物が無い状態で確定しようとした際にモードを解除する
+  // この動作はddskkに存在する
+  if (state.type === "input" && state.mode === "direct" && state.feed === "") {
+    await hirakana(context);
+    return;
+  }
+  await kakutei(context);
 }
 
 export async function newline(context: Context) {

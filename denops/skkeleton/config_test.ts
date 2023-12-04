@@ -1,8 +1,12 @@
 import { config } from "./config.ts";
 import { Context } from "./context.ts";
+import { Denops } from "./deps.ts";
 import { assertEquals } from "./deps/std/assert.ts";
+import { disable } from "./function/disable.ts";
+import { katakana } from "./function/mode.ts";
 import { dispatch } from "./function/testutil.ts";
-import { currentLibrary } from "./store.ts";
+import { currentContext, currentLibrary, variables } from "./store.ts";
+import { test } from "./testutil.ts";
 
 const defaultConfig = { ...config };
 
@@ -61,5 +65,20 @@ Deno.test({
       await dispatch(context, ";su;xtupa");
       assertEquals(context.toString(), "▼酸っぱ");
     }
+  },
+});
+
+test({
+  mode: "all",
+  name: "keepMode",
+  async fn(d: Denops) {
+    config.keepMode = true;
+    variables.lastMode = "hira";
+    const context = currentContext.get();
+    await d.call("skkeleton#handle", "enable", {});
+    await katakana(context);
+    await disable(context);
+    await d.call("skkeleton#handle", "enable", {});
+    assertEquals(currentContext.get().mode, "kata");
   },
 });

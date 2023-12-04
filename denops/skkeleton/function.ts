@@ -1,5 +1,10 @@
 import { Context } from "./context.ts";
-import { cancel, kakutei, newline, purgeCandidate } from "./function/common.ts";
+import {
+  cancel,
+  kakuteiKey,
+  newline,
+  purgeCandidate,
+} from "./function/common.ts";
 import { disable, escape } from "./function/disable.ts";
 import {
   henkanBackward,
@@ -32,7 +37,7 @@ export const modeFunctions = new Cell<Record<string, Func>>(() => ({
 
 export const functions = new Cell<Record<string, Func>>(() => ({
   // common
-  kakutei,
+  kakutei: kakuteiKey,
   newline,
   cancel,
   // disable

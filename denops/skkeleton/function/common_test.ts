@@ -2,7 +2,7 @@ import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { assertEquals } from "../deps/std/assert.ts";
 import { currentLibrary } from "../store.ts";
-import { cancel, kakutei } from "./common.ts";
+import { cancel, kakutei, kakuteiKey } from "./common.ts";
 import { katakana } from "./mode.ts";
 import { dispatch } from "./testutil.ts";
 
@@ -55,9 +55,9 @@ Deno.test({
     const context = new Context();
     await katakana(context);
     await dispatch(context, "k");
-    await kakutei(context);
+    await kakuteiKey(context);
     assertEquals(context.mode, "kata");
-    await kakutei(context);
+    await kakuteiKey(context);
     assertEquals(context.mode, "hira");
   },
 });
