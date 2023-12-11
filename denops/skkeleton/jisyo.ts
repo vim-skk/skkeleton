@@ -610,7 +610,8 @@ export class SkkServer implements Dictionary {
 export class GoogleJapaneseInput implements Dictionary {
   async connect() {}
   async getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
-    return await this.getMidashis(word);
+    // It should not work for "okuriari".
+    return _type === "okuriari" ? [] : await this.getMidashis(word);
   }
   getCompletionResult(_prefix: string, _feed: string): Promise<CompletionData> {
     // Note: It does not support completions
