@@ -5,7 +5,7 @@ import { wrap } from "./deps/iterator_helpers.ts";
 import { JpNum } from "./deps/japanese_numeral.ts";
 import { RomanNum } from "./deps/roman.ts";
 import { zip } from "./deps/std/collections.ts";
-import { iterateReader } from "./deps/std/streams.ts";
+import { TextLineStream } from "./deps/std/streams.ts";
 import { assert, is } from "./deps/unknownutil.ts";
 import { Encode } from "./types.ts";
 import { jisyoschema, jsonschema, msgpack, yaml } from "./deps/jisyo.ts";
@@ -524,6 +524,25 @@ function decode(str: Uint8Array, encode: Encoding): string {
   return decoder.decode(str);
 }
 
+async function* iterLine(
+  r: ReadableStream<Uint8Array>,
+  encoding: string,
+): AsyncIterable<string> {
+  const lines = r
+    .pipeThrough(new TextDecoderStream(encoding), {
+      preventAbort: true,
+      preventCancel: true,
+      preventClose: true,
+    })
+    .pipeThrough(new TextLineStream());
+
+  for await (const line of lines) {
+    if ((line as string).length) {
+      yield line as string;
+    }
+  }
+}
+
 export class SkkServer implements Dictionary {
   #conn: Deno.Conn | undefined;
   responseEncoding: Encoding;
@@ -545,8 +564,9 @@ export class SkkServer implements Dictionary {
 
     await this.#conn.write(encode(`1${word} `, this.requestEncoding));
     const result: string[] = [];
-    for await (const res of iterateReader(this.#conn)) {
-      const str = decode(res, this.responseEncoding);
+    for await (
+      const str of iterLine(this.#conn.readable, this.responseEncoding)
+    ) {
       result.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
 
       if (str.endsWith("\n")) {
@@ -590,8 +610,9 @@ export class SkkServer implements Dictionary {
 
     await this.#conn.write(encode(`4${prefix} `, this.requestEncoding));
     const midashis: string[] = [];
-    for await (const res of iterateReader(this.#conn)) {
-      const str = decode(res, this.responseEncoding);
+    for await (
+      const str of iterLine(this.#conn.readable, this.responseEncoding)
+    ) {
       midashis.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
 
       if (str.endsWith("\n")) {
