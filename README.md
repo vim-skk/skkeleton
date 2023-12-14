@@ -16,8 +16,7 @@ It's heavily inspired from [ddskk](https://github.com/skk-dev/ddskk) and
 
 # Documentation
 
-See
-[doc](https://github.com/vim-skk/skkeleton/tree/main/doc/skkeleton.jax)
+See [doc](https://github.com/vim-skk/skkeleton/tree/main/doc/skkeleton.jax)
 
 # Requirements
 
