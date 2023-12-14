@@ -519,11 +519,6 @@ export class UserDictionary implements Dictionary {
 
 export type HenkanType = "okuriari" | "okurinasi";
 
-function decode(str: Uint8Array, encode: Encoding): string {
-  const decoder = new TextDecoder(encode);
-  return decoder.decode(str);
-}
-
 async function* iterLine(
   r: ReadableStream<Uint8Array>,
   encoding: string,
