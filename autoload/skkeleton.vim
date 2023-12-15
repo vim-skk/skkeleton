@@ -9,10 +9,21 @@ let g:skkeleton#state = #{
 \   phase: '',
 \ }
 
+" `denops#plugin#wait()`はVimで入力を吸うので自前でそれらしき物を実装する
+" 吸うなら吸うで戻せばいいのだ
+function s:wait() abort
+  let chars = ''
+  while !denops#plugin#is_loaded('skkeleton')
+    " Note: 吸わないと`<C-c>`の受け付けができないらしい
+    let chars ..= getcharstr(0)
+    " Note: Neovimではsleepを挟まないとRPCが実行されない
+    sleep 1m
+  endwhile
+  call feedkeys(chars, 'it')
+endfunction
+
 function! skkeleton#request(funcname, args) abort
-  if denops#plugin#wait('skkeleton') != 0
-    return ''
-  endif
+  call s:wait()
   return denops#request('skkeleton', a:funcname, a:args)
 endfunction
 
