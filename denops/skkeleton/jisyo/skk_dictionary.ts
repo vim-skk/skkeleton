@@ -91,6 +91,8 @@ export class SkkDictionary implements Dictionary {
       const file = await readFileWithEncoding(path, encoding);
       this.loadString(file);
     }
+
+    return this;
   }
 
   private loadJson(data: string) {

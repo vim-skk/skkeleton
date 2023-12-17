@@ -3,7 +3,6 @@ import { assertEquals } from "./deps/std/assert.ts";
 import { Library, load as loadJisyo, wrapDictionary } from "./jisyo.ts";
 import { SkkDictionary } from "./jisyo/skk_dictionary.ts";
 import { UserDictionary } from "./jisyo/user_dictionary.ts";
-import { readFileWithEncoding } from "./util.ts";
 
 const newJisyoJson = join(
   dirname(fromFileUrl(import.meta.url)),
@@ -41,22 +40,11 @@ const numIncludingJisyo = join(
   "numIncludingJisyo",
 );
 
-async function load(path: string, encoding: string): Promise<SkkDictionary> {
-  const dic = new SkkDictionary();
-  if (path.endsWith(".json")) {
-    dic.loadJson(await readFileWithEncoding(path, encoding));
-  } else if (path.endsWith(".yaml") || path.endsWith(".yml")) {
-    dic.loadYaml(await readFileWithEncoding(path, encoding));
-  } else {
-    dic.load(await readFileWithEncoding(path, encoding));
-  }
-  return dic;
-}
-
 Deno.test({
   name: "load new JisyoJson",
   async fn() {
-    const jisyo = await load(newJisyoJson, "utf-8");
+    const dic = new SkkDictionary();
+    const jisyo = await dic.load(newJisyoJson, "utf-8");
     const manager = new Library([jisyo]);
     const ari = await manager.getHenkanResult("okuriari", "わるs");
     assertEquals(["悪"], ari);
@@ -68,7 +56,8 @@ Deno.test({
 Deno.test({
   name: "load new JisyoYaml",
   async fn() {
-    const jisyo = await load(newJisyoYaml, "utf-8");
+    const dic = new SkkDictionary();
+    const jisyo = await dic.load(newJisyoYaml, "utf-8");
     const manager = new Library([jisyo]);
     const ari = await manager.getHenkanResult("okuriari", "わるs");
     assertEquals(["悪"], ari);
@@ -80,7 +69,8 @@ Deno.test({
 Deno.test({
   name: "get candidates",
   async fn() {
-    const jisyo = await load(globalJisyo, "euc-jp");
+    const dic = new SkkDictionary();
+    const jisyo = await dic.load(globalJisyo, "euc-jp");
     const manager = new Library([jisyo]);
     const ari = await manager.getHenkanResult("okuriari", "てすt");
     assertEquals(["テスト"], ari);
@@ -92,7 +82,8 @@ Deno.test({
 Deno.test({
   name: "get num candidates",
   async fn() {
-    const jisyo = wrapDictionary(await load(numJisyo, "euc-jp"));
+    const dic = new SkkDictionary();
+    const jisyo = wrapDictionary(await dic.load(numJisyo, "euc-jp"));
     const manager = new Library([jisyo]);
     const nasi = await manager.getHenkanResult("okurinasi", "101ばん");
     assertEquals(nasi, [
@@ -111,7 +102,8 @@ Deno.test({
 Deno.test({
   name: "get num candidates (Kifu)",
   async fn() {
-    const jisyo = wrapDictionary(await load(numJisyo, "euc-jp"));
+    const dic = new SkkDictionary();
+    const jisyo = wrapDictionary(await dic.load(numJisyo, "euc-jp"));
     const manager = new Library([jisyo]);
     const nasi1 = await manager.getHenkanResult("okurinasi", "11おうて");
     assertEquals(nasi1, ["１一王手"]);
@@ -123,7 +115,8 @@ Deno.test({
 Deno.test({
   name: "get candidates from words that include numbers",
   async fn() {
-    const jisyo = wrapDictionary(await load(numIncludingJisyo, "utf-8"));
+    const dic = new SkkDictionary();
+    const jisyo = wrapDictionary(await dic.load(numIncludingJisyo, "utf-8"));
     const manager = new Library([jisyo]);
     const nasi1 = await manager.getHenkanResult("okurinasi", "cat2");
     assertEquals(nasi1, ["🐈"]);
@@ -156,7 +149,8 @@ Deno.test({
 Deno.test({
   name: "global/local jisyo interop",
   async fn() {
-    const jisyo = await load(globalJisyo, "euc-jp");
+    const dic = new SkkDictionary();
+    const jisyo = await dic.load(globalJisyo, "euc-jp");
     const library = new Library([jisyo]);
     await library.registerHenkanResult("okurinasi", "てすと", "test");
 
