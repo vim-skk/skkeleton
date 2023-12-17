@@ -1,4 +1,5 @@
 import { getKanaTable } from "../kana.ts";
+import { readFileWithEncoding } from "../util.ts";
 import type { CompletionData } from "../types.ts";
 import {
   Dictionary,
@@ -76,7 +77,23 @@ export class SkkDictionary implements Dictionary {
     return candidates;
   }
 
-  loadJson(data: string) {
+  async load(path: string, encoding: string) {
+    if (path.endsWith(".yaml") || path.endsWith(".yml")) {
+      const file = await Deno.readTextFile(path);
+      this.loadYaml(file);
+    } else if (path.endsWith(".json")) {
+      const file = await Deno.readTextFile(path);
+      this.loadJson(file);
+    } else if (path.endsWith(".mpk")) {
+      const file = await Deno.readFile(path);
+      this.loadMsgpack(file);
+    } else {
+      const file = await readFileWithEncoding(path, encoding);
+      this.loadString(file);
+    }
+  }
+
+  private loadJson(data: string) {
     const jisyo = JSON.parse(data) as Jisyo;
     const validator = new jsonschema.Validator();
     const result = validator.validate(jisyo, jisyoschema);
@@ -89,7 +106,7 @@ export class SkkDictionary implements Dictionary {
     this.#okuriNasi = new Map(Object.entries(jisyo.okuri_nasi));
   }
 
-  loadYaml(data: string) {
+  private loadYaml(data: string) {
     const jisyo = yaml.parse(data) as Jisyo;
     const validator = new jsonschema.Validator();
     const result = validator.validate(jisyo, jisyoschema);
@@ -102,7 +119,7 @@ export class SkkDictionary implements Dictionary {
     this.#okuriNasi = new Map(Object.entries(jisyo.okuri_nasi));
   }
 
-  loadMsgpack(data: Uint8Array) {
+  private loadMsgpack(data: Uint8Array) {
     const jisyo = msgpack.decode(data) as Jisyo;
     const validator = new jsonschema.Validator();
     const result = validator.validate(jisyo, jisyoschema);
@@ -115,7 +132,7 @@ export class SkkDictionary implements Dictionary {
     this.#okuriNasi = new Map(Object.entries(jisyo.okuri_nasi));
   }
 
-  load(data: string) {
+  private loadString(data: string) {
     let mode = -1;
     this.#okuriAri = new Map();
     this.#okuriNasi = new Map();
