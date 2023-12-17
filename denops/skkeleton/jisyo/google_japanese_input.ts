@@ -1,3 +1,4 @@
+import { config } from "../config.ts";
 import { Dictionary, HenkanType } from "../jisyo.ts";
 import type { CompletionData } from "../types.ts";
 
