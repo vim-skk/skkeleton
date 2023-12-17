@@ -1,12 +1,8 @@
 import { dirname, fromFileUrl, join } from "./deps/std/path.ts";
 import { assertEquals } from "./deps/std/assert.ts";
-import {
-  Library,
-  load as loadJisyo,
-  SKKDictionary,
-  UserDictionary,
-  wrapDictionary,
-} from "./jisyo.ts";
+import { Library, load as loadJisyo, wrapDictionary } from "./jisyo.ts";
+import { SkkDictionary } from "./jisyo/skk_dictionary.ts";
+import { UserDictionary } from "./jisyo/user_dictionary.ts";
 import { readFileWithEncoding } from "./util.ts";
 
 const newJisyoJson = join(
@@ -45,8 +41,8 @@ const numIncludingJisyo = join(
   "numIncludingJisyo",
 );
 
-async function load(path: string, encoding: string): Promise<SKKDictionary> {
-  const dic = new SKKDictionary();
+async function load(path: string, encoding: string): Promise<SkkDictionary> {
+  const dic = new SkkDictionary();
   if (path.endsWith(".json")) {
     dic.loadJson(await readFileWithEncoding(path, encoding));
   } else if (path.endsWith(".yaml") || path.endsWith(".yml")) {
