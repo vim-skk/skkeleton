@@ -135,21 +135,24 @@ export class SkkDictionary implements Dictionary {
   }
 
   private loadString(data: string) {
-    let mode = -1;
     this.#okuriAri = new Map();
     this.#okuriNasi = new Map();
+
+    let mode: 0 | 1 | -1 = -1;
     const a: Map<string, string[]>[] = [this.#okuriAri, this.#okuriNasi];
-    const lines = data.split("\n");
-    for (const line of lines) {
+    for (const line of data.split("\n")) {
       if (line === okuriAriMarker) {
         mode = 0;
         continue;
       }
+
       if (line === okuriNasiMarker) {
         mode = 1;
         continue;
       }
+
       if (mode == -1) continue;
+
       const pos = line.indexOf(" ");
       if (pos !== -1) {
         a[mode].set(line.substring(0, pos), line.slice(pos + 2, -1).split("/"));
