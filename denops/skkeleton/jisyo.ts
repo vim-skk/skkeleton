@@ -3,7 +3,6 @@ import { JpNum } from "./deps/japanese_numeral.ts";
 import { RomanNum } from "./deps/roman.ts";
 import { zip } from "./deps/std/collections.ts";
 import type { CompletionData, RankData } from "./types.ts";
-import { readFileWithEncoding } from "./util.ts";
 import { SkkDictionary } from "./jisyo/skk_dictionary.ts";
 import { UserDictionary, UserDictionaryPath } from "./jisyo/user_dictionary.ts";
 import { SkkServer } from "./jisyo/skk_server.ts";
@@ -266,19 +265,7 @@ export async function load(
     globalDictionaryConfig.map(async ([path, encodingName]) => {
       const dict = new SkkDictionary();
       try {
-        if (path.endsWith(".yaml") || path.endsWith(".yml")) {
-          const file = await Deno.readTextFile(path);
-          dict.loadYaml(file);
-        } else if (path.endsWith(".json")) {
-          const file = await Deno.readTextFile(path);
-          dict.loadJson(file);
-        } else if (path.endsWith(".mpk")) {
-          const file = await Deno.readFile(path);
-          dict.loadMsgpack(file);
-        } else {
-          const file = await readFileWithEncoding(path, encodingName);
-          dict.load(file);
-        }
+        await dict.load(path, encodingName);
       } catch (e) {
         console.error("globalDictionary loading failed");
         console.error(`at ${path}`);
