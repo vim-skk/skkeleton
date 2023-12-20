@@ -1,6 +1,10 @@
 import { config } from "../config.ts";
 import { Dictionary, HenkanType } from "../jisyo.ts";
 import type { CompletionData } from "../types.ts";
+import {
+  deadline,
+  DeadlineError,
+} from "https://deno.land/std@0.209.0/async/mod.ts";
 
 export class GoogleJapaneseInput implements Dictionary {
   async connect() {}
@@ -19,38 +23,23 @@ export class GoogleJapaneseInput implements Dictionary {
       text: `${prefix},`,
     });
 
-    const timeout = (ms: number) => {
-      return new Promise((_, reject) => {
-        setTimeout(() => {
-          reject(new Error("Timeout error"));
-        }, ms);
-      });
-    };
-
-    const fetchWithTimeout = (
-      url: string,
-      options: RequestInit,
-      timeoutMs: number,
-    ) => {
-      return Promise.race([
-        fetch(url, options),
-        timeout(timeoutMs),
-      ]) as Promise<Response>;
-    };
-
     try {
       // Note: Google API access may be slow.
-      const resp = await fetchWithTimeout(
-        `http://www.google.com/transliterate?${params.toString()}`,
-        {
-          method: "GET",
-        },
+      const resp = await deadline(
+        fetch(
+          `http://www.google.com/transliterate?${params.toString()}`,
+          {
+            method: "GET",
+          },
+        ),
         500,
       );
       const respJson = await resp.json();
       return respJson[0][1];
     } catch (e) {
-      if (config.debug) {
+      if (e instanceof DeadlineError) {
+        // Ignore timeout error
+      } else if (config.debug) {
         console.log(e);
       }
     }
