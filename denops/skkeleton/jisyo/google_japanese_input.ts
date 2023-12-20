@@ -18,12 +18,34 @@ export class GoogleJapaneseInput implements Dictionary {
       langpair: "ja-Hira|ja",
       text: `${prefix},`,
     });
+
+    const timeout = (ms: number) => {
+      return new Promise((_, reject) => {
+        setTimeout(() => {
+          reject(new Error("Timeout error"));
+        }, ms);
+      });
+    };
+
+    const fetchWithTimeout = (
+      url: string,
+      options: RequestInit,
+      timeoutMs: number,
+    ) => {
+      return Promise.race([
+        fetch(url, options),
+        timeout(timeoutMs),
+      ]) as Promise<Response>;
+    };
+
     try {
-      const resp = await fetch(
+      // Note: Google API access may be slow.
+      const resp = await fetchWithTimeout(
         `http://www.google.com/transliterate?${params.toString()}`,
         {
           method: "GET",
         },
+        500,
       );
       const respJson = await resp.json();
       return respJson[0][1];
