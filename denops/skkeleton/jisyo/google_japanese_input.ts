@@ -1,10 +1,7 @@
 import { config } from "../config.ts";
 import { Dictionary, HenkanType } from "../jisyo.ts";
 import type { CompletionData } from "../types.ts";
-import {
-  deadline,
-  DeadlineError,
-} from "https://deno.land/std@0.209.0/async/mod.ts";
+import { deadline, DeadlineError } from "../deps/std/async.ts";
 
 export class GoogleJapaneseInput implements Dictionary {
   async connect() {}
