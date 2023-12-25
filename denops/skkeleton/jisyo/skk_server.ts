@@ -10,6 +10,7 @@ export class SkkServer implements Dictionary {
   responseEncoding: Encoding;
   requestEncoding: Encoding;
   connectOptions: Deno.ConnectOptions;
+
   constructor(opts: SkkServerOptions) {
     this.requestEncoding = opts.requestEnc;
     this.responseEncoding = opts.responseEnc;
@@ -18,25 +19,33 @@ export class SkkServer implements Dictionary {
       port: opts.port,
     };
   }
+
   async connect() {
     this.#conn = await Deno.connect(this.connectOptions);
   }
+
   async getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
     if (!this.#conn) return [];
 
     await this.#conn.write(encode(`1${word} `, this.requestEncoding));
-    const result: string[] = [];
-    for await (
-      const str of iterLine(this.#conn.readable, this.responseEncoding)
-    ) {
-      result.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
 
-      if (str.endsWith("\n")) {
-        break;
+    const result: string[] = [];
+    try {
+      for await (
+        const str of iterLine(this.#conn.readable, this.responseEncoding)
+      ) {
+        result.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
+
+        if (str.endsWith("\n")) {
+          break;
+        }
       }
+    } catch (_e) {
+      // NOTE: ReadableStream may be locked
     }
     return result;
   }
+
   async getCompletionResult(
     prefix: string,
     feed: string,
@@ -66,24 +75,30 @@ export class SkkServer implements Dictionary {
 
     return candidates;
   }
+
   private async getMidashis(prefix: string): Promise<string[]> {
     // Get midashis from prefix
     if (!this.#conn) return [];
 
     await this.#conn.write(encode(`4${prefix} `, this.requestEncoding));
-    const midashis: string[] = [];
-    for await (
-      const str of iterLine(this.#conn.readable, this.responseEncoding)
-    ) {
-      midashis.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
+    const result: string[] = [];
+    try {
+      for await (
+        const str of iterLine(this.#conn.readable, this.responseEncoding)
+      ) {
+        result.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
 
-      if (str.endsWith("\n")) {
-        break;
+        if (str.endsWith("\n")) {
+          break;
+        }
       }
+    } catch (_e) {
+      // NOTE: ReadableStream may be locked
     }
 
-    return midashis;
+    return result;
   }
+
   close() {
     this.#conn?.write(encode("0", this.requestEncoding));
     this.#conn?.close();
