@@ -21,10 +21,13 @@ export class SkkServer implements Dictionary {
   }
 
   async connect() {
+    this.close();
     this.#conn = await Deno.connect(this.connectOptions);
   }
 
   async getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
+    this.connect();
+
     if (!this.#conn) return [];
 
     const result: string[] = [];
@@ -45,6 +48,9 @@ export class SkkServer implements Dictionary {
     } catch (_e) {
       // NOTE: ReadableStream may be locked
     }
+
+    this.close();
+
     return result;
   }
 
@@ -52,8 +58,6 @@ export class SkkServer implements Dictionary {
     prefix: string,
     feed: string,
   ): Promise<CompletionData> {
-    if (!this.#conn) return [];
-
     let midashis: string[] = [];
     if (feed != "") {
       const table = getKanaTable();
@@ -80,10 +84,13 @@ export class SkkServer implements Dictionary {
 
   private async getMidashis(prefix: string): Promise<string[]> {
     // Get midashis from prefix
+    this.connect();
+
     if (!this.#conn) return [];
 
     const result: string[] = [];
     try {
+
       await this.write(`4${prefix} `);
 
       for await (
@@ -101,12 +108,15 @@ export class SkkServer implements Dictionary {
       // NOTE: ReadableStream may be locked
     }
 
+    this.close();
+
     return result;
   }
 
   close() {
     this.#conn?.write(encode("0", this.requestEncoding));
     this.#conn?.close();
+    this.#conn = undefined;
   }
 
   private async write(str: string) {
