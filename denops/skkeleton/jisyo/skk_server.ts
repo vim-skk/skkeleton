@@ -130,7 +130,7 @@ async function* iterLine(
     })
     .pipeThrough(new TextLineStream());
 
-  for await (const line of lines.values()) {
+  for await (const line of lines) {
     yield line as string;
   }
 }
