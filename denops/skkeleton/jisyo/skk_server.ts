@@ -27,18 +27,20 @@ export class SkkServer implements Dictionary {
   async getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
     if (!this.#conn) return [];
 
-    await this.#conn.write(encode(`1${word} `, this.requestEncoding));
-
     const result: string[] = [];
     try {
+      await this.write(`1${word} `);
+
       for await (
         const str of iterLine(this.#conn.readable, this.responseEncoding)
       ) {
+        if (str.length === 0) {
+          continue;
+        }
+
         result.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
 
-        if (str.endsWith("\n")) {
-          break;
-        }
+        break;
       }
     } catch (_e) {
       // NOTE: ReadableStream may be locked
@@ -80,17 +82,20 @@ export class SkkServer implements Dictionary {
     // Get midashis from prefix
     if (!this.#conn) return [];
 
-    await this.#conn.write(encode(`4${prefix} `, this.requestEncoding));
     const result: string[] = [];
     try {
+      await this.write(`4${prefix} `);
+
       for await (
         const str of iterLine(this.#conn.readable, this.responseEncoding)
       ) {
+        if (str.length === 0) {
+          continue;
+        }
+
         result.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
 
-        if (str.endsWith("\n")) {
-          break;
-        }
+        break;
       }
     } catch (_e) {
       // NOTE: ReadableStream may be locked
@@ -102,6 +107,14 @@ export class SkkServer implements Dictionary {
   close() {
     this.#conn?.write(encode("0", this.requestEncoding));
     this.#conn?.close();
+  }
+
+  private async write(str: string) {
+    if (!this.#conn) return;
+
+    await this.#conn.write(encode(str, this.requestEncoding));
+    const reader = this.#conn.readable.getReader();
+    reader.releaseLock();
   }
 }
 
@@ -117,10 +130,8 @@ async function* iterLine(
     })
     .pipeThrough(new TextLineStream());
 
-  for await (const line of lines) {
-    if ((line as string).length) {
-      yield line as string;
-    }
+  for await (const line of lines.values({ preventCancel: true })) {
+    yield line as string;
   }
 }
 
