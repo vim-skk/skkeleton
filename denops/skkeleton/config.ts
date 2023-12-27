@@ -33,6 +33,7 @@ export const config: ConfigOptions = {
   usePopup: true,
   useSkkServer: false,
   userJisyo: "~/.skkeleton",
+  databasePath: "",
 };
 
 type Validators = {
@@ -111,6 +112,7 @@ const validators: Validators = {
   useGoogleJapaneseInput: (x) => ensure(x, is.Boolean),
   useSkkServer: (x) => ensure(x, is.Boolean),
   userJisyo: (x) => ensure(x, is.String),
+  databasePath: (x) => ensure(x, is.String),
 };
 
 export async function setConfig(
