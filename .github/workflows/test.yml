@@ -35,7 +35,7 @@ jobs:
           # - macos-latest
           - ubuntu-latest
         version:
-          - "1.32.0"
+          - "1.38.0"
           - "1.x"
         host_version:
           - vim: "v9.0.1499"

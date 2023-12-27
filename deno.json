@@ -1,5 +1,6 @@
 {
   "lock": false,
+  "unstable": ["kv"],
   "tasks": {
     "fmt-check": "deno fmt --check denops",
     "lint": "deno lint",
