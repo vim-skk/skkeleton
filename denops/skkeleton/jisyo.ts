@@ -4,6 +4,7 @@ import { RomanNum } from "./deps/roman.ts";
 import { zip } from "./deps/std/collections.ts";
 import type { CompletionData, RankData } from "./types.ts";
 import { SkkDictionary } from "./jisyo/skk_dictionary.ts";
+import { DenoKvDictionary } from "./jisyo/deno_kv.ts";
 import { UserDictionary, UserDictionaryPath } from "./jisyo/user_dictionary.ts";
 import { SkkServer } from "./jisyo/skk_server.ts";
 import { GoogleJapaneseInput } from "./jisyo/google_japanese_input.ts";
@@ -263,17 +264,24 @@ export async function load(
 ): Promise<Library> {
   const globalDictionaries = await Promise.all(
     globalDictionaryConfig.map(async ([path, encodingName]) => {
-      const dict = new SkkDictionary();
       try {
-        await dict.load(path, encodingName);
+        if (config.databasePath) {
+          const dict = await DenoKvDictionary.create(path, encodingName);
+          await dict.load();
+          return dict;
+        } else {
+          const dict = new SkkDictionary();
+          await dict.load(path, encodingName);
+          return dict;
+        }
       } catch (e) {
         console.error("globalDictionary loading failed");
         console.error(`at ${path}`);
         if (config.debug) {
           console.error(e);
         }
+        return new SkkDictionary();
       }
-      return dict;
     }),
   );
 
