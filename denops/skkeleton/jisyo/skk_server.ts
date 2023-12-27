@@ -26,7 +26,7 @@ export class SkkServer implements Dictionary {
   }
 
   async getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
-    this.connect();
+    await this.connect();
 
     if (!this.#conn) return [];
 
@@ -49,6 +49,8 @@ export class SkkServer implements Dictionary {
       // NOTE: ReadableStream may be locked
     }
 
+    // NOTE: Close the current connection.
+    // Because the stream is locked.
     this.close();
 
     return result;
@@ -84,7 +86,7 @@ export class SkkServer implements Dictionary {
 
   private async getMidashis(prefix: string): Promise<string[]> {
     // Get midashis from prefix
-    this.connect();
+    await this.connect();
 
     if (!this.#conn) return [];
 
@@ -108,6 +110,8 @@ export class SkkServer implements Dictionary {
       // NOTE: ReadableStream may be locked
     }
 
+    // NOTE: Close the current connection.
+    // Because the stream is locked.
     this.close();
 
     return result;
