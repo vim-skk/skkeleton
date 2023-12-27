@@ -35,12 +35,17 @@ export class DenoKvDictionary implements Dictionary {
   static async create(
     path: string,
     encoding: string,
+    databasePath?: string,
   ): Promise<DenoKvDictionary> {
     return new DenoKvDictionary(
-      await Deno.openKv(config.databasePath),
+      await Deno.openKv(databasePath ?? config.databasePath),
       path,
       encoding,
     );
+  }
+
+  cleanup() {
+    this.#db.close();
   }
 
   async getHenkanResult(
