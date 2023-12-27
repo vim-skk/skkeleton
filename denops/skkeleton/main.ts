@@ -5,6 +5,7 @@ import { functions, modeFunctions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { load as jisyoLoad } from "./jisyo.ts";
 import { SkkServer } from "./jisyo/skk_server.ts";
+import { DenoKvDictionary } from "./jisyo/deno_kv.ts";
 import { GoogleJapaneseInput } from "./jisyo/google_japanese_input.ts";
 import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
@@ -392,6 +393,14 @@ export async function main(denops: Denops) {
 
       // NOTE: Initialize dictionary
       await currentLibrary.get();
+    },
+    async updateDatabase(path: unknown, encoding: unknown, force: unknown) {
+      assert(path, is.String);
+      assert(encoding, is.String);
+      assert(force, is.Boolean);
+      await DenoKvDictionary.create(path, encoding)
+        .then((dict) => dict.load(force));
+      await denops.cmd(`echomsg 'updated database: "${path}"'`);
     },
   };
   if (config.debug) {

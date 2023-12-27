@@ -85,10 +85,13 @@ export class DenoKvDictionary implements Dictionary {
     return Promise.resolve(candidates);
   }
 
-  async load() {
+  async load(force = false) {
     const stat = await Deno.stat(this.#path);
     const mtime = stat.mtime?.getTime();
-    if (mtime && (await this.#db.get([this.#path, "mtime"])).value === mtime) {
+    if (
+      !force && mtime &&
+      (await this.#db.get([this.#path, "mtime"])).value === mtime
+    ) {
       return this;
     }
 
