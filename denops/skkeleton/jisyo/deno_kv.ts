@@ -121,7 +121,8 @@ export class DenoKvDictionary implements Dictionary {
     value: string[],
   ) {
     this.#atm = this.#atm.set([this.#path, type, ...key], value);
-    if (++this.#mutationCount > 500) {
+    this.#mutationCount++;
+    if (this.#mutationCount > 500) {
       await this.#atm.commit();
       this.#atm = this.#db.atomic();
       this.#mutationCount = 0;
