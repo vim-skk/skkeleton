@@ -62,9 +62,12 @@ export class DenoKvDictionary implements Dictionary {
       for (const [key, kanas] of table) {
         if (key.startsWith(feed) && kanas.length > 1) {
           const feedPrefix = prefix + (kanas as string[])[0];
+          // `start` is need to get the exact matched entry.
+          // https://github.com/denoland/deno/issues/21711
           for await (
             const entry of this.#db.list<string[]>({
               prefix: [this.#path, "okurinasi", ...feedPrefix],
+              start: [this.#path, "okurinasi", ...feedPrefix],
             })
           ) {
             candidates.push([entry.key.slice(2).join(""), entry.value]);
@@ -75,6 +78,7 @@ export class DenoKvDictionary implements Dictionary {
       for await (
         const entry of this.#db.list<string[]>({
           prefix: [this.#path, "okurinasi", ...prefix],
+          start: [this.#path, "okurinasi", ...prefix],
         })
       ) {
         candidates.push([entry.key.slice(2).join(""), entry.value]);
