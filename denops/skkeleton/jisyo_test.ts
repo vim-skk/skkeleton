@@ -1,7 +1,13 @@
 import { dirname, fromFileUrl, join } from "./deps/std/path.ts";
 import { assertEquals } from "./deps/std/assert.ts";
-import { Library, load as loadJisyo, wrapDictionary } from "./jisyo.ts";
+import {
+  Dictionary,
+  Library,
+  load as loadJisyo,
+  wrapDictionary,
+} from "./jisyo.ts";
 import { SkkDictionary } from "./jisyo/skk_dictionary.ts";
+import { DenoKvDictionary } from "./jisyo/deno_kv.ts";
 import { UserDictionary } from "./jisyo/user_dictionary.ts";
 
 const newJisyoJson = join(
@@ -40,89 +46,119 @@ const numIncludingJisyo = join(
   "numIncludingJisyo",
 );
 
+async function test(
+  path: string,
+  encoding: string,
+  t: Deno.TestContext,
+  callback: (jisyo: Dictionary) => Promise<void>,
+): Promise<void> {
+  await t.step({
+    name: "SkkDictionary",
+    fn: async () => {
+      const dic = new SkkDictionary();
+      const jisyo = await dic.load(path, encoding);
+      await callback(jisyo);
+    },
+  });
+  await t.step({
+    name: "DenoKvDictionary",
+    fn: async () => {
+      const databasePath = await Deno.makeTempFile();
+      try {
+        const dic = await DenoKvDictionary.create(path, encoding, databasePath);
+        const jisyo = await dic.load();
+        await callback(jisyo);
+        dic.cleanup();
+      } finally {
+        await Deno.remove(databasePath);
+      }
+    },
+  });
+}
+
 Deno.test({
   name: "load new JisyoJson",
-  async fn() {
-    const dic = new SkkDictionary();
-    const jisyo = await dic.load(newJisyoJson, "utf-8");
-    const manager = new Library([jisyo]);
-    const ari = await manager.getHenkanResult("okuriari", "わるs");
-    assertEquals(["悪"], ari);
-    const nasi = await manager.getHenkanResult("okurinasi", "あかね");
-    assertEquals(nasi, ["茜"]);
+  async fn(t) {
+    await test(newJisyoJson, "utf-8", t, async (jisyo) => {
+      const manager = new Library([jisyo]);
+      const ari = await manager.getHenkanResult("okuriari", "わるs");
+      assertEquals(["悪"], ari);
+      const nasi = await manager.getHenkanResult("okurinasi", "あかね");
+      assertEquals(nasi, ["茜"]);
+    });
   },
 });
 
 Deno.test({
   name: "load new JisyoYaml",
-  async fn() {
-    const dic = new SkkDictionary();
-    const jisyo = await dic.load(newJisyoYaml, "utf-8");
-    const manager = new Library([jisyo]);
-    const ari = await manager.getHenkanResult("okuriari", "わるs");
-    assertEquals(["悪"], ari);
-    const nasi = await manager.getHenkanResult("okurinasi", "あかね");
-    assertEquals(nasi, ["茜"]);
+  async fn(t) {
+    await test(newJisyoYaml, "utf-8", t, async (jisyo) => {
+      const manager = new Library([jisyo]);
+      const ari = await manager.getHenkanResult("okuriari", "わるs");
+      assertEquals(["悪"], ari);
+      const nasi = await manager.getHenkanResult("okurinasi", "あかね");
+      assertEquals(nasi, ["茜"]);
+    });
   },
 });
 
 Deno.test({
   name: "get candidates",
-  async fn() {
-    const dic = new SkkDictionary();
-    const jisyo = await dic.load(globalJisyo, "euc-jp");
-    const manager = new Library([jisyo]);
-    const ari = await manager.getHenkanResult("okuriari", "てすt");
-    assertEquals(["テスト"], ari);
-    const nasi = await manager.getHenkanResult("okurinasi", "てすと");
-    assertEquals(nasi, ["テスト", "test"]);
+  async fn(t) {
+    await test(globalJisyo, "euc-jp", t, async (jisyo) => {
+      const manager = new Library([jisyo]);
+      const ari = await manager.getHenkanResult("okuriari", "てすt");
+      assertEquals(["テスト"], ari);
+      const nasi = await manager.getHenkanResult("okurinasi", "てすと");
+      assertEquals(nasi, ["テスト", "test"]);
+    });
   },
 });
 
 Deno.test({
   name: "get num candidates",
-  async fn() {
-    const dic = new SkkDictionary();
-    const jisyo = wrapDictionary(await dic.load(numJisyo, "euc-jp"));
-    const manager = new Library([jisyo]);
-    const nasi = await manager.getHenkanResult("okurinasi", "101ばん");
-    assertEquals(nasi, [
-      "101番",
-      "１０１番",
-      "一〇一番",
-      "百一番",
-      "CI番",
-      "佰壱番",
-    ]);
-    // HEAD
-    //
+  async fn(t) {
+    await test(numJisyo, "euc-jp", t, async (jisyo) => {
+      jisyo = wrapDictionary(jisyo);
+      const manager = new Library([jisyo]);
+      const nasi = await manager.getHenkanResult("okurinasi", "101ばん");
+      assertEquals(nasi, [
+        "101番",
+        "１０１番",
+        "一〇一番",
+        "百一番",
+        "CI番",
+        "佰壱番",
+      ]);
+    });
   },
 });
 
 Deno.test({
   name: "get num candidates (Kifu)",
-  async fn() {
-    const dic = new SkkDictionary();
-    const jisyo = wrapDictionary(await dic.load(numJisyo, "euc-jp"));
-    const manager = new Library([jisyo]);
-    const nasi1 = await manager.getHenkanResult("okurinasi", "11おうて");
-    assertEquals(nasi1, ["１一王手"]);
-    const nasi2 = await manager.getHenkanResult("okurinasi", "111おうて");
-    assertEquals(nasi2, ["111王手"]);
+  async fn(t) {
+    await test(numJisyo, "euc-jp", t, async (jisyo) => {
+      jisyo = wrapDictionary(jisyo);
+      const manager = new Library([jisyo]);
+      const nasi1 = await manager.getHenkanResult("okurinasi", "11おうて");
+      assertEquals(nasi1, ["１一王手"]);
+      const nasi2 = await manager.getHenkanResult("okurinasi", "111おうて");
+      assertEquals(nasi2, ["111王手"]);
+    });
   },
 });
 
 Deno.test({
   name: "get candidates from words that include numbers",
-  async fn() {
-    const dic = new SkkDictionary();
-    const jisyo = wrapDictionary(await dic.load(numIncludingJisyo, "utf-8"));
-    const manager = new Library([jisyo]);
-    const nasi1 = await manager.getHenkanResult("okurinasi", "cat2");
-    assertEquals(nasi1, ["🐈"]);
-    const nasi2 = await manager.getHenkanResult("okurinasi", "1000001");
-    assertEquals(nasi2, ["東京都千代田区千代田"]);
-    //vim-skk/main
+  async fn(t) {
+    await test(numIncludingJisyo, "utf-8", t, async (jisyo) => {
+      jisyo = wrapDictionary(jisyo);
+      const manager = new Library([jisyo]);
+      const nasi1 = await manager.getHenkanResult("okurinasi", "cat2");
+      assertEquals(nasi1, ["🐈"]);
+      const nasi2 = await manager.getHenkanResult("okurinasi", "1000001");
+      assertEquals(nasi2, ["東京都千代田区千代田"]);
+    });
   },
 });
 

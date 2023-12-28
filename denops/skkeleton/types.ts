@@ -66,4 +66,5 @@ export type ConfigOptions = {
   usePopup: boolean;
   useSkkServer: boolean;
   userJisyo: string;
+  databasePath: string;
 };

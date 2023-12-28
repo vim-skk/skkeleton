@@ -328,3 +328,9 @@ endfunction
 function! skkeleton#initialize() abort
   call skkeleton#notify_async('initialize', [])
 endfunction
+
+function! skkeleton#update_database(path, ...) abort
+  let encoding = a:0 > 0 ? a:1 : ''
+  let force = a:0 > 1 ? a:2 : v:false
+  call skkeleton#notify_async('updateDatabase', [a:path, encoding, force])
+endfunction
