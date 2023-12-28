@@ -15,6 +15,20 @@ interface Jisyo {
   okuri_nasi: Record<string, string[]>;
 }
 
+const Encoder = new TextEncoder();
+function encode(str: string): Uint8Array {
+  return Encoder.encode(str);
+}
+
+function calcKeySize(keys: string[]): number {
+  let size = 0;
+  for (const key of keys) {
+    const encoded = encode(key);
+    size += encoded.reduce((acc, cur) => acc + (cur === 0x00 ? 2 : 1), 2);
+  }
+  return size;
+}
+
 export class DenoKvDictionary implements Dictionary {
   #db: Deno.Kv;
   #atm: Deno.AtomicOperation;
@@ -120,18 +134,23 @@ export class DenoKvDictionary implements Dictionary {
   }
 
   #mutationCount = 0;
+  #totalKeySize = 0;
   private async setDatabase(
     type: HenkanType,
-    key: string,
-    value: string[],
+    k: string,
+    v: string[],
   ) {
-    this.#atm = this.#atm.set([this.#path, type, ...key], value);
-    this.#mutationCount++;
-    if (this.#mutationCount > 500) {
+    const key = [this.#path, type, ...k];
+    const keySize = calcKeySize(key);
+    if (this.#mutationCount > 1000 || this.#totalKeySize + keySize > 81920) {
       await this.#atm.commit();
       this.#atm = this.#db.atomic();
       this.#mutationCount = 0;
+      this.#totalKeySize = 0;
     }
+    this.#atm = this.#atm.set(key, v);
+    this.#mutationCount++;
+    this.#totalKeySize += keySize;
   }
 
   private async loadJson() {
