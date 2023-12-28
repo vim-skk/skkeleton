@@ -142,7 +142,7 @@ export class DenoKvDictionary implements Dictionary {
   ) {
     const key = [this.#path, type, ...k];
     const keySize = calcKeySize(key);
-    if (this.#mutationCount > 1000 || this.#totalKeySize + keySize > 81920) {
+    if (this.#mutationCount >= 1000 || this.#totalKeySize + keySize > 81920) {
       await this.#atm.commit();
       this.#atm = this.#db.atomic();
       this.#mutationCount = 0;
