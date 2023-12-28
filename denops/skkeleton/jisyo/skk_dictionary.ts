@@ -140,7 +140,7 @@ export class SkkDictionary implements Dictionary {
 
     let mode: 0 | 1 | -1 = -1;
     const a: Map<string, string[]>[] = [this.#okuriAri, this.#okuriNasi];
-    for (const line of data.split("\n")) {
+    for (const line of data.split(/\n|\r\n/)) {
       if (line === okuriAriMarker) {
         mode = 0;
         continue;
