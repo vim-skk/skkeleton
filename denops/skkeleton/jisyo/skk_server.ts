@@ -21,28 +21,38 @@ export class SkkServer implements Dictionary {
   }
 
   async connect() {
+    this.close();
     this.#conn = await Deno.connect(this.connectOptions);
   }
 
   async getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
-    if (!this.#conn) return [];
+    await this.connect();
 
-    await this.#conn.write(encode(`1${word} `, this.requestEncoding));
+    if (!this.#conn) return [];
 
     const result: string[] = [];
     try {
+      await this.write(`1${word} `);
+
       for await (
         const str of iterLine(this.#conn.readable, this.responseEncoding)
       ) {
+        if (str.length === 0) {
+          continue;
+        }
+
         result.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
 
-        if (str.endsWith("\n")) {
-          break;
-        }
+        break;
       }
     } catch (_e) {
       // NOTE: ReadableStream may be locked
     }
+
+    // NOTE: Close the current connection.
+    // Because the stream is locked.
+    this.close();
+
     return result;
   }
 
@@ -50,8 +60,6 @@ export class SkkServer implements Dictionary {
     prefix: string,
     feed: string,
   ): Promise<CompletionData> {
-    if (!this.#conn) return [];
-
     let midashis: string[] = [];
     if (feed != "") {
       const table = getKanaTable();
@@ -78,23 +86,32 @@ export class SkkServer implements Dictionary {
 
   private async getMidashis(prefix: string): Promise<string[]> {
     // Get midashis from prefix
+    await this.connect();
+
     if (!this.#conn) return [];
 
-    await this.#conn.write(encode(`4${prefix} `, this.requestEncoding));
     const result: string[] = [];
     try {
+      await this.write(`4${prefix} `);
+
       for await (
         const str of iterLine(this.#conn.readable, this.responseEncoding)
       ) {
+        if (str.length === 0) {
+          continue;
+        }
+
         result.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
 
-        if (str.endsWith("\n")) {
-          break;
-        }
+        break;
       }
     } catch (_e) {
       // NOTE: ReadableStream may be locked
     }
+
+    // NOTE: Close the current connection.
+    // Because the stream is locked.
+    this.close();
 
     return result;
   }
@@ -102,6 +119,15 @@ export class SkkServer implements Dictionary {
   close() {
     this.#conn?.write(encode("0", this.requestEncoding));
     this.#conn?.close();
+    this.#conn = undefined;
+  }
+
+  private async write(str: string) {
+    if (!this.#conn) return;
+
+    await this.#conn.write(encode(str, this.requestEncoding));
+    const reader = this.#conn.readable.getReader();
+    reader.releaseLock();
   }
 }
 
@@ -118,9 +144,7 @@ async function* iterLine(
     .pipeThrough(new TextLineStream());
 
   for await (const line of lines) {
-    if ((line as string).length) {
-      yield line as string;
-    }
+    yield line as string;
   }
 }
 
