@@ -110,7 +110,7 @@ async function selectCandidates(context: Context) {
     let keyCode: number;
     try {
       keyCode = await denops.call("skkeleton#getchar", msg) as number;
-    } catch (e: unknown) {
+    } catch (_e: unknown) {
       // Note: Ctrl-C is interrupt
       //       Manually convert to key code
       keyCode = 3;
