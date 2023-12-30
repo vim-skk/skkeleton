@@ -5,8 +5,14 @@ import { TextLineStream } from "../deps/std/streams.ts";
 import { Dictionary, HenkanType } from "../jisyo.ts";
 import type { CompletionData, Encoding, SkkServerOptions } from "../types.ts";
 
+type Server = {
+  conn: Deno.Conn;
+  readCallback: (result: string) => void;
+  writer: WritableStreamDefaultWriter<Uint8Array>;
+};
+
 export class SkkServer implements Dictionary {
-  #conn: Deno.Conn | undefined;
+  #server: Server | undefined;
   responseEncoding: Encoding;
   requestEncoding: Encoding;
   connectOptions: Deno.ConnectOptions;
@@ -20,38 +26,46 @@ export class SkkServer implements Dictionary {
     };
   }
 
-  async connect() {
-    this.close();
-    this.#conn = await Deno.connect(this.connectOptions);
+  async connect(close = false) {
+    if (close) {
+      await this.close();
+    }
+    if (this.#server != null) {
+      return;
+    }
+    const conn = await Deno.connect(this.connectOptions);
+    conn.readable
+      .pipeThrough(new TextDecoderStream(this.responseEncoding))
+      .pipeThrough(new TextLineStream())
+      .pipeTo(
+        new WritableStream({
+          write: (response: string) => {
+            this.#server?.readCallback(response);
+          },
+        }),
+      ).finally(() => {
+        this.#server = undefined;
+      });
+    const writer = conn.writable.getWriter();
+    this.#server = {
+      conn,
+      readCallback: () => {},
+      writer,
+    };
   }
 
   async getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
     await this.connect();
 
-    if (!this.#conn) return [];
+    if (this.#server == null) return [];
+    const { promise, resolve } = Promise.withResolvers<string>();
+    this.#server.readCallback = resolve;
 
-    const result: string[] = [];
-    try {
-      await this.write(`1${word} `);
-
-      for await (
-        const str of iterLine(this.#conn.readable, this.responseEncoding)
-      ) {
-        if (str.length === 0) {
-          continue;
-        }
-
-        result.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
-
-        break;
-      }
-    } catch (_e) {
-      // NOTE: ReadableStream may be locked
-    }
-
-    // NOTE: Close the current connection.
-    // Because the stream is locked.
-    this.close();
+    await this.write(`1${word} `);
+    const response = await promise;
+    const result = response.at(0) === "1"
+      ? response.split("/").slice(1, -1)
+      : [];
 
     return result;
   }
@@ -88,63 +102,31 @@ export class SkkServer implements Dictionary {
     // Get midashis from prefix
     await this.connect();
 
-    if (!this.#conn) return [];
+    if (!this.#server) return [];
 
-    const result: string[] = [];
-    try {
-      await this.write(`4${prefix} `);
+    if (this.#server == null) return [];
+    const { promise, resolve } = Promise.withResolvers<string>();
+    this.#server.readCallback = resolve;
 
-      for await (
-        const str of iterLine(this.#conn.readable, this.responseEncoding)
-      ) {
-        if (str.length === 0) {
-          continue;
-        }
-
-        result.push(...(str.at(0) === "4") ? [] : str.split("/").slice(1, -1));
-
-        break;
-      }
-    } catch (_e) {
-      // NOTE: ReadableStream may be locked
-    }
-
-    // NOTE: Close the current connection.
-    // Because the stream is locked.
-    this.close();
+    await this.write(`4${prefix} `);
+    const response = await promise;
+    const result = response.at(0) === "1"
+      ? response.split(/\/|\s/).slice(1, -1)
+      : [];
 
     return result;
   }
 
-  close() {
-    this.#conn?.write(encode("0", this.requestEncoding));
-    this.#conn?.close();
-    this.#conn = undefined;
+  async close() {
+    await this.write("0");
+    this.#server?.conn.close();
+    this.#server = undefined;
   }
 
   private async write(str: string) {
-    if (!this.#conn) return;
+    if (!this.#server) return;
 
-    await this.#conn.write(encode(str, this.requestEncoding));
-    const reader = this.#conn.readable.getReader();
-    reader.releaseLock();
-  }
-}
-
-async function* iterLine(
-  r: ReadableStream<Uint8Array>,
-  encoding: string,
-): AsyncIterable<string> {
-  const lines = r
-    .pipeThrough(new TextDecoderStream(encoding), {
-      preventAbort: true,
-      preventCancel: true,
-      preventClose: true,
-    })
-    .pipeThrough(new TextLineStream());
-
-  for await (const line of lines) {
-    yield line as string;
+    await this.#server.writer.write(encode(str, this.requestEncoding));
   }
 }
 
