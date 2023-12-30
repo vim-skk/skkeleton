@@ -5,7 +5,7 @@ import { currentLibrary } from "../store.ts";
 import { handleKey } from "../keymap.ts";
 import { keyToNotation } from "../notation.ts";
 import { getOkuriStr } from "../okuri.ts";
-import { HenkanState } from "../state.ts";
+import { HenkanState, initializeState } from "../state.ts";
 import { kakutei } from "./common.ts";
 import { kakuteiFeed } from "./input.ts";
 import { jisyoTouroku } from "./jisyo.ts";
@@ -107,7 +107,21 @@ async function selectCandidates(context: Context) {
     const candidates = state.candidates.slice(start, start + keys.length);
     const msg = candidates.map((c, i) => `${keys[i]}: ${c.replace(/;.*/, "")}`)
       .join(" ");
-    const keyCode = await denops.call("skkeleton#getchar", msg) as number;
+    let keyCode: number;
+    try {
+      keyCode = await denops.call("skkeleton#getchar", msg) as number;
+    } catch (_e: unknown) {
+      // Note: Ctrl-C is interrupt
+      //       Manually convert to key code
+      keyCode = 3;
+    }
+    // Cancel select by <C-c> or <C-g> or <Esc>
+    if (keyCode == 3 || keyCode == 7 || keyCode == 27) {
+      if (config.immediatelyCancel) {
+        initializeState(context.state);
+      }
+      return;
+    }
     const key = String.fromCharCode(keyCode);
     if (key === " ") {
       index += 1;
