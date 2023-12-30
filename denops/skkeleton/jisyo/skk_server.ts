@@ -92,7 +92,6 @@ export class SkkServer implements Dictionary {
 
     const result: string[] = [];
     try {
-
       await this.write(`4${prefix} `);
 
       for await (
