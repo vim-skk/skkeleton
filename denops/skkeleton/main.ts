@@ -250,7 +250,7 @@ async function handle(
     }
   }
   // 補完の後などpreEditとバッファが不一致している状態の時にリセットする
-  if (!prevInput.endsWith(context.toString())) {
+  if (mode !== "t" && !prevInput.endsWith(context.toString())) {
     await initializeStateWithAbbrev(context, ["converter"]);
     context.preEdit.output("");
   }
