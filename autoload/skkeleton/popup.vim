@@ -6,6 +6,11 @@ function! skkeleton#popup#open(candidates) abort
 endfunction
 
 function! s:open(candidates) abort
+  let spos = screenpos(0, line('.'), col('.'))
+  " Note: Neovimではecho areaにfloatwinを被せるのが許可されておらず、ずれるため
+  "       offset付けることで弾く
+  let offset = has('nvim') ? &cmdheight : 0
+  let linvert = &lines - spos.row - offset < a:candidates->len()
   if has('nvim')
     let buf = nvim_create_buf(v:false, v:true)
     call nvim_buf_set_lines(buf, 0, -1, v:true, a:candidates)
@@ -14,16 +19,16 @@ function! s:open(candidates) abort
           \ 'width': max(map(copy(a:candidates), 'strwidth(v:val)')),
           \ 'height': len(a:candidates),
           \ 'col': 0,
-          \ 'row': 1,
-          \ 'anchor': 'NW',
+          \ 'row': linvert ? 0 : 1,
+          \ 'anchor': linvert ? 'SW' : 'NW',
           \ 'style': 'minimal'
           \ }
     let win = nvim_open_win(buf, 0, opts)
     call add(s:windows, win)
   else
     let id = popup_create(a:candidates, {
-          \ 'pos': 'topleft',
-          \ 'line': 'cursor+1',
+          \ 'pos': linvert ? 'botleft' : 'topleft',
+          \ 'line': linvert ? 'cursor-1' : 'cursor+1',
           \ 'col': 'cursor',
           \ })
     call add(s:windows, id)
