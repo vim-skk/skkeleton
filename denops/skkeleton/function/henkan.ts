@@ -151,12 +151,12 @@ async function showCandidates(denops: Denops, state: HenkanState) {
   const list = candidates.map((c, i) =>
     `${config.selectCandidateKeys[i]}: ${c.replace(/;.*/, "")}`
   );
-  await denops.call("skkeleton#show_candidates", list);
+  await denops.call("skkeleton#popup#open", list);
 }
 
 export async function henkanInput(context: Context, key: string) {
   const state = context.state as HenkanState;
-  await context.denops!.call("skkeleton#close_candidates");
+  await context.denops!.call("skkeleton#popup#close");
   if (state.candidateIndex >= config.showCandidatesCount) {
     const candIdx = config.selectCandidateKeys.indexOf(key);
     if (candIdx !== -1) {
