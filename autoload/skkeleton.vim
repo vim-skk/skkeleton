@@ -27,13 +27,8 @@ function! skkeleton#request(funcname, args) abort
   return denops#request('skkeleton', a:funcname, a:args)
 endfunction
 
-function! s:doautocmd() abort
-  doautocmd <nomodeline> User skkeleton-handled
-endfunction
-
 function! skkeleton#doautocmd() abort
-  call timer_start(1, {id->s:doautocmd()})
-  return ''
+  call timer_start(1, {->execute('doautocmd <nomodeline> User skkeleton-handled', '')})
 endfunction
 
 function! s:send_notify() abort
