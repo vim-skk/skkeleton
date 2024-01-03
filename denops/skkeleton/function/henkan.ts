@@ -156,7 +156,6 @@ async function showCandidates(denops: Denops, state: HenkanState) {
 
 export async function henkanInput(context: Context, key: string) {
   const state = context.state as HenkanState;
-  await context.denops!.call("skkeleton#popup#close");
   if (state.candidateIndex >= config.showCandidatesCount) {
     const candIdx = config.selectCandidateKeys.indexOf(key);
     if (candIdx !== -1) {
