@@ -283,29 +283,6 @@ immediatelyOkuriConvert             *skkeleton-config-immediatelyOkuriConvert*
               載せておきます。
               https://blog.atusy.net/2023/08/01/skk-azik-and-sokuon-okuri/
 
-sources                                             *skkeleton-config-sources*
-        (デフォルト ["skk_dictionary"])
-        使用する SKK 入力 source とその優先順位を指定します。ユーザー辞書はこ
-        の指定によらず必ず使用されます。
-
-        "skk_dictionary":
-        |skkeleton-config-globalJisyo| によるグローバル辞書による変換を有効に
-        します。
-
-        "deno_kv":
-        |skkeleton-config-globalJisyo| によるグローバル辞書による変換を有効に
-        し、Deno KV によるキャッシュを行います。
-        Note: |skkeleton-config-databasePath| の設定が必要です。
-
-        "skk_server":
-        辞書サーバー機能による変換を有効にします。
-
-        "google_japanese_input":
-        Google 日本語入力 API による変換を有効にします。
-        https://www.google.co.jp/ime/cgiapi.html
-        Note: ネットワーク接続環境が必要です。
-        Note: パフォーマンスの問題により補完には対応しません。
-
 kanaTable                                         *skkeleton-config-kanaTable*
         (デフォルト "rom")
         使用する仮名テーブルを指定します。
@@ -365,6 +342,29 @@ skkServerReqEnc                             *skkeleton-config-skkServerReqEnc*
 skkServerResEnc                             *skkeleton-config-skkServerResEnc*
         （デフォルト "euc-jp"）
         辞書サーバーから受け取る文字列のエンコード形式を指定します。
+
+sources                                             *skkeleton-config-sources*
+        (デフォルト ["skk_dictionary"])
+        使用する SKK 入力 source とその優先順位を指定します。ユーザー辞書はこ
+        の指定によらず必ず使用されます。
+
+        "skk_dictionary":
+        |skkeleton-config-globalJisyo| によるグローバル辞書による変換を有効に
+        します。
+
+        "deno_kv":
+        |skkeleton-config-globalJisyo| によるグローバル辞書による変換を有効に
+        し、Deno KV によるキャッシュを行います。
+        Note: |skkeleton-config-databasePath| の設定が必要です。
+
+        "skk_server":
+        辞書サーバー機能による変換を有効にします。
+
+        "google_japanese_input":
+        Google 日本語入力 API による変換を有効にします。
+        https://www.google.co.jp/ime/cgiapi.html
+        Note: ネットワーク接続環境が必要です。
+        Note: パフォーマンスの問題により補完には対応しません。
 
 usePopup                                           *skkeleton-config-usePopup*
         (デフォルト v:true)
