@@ -272,8 +272,8 @@ export async function load(
   }
 
   const dictionaries: Dictionary[] = [];
-  for (const jisyo of config.jisyos) {
-    if (jisyo === "skk_dictionary") {
+  for (const source of config.sources) {
+    if (source === "skk_dictionary") {
       const globalDictionaries = await Promise.all(
         globalDictionaryConfig.map(async ([path, encodingName]) => {
           try {
@@ -296,7 +296,7 @@ export async function load(
           dictionaries.push(wrapDictionary(d));
         }
       }
-    } else if (jisyo === "deno_kv") {
+    } else if (source === "deno_kv") {
       const globalDictionaries = await Promise.all(
         globalDictionaryConfig.map(async ([path, encodingName]) => {
           try {
@@ -319,7 +319,7 @@ export async function load(
           dictionaries.push(wrapDictionary(d));
         }
       }
-    } else if (jisyo === "skk_server") {
+    } else if (source === "skk_server") {
       const skkServer = new SkkServer({
         hostname: config.skkServerHost,
         port: config.skkServerPort,
@@ -337,10 +337,10 @@ export async function load(
       }
 
       dictionaries.push(skkServer);
-    } else if (jisyo === "google_japanese_input") {
+    } else if (source === "google_japanese_input") {
       dictionaries.push(new GoogleJapaneseInput());
     } else {
-      console.error(`Invalid jisyo name: ${jisyo}`);
+      console.error(`Invalid jisyo name: ${source}`);
     }
   }
 

@@ -17,7 +17,6 @@ export const config: ConfigOptions = {
   immediatelyCancel: true,
   immediatelyJisyoRW: true,
   immediatelyOkuriConvert: true,
-  jisyos: ["skk_dictionary"],
   kanaTable: "rom",
   keepMode: false,
   keepState: false,
@@ -31,6 +30,7 @@ export const config: ConfigOptions = {
   skkServerPort: 1178,
   skkServerReqEnc: "euc-jp",
   skkServerResEnc: "euc-jp",
+  sources: ["skk_dictionary"],
   usePopup: true,
   userJisyo: "~/.skkeleton",
 };
@@ -79,7 +79,6 @@ const validators: Validators = {
   immediatelyCancel: (x) => ensure(x, is.Boolean),
   immediatelyJisyoRW: (x) => ensure(x, is.Boolean),
   immediatelyOkuriConvert: (x) => ensure(x, is.Boolean),
-  jisyos: (x) => ensure(x, is.ArrayOf(is.String)),
   kanaTable: (x): string => {
     const name = ensure(x, is.String);
     try {
@@ -107,6 +106,7 @@ const validators: Validators = {
   skkServerPort: (x) => ensure(x, is.Number),
   skkServerReqEnc: ensureEncoding,
   skkServerResEnc: ensureEncoding,
+  sources: (x) => ensure(x, is.ArrayOf(is.String)),
   usePopup: (x) => ensure(x, is.Boolean),
   userJisyo: (x) => ensure(x, is.String),
 };

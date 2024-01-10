@@ -283,10 +283,10 @@ immediatelyOkuriConvert             *skkeleton-config-immediatelyOkuriConvert*
               載せておきます。
               https://blog.atusy.net/2023/08/01/skk-azik-and-sokuon-okuri/
 
-jisyos                                               *skkeleton-config-jisyos*
+sources                                             *skkeleton-config-sources*
         (デフォルト ["skk_dictionary"])
-        使用する SKK 辞書とその優先順位を指定します。ユーザー辞書はこの指定に
-        よらず必ず使用されます。
+        使用する SKK 入力 source とその優先順位を指定します。ユーザー辞書はこ
+        の指定によらず必ず使用されます。
 
         "skk_dictionary":
         |skkeleton-config-globalJisyo| によるグローバル辞書による変換を有効に
@@ -551,7 +551,7 @@ skkeletonは|:lmap|を使用しなくなりました。カーソルの色を動�
 COMPATIBILITY                                        *skkeleton-compatibility*
 
 2024-01-10~
-- 使用する辞書は "jisyos" オプションにより指定するように
+- 使用する辞書は "sources" オプションにより指定するように
 
 2023-12-30~
 - 補完の後処理と端末モードの相性が悪いので一旦無効化

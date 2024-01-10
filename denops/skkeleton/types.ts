@@ -50,7 +50,6 @@ export type ConfigOptions = {
   immediatelyCancel: boolean;
   immediatelyJisyoRW: boolean;
   immediatelyOkuriConvert: boolean;
-  jisyos: string[];
   kanaTable: string;
   keepMode: boolean;
   keepState: boolean;
@@ -64,6 +63,7 @@ export type ConfigOptions = {
   skkServerPort: number;
   skkServerReqEnc: Encoding;
   skkServerResEnc: Encoding;
+  sources: string[];
   usePopup: boolean;
   userJisyo: string;
 };
