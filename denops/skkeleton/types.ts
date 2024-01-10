@@ -40,6 +40,7 @@ export type SkkServerOptions = {
 export type ConfigOptions = {
   acceptIllegalResult: boolean;
   completionRankFile: string;
+  databasePath: string;
   debug: boolean;
   eggLikeNewline: boolean;
   globalDictionaries: (string | [string, string])[];
@@ -62,9 +63,9 @@ export type ConfigOptions = {
   skkServerPort: number;
   skkServerReqEnc: Encoding;
   skkServerResEnc: Encoding;
-  useGoogleJapaneseInput: boolean;
+  sources: string[];
+  useGoogleJapaneseInput?: never;
   usePopup: boolean;
-  useSkkServer: boolean;
+  useSkkServer?: never;
   userJisyo: string;
-  databasePath: string;
 };

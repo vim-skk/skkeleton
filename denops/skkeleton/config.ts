@@ -7,6 +7,7 @@ import { homeExpand } from "./util.ts";
 export const config: ConfigOptions = {
   acceptIllegalResult: false,
   completionRankFile: "",
+  databasePath: "",
   debug: false,
   eggLikeNewline: false,
   globalDictionaries: [],
@@ -29,11 +30,9 @@ export const config: ConfigOptions = {
   skkServerPort: 1178,
   skkServerReqEnc: "euc-jp",
   skkServerResEnc: "euc-jp",
-  useGoogleJapaneseInput: false,
+  sources: ["skk_dictionary"],
   usePopup: true,
-  useSkkServer: false,
   userJisyo: "~/.skkeleton",
-  databasePath: "",
 };
 
 type Validators = {
@@ -50,6 +49,7 @@ function ensureEncoding(x: unknown): Encoding {
 const validators: Validators = {
   acceptIllegalResult: (x) => ensure(x, is.Boolean),
   completionRankFile: (x) => ensure(x, is.String),
+  databasePath: (x) => ensure(x, is.String),
   debug: (x) => ensure(x, is.Boolean),
   eggLikeNewline: (x) => ensure(x, is.Boolean),
   globalDictionaries: (x): (string | [string, string])[] => {
@@ -106,11 +106,15 @@ const validators: Validators = {
   skkServerPort: (x) => ensure(x, is.Number),
   skkServerReqEnc: ensureEncoding,
   skkServerResEnc: ensureEncoding,
+  sources: (x) => ensure(x, is.ArrayOf(is.String)),
+  useGoogleJapaneseInput: () => {
+    throw '`useGoogleJapaneseInput` is removed. Please use `sources` with "google_japanese_input"';
+  },
   usePopup: (x) => ensure(x, is.Boolean),
-  useGoogleJapaneseInput: (x) => ensure(x, is.Boolean),
-  useSkkServer: (x) => ensure(x, is.Boolean),
+  useSkkServer: () => {
+    throw '`useSkkServer` is removed. Please use `sources` with "skk_server"';
+  },
   userJisyo: (x) => ensure(x, is.String),
-  databasePath: (x) => ensure(x, is.String),
 };
 
 export async function setConfig(

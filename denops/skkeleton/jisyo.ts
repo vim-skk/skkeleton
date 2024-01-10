@@ -259,32 +259,7 @@ export class Library {
 export async function load(
   globalDictionaryConfig: (string | [string, string])[],
   userDictionaryPath: UserDictionaryPath,
-  skkServer?: SkkServer,
-  googleJapaneseInput?: GoogleJapaneseInput,
 ): Promise<Library> {
-  const globalDictionaries = await Promise.all(
-    globalDictionaryConfig.map(async ([path, encodingName]) => {
-      try {
-        if (config.databasePath) {
-          const dict = await DenoKvDictionary.create(path, encodingName);
-          await dict.load();
-          return dict;
-        } else {
-          const dict = new SkkDictionary();
-          await dict.load(path, encodingName);
-          return dict;
-        }
-      } catch (e) {
-        console.error("globalDictionary loading failed");
-        console.error(`at ${path}`);
-        if (config.debug) {
-          console.error(e);
-        }
-        return new SkkDictionary();
-      }
-    }),
-  );
-
   const userDictionary = new UserDictionary();
   try {
     await userDictionary.load(userDictionaryPath);
@@ -296,21 +271,77 @@ export async function load(
     // do nothing
   }
 
-  try {
-    skkServer?.connect();
-  } catch (e) {
-    if (config.debug) {
-      console.log("connecting to skk server is failed");
-      console.log(e);
-    }
-  }
+  const dictionaries: Dictionary[] = [];
+  for (const source of config.sources) {
+    if (source === "skk_dictionary") {
+      const globalDictionaries = await Promise.all(
+        globalDictionaryConfig.map(async ([path, encodingName]) => {
+          try {
+            const dict = new SkkDictionary();
+            await dict.load(path, encodingName);
+            return dict;
+          } catch (e) {
+            console.error("globalDictionary loading failed");
+            console.error(`at ${path}`);
+            if (config.debug) {
+              console.error(e);
+            }
+            return undefined;
+          }
+        }),
+      );
 
-  const dictionaries = globalDictionaries.map((d) => wrapDictionary(d));
-  if (skkServer) {
-    dictionaries.push(skkServer);
-  }
-  if (googleJapaneseInput) {
-    dictionaries.push(googleJapaneseInput);
+      for (const d of globalDictionaries) {
+        if (d) {
+          dictionaries.push(wrapDictionary(d));
+        }
+      }
+    } else if (source === "deno_kv") {
+      const globalDictionaries = await Promise.all(
+        globalDictionaryConfig.map(async ([path, encodingName]) => {
+          try {
+            const dict = await DenoKvDictionary.create(path, encodingName);
+            await dict.load();
+            return dict;
+          } catch (e) {
+            console.error("globalDictionary loading failed");
+            console.error(`at ${path}`);
+            if (config.debug) {
+              console.error(e);
+            }
+            return undefined;
+          }
+        }),
+      );
+
+      for (const d of globalDictionaries) {
+        if (d) {
+          dictionaries.push(wrapDictionary(d));
+        }
+      }
+    } else if (source === "skk_server") {
+      const skkServer = new SkkServer({
+        hostname: config.skkServerHost,
+        port: config.skkServerPort,
+        requestEnc: config.skkServerReqEnc,
+        responseEnc: config.skkServerResEnc,
+      });
+
+      try {
+        skkServer.connect();
+      } catch (e) {
+        if (config.debug) {
+          console.log("connecting to skk server is failed");
+          console.log(e);
+        }
+      }
+
+      dictionaries.push(skkServer);
+    } else if (source === "google_japanese_input") {
+      dictionaries.push(new GoogleJapaneseInput());
+    } else {
+      console.error(`Invalid jisyo name: ${source}`);
+    }
   }
 
   return new Library(dictionaries, userDictionary);

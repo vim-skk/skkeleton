@@ -1,6 +1,6 @@
 *skkeleton-functions.txt* skkeletonの機能定義
 
-マッピングで使える機能の一覧です。
+マッピングで使える機能( *skkeleton-functions* )の一覧です。
 括弧内は機能が使えるモードです、!が付いている物はマッピング先のキーに
 一部の挙動が依存します。
 
