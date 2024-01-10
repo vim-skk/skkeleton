@@ -64,6 +64,8 @@ export type ConfigOptions = {
   skkServerReqEnc: Encoding;
   skkServerResEnc: Encoding;
   sources: string[];
+  useGoogleJapaneseInput?: never;
   usePopup: boolean;
+  useSkkServer?: never;
   userJisyo: string;
 };
