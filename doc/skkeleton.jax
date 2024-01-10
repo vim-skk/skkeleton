@@ -98,7 +98,7 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
     tmap <C-j> <Plug>(skkeleton-enable)
 <
 
-<Plug>(skkeleton-disable) (ic)                       *<Plug>(skkeleton-disable)*
+<Plug>(skkeleton-disable) (ic)                     *<Plug>(skkeleton-disable)*
 
         skkeletonを無効化します。  >
 
@@ -119,6 +119,7 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
 <
 有効時のマッピングは以下の通りです。
 こちらの定義は|skkeleton#register_keymap()|で変更できます
+
 
 input:
         <BS>      : |skkeleton-functions-deleteChar|
@@ -202,6 +203,17 @@ completionRankFile                       *skkeleton-config-completionRankFile*
         (デフォルト "")
         パスを指定すると補完候補の順番を記録するようになります。
 
+databasePath                                   *skkeleton-config-databasePath*
+        (デフォルト "")
+        データベースの保存先パスです。
+        空文字列でないときに有効になり、Deno KV を使って辞書をデータベース化し
+        ます。データベースの構築には通常の読み込みよりも時間がかかりますが、デ
+        ータベースはローカルなファイルに保存されるため、次回以降の起動は高速に
+        なります。大きな辞書で特に有効です。
+        データベースの構築は skkeleton の起動時に自動で行われます。mtime が以
+        前と変更された辞書のデータベースは更新します。手動で行うには
+        |skkeleton#update_database()| を使ってください。
+
 debug                                                 *skkeleton-config-debug*
         (デフォルト v:false, g:skkeleton#debug が真の場合は v:true)
         このオプションを有効にするとデバッグログが出力されるようになります。
@@ -224,6 +236,15 @@ globalDictionaries                       *skkeleton-config-globalDictionaries*
              "~/.skk/SKK-JISYO.emoji"]
 <
 
+globalKanaTableFiles                   *skkeleton-config-globalKanaTableFiles*
+        (デフォルト [])
+        複数のカナ変換テーブルを使用する際に指定するオプションです。
+        指定する値はグローバル辞書のパスまたは
+        パスとエンコーディングからなるタプルの配列になります。
+        エンコーディングを指定しない場合は自動判定されます。
+>
+    値の例: [["/usr/share/skk/azik_us.rule, "euc-jp"]]
+<
 globalJisyo                                     *skkeleton-config-globalJisyo*
         (デフォルト "/usr/share/skk/SKK-JISYO.L")
         グローバル辞書のパス
@@ -262,21 +283,35 @@ immediatelyOkuriConvert             *skkeleton-config-immediatelyOkuriConvert*
               載せておきます。
               https://blog.atusy.net/2023/08/01/skk-azik-and-sokuon-okuri/
 
+jisyos                                               *skkeleton-config-jisyos*
+        (デフォルト ["skk_dictionary"])
+        使用する SKK 辞書とその優先順位を指定します。ユーザー辞書はこの指定に
+        よらず必ず使用されます。
+
+        "skk_dictionary":
+        |skkeleton-config-globalJisyo| によるグローバル辞書による変換を有効に
+        します。
+
+        "deno_kv":
+        |skkeleton-config-globalJisyo| によるグローバル辞書による変換を有効に
+        し、Deno KV によるキャッシュを行います。
+        Note: |skkeleton-config-databasePath| の設定が必要です。
+
+        "skk_server":
+        辞書サーバー機能による変換を有効にします。
+
+        "google_japanese_input":
+        Google 日本語入力 API による変換を有効にします。
+        https://www.google.co.jp/ime/cgiapi.html
+        Note: ネットワーク接続環境が必要です。
+        Note: パフォーマンスの問題により補完には対応しません。
+
 kanaTable                                         *skkeleton-config-kanaTable*
         (デフォルト "rom")
         使用する仮名テーブルを指定します。
         存在するテーブルのみ指定できます。存在しないテーブルを指定したい場合は
         |skkeleton#register_kanatable()| で先にテーブルを作成してください。
 
-globalKanaTableFiles                    *skkeleton-config-globalKanaTableFiles*
-        (デフォルト [])
-        複数のカナ変換テーブルを使用する際に指定するオプションです。
-        指定する値はグローバル辞書のパスまたは
-        パスとエンコーディングからなるタプルの配列になります。
-        エンコーディングを指定しない場合は自動判定されます。
->
-    値の例: [["/usr/share/skk/azik_us.rule, "euc-jp"]]
-<
 keepMode                                           *skkeleton-config-keepMode*
         (デフォルト v:false)
         このオプションを有効にすると無効化しても前回のモード(カナ入力状態等)
@@ -315,52 +350,34 @@ showCandidatesCount                     *skkeleton-config-showCandidatesCount*
         (デフォルト 4)
         このオプションの数の候補までは選択表示がされずに変換されます。
 
-skkServerHost                   *skkeleton-config-skkServerHost*
+skkServerHost                                 *skkeleton-config-skkServerHost*
         (デフォルト "127.0.0.1")
         辞書サーバーのホスト名またはIPアドレスを指定します。
 
-skkServerPort                   *skkeleton-config-skkServerPort*
+skkServerPort                                 *skkeleton-config-skkServerPort*
         (デフォルト 1178)
         辞書サーバーのポート番号を指定します。
 
-skkServerReqEnc                 *skkeleton-config-skkServerReqEnc*
+skkServerReqEnc                             *skkeleton-config-skkServerReqEnc*
         （デフォルト "euc-jp"）
         辞書サーバーに渡す文字列のエンコード形式を指定します。
 
-skkServerResEnc                 *skkeleton-config-skkServerResEnc*
+skkServerResEnc                             *skkeleton-config-skkServerResEnc*
         （デフォルト "euc-jp"）
         辞書サーバーから受け取る文字列のエンコード形式を指定します。
-
-useGoogleJapaneseInput               *skkeleton-config-useGoogleJapaneseInput*
-        (デフォルト v:false)
-        Google 日本語入力 API による変換を有効にします。
-        https://www.google.co.jp/ime/cgiapi.html
-        Note: ネットワーク接続環境が必要です。
-        Note: パフォーマンスの問題により補完には対応しません。
 
 usePopup                                           *skkeleton-config-usePopup*
         (デフォルト v:true)
         このオプションを有効にすると、変換候補がポップアップ表示されます。
 
-useSkkServer                              *skkeleton-config-useSkkServer*
+useSkkServer                                   *skkeleton-config-useSkkServer*
         (デフォルト v:false)
         辞書サーバー機能を有効にします。
 
-userJisyo                                     *skkeleton-config-userJisyo*
+userJisyo                                         *skkeleton-config-userJisyo*
         (デフォルト "~/.skkeleton")
         ユーザー辞書のパス
         JavaScriptの制約によりエンコーディングはUTF-8限定になります。
-
-databasePath				*skkeleton-config-databasePath*
-	(デフォルト "")
-	データベースの保存先パスです。
-	空文字列でないときに有効になり、Deno KV を使って辞書をデータベース化し
-	ます。データベースの構築には通常の読み込みよりも時間がかかりますが、デ
-	ータベースはローカルなファイルに保存されるため、次回以降の起動は高速に
-	なります。大きな辞書で特に有効です。
-	データベースの構築は skkeleton の起動時に自動で行われます。mtime が以
-	前と変更された辞書のデータベースは更新します。手動で行うには
-	|skkeleton#update_database()| を使ってください。
 
 ------------------------------------------------------------------------------
                                               *skkeleton#register_kanatable()*
@@ -473,10 +490,10 @@ skkeleton のロード処理が遅い~
 変換ポイントの描画が乱れる~
 
 SKKではデフォルトで変換ポイントとして逆三角形を使いますが、この文字は
-|'ambiwidth'|の対象になっています。
+'ambiwidth'の対象になっています。
 そのためVimとターミナルやフォントの設定がずれていると描画が乱れます。
-|'ambiwidth'|の設定を変更するか|skkeleton-config-markerHenkan|及び
-|skkeleton-config-markerHenkanSelect|を|'ambiwidth'|の対象外に
+'ambiwidth'の設定を変更するか|skkeleton-config-markerHenkan|及び
+|skkeleton-config-markerHenkanSelect|を'ambiwidth'の対象外に
 変更してみてください。
 
 プラグインと干渉する~
@@ -493,7 +510,8 @@ skkeletonを有効化、無効化する際にフックが使えますので
 <
 sticky keyの挙動をeskk.vimに合わせる~
 
-|eskk.vim|ではsticky keyを使用している際に「察し」を「;sass;i」で入力できます。
+|eskk.vim|ではsticky keyを使用している際に「察し」を「;sass;i」で入力できま
+す。
 しかしskkeletonではsticky keyを仮名テーブルに配置しているため「;sass;si」と
 入力しないといけなくなっています。以下の設定を記述すると挙動を前者に寄せられ
 ます。
@@ -505,7 +523,8 @@ sticky keyの挙動をeskk.vimに合わせる~
 
 skkeletonでは旧来の ddskkにある辞書形式の他に JISYO形式と呼ばれる JSON/ YAMLで
 整形された辞書形式をサポートしています。これらは、SKK-JISYO.L.yamlのように
-拡張子に yaml, yml, json, mpk (msgpack) のいずれかが指定されているとき有効化されます。
+拡張子に yaml, yml, json, mpk (msgpack) のいずれかが指定されているとき有効化さ
+れます。
 くわしくは、https://github.com/skk-dict/jisyo を参照してください。
 
 skkeleton有効時にカーソルの色がlCursorにならない~
@@ -530,6 +549,9 @@ skkeletonは|:lmap|を使用しなくなりました。カーソルの色を動�
 
 ==============================================================================
 COMPATIBILITY                                        *skkeleton-compatibility*
+
+2024-01-10~
+- 使用する辞書は "jisyos" オプションにより指定するように
 
 2023-12-30~
 - 補完の後処理と端末モードの相性が悪いので一旦無効化

@@ -4,15 +4,13 @@ import { assert, AssertError, is } from "./deps/unknownutil.ts";
 import { functions, modeFunctions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { load as jisyoLoad } from "./jisyo.ts";
-import { SkkServer } from "./jisyo/skk_server.ts";
 import { DenoKvDictionary } from "./jisyo/deno_kv.ts";
-import { GoogleJapaneseInput } from "./jisyo/google_japanese_input.ts";
 import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { initializeStateWithAbbrev } from "./mode.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { currentContext, currentLibrary, variables } from "./store.ts";
-import type { CompletionData, RankData, SkkServerOptions } from "./types.ts";
+import type { CompletionData, RankData } from "./types.ts";
 import { homeExpand } from "./util.ts";
 
 type Opts = {
@@ -70,28 +68,7 @@ async function init(denops: Denops) {
   const {
     completionRankFile,
     userJisyo,
-    useGoogleJapaneseInput,
-    useSkkServer,
-    skkServerHost,
-    skkServerPort,
-    skkServerResEnc,
-    skkServerReqEnc,
   } = config;
-  let skkServer: SkkServer | undefined;
-  let googleJapaneseInput: GoogleJapaneseInput | undefined;
-  let skkServerOptions: SkkServerOptions | undefined;
-  if (useSkkServer) {
-    skkServerOptions = {
-      hostname: skkServerHost,
-      port: skkServerPort,
-      requestEnc: skkServerReqEnc,
-      responseEnc: skkServerResEnc,
-    };
-    skkServer = new SkkServer(skkServerOptions);
-  }
-  if (useGoogleJapaneseInput) {
-    googleJapaneseInput = new GoogleJapaneseInput();
-  }
   const globalDictionaries = await Promise.all(
     (config.globalDictionaries.length === 0
       ? [[config.globalJisyo, config.globalJisyoEncoding]]
@@ -113,8 +90,6 @@ async function init(denops: Denops) {
         path: await homeExpand(userJisyo, denops),
         rankPath: await homeExpand(completionRankFile, denops),
       },
-      skkServer,
-      googleJapaneseInput,
     )
   );
   await receiveNotation(denops);
