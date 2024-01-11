@@ -34,7 +34,7 @@ export const config: ConfigOptions = {
 };
 
 type Validators = {
-  [P in keyof typeof config]: (x: unknown) => typeof config[P];
+  [P in keyof ConfigOptions]: (x: unknown) => ConfigOptions[P];
 };
 
 function ensureEncoding(x: unknown): Encoding {
@@ -113,6 +113,34 @@ const validators: Validators = {
   userDictionary: (x) => ensure(x, is.String),
 };
 
+async function normalize(
+  denops: Denops,
+): Promise<void> {
+  config.globalDictionaries = await Promise.all(
+    config.globalDictionaries.map(async (cfg) => {
+      if (is.String(cfg)) {
+        return [await homeExpand(cfg, denops), ""];
+      } else {
+        return [await homeExpand(cfg[0], denops), cfg[1]];
+      }
+    }),
+  );
+  config.globalKanaTableFiles = await Promise.all(
+    config.globalKanaTableFiles.map(async (cfg) => {
+      if (is.String(cfg)) {
+        return await homeExpand(cfg, denops);
+      } else {
+        return [await homeExpand(cfg[0], denops), cfg[1]];
+      }
+    }),
+  );
+  config.userDictionary = await homeExpand(config.userDictionary, denops);
+  config.completionRankFile = await homeExpand(
+    config.completionRankFile,
+    denops,
+  );
+}
+
 export async function setConfig(
   newConfig: Record<string, unknown>,
   denops: Denops,
@@ -134,13 +162,7 @@ export async function setConfig(
       throw Error(`Illegal option detected: ${e}`);
     }
   }
+  await normalize(denops);
 
-  const files = config.globalKanaTableFiles.map(async (
-    x,
-  ): Promise<string | [string, string]> =>
-    Array.isArray(x)
-      ? [await homeExpand(x[0], denops), x[1]]
-      : await homeExpand(x, denops)
-  );
-  await loadKanaTableFiles(await Promise.all(files));
+  await loadKanaTableFiles(await Promise.all(config.globalKanaTableFiles));
 }
