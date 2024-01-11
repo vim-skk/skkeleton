@@ -10,7 +10,7 @@ export const config: ConfigOptions = {
   databasePath: "",
   debug: false,
   eggLikeNewline: false,
-  globalDictionaries: ["/usr/share/skk/SKK-JISYO.L"],
+  globalDictionaries: [],
   globalKanaTableFiles: [],
   immediatelyCancel: true,
   immediatelyDictionaryRW: true,
