@@ -245,29 +245,13 @@ globalKanaTableFiles                   *skkeleton-config-globalKanaTableFiles*
 >
     値の例: [["/usr/share/skk/azik_us.rule, "euc-jp"]]
 <
-globalJisyo                                     *skkeleton-config-globalJisyo*
-        (デフォルト "/usr/share/skk/SKK-JISYO.L")
-        グローバル辞書のパス
-        圧縮された辞書をそのまま使う機能はないため
-        辞書が圧縮されている場合は展開する必要があります。
-        互換性のために残しています。globalDictionariesが指定されていた場合は
-        無視されます。
-
-globalJisyoEncoding                     *skkeleton-config-globalJisyoEncoding*
-        (デフォルト "euc-jp")
-        グローバル辞書のエンコーディング
-        SKK Openlab以外が配布している辞書を使う場合などは
-        変更する必要があるかもしれません。
-        互換性のために残しています。globalDictionariesが指定されていた場合は
-        無視されます。
-
 immediatelyCancel                         *skkeleton-config-immediatelyCancel*
         (デフォルト v:true)
         このオプションを有効にすると
         変換候補選択などで |skkeleton-functions-cancel| を使った際に
         一気に未入力状態に戻るようになります。
 
-immediatelyJisyoRW                       *skkeleton-config-immediatelyJisyoRW*
+immediatelyDictionaryRW             *skkeleton-config-immediatelyDictionaryRW*
         (デフォルト v:true)
         このオプションを有効にすると
         変換や確定の度にユーザー辞書を読み書きするようになります。
@@ -349,12 +333,12 @@ sources                                             *skkeleton-config-sources*
         の指定によらず必ず使用されます。
 
         "skk_dictionary":
-        |skkeleton-config-globalJisyo| によるグローバル辞書による変換を有効に
-        します。
+        |skkeleton-config-globalDictionaries| によるグローバル辞書による変換を
+        有効にします。
 
         "deno_kv":
-        |skkeleton-config-globalJisyo| によるグローバル辞書による変換を有効に
-        し、Deno KV によるキャッシュを行います。
+        |skkeleton-config-globalDictionaries| によるグローバル辞書による変換を
+        有効にし、Deno KV によるキャッシュを行います。
         Note: |skkeleton-config-databasePath| の設定が必要です。
 
         "skk_server":
@@ -374,7 +358,7 @@ useSkkServer                                   *skkeleton-config-useSkkServer*
         (デフォルト v:false)
         辞書サーバー機能を有効にします。
 
-userJisyo                                         *skkeleton-config-userJisyo*
+userDictionary                               *skkeleton-config-userDictionary*
         (デフォルト "~/.skkeleton")
         ユーザー辞書のパス
         JavaScriptの制約によりエンコーディングはUTF-8限定になります。
@@ -480,7 +464,8 @@ FAQ                                                            *skkeleton-faq*
 変換を行うにはSKK用の辞書のダウンロード及びパスの設定が必要になります。
 https://skk-dev.github.io/dict/ で管理されているL辞書をダウンロードして
 展開するのをおすすめします。
-展開後は|skkeleton-config-globalJisyo|に展開したパスの指定をしてください。
+展開後は|skkeleton-config-globalDictionaries|に展開したパスの指定をしてくださ
+い。
 
 skkeleton のロード処理が遅い~
 
@@ -549,6 +534,11 @@ skkeletonは|:lmap|を使用しなくなりました。カーソルの色を動�
 
 ==============================================================================
 COMPATIBILITY                                        *skkeleton-compatibility*
+
+2024-01-11~
+- "globalJisyo" オプションと "globalJisyoEncoding" オプションの削除
+- "userJisyo" オプションは "userDictionary" オプションに変更
+- "immediatelyJisyoRW" オプションは "immediatelyDictionaryRW" オプションに変更
 
 2024-01-10~
 - 使用する辞書は "sources" オプションにより指定するように

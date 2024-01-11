@@ -1,5 +1,5 @@
 import { config } from "../config.ts";
-import { Dictionary, HenkanType } from "../jisyo.ts";
+import { Dictionary, HenkanType } from "../dictionary.ts";
 import type { CompletionData } from "../types.ts";
 import { deadline, DeadlineError } from "../deps/std/async.ts";
 

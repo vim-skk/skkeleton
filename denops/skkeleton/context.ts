@@ -1,6 +1,6 @@
 import { config } from "./config.ts";
 import type { Denops } from "./deps.ts";
-import { HenkanType } from "./jisyo.ts";
+import { HenkanType } from "./dictionary.ts";
 import { PreEdit } from "./preedit.ts";
 import { initializeState, State, toString } from "./state.ts";
 

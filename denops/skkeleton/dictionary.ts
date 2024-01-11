@@ -3,11 +3,14 @@ import { JpNum } from "./deps/japanese_numeral.ts";
 import { RomanNum } from "./deps/roman.ts";
 import { zip } from "./deps/std/collections.ts";
 import type { CompletionData, RankData } from "./types.ts";
-import { SkkDictionary } from "./jisyo/skk_dictionary.ts";
-import { DenoKvDictionary } from "./jisyo/deno_kv.ts";
-import { UserDictionary, UserDictionaryPath } from "./jisyo/user_dictionary.ts";
-import { SkkServer } from "./jisyo/skk_server.ts";
-import { GoogleJapaneseInput } from "./jisyo/google_japanese_input.ts";
+import { SkkDictionary } from "./sources/skk_dictionary.ts";
+import { DenoKvDictionary } from "./sources/deno_kv.ts";
+import {
+  UserDictionary,
+  UserDictionaryPath,
+} from "./sources/user_dictionary.ts";
+import { SkkServer } from "./sources/skk_server.ts";
+import { GoogleJapaneseInput } from "./sources/google_japanese_input.ts";
 
 export const okuriAriMarker = ";; okuri-ari entries.";
 export const okuriNasiMarker = ";; okuri-nasi entries.";
@@ -184,7 +187,7 @@ export class Library {
   }
 
   async getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
-    if (config.immediatelyJisyoRW) {
+    if (config.immediatelyDictionaryRW) {
       await this.load();
     }
     const merged = new Set<string>();
@@ -200,7 +203,7 @@ export class Library {
     prefix: string,
     feed: string,
   ): Promise<CompletionData> {
-    if (config.immediatelyJisyoRW) {
+    if (config.immediatelyDictionaryRW) {
       await this.load();
     }
     const collector = new Map<string, Set<string>>();
@@ -235,14 +238,14 @@ export class Library {
     candidate: string,
   ) {
     this.#userDictionary.registerHenkanResult(type, word, candidate);
-    if (config.immediatelyJisyoRW) {
+    if (config.immediatelyDictionaryRW) {
       await this.#userDictionary.save();
     }
   }
 
   async purgeCandidate(type: HenkanType, word: string, candidate: string) {
     this.#userDictionary.purgeCandidate(type, word, candidate);
-    if (config.immediatelyJisyoRW) {
+    if (config.immediatelyDictionaryRW) {
       await this.#userDictionary.save();
     }
   }
@@ -340,7 +343,7 @@ export async function load(
     } else if (source === "google_japanese_input") {
       dictionaries.push(new GoogleJapaneseInput());
     } else {
-      console.error(`Invalid jisyo name: ${source}`);
+      console.error(`Invalid source name: ${source}`);
     }
   }
 

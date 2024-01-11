@@ -125,8 +125,8 @@ Deno.test({
   },
 });
 
-config.globalJisyo = "";
-config.userJisyo = "";
+config.globalDictionaries = [];
+config.userDictionary = "";
 
 test({
   mode: "nvim",

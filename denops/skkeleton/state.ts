@@ -1,5 +1,5 @@
 import { config } from "./config.ts";
-import type { HenkanType } from "./jisyo.ts";
+import type { HenkanType } from "./dictionary.ts";
 import { getKanaTable } from "./kana.ts";
 import { KanaTable } from "./kana/type.ts";
 import { Cell } from "./util.ts";

@@ -6,8 +6,8 @@ import {
   HenkanType,
   okuriAriMarker,
   okuriNasiMarker,
-} from "../jisyo.ts";
-import { jisyoschema, jsonschema, msgpack, yaml } from "../deps/jisyo.ts";
+} from "../dictionary.ts";
+import { jisyoschema, jsonschema, msgpack, yaml } from "../deps/dictionary.ts";
 
 interface Jisyo {
   okuri_ari: Record<string, string[]>;

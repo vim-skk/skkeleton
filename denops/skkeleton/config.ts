@@ -10,12 +10,10 @@ export const config: ConfigOptions = {
   databasePath: "",
   debug: false,
   eggLikeNewline: false,
-  globalDictionaries: [],
-  globalJisyo: "/usr/share/skk/SKK-JISYO.L",
-  globalJisyoEncoding: "euc-jp",
+  globalDictionaries: ["/usr/share/skk/SKK-JISYO.L"],
   globalKanaTableFiles: [],
   immediatelyCancel: true,
-  immediatelyJisyoRW: true,
+  immediatelyDictionaryRW: true,
   immediatelyOkuriConvert: true,
   kanaTable: "rom",
   keepMode: false,
@@ -32,7 +30,7 @@ export const config: ConfigOptions = {
   skkServerResEnc: "euc-jp",
   sources: ["skk_dictionary"],
   usePopup: true,
-  userJisyo: "~/.skkeleton",
+  userDictionary: "~/.skkeleton",
 };
 
 type Validators = {
@@ -62,8 +60,6 @@ const validators: Validators = {
     }
     return x;
   },
-  globalJisyo: (x) => ensure(x, is.String),
-  globalJisyoEncoding: ensureEncoding,
   globalKanaTableFiles: (x): (string | [string, string])[] => {
     if (
       !is.ArrayOf(
@@ -77,7 +73,7 @@ const validators: Validators = {
     return x;
   },
   immediatelyCancel: (x) => ensure(x, is.Boolean),
-  immediatelyJisyoRW: (x) => ensure(x, is.Boolean),
+  immediatelyDictionaryRW: (x) => ensure(x, is.Boolean),
   immediatelyOkuriConvert: (x) => ensure(x, is.Boolean),
   kanaTable: (x): string => {
     const name = ensure(x, is.String);
@@ -114,7 +110,7 @@ const validators: Validators = {
   useSkkServer: () => {
     throw '`useSkkServer` is removed. Please use `sources` with "skk_server"';
   },
-  userJisyo: (x) => ensure(x, is.String),
+  userDictionary: (x) => ensure(x, is.String),
 };
 
 export async function setConfig(

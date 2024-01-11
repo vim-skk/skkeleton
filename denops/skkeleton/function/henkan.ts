@@ -8,7 +8,7 @@ import { getOkuriStr } from "../okuri.ts";
 import { HenkanState, initializeState } from "../state.ts";
 import { kakutei } from "./common.ts";
 import { kakuteiFeed } from "./input.ts";
-import { jisyoTouroku } from "./jisyo.ts";
+import { registerWord } from "./dictionary.ts";
 
 export async function henkanFirst(context: Context, key: string) {
   if (context.state.type !== "input") {
@@ -52,7 +52,7 @@ export async function henkanForward(context: Context) {
     state.candidateIndex++;
   }
   if (state.candidates.length <= state.candidateIndex) {
-    if (await jisyoTouroku(context)) {
+    if (await registerWord(context)) {
       return;
     }
     state.candidateIndex = oldCandidateIndex;
@@ -100,7 +100,7 @@ async function selectCandidates(context: Context) {
   while (index >= 0) {
     const start = count + index * keys.length;
     if (start >= state.candidates.length) {
-      if (await jisyoTouroku(context)) {
+      if (await registerWord(context)) {
         return;
       }
     }
