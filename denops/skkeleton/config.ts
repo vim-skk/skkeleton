@@ -139,6 +139,7 @@ async function normalize(
     config.completionRankFile,
     denops,
   );
+  config.databasePath = await homeExpand(config.databasePath, denops);
 }
 
 export async function setConfig(
