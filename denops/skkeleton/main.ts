@@ -11,7 +11,6 @@ import { initializeStateWithAbbrev } from "./mode.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { currentContext, currentLibrary, variables } from "./store.ts";
 import type { CompletionData, RankData } from "./types.ts";
-import { homeExpand } from "./util.ts";
 
 type Opts = {
   key: string | string[];
@@ -65,28 +64,12 @@ async function init(denops: Denops) {
     console.log(e);
   }
   currentContext.get().denops = denops;
-  const {
-    completionRankFile,
-    userDictionary,
-  } = config;
-  const globalDictionaries = await Promise.all(
-    (config.globalDictionaries.length === 0 ? [] : config.globalDictionaries)
-      .map(async (
-        cfg,
-      ): Promise<[string, string]> => {
-        if (is.String(cfg)) {
-          return [await homeExpand(cfg, denops), ""];
-        } else {
-          return [await homeExpand(cfg[0], denops), cfg[1]];
-        }
-      }),
-  );
   currentLibrary.setInitializer(async () =>
     await loadDictionary(
-      globalDictionaries,
+      config.globalDictionaries,
       {
-        path: await homeExpand(userDictionary, denops),
-        rankPath: await homeExpand(completionRankFile, denops),
+        path: config.userDictionary,
+        rankPath: config.completionRankFile,
       },
     )
   );
