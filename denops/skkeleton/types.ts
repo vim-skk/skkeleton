@@ -44,11 +44,9 @@ export type ConfigOptions = {
   debug: boolean;
   eggLikeNewline: boolean;
   globalDictionaries: (string | [string, string])[];
-  globalJisyo: string;
-  globalJisyoEncoding: Encoding;
   globalKanaTableFiles: (string | [string, string])[];
   immediatelyCancel: boolean;
-  immediatelyJisyoRW: boolean;
+  immediatelyDictionaryRW: boolean;
   immediatelyOkuriConvert: boolean;
   kanaTable: string;
   keepMode: boolean;
@@ -67,5 +65,5 @@ export type ConfigOptions = {
   useGoogleJapaneseInput?: never;
   usePopup: boolean;
   useSkkServer?: never;
-  userJisyo: string;
+  userDictionary: string;
 };

@@ -3,8 +3,8 @@ import { autocmd, Denops, fn, op, vars } from "./deps.ts";
 import { assert, AssertError, is } from "./deps/unknownutil.ts";
 import { functions, modeFunctions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
-import { load as jisyoLoad } from "./jisyo.ts";
-import { DenoKvDictionary } from "./jisyo/deno_kv.ts";
+import { load as loadDictionary } from "./dictionary.ts";
+import { DenoKvDictionary } from "./sources/deno_kv.ts";
 import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { initializeStateWithAbbrev } from "./mode.ts";
@@ -67,12 +67,10 @@ async function init(denops: Denops) {
   currentContext.get().denops = denops;
   const {
     completionRankFile,
-    userJisyo,
+    userDictionary,
   } = config;
   const globalDictionaries = await Promise.all(
-    (config.globalDictionaries.length === 0
-      ? [[config.globalJisyo, config.globalJisyoEncoding]]
-      : config.globalDictionaries)
+    (config.globalDictionaries.length === 0 ? [] : config.globalDictionaries)
       .map(async (
         cfg,
       ): Promise<[string, string]> => {
@@ -84,10 +82,10 @@ async function init(denops: Denops) {
       }),
   );
   currentLibrary.setInitializer(async () =>
-    await jisyoLoad(
+    await loadDictionary(
       globalDictionaries,
       {
-        path: await homeExpand(userJisyo, denops),
+        path: await homeExpand(userDictionary, denops),
         rankPath: await homeExpand(completionRankFile, denops),
       },
     )

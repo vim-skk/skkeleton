@@ -8,7 +8,7 @@ import { modeChange } from "../mode.ts";
 
 const cmapKeys = ["<Esc>", "<C-g>"];
 
-export async function jisyoTouroku(context: Context): Promise<boolean> {
+export async function registerWord(context: Context): Promise<boolean> {
   const denops = context.denops!;
   const state = context.state as HenkanState;
   await batch(denops, async (denops) => {
@@ -41,7 +41,7 @@ export async function jisyoTouroku(context: Context): Promise<boolean> {
     return true;
   } catch (e) {
     if (config.debug) {
-      console.log("jisyo touroku interrupted");
+      console.log("registerWord interrupted");
       console.log(e);
     }
   } finally {

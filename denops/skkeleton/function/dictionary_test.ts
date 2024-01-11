@@ -4,7 +4,7 @@ import { currentKanaTable, getKanaTable } from "../kana.ts";
 import { HenkanState } from "../state.ts";
 import { currentContext } from "../store.ts";
 import { test } from "../testutil.ts";
-import { jisyoTouroku } from "./jisyo.ts";
+import { registerWord } from "./dictionary.ts";
 
 test({
   mode: "all",
@@ -29,7 +29,7 @@ test({
     await denops.cmd(
       'autocmd CmdlineEnter * ++once call feedkeys("\\<Esc>", "n")',
     );
-    await jisyoTouroku(context);
+    await registerWord(context);
 
     assertEquals(context.preEdit.output(""), "");
   },

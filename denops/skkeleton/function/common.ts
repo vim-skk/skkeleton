@@ -1,6 +1,6 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
-import { HenkanType } from "../jisyo.ts";
+import { HenkanType } from "../dictionary.ts";
 import { initializeStateWithAbbrev } from "../mode.ts";
 import { initializeState } from "../state.ts";
 import { currentLibrary } from "../store.ts";

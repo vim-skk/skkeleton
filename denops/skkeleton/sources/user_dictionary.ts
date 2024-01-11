@@ -6,7 +6,7 @@ import {
   HenkanType,
   okuriAriMarker,
   okuriNasiMarker,
-} from "../jisyo.ts";
+} from "../dictionary.ts";
 import { wrap } from "../deps/iterator_helpers.ts";
 import { assert, is } from "../deps/unknownutil.ts";
 
@@ -183,7 +183,7 @@ export class UserDictionary implements Dictionary {
       await Deno.writeTextFile(path, data);
     } catch (e) {
       console.log(
-        `warning(skkeleton): can't write userJisyo to ${path}`,
+        `warning(skkeleton): can't write userDictionary to ${path}`,
       );
       throw e;
     }
