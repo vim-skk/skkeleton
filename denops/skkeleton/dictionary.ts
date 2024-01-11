@@ -260,7 +260,7 @@ export class Library {
 }
 
 export async function load(
-  globalDictionaryConfig: (string | [string, string])[],
+  globalDictionaryConfig: [string, string][],
   userDictionaryPath: UserDictionaryPath,
 ): Promise<Library> {
   const userDictionary = new UserDictionary();

@@ -4,7 +4,9 @@ import { getKanaTable, loadKanaTableFiles } from "./kana.ts";
 import { ConfigOptions, Encode, Encoding } from "./types.ts";
 import { homeExpand } from "./util.ts";
 
-export const config: ConfigOptions = {
+export const config: Omit<ConfigOptions, "globalDictionaries"> & {
+  globalDictionaries: [string, string][];
+} = {
   acceptIllegalResult: false,
   completionRankFile: "",
   databasePath: "",
