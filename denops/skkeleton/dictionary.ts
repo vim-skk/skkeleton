@@ -5,10 +5,7 @@ import { zip } from "./deps/std/collections.ts";
 import type { CompletionData, RankData } from "./types.ts";
 import { SkkDictionary } from "./sources/skk_dictionary.ts";
 import { DenoKvDictionary } from "./sources/deno_kv.ts";
-import {
-  UserDictionary,
-  UserDictionaryPath,
-} from "./sources/user_dictionary.ts";
+import { UserDictionary } from "./sources/user_dictionary.ts";
 import { SkkServer } from "./sources/skk_server.ts";
 import { GoogleJapaneseInput } from "./sources/google_japanese_input.ts";
 
