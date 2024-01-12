@@ -64,7 +64,7 @@ async function init(denops: Denops) {
     console.log(e);
   }
   currentContext.get().denops = denops;
-  currentLibrary.setInitializer(async () => await loadDictionary());
+  currentLibrary.setInitializer(loadDictionary);
   await receiveNotation(denops);
   autocmd.group(denops, "skkeleton-internal-denops", (helper) => {
     helper.remove("*");
