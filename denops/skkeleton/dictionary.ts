@@ -259,13 +259,13 @@ export class Library {
   }
 }
 
-export async function load(
-  globalDictionaryConfig: [string, string][],
-  userDictionaryPath: UserDictionaryPath,
-): Promise<Library> {
+export async function load(): Promise<Library> {
   const userDictionary = new UserDictionary();
   try {
-    await userDictionary.load(userDictionaryPath);
+    await userDictionary.load({
+      path: config.userDictionary,
+      rankPath: config.completionRankFile,
+    });
   } catch (e) {
     if (config.debug) {
       console.log("userDictionary loading failed");
@@ -278,7 +278,7 @@ export async function load(
   for (const source of config.sources) {
     if (source === "skk_dictionary") {
       const globalDictionaries = await Promise.all(
-        globalDictionaryConfig.map(async ([path, encodingName]) => {
+        config.globalDictionaries.map(async ([path, encodingName]) => {
           try {
             const dict = new SkkDictionary();
             await dict.load(path, encodingName);
@@ -301,7 +301,7 @@ export async function load(
       }
     } else if (source === "deno_kv") {
       const globalDictionaries = await Promise.all(
-        globalDictionaryConfig.map(async ([path, encodingName]) => {
+        config.globalDictionaries.map(async ([path, encodingName]) => {
           try {
             const dict = await DenoKvDictionary.create(path, encodingName);
             await dict.load();
