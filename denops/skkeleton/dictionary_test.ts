@@ -1,9 +1,10 @@
+import { config } from "./config.ts";
 import { dirname, fromFileUrl, join } from "./deps/std/path.ts";
 import { assertEquals } from "./deps/std/assert.ts";
 import {
   Dictionary,
   Library,
-  load as loadJisyo,
+  load as loadDictionary,
   wrapDictionary,
 } from "./dictionary.ts";
 import { SkkDictionary } from "./sources/skk_dictionary.ts";
@@ -282,10 +283,11 @@ Deno.test({
 Deno.test({
   name: "multi dictionary",
   async fn() {
-    const lib = await loadJisyo([
+    config.globalDictionaries = [
       [globalJisyo, "euc-jp"],
       [globalJisyo2, "utf-8"],
-    ], {});
+    ];
+    const lib = await loadDictionary();
     assertEquals(await lib.getHenkanResult("okurinasi", "てすと"), [
       "テスト",
       "test",
