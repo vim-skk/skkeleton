@@ -1,9 +1,15 @@
 import { config } from "../config.ts";
-import { Dictionary, HenkanType } from "../dictionary.ts";
+import { Dictionary, HenkanType, Source } from "../dictionary.ts";
 import type { CompletionData } from "../types.ts";
 import { deadline, DeadlineError } from "../deps/std/async.ts";
 
-export class GoogleJapaneseInput implements Dictionary {
+export class GoogleJapaneseInputSource implements Source {
+  getDictionaries(): Promise<Dictionary[]> {
+    return Promise.resolve([new GoogleJapaneseInputDictionary()]);
+  }
+}
+
+export class GoogleJapaneseInputDictionary implements Dictionary {
   async connect() {}
   async getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
     // It should not work for "okuriari".
