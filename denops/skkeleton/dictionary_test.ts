@@ -9,7 +9,7 @@ import {
 } from "./dictionary.ts";
 import { SkkDictionary } from "./sources/skk_dictionary.ts";
 import { DenoKvDictionary } from "./sources/deno_kv.ts";
-import { UserDictionary } from "./sources/user_dictionary.ts";
+import { UserDictionaryDictionary as UserDictionary } from "./sources/user_dictionary.ts";
 
 const newJisyoJson = join(
   dirname(fromFileUrl(import.meta.url)),
