@@ -122,8 +122,16 @@ export interface UserDictionary extends Dictionary {
   getHenkanResult(type: HenkanType, word: string): Promise<string[]>;
   getCompletionResult(prefix: string, feed: string): Promise<CompletionData>;
   getRanks(prefix: string): RankData;
-  purgeCandidate(type: HenkanType, word: string, candidate: string): Promise<void>;
-  registerHenkanResult(type: HenkanType, word: string, candidate: string): Promise<void>;
+  purgeCandidate(
+    type: HenkanType,
+    word: string,
+    candidate: string,
+  ): Promise<void>;
+  registerHenkanResult(
+    type: HenkanType,
+    word: string,
+    candidate: string,
+  ): Promise<void>;
   load({ path, rankPath }: UserDictionaryPath): Promise<void>;
   save(): Promise<void>;
 }

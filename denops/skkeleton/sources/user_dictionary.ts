@@ -4,17 +4,17 @@ import type { CompletionData, RankData } from "../types.ts";
 import {
   Dictionary,
   HenkanType,
-  UserDictionary,
-  UserDictionaryPath,
-  Source,
   okuriAriMarker,
   okuriNasiMarker,
+  Source,
+  UserDictionary,
+  UserDictionaryPath,
 } from "../dictionary.ts";
 import { wrap } from "../deps/iterator_helpers.ts";
 import { assert, is } from "../deps/unknownutil.ts";
 
 export class UserDictionarySource implements Source {
-  async getDictionaries(): Promise<Dictionary[]>{
+  async getDictionaries(): Promise<Dictionary[]> {
     return [await this.getUserDictionary()];
   }
 
