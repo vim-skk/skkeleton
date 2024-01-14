@@ -166,7 +166,8 @@ Deno.test({
 Deno.test({
   name: "register candidate",
   async fn() {
-    const manager = new Library();
+    const dic = new UserDictionary();
+    const manager = new Library([dic], dic);
     // most recently registered
     await manager.registerHenkanResult("okurinasi", "test", "a");
     await manager.registerHenkanResult("okurinasi", "test", "b");
