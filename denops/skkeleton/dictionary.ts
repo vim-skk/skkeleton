@@ -3,7 +3,7 @@ import { JpNum } from "./deps/japanese_numeral.ts";
 import { RomanNum } from "./deps/roman.ts";
 import { zip } from "./deps/std/collections.ts";
 import type { CompletionData, RankData } from "./types.ts";
-import { UserDictionary } from "./sources/user_dictionary.ts";
+import { UserDictionarySource } from "./sources/user_dictionary.ts";
 import { SkkDictionarySource } from "./sources/skk_dictionary.ts";
 import { DenoKvSource } from "./sources/deno_kv.ts";
 import { SkkServerSource } from "./sources/skk_server.ts";
@@ -113,8 +113,24 @@ export interface Dictionary {
   getCompletionResult(prefix: string, feed: string): Promise<CompletionData>;
 }
 
+export type UserDictionaryPath = {
+  path?: string;
+  rankPath?: string;
+};
+
+export interface UserDictionary extends Dictionary {
+  getHenkanResult(type: HenkanType, word: string): Promise<string[]>;
+  getCompletionResult(prefix: string, feed: string): Promise<CompletionData>;
+  getRanks(prefix: string): RankData;
+  purgeCandidate(type: HenkanType, word: string, candidate: string): Promise<void>;
+  registerHenkanResult(type: HenkanType, word: string, candidate: string): Promise<void>;
+  load({ path, rankPath }: UserDictionaryPath): Promise<void>;
+  save(): Promise<void>;
+}
+
 export interface Source {
   getDictionaries(): Promise<Dictionary[]>;
+  getUserDictionary?(): Promise<UserDictionary>;
 }
 
 export class NumberConvertWrapper implements Dictionary {
@@ -175,16 +191,20 @@ function gatherCandidates(
 
 export class Library {
   #dictionaries: Dictionary[];
-  #userDictionary: UserDictionary;
+  #userDictionary: UserDictionary | undefined;
 
   constructor(
     dictionaries?: Dictionary[],
     userDictionary?: UserDictionary,
   ) {
-    this.#userDictionary = userDictionary ?? new UserDictionary();
-    this.#dictionaries = [wrapDictionary(this.#userDictionary)].concat(
-      dictionaries ?? [],
-    );
+    this.#userDictionary = userDictionary ?? undefined;
+    this.#dictionaries = [];
+    if (userDictionary) {
+      this.#dictionaries = [wrapDictionary(userDictionary)];
+    }
+    if (dictionaries) {
+      this.#dictionaries = this.#dictionaries.concat(dictionaries);
+    }
   }
 
   async getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
@@ -230,6 +250,10 @@ export class Library {
   }
 
   getRanks(prefix: string): RankData {
+    if (!this.#userDictionary) {
+      return [];
+    }
+
     return this.#userDictionary.getRanks(prefix);
   }
 
@@ -238,6 +262,10 @@ export class Library {
     word: string,
     candidate: string,
   ) {
+    if (!this.#userDictionary) {
+      return;
+    }
+
     this.#userDictionary.registerHenkanResult(type, word, candidate);
     if (config.immediatelyDictionaryRW) {
       await this.#userDictionary.save();
@@ -245,6 +273,10 @@ export class Library {
   }
 
   async purgeCandidate(type: HenkanType, word: string, candidate: string) {
+    if (!this.#userDictionary) {
+      return;
+    }
+
     this.#userDictionary.purgeCandidate(type, word, candidate);
     if (config.immediatelyDictionaryRW) {
       await this.#userDictionary.save();
@@ -252,28 +284,24 @@ export class Library {
   }
 
   async load() {
-    await this.#userDictionary.load();
+    if (!this.#userDictionary) {
+      return;
+    }
+
+    await this.#userDictionary.load({});
   }
 
   async save() {
+    if (!this.#userDictionary) {
+      return;
+    }
+
     await this.#userDictionary.save();
   }
 }
 
 export async function load(): Promise<Library> {
-  const userDictionary = new UserDictionary();
-  try {
-    await userDictionary.load({
-      path: config.userDictionary,
-      rankPath: config.completionRankFile,
-    });
-  } catch (e) {
-    if (config.debug) {
-      console.log("userDictionary loading failed");
-      console.log(e);
-    }
-    // do nothing
-  }
+  const userDictionary = await (new UserDictionarySource()).getUserDictionary();
 
   let dictionaries: Dictionary[] = [];
   for (const source of config.sources) {
