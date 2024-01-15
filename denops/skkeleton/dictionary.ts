@@ -3,11 +3,11 @@ import { JpNum } from "./deps/japanese_numeral.ts";
 import { RomanNum } from "./deps/roman.ts";
 import { zip } from "./deps/std/collections.ts";
 import type { CompletionData, RankData } from "./types.ts";
-import { SkkDictionary } from "./sources/skk_dictionary.ts";
-import { DenoKvDictionary } from "./sources/deno_kv.ts";
-import { UserDictionary } from "./sources/user_dictionary.ts";
-import { SkkServer } from "./sources/skk_server.ts";
-import { GoogleJapaneseInput } from "./sources/google_japanese_input.ts";
+import { UserDictionarySource } from "./sources/user_dictionary.ts";
+import { SkkDictionarySource } from "./sources/skk_dictionary.ts";
+import { DenoKvSource } from "./sources/deno_kv.ts";
+import { SkkServerSource } from "./sources/skk_server.ts";
+import { GoogleJapaneseInputSource } from "./sources/google_japanese_input.ts";
 
 export const okuriAriMarker = ";; okuri-ari entries.";
 export const okuriNasiMarker = ";; okuri-nasi entries.";
@@ -113,6 +113,34 @@ export interface Dictionary {
   getCompletionResult(prefix: string, feed: string): Promise<CompletionData>;
 }
 
+export type UserDictionaryPath = {
+  path?: string;
+  rankPath?: string;
+};
+
+export interface UserDictionary extends Dictionary {
+  getHenkanResult(type: HenkanType, word: string): Promise<string[]>;
+  getCompletionResult(prefix: string, feed: string): Promise<CompletionData>;
+  getRanks(prefix: string): RankData;
+  purgeCandidate(
+    type: HenkanType,
+    word: string,
+    candidate: string,
+  ): Promise<void>;
+  registerHenkanResult(
+    type: HenkanType,
+    word: string,
+    candidate: string,
+  ): Promise<void>;
+  load({ path, rankPath }: UserDictionaryPath): Promise<void>;
+  save(): Promise<void>;
+}
+
+export interface Source {
+  getDictionaries(): Promise<Dictionary[]>;
+  getUserDictionary?(): Promise<UserDictionary>;
+}
+
 export class NumberConvertWrapper implements Dictionary {
   #inner: Dictionary;
 
@@ -171,16 +199,20 @@ function gatherCandidates(
 
 export class Library {
   #dictionaries: Dictionary[];
-  #userDictionary: UserDictionary;
+  #userDictionary: UserDictionary | undefined;
 
   constructor(
     dictionaries?: Dictionary[],
     userDictionary?: UserDictionary,
   ) {
-    this.#userDictionary = userDictionary ?? new UserDictionary();
-    this.#dictionaries = [wrapDictionary(this.#userDictionary)].concat(
-      dictionaries ?? [],
-    );
+    this.#userDictionary = userDictionary ?? undefined;
+    this.#dictionaries = [];
+    if (userDictionary) {
+      this.#dictionaries = [wrapDictionary(userDictionary)];
+    }
+    if (dictionaries) {
+      this.#dictionaries = this.#dictionaries.concat(dictionaries);
+    }
   }
 
   async getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
@@ -226,6 +258,10 @@ export class Library {
   }
 
   getRanks(prefix: string): RankData {
+    if (!this.#userDictionary) {
+      return [];
+    }
+
     return this.#userDictionary.getRanks(prefix);
   }
 
@@ -234,6 +270,10 @@ export class Library {
     word: string,
     candidate: string,
   ) {
+    if (!this.#userDictionary) {
+      return;
+    }
+
     this.#userDictionary.registerHenkanResult(type, word, candidate);
     if (config.immediatelyDictionaryRW) {
       await this.#userDictionary.save();
@@ -241,6 +281,10 @@ export class Library {
   }
 
   async purgeCandidate(type: HenkanType, word: string, candidate: string) {
+    if (!this.#userDictionary) {
+      return;
+    }
+
     this.#userDictionary.purgeCandidate(type, word, candidate);
     if (config.immediatelyDictionaryRW) {
       await this.#userDictionary.save();
@@ -248,97 +292,43 @@ export class Library {
   }
 
   async load() {
-    await this.#userDictionary.load();
+    if (!this.#userDictionary) {
+      return;
+    }
+
+    await this.#userDictionary.load({});
   }
 
   async save() {
+    if (!this.#userDictionary) {
+      return;
+    }
+
     await this.#userDictionary.save();
   }
 }
 
 export async function load(): Promise<Library> {
-  const userDictionary = new UserDictionary();
-  try {
-    await userDictionary.load({
-      path: config.userDictionary,
-      rankPath: config.completionRankFile,
-    });
-  } catch (e) {
-    if (config.debug) {
-      console.log("userDictionary loading failed");
-      console.log(e);
-    }
-    // do nothing
-  }
+  const userDictionary = await (new UserDictionarySource()).getUserDictionary();
 
   const dictionaries: Dictionary[] = [];
   for (const source of config.sources) {
     if (source === "skk_dictionary") {
-      const globalDictionaries = await Promise.all(
-        config.globalDictionaries.map(async ([path, encodingName]) => {
-          try {
-            const dict = new SkkDictionary();
-            await dict.load(path, encodingName);
-            return dict;
-          } catch (e) {
-            console.error("globalDictionary loading failed");
-            console.error(`at ${path}`);
-            if (config.debug) {
-              console.error(e);
-            }
-            return undefined;
-          }
-        }),
+      dictionaries.push(
+        ...await (new SkkDictionarySource().getDictionaries()),
       );
-
-      for (const d of globalDictionaries) {
-        if (d) {
-          dictionaries.push(wrapDictionary(d));
-        }
-      }
     } else if (source === "deno_kv") {
-      const globalDictionaries = await Promise.all(
-        config.globalDictionaries.map(async ([path, encodingName]) => {
-          try {
-            const dict = await DenoKvDictionary.create(path, encodingName);
-            await dict.load();
-            return dict;
-          } catch (e) {
-            console.error("globalDictionary loading failed");
-            console.error(`at ${path}`);
-            if (config.debug) {
-              console.error(e);
-            }
-            return undefined;
-          }
-        }),
+      dictionaries.push(
+        ...await (new DenoKvSource().getDictionaries()),
       );
-
-      for (const d of globalDictionaries) {
-        if (d) {
-          dictionaries.push(wrapDictionary(d));
-        }
-      }
     } else if (source === "skk_server") {
-      const skkServer = new SkkServer({
-        hostname: config.skkServerHost,
-        port: config.skkServerPort,
-        requestEnc: config.skkServerReqEnc,
-        responseEnc: config.skkServerResEnc,
-      });
-
-      try {
-        skkServer.connect();
-      } catch (e) {
-        if (config.debug) {
-          console.log("connecting to skk server is failed");
-          console.log(e);
-        }
-      }
-
-      dictionaries.push(skkServer);
+      dictionaries.push(
+        ...await (new SkkServerSource().getDictionaries()),
+      );
     } else if (source === "google_japanese_input") {
-      dictionaries.push(new GoogleJapaneseInput());
+      dictionaries.push(
+        ...await (new GoogleJapaneseInputSource().getDictionaries()),
+      );
     } else {
       console.error(`Invalid source name: ${source}`);
     }

@@ -6,16 +6,38 @@ import {
   HenkanType,
   okuriAriMarker,
   okuriNasiMarker,
+  Source,
+  UserDictionary,
+  UserDictionaryPath,
 } from "../dictionary.ts";
 import { wrap } from "../deps/iterator_helpers.ts";
 import { assert, is } from "../deps/unknownutil.ts";
 
-export type UserDictionaryPath = {
-  path?: string;
-  rankPath?: string;
-};
+export class UserDictionarySource implements Source {
+  async getDictionaries(): Promise<Dictionary[]> {
+    return [await this.getUserDictionary()];
+  }
 
-export class UserDictionary implements Dictionary {
+  async getUserDictionary(): Promise<UserDictionary> {
+    const userDictionary = new UserDictionaryDictionary();
+    try {
+      await userDictionary.load({
+        path: config.userDictionary,
+        rankPath: config.completionRankFile,
+      });
+    } catch (e) {
+      if (config.debug) {
+        console.log("userDictionary loading failed");
+        console.log(e);
+      }
+      // do nothing
+    }
+
+    return userDictionary;
+  }
+}
+
+export class UserDictionaryDictionary implements UserDictionary {
   #okuriAri: Map<string, string[]>;
   #okuriNasi: Map<string, string[]>;
   #rank: Map<string, number>;
@@ -91,7 +113,7 @@ export class UserDictionary implements Dictionary {
 
   registerHenkanResult(type: HenkanType, word: string, candidate: string) {
     if (candidate === "") {
-      return;
+      return Promise.resolve();
     }
     const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
     const oldCandidate = target.get(word) ?? [];
@@ -101,6 +123,8 @@ export class UserDictionary implements Dictionary {
     );
     this.#rank.set(candidate, Date.now());
     this.#cachedPrefix = "";
+
+    return Promise.resolve();
   }
 
   purgeCandidate(type: HenkanType, word: string, candidate: string) {
@@ -111,6 +135,8 @@ export class UserDictionary implements Dictionary {
     } else {
       target.delete(word);
     }
+
+    return Promise.resolve();
   }
 
   private async readFile(path: string, rankPath: string) {

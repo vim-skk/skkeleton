@@ -9,7 +9,7 @@ import {
 } from "./dictionary.ts";
 import { SkkDictionary } from "./sources/skk_dictionary.ts";
 import { DenoKvDictionary } from "./sources/deno_kv.ts";
-import { UserDictionary } from "./sources/user_dictionary.ts";
+import { UserDictionaryDictionary as UserDictionary } from "./sources/user_dictionary.ts";
 
 const newJisyoJson = join(
   dirname(fromFileUrl(import.meta.url)),
@@ -81,7 +81,7 @@ Deno.test({
   name: "load new JisyoJson",
   async fn(t) {
     await test(newJisyoJson, "utf-8", t, async (jisyo) => {
-      const manager = new Library([jisyo]);
+      const manager = new Library([jisyo], new UserDictionary());
       const ari = await manager.getHenkanResult("okuriari", "わるs");
       assertEquals(["悪"], ari);
       const nasi = await manager.getHenkanResult("okurinasi", "あかね");
@@ -94,7 +94,7 @@ Deno.test({
   name: "load new JisyoYaml",
   async fn(t) {
     await test(newJisyoYaml, "utf-8", t, async (jisyo) => {
-      const manager = new Library([jisyo]);
+      const manager = new Library([jisyo], new UserDictionary());
       const ari = await manager.getHenkanResult("okuriari", "わるs");
       assertEquals(["悪"], ari);
       const nasi = await manager.getHenkanResult("okurinasi", "あかね");
@@ -107,7 +107,7 @@ Deno.test({
   name: "get candidates",
   async fn(t) {
     await test(globalJisyo, "euc-jp", t, async (jisyo) => {
-      const manager = new Library([jisyo]);
+      const manager = new Library([jisyo], new UserDictionary());
       const ari = await manager.getHenkanResult("okuriari", "てすt");
       assertEquals(["テスト"], ari);
       const nasi = await manager.getHenkanResult("okurinasi", "てすと");
@@ -121,7 +121,7 @@ Deno.test({
   async fn(t) {
     await test(numJisyo, "euc-jp", t, async (jisyo) => {
       jisyo = wrapDictionary(jisyo);
-      const manager = new Library([jisyo]);
+      const manager = new Library([jisyo], new UserDictionary());
       const nasi = await manager.getHenkanResult("okurinasi", "101ばん");
       assertEquals(nasi, [
         "101番",
@@ -140,7 +140,7 @@ Deno.test({
   async fn(t) {
     await test(numJisyo, "euc-jp", t, async (jisyo) => {
       jisyo = wrapDictionary(jisyo);
-      const manager = new Library([jisyo]);
+      const manager = new Library([jisyo], new UserDictionary());
       const nasi1 = await manager.getHenkanResult("okurinasi", "11おうて");
       assertEquals(nasi1, ["１一王手"]);
       const nasi2 = await manager.getHenkanResult("okurinasi", "111おうて");
@@ -154,7 +154,7 @@ Deno.test({
   async fn(t) {
     await test(numIncludingJisyo, "utf-8", t, async (jisyo) => {
       jisyo = wrapDictionary(jisyo);
-      const manager = new Library([jisyo]);
+      const manager = new Library([jisyo], new UserDictionary());
       const nasi1 = await manager.getHenkanResult("okurinasi", "cat2");
       assertEquals(nasi1, ["🐈"]);
       const nasi2 = await manager.getHenkanResult("okurinasi", "1000001");
@@ -166,7 +166,8 @@ Deno.test({
 Deno.test({
   name: "register candidate",
   async fn() {
-    const manager = new Library();
+    const dic = new UserDictionary();
+    const manager = new Library([], dic);
     // most recently registered
     await manager.registerHenkanResult("okurinasi", "test", "a");
     await manager.registerHenkanResult("okurinasi", "test", "b");
@@ -188,7 +189,7 @@ Deno.test({
   async fn() {
     const dic = new SkkDictionary();
     const jisyo = await dic.load(globalJisyo, "euc-jp");
-    const library = new Library([jisyo]);
+    const library = new Library([jisyo], new UserDictionary());
     await library.registerHenkanResult("okurinasi", "てすと", "test");
 
     // remove dup

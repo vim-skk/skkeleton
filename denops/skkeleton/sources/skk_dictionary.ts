@@ -1,3 +1,4 @@
+import { config } from "../config.ts";
 import { getKanaTable } from "../kana.ts";
 import { readFileWithEncoding } from "../util.ts";
 import type { CompletionData } from "../types.ts";
@@ -6,12 +7,44 @@ import {
   HenkanType,
   okuriAriMarker,
   okuriNasiMarker,
+  Source,
+  wrapDictionary,
 } from "../dictionary.ts";
 import { jisyoschema, jsonschema, msgpack, yaml } from "../deps/dictionary.ts";
 
 interface Jisyo {
   okuri_ari: Record<string, string[]>;
   okuri_nasi: Record<string, string[]>;
+}
+
+export class SkkDictionarySource implements Source {
+  async getDictionaries(): Promise<Dictionary[]> {
+    const globalDictionaries = await Promise.all(
+      config.globalDictionaries.map(async ([path, encodingName]) => {
+        try {
+          const dict = new SkkDictionary();
+          await dict.load(path, encodingName);
+          return dict;
+        } catch (e) {
+          console.error("globalDictionary loading failed");
+          console.error(`at ${path}`);
+          if (config.debug) {
+            console.error(e);
+          }
+          return undefined;
+        }
+      }),
+    );
+
+    const dictionaries: Dictionary[] = [];
+    for (const d of globalDictionaries) {
+      if (d) {
+        dictionaries.push(wrapDictionary(d));
+      }
+    }
+
+    return dictionaries;
+  }
 }
 
 export class SkkDictionary implements Dictionary {

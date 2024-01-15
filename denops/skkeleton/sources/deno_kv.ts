@@ -7,6 +7,8 @@ import {
   HenkanType,
   okuriAriMarker,
   okuriNasiMarker,
+  Source,
+  wrapDictionary,
 } from "../dictionary.ts";
 import { jisyoschema, jsonschema, msgpack, yaml } from "../deps/dictionary.ts";
 
@@ -27,6 +29,36 @@ function calcKeySize(keys: string[]): number {
     size += encoded.reduce((acc, cur) => acc + (cur === 0x00 ? 2 : 1), 2);
   }
   return size;
+}
+
+export class DenoKvSource implements Source {
+  async getDictionaries(): Promise<Dictionary[]> {
+    const globalDictionaries = await Promise.all(
+      config.globalDictionaries.map(async ([path, encodingName]) => {
+        try {
+          const dict = await DenoKvDictionary.create(path, encodingName);
+          await dict.load();
+          return dict;
+        } catch (e) {
+          console.error("globalDictionary loading failed");
+          console.error(`at ${path}`);
+          if (config.debug) {
+            console.error(e);
+          }
+          return undefined;
+        }
+      }),
+    );
+
+    const dictionaries: Dictionary[] = [];
+    for (const d of globalDictionaries) {
+      if (d) {
+        dictionaries.push(wrapDictionary(d));
+      }
+    }
+
+    return dictionaries;
+  }
 }
 
 export class DenoKvDictionary implements Dictionary {
