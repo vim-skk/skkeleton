@@ -13,16 +13,16 @@ test({
   mode: "all",
   name: "kakutei at disable",
   async fn(denops: Denops) {
-    await denops.dispatch("skkeleton", "enable");
+    await denops.dispatch("skkeleton", "handle", "enable");
     await dispatch(currentContext.get(), " ");
     assertEquals(
-      await getResult(denops.dispatch("skkeleton", "disable")),
+      await getResult(denops.dispatch("skkeleton", "handle", "disable")),
       " ",
     );
-    await denops.dispatch("skkeleton", "enable");
+    await denops.dispatch("skkeleton", "handle", "enable");
     await dispatch(currentContext.get(), "n");
     assertEquals(
-      await getResult(denops.dispatch("skkeleton", "disable")),
+      await getResult(denops.dispatch("skkeleton", "handle", "disable")),
       "ん",
     );
   },

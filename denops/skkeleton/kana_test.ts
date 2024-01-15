@@ -32,7 +32,7 @@ test({
       a: ["hoge", ""],
     }, true);
     config.kanaTable = "test";
-    await denops.call("skkeleton#request", "enable", []);
+    await denops.call("skkeleton#handle", "enable", {});
     const context = currentContext.get();
     await dispatch(context, "a");
     assertEquals(context.preEdit.output(""), "hoge");
