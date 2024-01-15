@@ -311,23 +311,23 @@ export class Library {
 export async function load(): Promise<Library> {
   const userDictionary = await (new UserDictionarySource()).getUserDictionary();
 
-  let dictionaries: Dictionary[] = [];
+  const dictionaries: Dictionary[] = [];
   for (const source of config.sources) {
     if (source === "skk_dictionary") {
-      dictionaries = dictionaries.concat(
-        await (new SkkDictionarySource().getDictionaries()),
+      dictionaries.push(
+        ...await (new SkkDictionarySource().getDictionaries()),
       );
     } else if (source === "deno_kv") {
-      dictionaries = dictionaries.concat(
-        await (new DenoKvSource().getDictionaries()),
+      dictionaries.push(
+        ...await (new DenoKvSource().getDictionaries()),
       );
     } else if (source === "skk_server") {
-      dictionaries = dictionaries.concat(
-        await (new SkkServerSource().getDictionaries()),
+      dictionaries.push(
+        ...await (new SkkServerSource().getDictionaries()),
       );
     } else if (source === "google_japanese_input") {
-      dictionaries = dictionaries.concat(
-        await (new GoogleJapaneseInputSource().getDictionaries()),
+      dictionaries.push(
+        ...await (new GoogleJapaneseInputSource().getDictionaries()),
       );
     } else {
       console.error(`Invalid source name: ${source}`);
