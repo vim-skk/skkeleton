@@ -148,6 +148,12 @@ skkeleton#is_enabled()                                *skkeleton#is_enabled()*
 
         skkeletonが有効化されているかどうかを返します。
 
+skkeleton#handle({func}, {opts})                          *skkeleton#handle()*
+
+        ハンドリングを行います。
+
+        Note: ステートと関係なしに何でも送れるので注意
+
 skkeleton#mode()                                            *skkeleton#mode()*
 
         現在のモードを以下のように返します。

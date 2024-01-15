@@ -14,11 +14,11 @@ test({
   name: "Can get skkeleton mode",
   async fn(d: Denops) {
     assertEquals(await d.call("skkeleton#mode"), "");
-    await d.dispatch("skkeleton", "enable");
+    await d.dispatch("skkeleton", "handle", "enable");
     assertEquals(await d.call("skkeleton#mode"), "hira");
-    await d.dispatch("skkeleton", "disable");
+    await d.dispatch("skkeleton", "handle", "disable");
     assertEquals(await d.call("skkeleton#mode"), "");
-    await d.dispatch("skkeleton", "enable");
+    await d.dispatch("skkeleton", "handle", "enable");
     await katakana(currentContext.get());
     assertEquals(await d.call("skkeleton#mode"), "kata");
     await katakana(currentContext.get());

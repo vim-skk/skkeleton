@@ -262,25 +262,26 @@ export async function main(denops: Denops) {
       registerKanaTable(tableName, table, !!create);
       return Promise.resolve();
     },
-    async enable(opts: unknown, vimStatus: unknown): Promise<HandleResult> {
+    async handle(
+      func: unknown,
+      opts: unknown,
+      vimStatus: unknown,
+    ): Promise<HandleResult> {
       await init(denops);
-      return buildResult(await enable(opts, vimStatus));
-    },
-    async disable(opts: unknown, vimStatus: unknown): Promise<HandleResult> {
-      await init(denops);
-      return buildResult(await disable(opts, vimStatus));
-    },
-    async toggle(opts: unknown, vimStatus: unknown): Promise<HandleResult> {
-      await init(denops);
-      const mode = await vars.g.get(denops, "skkeleton#mode", "");
-      if (!await denops.eval("g:skkeleton#enabled") || mode === "") {
+      if (func === "handleKey") {
+        return buildResult(await handle(opts, vimStatus));
+      } else if (func === "enable") {
         return buildResult(await enable(opts, vimStatus));
-      } else {
+      } else if (func === "disable") {
         return buildResult(await disable(opts, vimStatus));
+      } else if (func === "toggle") {
+        const noMode = await vars.g.get(denops, "skkeleton#mode", "") === "";
+        const disabled = noMode || !await denops.eval("g:skkeleton#enabled");
+        return buildResult(
+          await (disabled ? enable(opts, vimStatus) : disable(opts, vimStatus)),
+        );
       }
-    },
-    async handleKey(opts: unknown, vimStatus: unknown): Promise<HandleResult> {
-      return buildResult(await handle(opts, vimStatus));
+      throw "Unsupported function: " + func;
     },
     reset() {
       currentContext.init().denops = denops;

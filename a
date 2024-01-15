@@ -1,0 +1,4 @@
+#!/bin/bash -u
+git reset origin/main
+git add -A
+git commit -m m

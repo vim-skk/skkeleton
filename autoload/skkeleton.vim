@@ -131,7 +131,7 @@ function! skkeleton#vim_status() abort
 endfunction
 
 function! skkeleton#handle(func, opts) abort
-  let ret = skkeleton#request(a:func, [a:opts, skkeleton#vim_status()])
+  let ret = skkeleton#request('handle', [a:func, a:opts, skkeleton#vim_status()])
 
   let g:skkeleton#state = ret.state
 
