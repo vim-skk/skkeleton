@@ -10,6 +10,7 @@ import { handleKey, registerKeyMap } from "./keymap.ts";
 import { initializeStateWithAbbrev } from "./mode.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { currentContext, currentLibrary, variables } from "./store.ts";
+import { globpath } from "./util.ts";
 import type { CompletionData, RankData } from "./types.ts";
 
 type Opts = {
@@ -64,8 +65,18 @@ async function init(denops: Denops) {
     console.log(e);
   }
   currentContext.get().denops = denops;
-  currentLibrary.setInitializer(() => loadDictionary(denops));
+
+  currentLibrary.setInitializer(async () =>
+    loadDictionary(
+      await globpath(
+        denops,
+        "denops/skkeleton/sources",
+      ),
+    )
+  );
+
   await receiveNotation(denops);
+
   autocmd.group(denops, "skkeleton-internal-denops", (helper) => {
     helper.remove("*");
     // Note: 使い終わったステートを初期化する
@@ -81,11 +92,13 @@ async function init(denops: Denops) {
       `call skkeleton#disable()`,
     );
   });
+
   try {
     await denops.cmd("doautocmd <nomodeline> User skkeleton-initialize-post");
   } catch (e) {
     console.log(e);
   }
+
   initialized = true;
 }
 

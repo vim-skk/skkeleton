@@ -1,4 +1,5 @@
-import { Denops, fn } from "./deps.ts";
+import { Denops, fn, op } from "./deps.ts";
+import { basename, parse } from "./deps/std/path.ts";
 import { encoding } from "./deps/encoding_japanese.ts";
 
 export class Cell<T> {
@@ -100,4 +101,33 @@ export async function readFileWithEncoding(
 
   const decoder = new TextDecoder(fileEncoding);
   return decoder.decode(uint);
+}
+
+export async function globpath(
+  denops: Denops,
+  search: string,
+): Promise<Record<string, string>> {
+  const runtimepath = await op.runtimepath.getGlobal(denops);
+
+  const paths: Record<string, string> = {};
+  const glob = await fn.globpath(
+    denops,
+    runtimepath,
+    search + "/*.ts",
+    1,
+    1,
+  );
+
+  for (const path of glob) {
+    // Skip already added name.
+    const parsed = parse(path);
+    const key = `${basename(parsed.dir)}/${parsed.name}`;
+    if (key in paths) {
+      continue;
+    }
+
+    paths[key] = path;
+  }
+
+  return paths;
 }

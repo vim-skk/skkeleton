@@ -1,6 +1,5 @@
 import { config } from "./config.ts";
-import { Denops, fn, op } from "./deps.ts";
-import { basename, parse, toFileUrl } from "./deps/std/path.ts";
+import { toFileUrl } from "./deps/std/path.ts";
 import { JpNum } from "./deps/japanese_numeral.ts";
 import { RomanNum } from "./deps/roman.ts";
 import { zip } from "./deps/std/collections.ts";
@@ -305,21 +304,16 @@ export class Library {
   }
 }
 
-export async function load(denops: Denops): Promise<Library> {
-  const cachedPaths = await globpath(
-    denops,
-    "denops/skkeleton/sources",
-  );
-
+export async function load(paths: Record<string, string>): Promise<Library> {
   const userMod = await import(
-    toFileUrl(cachedPaths["sources/user_dictionary"]).href
+    toFileUrl(paths["sources/user_dictionary"]).href
   );
   const userDictionary = await (new userMod.Source()).getUserDictionary();
 
   const dictionaries: Dictionary[] = [];
   for (const source of config.sources) {
     const key = `sources/${source}`;
-    const path = cachedPaths[key];
+    const path = paths[key];
 
     if (!path) {
       console.error(`Invalid source name: ${source}`);
@@ -334,33 +328,4 @@ export async function load(denops: Denops): Promise<Library> {
   }
 
   return new Library(dictionaries, userDictionary);
-}
-
-async function globpath(
-  denops: Denops,
-  search: string,
-): Promise<Record<string, string>> {
-  const runtimepath = await op.runtimepath.getGlobal(denops);
-
-  const paths: Record<string, string> = {};
-  const glob = await fn.globpath(
-    denops,
-    runtimepath,
-    search + "/*.ts",
-    1,
-    1,
-  );
-
-  for (const path of glob) {
-    // Skip already added name.
-    const parsed = parse(path);
-    const key = `${basename(parsed.dir)}/${parsed.name}`;
-    if (key in paths) {
-      continue;
-    }
-
-    paths[key] = path;
-  }
-
-  return paths;
 }
