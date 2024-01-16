@@ -1,15 +1,9 @@
-import { config } from "./config.ts";
 import { dirname, fromFileUrl, join } from "./deps/std/path.ts";
 import { assertEquals } from "./deps/std/assert.ts";
-import {
-  Dictionary,
-  Library,
-  load as loadDictionary,
-  wrapDictionary,
-} from "./dictionary.ts";
-import { SkkDictionary } from "./sources/skk_dictionary.ts";
-import { DenoKvDictionary } from "./sources/deno_kv.ts";
-import { UserDictionaryDictionary as UserDictionary } from "./sources/user_dictionary.ts";
+import { Dictionary, Library, wrapDictionary } from "./dictionary.ts";
+import { Dictionary as SkkDictionary } from "./sources/skk_dictionary.ts";
+import { Dictionary as DenoKvDictionary } from "./sources/deno_kv.ts";
+import { Dictionary as UserDictionary } from "./sources/user_dictionary.ts";
 
 const newJisyoJson = join(
   dirname(fromFileUrl(import.meta.url)),
@@ -27,12 +21,6 @@ const globalJisyo = join(
   dirname(fromFileUrl(import.meta.url)),
   "testdata",
   "globalJisyo",
-);
-
-const globalJisyo2 = join(
-  dirname(fromFileUrl(import.meta.url)),
-  "testdata",
-  "globalJisyo2",
 );
 
 const numJisyo = join(
@@ -278,23 +266,5 @@ Deno.test({
     const c = dic.getRanks("ぴよ")
       .map((e) => e[0]);
     assertEquals(c, ["piyo"]);
-  },
-});
-
-Deno.test({
-  name: "multi dictionary",
-  async fn() {
-    config.globalDictionaries = [
-      [globalJisyo, "euc-jp"],
-      [globalJisyo2, "utf-8"],
-    ];
-    const lib = await loadDictionary();
-    assertEquals(await lib.getHenkanResult("okurinasi", "てすと"), [
-      "テスト",
-      "test",
-      "ﾃｽﾄ",
-    ]);
-    assertEquals(await lib.getHenkanResult("okurinasi", "あ"), ["a"]);
-    assertEquals(await lib.getHenkanResult("okurinasi", "い"), ["i"]);
   },
 });

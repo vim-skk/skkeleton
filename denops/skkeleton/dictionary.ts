@@ -1,13 +1,11 @@
 import { config } from "./config.ts";
+import { Denops, fn, op } from "./deps.ts";
+import { basename, parse, toFileUrl } from "./deps/std/path.ts";
 import { JpNum } from "./deps/japanese_numeral.ts";
 import { RomanNum } from "./deps/roman.ts";
 import { zip } from "./deps/std/collections.ts";
 import type { CompletionData, RankData } from "./types.ts";
-import { UserDictionarySource } from "./sources/user_dictionary.ts";
-import { SkkDictionarySource } from "./sources/skk_dictionary.ts";
-import { DenoKvSource } from "./sources/deno_kv.ts";
-import { SkkServerSource } from "./sources/skk_server.ts";
-import { GoogleJapaneseInputSource } from "./sources/google_japanese_input.ts";
+import { Source as UserDictionarySource } from "./sources/user_dictionary.ts";
 
 export const okuriAriMarker = ";; okuri-ari entries.";
 export const okuriNasiMarker = ";; okuri-nasi entries.";
@@ -308,31 +306,62 @@ export class Library {
   }
 }
 
-export async function load(): Promise<Library> {
-  const userDictionary = await (new UserDictionarySource()).getUserDictionary();
+export async function load(denops: Denops): Promise<Library> {
+  const cachedPaths = await globpath(
+    denops,
+    "denops/skkeleton/sources",
+  );
+
+  const userMod = await import(
+    toFileUrl(cachedPaths["sources/user_dictionary"]).href
+  );
+  const userDictionary = await (new userMod.Source()).getUserDictionary();
 
   const dictionaries: Dictionary[] = [];
   for (const source of config.sources) {
-    if (source === "skk_dictionary") {
-      dictionaries.push(
-        ...await (new SkkDictionarySource().getDictionaries()),
-      );
-    } else if (source === "deno_kv") {
-      dictionaries.push(
-        ...await (new DenoKvSource().getDictionaries()),
-      );
-    } else if (source === "skk_server") {
-      dictionaries.push(
-        ...await (new SkkServerSource().getDictionaries()),
-      );
-    } else if (source === "google_japanese_input") {
-      dictionaries.push(
-        ...await (new GoogleJapaneseInputSource().getDictionaries()),
-      );
-    } else {
+    const key = `sources/${source}`;
+    const path = cachedPaths[key];
+
+    if (!path) {
       console.error(`Invalid source name: ${source}`);
+      continue;
     }
+
+    const mod = await import(toFileUrl(path).href);
+
+    dictionaries.push(
+      ...await (new mod.Source().getDictionaries()),
+    );
   }
 
   return new Library(dictionaries, userDictionary);
+}
+
+async function globpath(
+  denops: Denops,
+  search: string,
+): Promise<Record<string, string>> {
+  const runtimepath = await op.runtimepath.getGlobal(denops);
+
+  const paths: Record<string, string> = {};
+  const glob = await fn.globpath(
+    denops,
+    runtimepath,
+    search + "/*.ts",
+    1,
+    1,
+  );
+
+  for (const path of glob) {
+    // Skip already added name.
+    const parsed = parse(path);
+    const key = `${basename(parsed.dir)}/${parsed.name}`;
+    if (key in paths) {
+      continue;
+    }
+
+    paths[key] = path;
+  }
+
+  return paths;
 }

@@ -3,7 +3,11 @@ import { encoding } from "../deps/encoding_japanese.ts";
 import { Encode } from "../types.ts";
 import { getKanaTable } from "../kana.ts";
 import { TextLineStream } from "../deps/std/streams.ts";
-import { Dictionary, HenkanType, Source } from "../dictionary.ts";
+import {
+  Dictionary as BaseDictionary,
+  HenkanType,
+  Source as BaseSource,
+} from "../dictionary.ts";
 import type { CompletionData, Encoding, SkkServerOptions } from "../types.ts";
 
 type Server = {
@@ -12,9 +16,9 @@ type Server = {
   writer: WritableStreamDefaultWriter<Uint8Array>;
 };
 
-export class SkkServerSource implements Source {
-  async getDictionaries(): Promise<Dictionary[]> {
-    const skkServer = new SkkServerDictionary({
+export class Source implements BaseSource {
+  async getDictionaries(): Promise<BaseDictionary[]> {
+    const skkServer = new Dictionary({
       hostname: config.skkServerHost,
       port: config.skkServerPort,
       requestEnc: config.skkServerReqEnc,
@@ -34,7 +38,7 @@ export class SkkServerSource implements Source {
   }
 }
 
-export class SkkServerDictionary implements Dictionary {
+export class Dictionary implements BaseDictionary {
   #server: Server | undefined;
   responseEncoding: Encoding;
   requestEncoding: Encoding;

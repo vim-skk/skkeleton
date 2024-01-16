@@ -2,24 +2,24 @@ import { config } from "../config.ts";
 import { getKanaTable } from "../kana.ts";
 import type { CompletionData, RankData } from "../types.ts";
 import {
-  Dictionary,
+  Dictionary as BaseDictionary,
   HenkanType,
   okuriAriMarker,
   okuriNasiMarker,
-  Source,
+  Source as BaseSource,
   UserDictionary,
   UserDictionaryPath,
 } from "../dictionary.ts";
 import { wrap } from "../deps/iterator_helpers.ts";
 import { assert, is } from "../deps/unknownutil.ts";
 
-export class UserDictionarySource implements Source {
-  async getDictionaries(): Promise<Dictionary[]> {
+export class Source implements BaseSource {
+  async getDictionaries(): Promise<BaseDictionary[]> {
     return [await this.getUserDictionary()];
   }
 
   async getUserDictionary(): Promise<UserDictionary> {
-    const userDictionary = new UserDictionaryDictionary();
+    const userDictionary = new Dictionary();
     try {
       await userDictionary.load({
         path: config.userDictionary,
@@ -37,7 +37,7 @@ export class UserDictionarySource implements Source {
   }
 }
 
-export class UserDictionaryDictionary implements UserDictionary {
+export class Dictionary implements UserDictionary {
   #okuriAri: Map<string, string[]>;
   #okuriNasi: Map<string, string[]>;
   #rank: Map<string, number>;

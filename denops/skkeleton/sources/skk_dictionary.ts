@@ -3,11 +3,11 @@ import { getKanaTable } from "../kana.ts";
 import { readFileWithEncoding } from "../util.ts";
 import type { CompletionData } from "../types.ts";
 import {
-  Dictionary,
+  Dictionary as BaseDictionary,
   HenkanType,
   okuriAriMarker,
   okuriNasiMarker,
-  Source,
+  Source as BaseSource,
   wrapDictionary,
 } from "../dictionary.ts";
 import { jisyoschema, jsonschema, msgpack, yaml } from "../deps/dictionary.ts";
@@ -17,12 +17,12 @@ interface Jisyo {
   okuri_nasi: Record<string, string[]>;
 }
 
-export class SkkDictionarySource implements Source {
-  async getDictionaries(): Promise<Dictionary[]> {
+export class Source implements BaseSource {
+  async getDictionaries(): Promise<BaseDictionary[]> {
     const globalDictionaries = await Promise.all(
       config.globalDictionaries.map(async ([path, encodingName]) => {
         try {
-          const dict = new SkkDictionary();
+          const dict = new Dictionary();
           await dict.load(path, encodingName);
           return dict;
         } catch (e) {
@@ -36,7 +36,7 @@ export class SkkDictionarySource implements Source {
       }),
     );
 
-    const dictionaries: Dictionary[] = [];
+    const dictionaries: BaseDictionary[] = [];
     for (const d of globalDictionaries) {
       if (d) {
         dictionaries.push(wrapDictionary(d));
@@ -47,7 +47,7 @@ export class SkkDictionarySource implements Source {
   }
 }
 
-export class SkkDictionary implements Dictionary {
+export class Dictionary implements BaseDictionary {
   #okuriAri: Map<string, string[]>;
   #okuriNasi: Map<string, string[]>;
 

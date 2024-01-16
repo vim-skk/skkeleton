@@ -4,7 +4,7 @@ import { assert, AssertError, is } from "./deps/unknownutil.ts";
 import { functions, modeFunctions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { load as loadDictionary } from "./dictionary.ts";
-import { DenoKvDictionary } from "./sources/deno_kv.ts";
+import { Dictionary as DenoKvDictionary } from "./sources/deno_kv.ts";
 import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { initializeStateWithAbbrev } from "./mode.ts";
@@ -64,7 +64,7 @@ async function init(denops: Denops) {
     console.log(e);
   }
   currentContext.get().denops = denops;
-  currentLibrary.setInitializer(loadDictionary);
+  currentLibrary.setInitializer(() => loadDictionary(denops));
   await receiveNotation(denops);
   autocmd.group(denops, "skkeleton-internal-denops", (helper) => {
     helper.remove("*");
