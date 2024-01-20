@@ -255,6 +255,8 @@ function buildResult(result: string): HandleResult {
 }
 
 export async function main(denops: Denops) {
+  // Note: pending initialize for reload plugin
+  initialized = false;
   if (await vars.g.get(denops, "skkeleton#debug", false)) {
     config.debug = true;
   }
@@ -350,7 +352,10 @@ export async function main(denops: Denops) {
     async getConfig() {
       return config;
     },
-    async initialize() {
+    async initialize(force = false) {
+      if (force) {
+        initialized = false;
+      }
       await init(denops);
 
       // NOTE: Initialize dictionary
