@@ -19,7 +19,7 @@ export async function escape(context: Context) {
       helper.define(
         "InsertEnter",
         "<buffer>",
-        `call denops#request('${denops.name}', 'enable', [])`,
+        `call skkeleton#handle('enable', {})`,
         { once: true },
       );
     });
