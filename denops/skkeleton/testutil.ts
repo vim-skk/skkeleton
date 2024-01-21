@@ -16,6 +16,7 @@ export function test(def: DenopsTest.TestDefinition): void {
     ...def,
     async fn(denops: Denops, t: Deno.TestContext) {
       await main(denops);
+      await denops.dispatcher.initialize(true);
       await autocmd.emit(denops, "User", "DenopsSystemPluginPost:skkeleton", {
         nomodeline: true,
       });

@@ -4,12 +4,13 @@ import { assert, AssertError, is } from "./deps/unknownutil.ts";
 import { functions, modeFunctions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { load as loadDictionary } from "./dictionary.ts";
-import { DenoKvDictionary } from "./sources/deno_kv.ts";
+import { Dictionary as DenoKvDictionary } from "./sources/deno_kv.ts";
 import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { initializeStateWithAbbrev } from "./mode.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { currentContext, currentLibrary, variables } from "./store.ts";
+import { globpath } from "./util.ts";
 import type { CompletionData, RankData } from "./types.ts";
 
 type Opts = {
@@ -64,8 +65,18 @@ async function init(denops: Denops) {
     console.log(e);
   }
   currentContext.get().denops = denops;
-  currentLibrary.setInitializer(loadDictionary);
+
+  currentLibrary.setInitializer(async () =>
+    loadDictionary(
+      await globpath(
+        denops,
+        "denops/skkeleton/sources",
+      ),
+    )
+  );
+
   await receiveNotation(denops);
+
   autocmd.group(denops, "skkeleton-internal-denops", (helper) => {
     helper.remove("*");
     // Note: 使い終わったステートを初期化する
@@ -81,11 +92,13 @@ async function init(denops: Denops) {
       `call skkeleton#disable()`,
     );
   });
+
   try {
     await denops.cmd("doautocmd <nomodeline> User skkeleton-initialize-post");
   } catch (e) {
     console.log(e);
   }
+
   initialized = true;
 }
 
@@ -242,6 +255,8 @@ function buildResult(result: string): HandleResult {
 }
 
 export async function main(denops: Denops) {
+  // Note: pending initialize for reload plugin
+  initialized = false;
   if (await vars.g.get(denops, "skkeleton#debug", false)) {
     config.debug = true;
   }
@@ -337,7 +352,10 @@ export async function main(denops: Denops) {
     async getConfig() {
       return config;
     },
-    async initialize() {
+    async initialize(force = false) {
+      if (force) {
+        initialized = false;
+      }
       await init(denops);
 
       // NOTE: Initialize dictionary

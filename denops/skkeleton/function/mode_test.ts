@@ -53,27 +53,6 @@ test({
 });
 
 Deno.test({
-  name: "can convert okuri string properly when mode changed",
-  async fn() {
-    const lib = await currentLibrary.get();
-    await lib.registerHenkanResult("okuriari", "はg", "剥");
-    const context = currentContext.init();
-
-    await katakana(context);
-    await dispatch(context, ";ha;ge");
-    assertEquals(context.toString(), "▼剥ゲ");
-    await kakutei(context);
-    assertEquals(context.preEdit.output(""), "剥ゲ");
-
-    await hankatakana(context);
-    await dispatch(context, ";ha;ge");
-    assertEquals(context.toString(), "▼剥ｹﾞ");
-    await kakutei(context);
-    assertEquals(context.preEdit.output(""), "剥ｹﾞ");
-  },
-});
-
-Deno.test({
   name: "abbrev",
   async fn() {
     const c = currentContext.init();
@@ -97,6 +76,28 @@ Deno.test({
     await kakutei(c);
     await kanaInput(c, "A");
     assertEquals(c.toString(), "▽あ");
+  },
+});
+
+test({
+  mode: "all",
+  name: "can convert okuri string properly when mode changed",
+  async fn(_d: Denops) {
+    const lib = await currentLibrary.get();
+    await lib.registerHenkanResult("okuriari", "はg", "剥");
+    const context = currentContext.init();
+
+    await katakana(context);
+    await dispatch(context, ";ha;ge");
+    assertEquals(context.toString(), "▼剥ゲ");
+    await kakutei(context);
+    assertEquals(context.preEdit.output(""), "剥ゲ");
+
+    await hankatakana(context);
+    await dispatch(context, ";ha;ge");
+    assertEquals(context.toString(), "▼剥ｹﾞ");
+    await kakutei(context);
+    assertEquals(context.preEdit.output(""), "剥ｹﾞ");
   },
 });
 

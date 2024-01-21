@@ -1,13 +1,9 @@
 import { config } from "./config.ts";
+import { toFileUrl } from "./deps/std/path.ts";
 import { JpNum } from "./deps/japanese_numeral.ts";
 import { RomanNum } from "./deps/roman.ts";
 import { zip } from "./deps/std/collections.ts";
 import type { CompletionData, RankData } from "./types.ts";
-import { UserDictionarySource } from "./sources/user_dictionary.ts";
-import { SkkDictionarySource } from "./sources/skk_dictionary.ts";
-import { DenoKvSource } from "./sources/deno_kv.ts";
-import { SkkServerSource } from "./sources/skk_server.ts";
-import { GoogleJapaneseInputSource } from "./sources/google_japanese_input.ts";
 
 export const okuriAriMarker = ";; okuri-ari entries.";
 export const okuriNasiMarker = ";; okuri-nasi entries.";
@@ -308,30 +304,27 @@ export class Library {
   }
 }
 
-export async function load(): Promise<Library> {
-  const userDictionary = await (new UserDictionarySource()).getUserDictionary();
+export async function load(paths: Record<string, string>): Promise<Library> {
+  const userMod = await import(
+    toFileUrl(paths["sources/user_dictionary"]).href
+  );
+  const userDictionary = await (new userMod.Source()).getUserDictionary();
 
   const dictionaries: Dictionary[] = [];
   for (const source of config.sources) {
-    if (source === "skk_dictionary") {
-      dictionaries.push(
-        ...await (new SkkDictionarySource().getDictionaries()),
-      );
-    } else if (source === "deno_kv") {
-      dictionaries.push(
-        ...await (new DenoKvSource().getDictionaries()),
-      );
-    } else if (source === "skk_server") {
-      dictionaries.push(
-        ...await (new SkkServerSource().getDictionaries()),
-      );
-    } else if (source === "google_japanese_input") {
-      dictionaries.push(
-        ...await (new GoogleJapaneseInputSource().getDictionaries()),
-      );
-    } else {
+    const key = `sources/${source}`;
+    const path = paths[key];
+
+    if (!path) {
       console.error(`Invalid source name: ${source}`);
+      continue;
     }
+
+    const mod = await import(toFileUrl(path).href);
+
+    dictionaries.push(
+      ...await (new mod.Source().getDictionaries()),
+    );
   }
 
   return new Library(dictionaries, userDictionary);
