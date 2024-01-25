@@ -342,7 +342,8 @@ sources                                             *skkeleton-config-sources*
         |skkeleton-config-globalDictionaries| によるグローバル辞書による変換を
         有効にし、Deno KV によるキャッシュを行います。
         Note: |skkeleton-config-databasePath| の設定が必要です。
-        Note: |g:denops#server#deno_args| に "--unstable-kv" の追加が必要です。
+        Note: |g:denops#server#deno_args| に "--unstable-kv" の追加が必要で
+        す。
 
         "skk_server":
         辞書サーバー機能による変換を有効にします。
