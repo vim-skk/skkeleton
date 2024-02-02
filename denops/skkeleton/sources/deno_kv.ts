@@ -35,6 +35,14 @@ export class Source implements BaseSource {
   async getDictionaries(): Promise<BaseDictionary[]> {
     const globalDictionaries = await Promise.all(
       config.globalDictionaries.map(async ([path, encodingName]) => {
+        if (!Deno.Kv) {
+          console.error("Deno KV initialization is failed");
+          console.error(
+            "'--unstable-kv' is needed for g:denops#server#deno_args.",
+          );
+          return undefined;
+        }
+
         try {
           const dict = await Dictionary.create(path, encodingName);
           await dict.load();
