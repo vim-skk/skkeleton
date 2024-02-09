@@ -121,29 +121,35 @@ export class Dictionary implements BaseDictionary {
       for (const [key, kanas] of table) {
         if (key.startsWith(feed) && kanas.length > 1) {
           const feedPrefix = prefix + (kanas as string[])[0];
-          // `start` is need to get the exact matched entry.
-          // https://github.com/denoland/deno/issues/21711
-          for await (
-            const entry of this.#db.list<string[]>({
-              prefix: [this.#path, "okurinasi", ...feedPrefix],
-            })
-          ) {
-            candidates.push([entry.key.slice(2).join(""), entry.value]);
-          }
+          candidates.push(...await this.#searchByPrefix(feedPrefix));
         }
       }
     } else {
-      for await (
-        const entry of this.#db.list<string[]>({
-          prefix: [this.#path, "okurinasi", ...prefix],
-        })
-      ) {
-        candidates.push([entry.key.slice(2).join(""), entry.value]);
-      }
+      candidates.push(...await this.#searchByPrefix(prefix));
     }
 
     candidates.sort((a, b) => a[0].localeCompare(b[0]));
     return Promise.resolve(candidates);
+  }
+
+  async #searchByPrefix(prefix: string): Promise<CompletionData> {
+    const candidates: CompletionData = [];
+    const exactlyMatch = await this.#db.get<string[]>([
+      this.#path,
+      "okurinasi",
+      ...prefix,
+    ]);
+    if (exactlyMatch.value != null) {
+      candidates.push([prefix, exactlyMatch.value]);
+    }
+    for await (
+      const entry of this.#db.list<string[]>({
+        prefix: [this.#path, "okurinasi", ...prefix],
+      })
+    ) {
+      candidates.push([entry.key.slice(2).join(""), entry.value]);
+    }
+    return candidates;
   }
 
   async load(force = false) {
