@@ -126,7 +126,6 @@ export class Dictionary implements BaseDictionary {
           for await (
             const entry of this.#db.list<string[]>({
               prefix: [this.#path, "okurinasi", ...feedPrefix],
-              start: [this.#path, "okurinasi", ...feedPrefix],
             })
           ) {
             candidates.push([entry.key.slice(2).join(""), entry.value]);
@@ -137,7 +136,6 @@ export class Dictionary implements BaseDictionary {
       for await (
         const entry of this.#db.list<string[]>({
           prefix: [this.#path, "okurinasi", ...prefix],
-          start: [this.#path, "okurinasi", ...prefix],
         })
       ) {
         candidates.push([entry.key.slice(2).join(""), entry.value]);
