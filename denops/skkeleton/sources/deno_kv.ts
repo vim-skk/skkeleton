@@ -134,6 +134,14 @@ export class Dictionary implements BaseDictionary {
 
   async #searchByPrefix(prefix: string): Promise<CompletionData> {
     const candidates: CompletionData = [];
+    const exactlyMatch = await this.#db.get<string[]>([
+      this.#path,
+      "okurinasi",
+      ...prefix,
+    ]);
+    if (exactlyMatch.value != null) {
+      candidates.push([prefix, exactlyMatch.value]);
+    }
     for await (
       const entry of this.#db.list<string[]>({
         prefix: [this.#path, "okurinasi", ...prefix],
