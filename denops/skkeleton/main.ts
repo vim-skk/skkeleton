@@ -1,6 +1,6 @@
 import { config, setConfig } from "./config.ts";
 import { autocmd, Denops, fn, op, vars } from "./deps.ts";
-import { assert, AssertError, is } from "./deps/unknownutil.ts";
+import { is, u } from "./deps/unknownutil.ts";
 import { functions, modeFunctions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { load as loadDictionary } from "./dictionary.ts";
@@ -45,7 +45,7 @@ function isOpts(x: any): x is Opts {
 
 function assertOpts(x: unknown): asserts x is Opts {
   if (!isOpts(x)) {
-    throw new AssertError("value must be Opts");
+    throw new u.AssertError("value must be Opts");
   }
 }
 
@@ -262,18 +262,18 @@ export async function main(denops: Denops) {
   }
   denops.dispatcher = {
     async config(config: unknown) {
-      assert(config, is.Record);
+      u.assert(config, is.Record);
       await setConfig(config, denops);
       return;
     },
     async registerKeyMap(state: unknown, key: unknown, funcName: unknown) {
-      assert(state, is.String);
-      assert(key, is.String);
+      u.assert(state, is.String);
+      u.assert(key, is.String);
       await receiveNotation(denops);
       registerKeyMap(state, key, funcName);
     },
     registerKanaTable(tableName: unknown, table: unknown, create: unknown) {
-      assert(tableName, is.String);
+      u.assert(tableName, is.String);
       registerKanaTable(tableName, table, !!create);
       return Promise.resolve();
     },
@@ -285,6 +285,8 @@ export async function main(denops: Denops) {
       await init(denops);
       if (func === "handleKey") {
         return buildResult(await handle(opts, vimStatus));
+      } else if (func === "setState") {
+        return buildResult(await enable(opts, vimStatus));
       } else if (func === "enable") {
         return buildResult(await enable(opts, vimStatus));
       } else if (func === "disable") {
@@ -337,8 +339,8 @@ export async function main(denops: Denops) {
       await denops.dispatcher.completeCallback(kana, word);
     },
     async completeCallback(kana: unknown, word: unknown) {
-      assert(kana, is.String);
-      assert(word, is.String);
+      u.assert(kana, is.String);
+      u.assert(word, is.String);
       const lib = await currentLibrary.get();
       await lib.registerHenkanResult("okurinasi", kana, word);
       const context = currentContext.get();
@@ -362,9 +364,9 @@ export async function main(denops: Denops) {
       await currentLibrary.get();
     },
     async updateDatabase(path: unknown, encoding: unknown, force: unknown) {
-      assert(path, is.String);
-      assert(encoding, is.String);
-      assert(force, is.Boolean);
+      u.assert(path, is.String);
+      u.assert(encoding, is.String);
+      u.assert(force, is.Boolean);
       await DenoKvDictionary.create(path, encoding)
         .then((dict) => dict.load(force));
       await denops.cmd(`echomsg 'updated database: "${path}"'`);

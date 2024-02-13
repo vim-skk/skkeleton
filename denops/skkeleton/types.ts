@@ -1,5 +1,3 @@
-import { isRecord } from "./deps/unknownutil.ts";
-
 export type CompletionData = [string, string[]][];
 export type RankData = [string, number][];
 
@@ -7,13 +5,6 @@ export type CompletionMetadata = {
   tag: "skkeleton";
   kana: string;
 };
-
-export function asCompletionMetadata(x: unknown): CompletionMetadata | null {
-  if (isRecord(x) && x.tag === "skkeleton") {
-    return x as CompletionMetadata;
-  }
-  return null;
-}
 
 export const Encode = {
   "utf-32": "UTF32",

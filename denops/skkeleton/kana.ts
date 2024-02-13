@@ -1,6 +1,6 @@
 import { config } from "./config.ts";
 import { distinctBy } from "./deps/std/collections.ts";
-import { assert, is } from "./deps/unknownutil.ts";
+import { is, u } from "./deps/unknownutil.ts";
 import { functions } from "./function.ts";
 import { romToHira } from "./kana/rom_hira.ts";
 import { romToZen } from "./kana/rom_zen.ts";
@@ -48,7 +48,7 @@ export function registerKanaTable(
     console.log("skkeleton: new kana table");
     console.log(`name: ${name}, table: ${Deno.inspect(rawTable)}`);
   }
-  assert(rawTable, is.Record);
+  u.assert(rawTable, is.Record);
   const table: KanaTable = Object.entries(rawTable).map((
     e,
   ) => [e[0], asKanaResult(e[1])]);
