@@ -1,4 +1,5 @@
 import { config } from "./config.ts";
+import { is } from "./deps/unknownutil.ts";
 import type { HenkanType } from "./dictionary.ts";
 import { getKanaTable } from "./kana.ts";
 import { KanaTable } from "./kana/type.ts";
@@ -97,5 +98,26 @@ export function toString(state: State): string {
       return "\x1b";
     default:
       return "";
+  }
+}
+
+const isOpts = is.ObjectOf({
+  phase: is.LiteralOneOf(["input", "input:okuriari", "input:okurinasi"]),
+  okurinasi: is.OptionalOf(is.String),
+  okuriari: is.OptionalOf(is.String),
+});
+
+export function setState(state: State, opts: unknown) {
+  initializeState(state);
+  const inputState = state as InputState;
+  if (isOpts(opts)) {
+    if (opts.phase === "input:okurinasi") {
+      inputState.mode = "okurinasi";
+    }
+    if (opts.phase === "input:okuriari") {
+      inputState.mode = "okuriari";
+    }
+    inputState.henkanFeed = opts.okurinasi ?? "";
+    inputState.okuriFeed = opts.okuriari ?? "";
   }
 }

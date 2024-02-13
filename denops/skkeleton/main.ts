@@ -12,6 +12,7 @@ import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { currentContext, currentLibrary, variables } from "./store.ts";
 import { globpath } from "./util.ts";
 import type { CompletionData, RankData } from "./types.ts";
+import { setState } from "./state.ts";
 
 type Opts = {
   key: string | string[];
@@ -286,7 +287,9 @@ export async function main(denops: Denops) {
       if (func === "handleKey") {
         return buildResult(await handle(opts, vimStatus));
       } else if (func === "setState") {
-        return buildResult(await enable(opts, vimStatus));
+        const context = currentContext.get();
+        setState(context.state, opts);
+        return buildResult(context.preEdit.output(context.toString()));
       } else if (func === "enable") {
         return buildResult(await enable(opts, vimStatus));
       } else if (func === "disable") {
