@@ -225,7 +225,7 @@ eggLikeNewline                               *skkeleton-config-eggLikeNewline*
 
 globalDictionaries                       *skkeleton-config-globalDictionaries*
         (デフォルト [])
-        複数のグローバル辞書を使用する際に指定するオプションです。
+        グローバル辞書のパスとエンコーディング
         指定する値はグローバル辞書のパスまたは
         パスとエンコーディングからなるタプルの配列になります。
         エンコーディングを指定しない場合は自動判定されます。
