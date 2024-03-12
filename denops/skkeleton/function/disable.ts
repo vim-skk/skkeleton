@@ -1,6 +1,6 @@
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
-import { autocmd, op } from "../deps.ts";
+import { autocmd } from "../deps.ts";
 import { initializeState } from "../state.ts";
 import { kakutei } from "./common.ts";
 

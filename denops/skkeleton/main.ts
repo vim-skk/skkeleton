@@ -1,5 +1,5 @@
 import { config, setConfig } from "./config.ts";
-import { autocmd, Denops, fn, op, vars } from "./deps.ts";
+import { autocmd, Denops, fn, vars } from "./deps.ts";
 import { is, u } from "./deps/unknownutil.ts";
 import { functions, modeFunctions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
