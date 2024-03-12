@@ -12,10 +12,11 @@ export async function registerWord(context: Context): Promise<boolean> {
   const denops = context.denops!;
   const state = context.state as HenkanState;
   await batch(denops, async (denops) => {
-    await denops.call("skkeleton#save_map", "c", cmapKeys);
+    await denops.call("skkeleton#internal#map#save", "c");
     for (const k of cmapKeys) {
       await mapping.map(denops, k, "__skkeleton_return__<CR>", {
         buffer: true,
+        silent: true,
         mode: "c",
       });
     }

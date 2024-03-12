@@ -34,3 +34,35 @@ test({
     assertEquals(context.preEdit.output(""), "");
   },
 });
+
+test({
+  mode: "all",
+  name: "Unregistered internal mapping",
+  async fn(denops: Denops) {
+    currentKanaTable.get();
+    const state: HenkanState = {
+      type: "henkan",
+      mode: "okuriari",
+      directInput: false,
+      feed: "",
+      henkanFeed: "",
+      okuriFeed: "hoge",
+      previousFeed: false,
+      table: getKanaTable("rom"),
+      word: "",
+      candidates: [],
+      candidateIndex: -1,
+    };
+    const context = currentContext.get();
+    context.state = state;
+    await denops.cmd(
+      'autocmd CmdlineEnter * ++once call feedkeys("\\<Esc>", "n")',
+    );
+    await registerWord(context);
+    const ctrlg = await denops.call("maparg", "c", "<C-g>", false, true);
+    const esc = await denops.call("maparg", "c", "<Esc>", false, true);
+
+    assertEquals(ctrlg, {});
+    assertEquals(esc, {});
+  },
+});
