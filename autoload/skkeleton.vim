@@ -248,6 +248,10 @@ endfunction
 function! skkeleton#disable()
   if g:skkeleton#enabled
     doautocmd <nomodeline> User skkeleton-disable-pre
+    " cmdline関係ないオプションだけなので辞書登録時はスキップ
+    if mode() !=# 'c'
+      call skkeleton#internal#option#restore()
+    endif
     call skkeleton#unmap()
     let g:skkeleton#mode = ''
     doautocmd <nomodeline> User skkeleton-mode-changed

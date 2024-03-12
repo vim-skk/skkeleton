@@ -6,7 +6,6 @@ import { kakutei } from "./common.ts";
 
 export async function disable(context: Context) {
   const denops = context.denops!;
-  await op.textwidth.setLocal(denops, context.textwidth);
   await kakutei(context);
   await denops.call("skkeleton#disable");
   initializeState(context.state);

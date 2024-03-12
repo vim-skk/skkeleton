@@ -18,7 +18,6 @@ export class Context {
   mode = "hira"; // state of skkeleton#mode
   preEdit = new PreEdit();
   vimMode = "";
-  textwidth = 0;
   lastCandidate: CandidateResult = {
     type: "okurinasi",
     word: "",
