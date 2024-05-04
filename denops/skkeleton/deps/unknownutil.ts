@@ -1,2 +1,2 @@
-export * as u from "https://deno.land/x/unknownutil@v3.16.0/mod.ts";
-export { is } from "https://deno.land/x/unknownutil@v3.16.0/mod.ts";
+export * as u from "https://deno.land/x/unknownutil@v3.18.0/mod.ts";
+export { is } from "https://deno.land/x/unknownutil@v3.18.0/mod.ts";

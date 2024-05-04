@@ -22,7 +22,7 @@ See [doc](https://github.com/vim-skk/skkeleton/tree/main/doc/skkeleton.jax)
 
 This plugin is using [denops.vim](https://github.com/vim-denops/denops.vim).
 
-~~Required version is the same as `denops.vim`.~~ Required Deno 1.38.0+ now.
+~~Required version is the same as `denops.vim`.~~ Required Deno 1.42.0+ now.
 
 # License
 

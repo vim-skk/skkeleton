@@ -1,1 +1,1 @@
-export { TextLineStream } from "https://deno.land/std@0.215.0/streams/mod.ts";
+export { TextLineStream } from "jsr:@std/streams@0.224.0";
