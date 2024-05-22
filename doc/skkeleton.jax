@@ -383,6 +383,8 @@ skkeleton#register_kanatable({tableName}, {table} [, {create}])
                         2番目の要素は仮名が入力される際に追加で入力される
                         文字を示します。省略すると空文字列になります。
                         (ttで「っ」を入力する際などに使用されます)
+                |falsy| な値:
+                        テーブルから割り当てを削除します。
 >
     " 例
     call skkeleton#register_kanatable('rom', {
@@ -401,6 +403,18 @@ skkeleton#register_kanatable({tableName}, {table} [, {create}])
     call skkeleton#register_kanatable('rom', {
           \   ',': ['，', ''],
           \   '.': ['．', ''],
+          \ })
+    " lで小文字を打てるようにする
+    call skkeleton#register_kanatable('rom', {
+          \   'l': v:false,
+          \   'la': ['ぁ'],
+          \   'li': ['い'],
+          \   'lu': ['ぅ'],
+          \   'le': ['ぇ'],
+          \   'lo': ['ぉ'],
+          \   'lya': ['ゃ'],
+          \   'lyu': ['ゅ'],
+          \   'lyo': ['ょ'],
           \ })
 <
                                                  *skkeleton#register_keymap()*

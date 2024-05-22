@@ -13,6 +13,11 @@ Deno.test({
       "jj": "newline",
       "z,": ["―", ""],
       "z.": ["―"],
+      "!": ["!!"],
+    });
+    // can delete kana with falsy value
+    registerKanaTable("rom", {
+      "!": false,
     });
     const context = new Context();
     await dispatch(context, "jj");
@@ -21,6 +26,8 @@ Deno.test({
     assertEquals(context.preEdit.output(""), "―");
     await dispatch(context, "z.");
     assertEquals(context.preEdit.output(""), "―");
+    await dispatch(context, "!");
+    assertEquals(context.preEdit.output(""), "!");
   },
 });
 
