@@ -408,7 +408,7 @@ skkeleton#register_kanatable({tableName}, {table} [, {create}])
     call skkeleton#register_kanatable('rom', {
           \   'l': v:false,
           \   'la': ['ぁ'],
-          \   'li': ['い'],
+          \   'li': ['ぃ'],
           \   'lu': ['ぅ'],
           \   'le': ['ぇ'],
           \   'lo': ['ぉ'],
