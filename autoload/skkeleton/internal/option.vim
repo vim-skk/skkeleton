@@ -6,6 +6,10 @@ function s:ensure(dict, key, value)
 endfunction
 
 function skkeleton#internal#option#save_and_set()
+  " cmdline関係ないオプションだけなので辞書登録時はスキップ
+  if mode() !=# 'c'
+    call skkeleton#internal#option#restore()
+  endif
   call s:ensure(s:textwidth, bufnr(), &l:textwidth)
   call s:ensure(s:virtualedit, win_getid(), &l:virtualedit)
   " 不意に改行が発生してバッファが壊れるため 'textwidth' を無効化
