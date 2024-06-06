@@ -8,7 +8,7 @@ endfunction
 function skkeleton#internal#option#save_and_set()
   " cmdline関係ないオプションだけなので辞書登録時はスキップ
   if mode() !=# 'c'
-    call skkeleton#internal#option#restore()
+    return
   endif
   call s:ensure(s:textwidth, bufnr(), &l:textwidth)
   call s:ensure(s:virtualedit, win_getid(), &l:virtualedit)
