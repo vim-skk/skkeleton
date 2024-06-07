@@ -6,8 +6,8 @@ function s:ensure(dict, key, value)
 endfunction
 
 function skkeleton#internal#option#save_and_set()
-  " cmdline関係ないオプションだけなので辞書登録時はスキップ
-  if mode() !=# 'c'
+  " cmdline関係ないオプションだけなのでcmdlineでは飛ばす
+  if mode() ==# 'c'
     return
   endif
   call s:ensure(s:textwidth, bufnr(), &l:textwidth)
@@ -19,6 +19,9 @@ function skkeleton#internal#option#save_and_set()
 endfunction
 
 function skkeleton#internal#option#restore()
+  if mode() ==# 'c'
+    return
+  endif
   let bufnr = bufnr()
   let winid = win_getid()
   if has_key(s:textwidth, bufnr)
