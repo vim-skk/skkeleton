@@ -87,5 +87,9 @@ abbrev                                            *skkeleton-functions-abbrev*
         (input)
         abbrevモードに入ります。
 
+affix                                              *skkeleton-functions-affix*
+        (input, henkan)
+        接頭辞・接尾辞の入力を開始します。
+        開始できない場合はマッピングしたキーに従ってかな入力します。
 
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
