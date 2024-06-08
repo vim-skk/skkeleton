@@ -12,7 +12,12 @@ import {
   henkanForward,
   henkanInput,
 } from "./function/henkan.ts";
-import { deleteChar, henkanPoint, kakuteiFeed } from "./function/input.ts";
+import {
+  affix,
+  deleteChar,
+  henkanPoint,
+  kakuteiFeed,
+} from "./function/input.ts";
 import {
   abbrev,
   hankatakana,
@@ -50,6 +55,7 @@ export const functions = new Cell<Record<string, Func>>(() => ({
   purgeCandidate,
   henkanInput,
   // input
+  affix,
   kakuteiFeed,
   henkanPoint,
   deleteChar,

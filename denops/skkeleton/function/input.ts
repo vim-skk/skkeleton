@@ -1,4 +1,5 @@
 import { config } from "../config.ts";
+import { kakutei } from "./common.ts";
 import type { Context } from "../context.ts";
 import { KanaResult } from "../kana/type.ts";
 import { PreEdit } from "../preedit.ts";
@@ -185,4 +186,29 @@ export async function deleteChar(context: Context) {
   } else {
     context.kakutei("\b");
   }
+}
+
+export async function affix(context: Context, key: string) {
+  // prefix
+  if (
+    context.state.type === "input" &&
+    !context.state.directInput &&
+    context.state.henkanFeed.length > 0 &&
+    ["okurinasi", "okuriari"].includes(context.state.mode)
+  ) {
+    await acceptResult(context, [">", ""], "");
+    await henkanFirst(context, key);
+    return;
+  }
+
+  // suffix
+  if (context.state.type == "henkan") {
+    await kakutei(context);
+    henkanPoint(context);
+    await acceptResult(context, [">", ""], "");
+    return;
+  }
+
+  // non-affix
+  await kanaInput(context, ">");
 }
