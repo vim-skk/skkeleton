@@ -8,9 +8,12 @@ export type State = InputState | HenkanState | EscapeState;
 
 export type InputMode = "direct" | HenkanType;
 
+export type AffixType = "prefix" | "suffix";
+
 export type InputState = {
   type: "input";
   mode: InputMode;
+  affix?: AffixType;
   // trueだと大文字が打たれた時に変換ポイントを切らなくなる
   // abbrevに必要
   directInput: boolean;
@@ -69,6 +72,7 @@ export function initializeState(
 export type HenkanState = Omit<InputState, "type"> & {
   type: "henkan";
   mode: HenkanType;
+  affix?: AffixType;
   word: string;
   candidates: string[];
   candidateIndex: number;
