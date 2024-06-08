@@ -1,3 +1,4 @@
+import { modifyCandidate } from "./candidate.ts";
 import { config } from "./config.ts";
 import type { HenkanType } from "./dictionary.ts";
 import { getKanaTable } from "./kana.ts";
@@ -80,7 +81,8 @@ export type HenkanState = Omit<InputState, "type"> & {
 
 export function henkanStateToString(state: HenkanState): string {
   const candidate =
-    state.candidates[state.candidateIndex]?.replace(/;.*/, "") ?? "error";
+    modifyCandidate(state.candidates[state.candidateIndex], state.affix) ??
+      "error";
   const okuriStr = state.converter
     ? state.converter(state.okuriFeed)
     : state.okuriFeed;
