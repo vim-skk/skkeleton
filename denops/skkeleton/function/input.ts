@@ -210,5 +210,5 @@ export async function affix(context: Context, key: string) {
   }
 
   // non-affix
-  await kanaInput(context, ">");
+  await kanaInput(context, key);
 }
