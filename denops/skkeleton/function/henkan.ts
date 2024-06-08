@@ -36,6 +36,13 @@ export async function henkanFirst(context: Context, key: string) {
     ? state.henkanFeed
     : getOkuriStr(state.henkanFeed, state.okuriFeed);
   state.word = word;
+  if (!state.directInput && ["okurinasi", "okuriari"].includes(state.mode)) {
+    state.affix = state.henkanFeed.match(">$")
+      ? "prefix"
+      : state.henkanFeed.match("^>")
+      ? "suffix"
+      : undefined;
+  }
   state.candidates = await lib.getHenkanResult(state.mode, word);
   await henkanForward(context);
 }
