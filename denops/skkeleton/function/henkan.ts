@@ -37,7 +37,14 @@ export async function henkanFirst(context: Context, key: string) {
     ? state.henkanFeed
     : getOkuriStr(state.henkanFeed, state.okuriFeed);
   state.word = word;
-  if (!state.directInput && ["okurinasi", "okuriari"].includes(state.mode)) {
+  if (
+    state.affix == null &&
+    !state.directInput &&
+    ["okurinasi", "okuriari"].includes(state.mode)
+  ) {
+    // When user maunally uses henkanPoint,
+    // henkanFeed like `>prefix` and `suffix>` may
+    // reach here with undefined affix
     state.affix = state.henkanFeed.match(">$")
       ? "prefix"
       : state.henkanFeed.match("^>")

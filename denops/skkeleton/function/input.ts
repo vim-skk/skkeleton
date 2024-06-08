@@ -197,6 +197,7 @@ export async function affix(context: Context, key: string) {
     ["okurinasi", "okuriari"].includes(context.state.mode)
   ) {
     await acceptResult(context, [">", ""], "");
+    context.state.affix = "prefix";
     await henkanFirst(context, key);
     return;
   }
@@ -206,6 +207,7 @@ export async function affix(context: Context, key: string) {
     await kakutei(context);
     henkanPoint(context);
     await acceptResult(context, [">", ""], "");
+    context.state.affix = "suffix";
     return;
   }
 
