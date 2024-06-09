@@ -1,5 +1,4 @@
 import { config } from "../config.ts";
-import { kakutei } from "./common.ts";
 import type { Context } from "../context.ts";
 import { KanaResult } from "../kana/type.ts";
 import { PreEdit } from "../preedit.ts";
