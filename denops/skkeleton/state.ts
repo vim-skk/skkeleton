@@ -1,3 +1,4 @@
+import { modifyCandidate } from "./candidate.ts";
 import { config } from "./config.ts";
 import type { HenkanType } from "./dictionary.ts";
 import { getKanaTable } from "./kana.ts";
@@ -8,9 +9,12 @@ export type State = InputState | HenkanState | EscapeState;
 
 export type InputMode = "direct" | HenkanType;
 
+export type AffixType = "prefix" | "suffix";
+
 export type InputState = {
   type: "input";
   mode: InputMode;
+  affix?: AffixType;
   // trueだと大文字が打たれた時に変換ポイントを切らなくなる
   // abbrevに必要
   directInput: boolean;
@@ -69,6 +73,7 @@ export function initializeState(
 export type HenkanState = Omit<InputState, "type"> & {
   type: "henkan";
   mode: HenkanType;
+  affix?: AffixType;
   word: string;
   candidates: string[];
   candidateIndex: number;
@@ -76,7 +81,8 @@ export type HenkanState = Omit<InputState, "type"> & {
 
 export function henkanStateToString(state: HenkanState): string {
   const candidate =
-    state.candidates[state.candidateIndex]?.replace(/;.*/, "") ?? "error";
+    modifyCandidate(state.candidates[state.candidateIndex], state.affix) ??
+      "error";
   const okuriStr = state.converter
     ? state.converter(state.okuriFeed)
     : state.okuriFeed;

@@ -1,3 +1,4 @@
+import { modifyCandidate } from "../candidate.ts";
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { HenkanType } from "../dictionary.ts";
@@ -12,7 +13,7 @@ export async function kakutei(context: Context) {
   switch (state.type) {
     case "henkan": {
       const candidate = state.candidates[state.candidateIndex];
-      const candidateStrip = candidate?.replace(/;.*/, "");
+      const candidateMod = modifyCandidate(candidate, state.affix);
       if (candidate) {
         const lib = await currentLibrary.get();
         await lib.registerHenkanResult(
@@ -29,7 +30,7 @@ export async function kakutei(context: Context) {
       const okuriStr = state.converter
         ? state.converter(state.okuriFeed)
         : state.okuriFeed;
-      const ret = (candidateStrip ?? "error") + okuriStr;
+      const ret = (candidateMod ?? "error") + okuriStr;
       context.kakuteiWithUndoPoint(ret);
       break;
     }

@@ -70,7 +70,7 @@ async function doKakutei(
   }
 }
 
-async function acceptResult(
+export async function acceptResult(
   context: Context,
   result: KanaResult,
   feed: string,
@@ -185,4 +185,23 @@ export async function deleteChar(context: Context) {
   } else {
     context.kakutei("\b");
   }
+}
+
+export async function prefix(context: Context, key: string) {
+  if (context.state.type !== "input") {
+    return;
+  }
+
+  if (
+    !context.state.directInput &&
+    context.state.henkanFeed.length > 0 &&
+    ["okurinasi", "okuriari"].includes(context.state.mode)
+  ) {
+    await acceptResult(context, [">", ""], "");
+    context.state.affix = "prefix";
+    await henkanFirst(context, key);
+    return;
+  }
+
+  await kanaInput(context, key);
 }

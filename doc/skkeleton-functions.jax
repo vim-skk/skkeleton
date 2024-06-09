@@ -87,5 +87,13 @@ abbrev                                            *skkeleton-functions-abbrev*
         (input)
         abbrevモードに入ります。
 
+prefix                                            *skkeleton-functions-prefix*
+        (input)
+        接頭辞の入力を開始します。
+        開始できない場合はマッピングしたキーに従ってかな入力します。
+
+suffix                                            *skkeleton-functions-suffix*
+        (input)
+        接尾辞の入力を開始します。
 
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
