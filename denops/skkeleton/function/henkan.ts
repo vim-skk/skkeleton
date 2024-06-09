@@ -8,7 +8,7 @@ import { keyToNotation } from "../notation.ts";
 import { getOkuriStr } from "../okuri.ts";
 import { HenkanState, initializeState } from "../state.ts";
 import { kakutei } from "./common.ts";
-import { kakuteiFeed } from "./input.ts";
+import { acceptResult, henkanPoint, kakuteiFeed } from "./input.ts";
 import { registerWord } from "./dictionary.ts";
 
 export async function henkanFirst(context: Context, key: string) {
@@ -186,4 +186,15 @@ export async function henkanInput(context: Context, key: string) {
 
   await kakutei(context);
   await handleKey(context, keyToNotation[key] ?? key);
+}
+
+export async function suffix(context: Context) {
+  if (context.state.type !== "henkan") {
+    return;
+  }
+
+  await kakutei(context);
+  henkanPoint(context);
+  await acceptResult(context, [">", ""], "");
+  context.state.affix = "suffix";
 }

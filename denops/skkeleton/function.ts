@@ -11,12 +11,13 @@ import {
   henkanFirst,
   henkanForward,
   henkanInput,
+  suffix,
 } from "./function/henkan.ts";
 import {
-  affix,
   deleteChar,
   henkanPoint,
   kakuteiFeed,
+  prefix,
 } from "./function/input.ts";
 import {
   abbrev,
@@ -54,11 +55,12 @@ export const functions = new Cell<Record<string, Func>>(() => ({
   henkanBackward,
   purgeCandidate,
   henkanInput,
+  suffix,
   // input
-  affix,
   kakuteiFeed,
   henkanPoint,
   deleteChar,
+  prefix,
   // mode
   abbrev,
   hirakana,

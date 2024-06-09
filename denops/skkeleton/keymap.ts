@@ -7,8 +7,9 @@ import {
   henkanBackward,
   henkanForward,
   henkanInput,
+  suffix,
 } from "./function/henkan.ts";
-import { affix, deleteChar, kanaInput } from "./function/input.ts";
+import { deleteChar, kanaInput, prefix } from "./function/input.ts";
 import { hankatakana } from "./function/mode.ts";
 import { notationToKey } from "./notation.ts";
 
@@ -27,7 +28,7 @@ const input: KeyMap = {
     "<esc>": escape,
     "<nl>": kakutei,
     "<c-q>": hankatakana,
-    ">": affix,
+    ">": prefix,
   },
 };
 
@@ -40,7 +41,7 @@ const henkan: KeyMap = {
     "<space>": henkanForward,
     "x": henkanBackward,
     "X": purgeCandidate,
-    ">": affix,
+    ">": suffix,
   },
 };
 

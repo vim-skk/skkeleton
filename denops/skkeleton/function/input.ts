@@ -71,7 +71,7 @@ async function doKakutei(
   }
 }
 
-async function acceptResult(
+export async function acceptResult(
   context: Context,
   result: KanaResult,
   feed: string,
@@ -188,10 +188,12 @@ export async function deleteChar(context: Context) {
   }
 }
 
-export async function affix(context: Context, key: string) {
-  // prefix
+export async function prefix(context: Context, key: string) {
+  if (context.state.type !== "input") {
+    return;
+  }
+
   if (
-    context.state.type === "input" &&
     !context.state.directInput &&
     context.state.henkanFeed.length > 0 &&
     ["okurinasi", "okuriari"].includes(context.state.mode)
@@ -202,15 +204,5 @@ export async function affix(context: Context, key: string) {
     return;
   }
 
-  // suffix
-  if (context.state.type == "henkan") {
-    await kakutei(context);
-    henkanPoint(context);
-    await acceptResult(context, [">", ""], "");
-    context.state.affix = "suffix";
-    return;
-  }
-
-  // non-affix
   await kanaInput(context, key);
 }
