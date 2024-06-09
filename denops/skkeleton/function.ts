@@ -46,6 +46,7 @@ export const functions = new Cell<Record<string, Func>>(() => ({
   kakutei: kakuteiKey,
   newline,
   cancel,
+  purgeCandidate,
   // disable
   disable,
   escape,
@@ -53,7 +54,6 @@ export const functions = new Cell<Record<string, Func>>(() => ({
   henkanFirst,
   henkanForward,
   henkanBackward,
-  purgeCandidate,
   henkanInput,
   suffix,
   // input
