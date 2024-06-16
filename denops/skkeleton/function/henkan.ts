@@ -121,9 +121,8 @@ async function selectCandidates(context: Context) {
     }
     const candidates = state.candidates.slice(start, start + keys.length);
     const msg = candidates.map((c, i) =>
-      `${keys[i]}: ${modifyCandidate(c), state.affix}`
-    )
-      .join(" ");
+      `${keys[i]}: ${modifyCandidate(c, state.affix)}`
+    ).join(" ");
     let keyCode: number;
     try {
       keyCode = await denops.call("skkeleton#getchar", msg) as number;
