@@ -103,8 +103,8 @@ export class Dictionary implements BaseDictionary {
   }
 
   async getHenkanResult(
-    type: HenkanType,
     word: string,
+    type: HenkanType,
   ): Promise<string[]> {
     const result = await this.#db.get<string[]>([this.#path, type, ...word]);
     return result.value ?? [];

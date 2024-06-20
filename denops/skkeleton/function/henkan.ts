@@ -51,7 +51,7 @@ export async function henkanFirst(context: Context, key: string) {
       ? "suffix"
       : undefined;
   }
-  state.candidates = await lib.getHenkanResult(state.mode, word);
+  state.candidates = await lib.getHenkanResult(word, state.mode);
   await henkanForward(context);
 }
 

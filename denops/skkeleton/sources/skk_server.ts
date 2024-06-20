@@ -81,7 +81,10 @@ export class Dictionary implements BaseDictionary {
     };
   }
 
-  async getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
+  async getHenkanResult(
+    word: string,
+    _type: HenkanType,
+  ): Promise<string[]> {
     await this.connect();
 
     if (this.#server == null) return [];
@@ -118,7 +121,7 @@ export class Dictionary implements BaseDictionary {
     for (const midashi of midashis) {
       candidates.push([
         midashi,
-        await this.getHenkanResult("okurinasi", midashi),
+        await this.getHenkanResult(midashi, "okurinasi"),
       ]);
     }
 

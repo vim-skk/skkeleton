@@ -15,7 +15,10 @@ export class Source implements BaseSource {
 
 export class Dictionary implements BaseDictionary {
   async connect() {}
-  async getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
+  async getHenkanResult(
+    word: string,
+    _type: HenkanType,
+  ): Promise<string[]> {
     // It should not work for "okuriari".
     return _type === "okuriari" ? [] : await this.getMidashis(word);
   }

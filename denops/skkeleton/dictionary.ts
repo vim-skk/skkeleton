@@ -105,7 +105,10 @@ function convertNumber(pattern: string, entry: string): string {
 }
 
 export interface Dictionary {
-  getHenkanResult(type: HenkanType, word: string): Promise<string[]>;
+  getHenkanResult(
+    word: string,
+    type: HenkanType,
+  ): Promise<string[]>;
   getCompletionResult(prefix: string, feed: string): Promise<CompletionData>;
 }
 
@@ -115,17 +118,20 @@ export type UserDictionaryPath = {
 };
 
 export interface UserDictionary extends Dictionary {
-  getHenkanResult(type: HenkanType, word: string): Promise<string[]>;
+  getHenkanResult(
+    word: string,
+    type: HenkanType,
+  ): Promise<string[]>;
   getCompletionResult(prefix: string, feed: string): Promise<CompletionData>;
   getRanks(prefix: string): RankData;
   purgeCandidate(
-    type: HenkanType,
     word: string,
+    type: HenkanType,
     candidate: string,
   ): Promise<void>;
   registerHenkanResult(
-    type: HenkanType,
     word: string,
+    type: HenkanType,
     candidate: string,
   ): Promise<void>;
   load({ path, rankPath }: UserDictionaryPath): Promise<void>;
@@ -144,13 +150,18 @@ export class NumberConvertWrapper implements Dictionary {
     this.#inner = dict;
   }
 
-  async getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
+  async getHenkanResult(
+    word: string,
+    type: HenkanType,
+  ): Promise<string[]> {
     const realWord = word.replaceAll(/[0-9]+/g, "#");
-    const candidate = await this.#inner.getHenkanResult(type, realWord);
+    const candidate = await this.#inner.getHenkanResult(realWord, type);
     if (word === realWord) {
       return candidate;
     } else {
-      candidate.unshift(...(await this.#inner.getHenkanResult(type, word)));
+      candidate.unshift(
+        ...(await this.#inner.getHenkanResult(word, type)),
+      );
       return candidate.map((c) => convertNumber(c, word));
     }
   }
@@ -213,13 +224,16 @@ export class Library {
     }
   }
 
-  async getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
+  async getHenkanResult(
+    word: string,
+    type: HenkanType,
+  ): Promise<string[]> {
     if (config.immediatelyDictionaryRW) {
       await this.load();
     }
     const merged = new Set<string>();
     for (const dic of this.#dictionaries) {
-      for (const c of await dic.getHenkanResult(type, word)) {
+      for (const c of await dic.getHenkanResult(word, type)) {
         merged.add(c);
       }
     }

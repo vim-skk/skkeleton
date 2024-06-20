@@ -62,7 +62,10 @@ export class Dictionary implements BaseDictionary {
     this.#cachedCandidates = new Map();
   }
 
-  getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
+  getHenkanResult(
+    word: string,
+    type: HenkanType,
+  ): Promise<string[]> {
     const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
     return Promise.resolve(target.get(word) ?? []);
   }
