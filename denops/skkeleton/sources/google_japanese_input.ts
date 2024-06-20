@@ -1,5 +1,6 @@
 import { config } from "../config.ts";
 import {
+  AffixType,
   Dictionary as BaseDictionary,
   HenkanType,
   Source as BaseSource,
@@ -18,6 +19,7 @@ export class Dictionary implements BaseDictionary {
   async getHenkanResult(
     word: string,
     _type: HenkanType,
+    _affix?: AffixType,
   ): Promise<string[]> {
     // It should not work for "okuriari".
     return _type === "okuriari" ? [] : await this.getMidashis(word);

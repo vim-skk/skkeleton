@@ -108,6 +108,7 @@ export interface Dictionary {
   getHenkanResult(
     word: string,
     type: HenkanType,
+    affix?: AffixType,
   ): Promise<string[]>;
   getCompletionResult(prefix: string, feed: string): Promise<CompletionData>;
 }
@@ -121,6 +122,7 @@ export interface UserDictionary extends Dictionary {
   getHenkanResult(
     word: string,
     type: HenkanType,
+    affix?: AffixType,
   ): Promise<string[]>;
   getCompletionResult(prefix: string, feed: string): Promise<CompletionData>;
   getRanks(prefix: string): RankData;
@@ -153,14 +155,15 @@ export class NumberConvertWrapper implements Dictionary {
   async getHenkanResult(
     word: string,
     type: HenkanType,
+    affix?: AffixType,
   ): Promise<string[]> {
     const realWord = word.replaceAll(/[0-9]+/g, "#");
-    const candidate = await this.#inner.getHenkanResult(realWord, type);
+    const candidate = await this.#inner.getHenkanResult(realWord, type, affix);
     if (word === realWord) {
       return candidate;
     } else {
       candidate.unshift(
-        ...(await this.#inner.getHenkanResult(word, type)),
+        ...(await this.#inner.getHenkanResult(word, type, affix)),
       );
       return candidate.map((c) => convertNumber(c, word));
     }
@@ -227,13 +230,14 @@ export class Library {
   async getHenkanResult(
     word: string,
     type: HenkanType,
+    affix?: AffixType,
   ): Promise<string[]> {
     if (config.immediatelyDictionaryRW) {
       await this.load();
     }
     const merged = new Set<string>();
     for (const dic of this.#dictionaries) {
-      for (const c of await dic.getHenkanResult(word, type)) {
+      for (const c of await dic.getHenkanResult(word, type, affix)) {
         merged.add(c);
       }
     }
@@ -254,7 +258,7 @@ export class Library {
       for (const dic of this.#dictionaries) {
         gatherCandidates(collector, [[
           prefix,
-          await dic.getHenkanResult("okurinasi", prefix),
+          await dic.getHenkanResult(prefix, "okurinasi"),
         ]]);
       }
     } else {
@@ -286,7 +290,7 @@ export class Library {
       return;
     }
 
-    this.#userDictionary.registerHenkanResult(type, word, candidate);
+    this.#userDictionary.registerHenkanResult(word, type, candidate);
     if (config.immediatelyDictionaryRW) {
       await this.#userDictionary.save();
     }
@@ -297,7 +301,7 @@ export class Library {
       return;
     }
 
-    this.#userDictionary.purgeCandidate(type, word, candidate);
+    this.#userDictionary.purgeCandidate(word, type, candidate);
     if (config.immediatelyDictionaryRW) {
       await this.#userDictionary.save();
     }

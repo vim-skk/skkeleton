@@ -4,6 +4,7 @@ import { Encode } from "../types.ts";
 import { getKanaTable } from "../kana.ts";
 import { TextLineStream } from "../deps/std/streams.ts";
 import {
+  AffixType,
   Dictionary as BaseDictionary,
   HenkanType,
   Source as BaseSource,
@@ -84,6 +85,7 @@ export class Dictionary implements BaseDictionary {
   async getHenkanResult(
     word: string,
     _type: HenkanType,
+    _affix?: AffixType,
   ): Promise<string[]> {
     await this.connect();
 
@@ -121,7 +123,7 @@ export class Dictionary implements BaseDictionary {
     for (const midashi of midashis) {
       candidates.push([
         midashi,
-        await this.getHenkanResult(midashi, "okurinasi"),
+        await this.getHenkanResult(midashi, "okurinasi", undefined),
       ]);
     }
 

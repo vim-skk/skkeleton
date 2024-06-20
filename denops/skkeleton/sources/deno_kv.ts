@@ -3,6 +3,7 @@ import { getKanaTable } from "../kana.ts";
 import { readFileWithEncoding } from "../util.ts";
 import type { CompletionData } from "../types.ts";
 import {
+  AffixType,
   Dictionary as BaseDictionary,
   HenkanType,
   okuriAriMarker,
@@ -105,6 +106,7 @@ export class Dictionary implements BaseDictionary {
   async getHenkanResult(
     word: string,
     type: HenkanType,
+    _affix?: AffixType,
   ): Promise<string[]> {
     const result = await this.#db.get<string[]>([this.#path, type, ...word]);
     return result.value ?? [];

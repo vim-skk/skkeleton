@@ -2,6 +2,7 @@ import { config } from "../config.ts";
 import { getKanaTable } from "../kana.ts";
 import type { CompletionData, RankData } from "../types.ts";
 import {
+  AffixType,
   Dictionary as BaseDictionary,
   HenkanType,
   okuriAriMarker,
@@ -63,6 +64,7 @@ export class Dictionary implements UserDictionary {
   getHenkanResult(
     word: string,
     type: HenkanType,
+    _affix?: AffixType,
   ): Promise<string[]> {
     const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
     return Promise.resolve(target.get(word) ?? []);
