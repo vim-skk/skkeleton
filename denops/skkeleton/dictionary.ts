@@ -182,6 +182,8 @@ export function wrapDictionary(dict: Dictionary): Dictionary {
 
 export type HenkanType = "okuriari" | "okurinasi";
 
+export type AffixType = "prefix" | "suffix";
+
 function gatherCandidates(
   collector: Map<string, Set<string>>,
   candidates: [string, string[]][],

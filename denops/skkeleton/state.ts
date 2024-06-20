@@ -1,6 +1,6 @@
 import { modifyCandidate } from "./candidate.ts";
 import { config } from "./config.ts";
-import type { HenkanType } from "./dictionary.ts";
+import type { AffixType, HenkanType } from "./dictionary.ts";
 import { getKanaTable } from "./kana.ts";
 import { KanaTable } from "./kana/type.ts";
 import { Cell } from "./util.ts";
@@ -8,8 +8,6 @@ import { Cell } from "./util.ts";
 export type State = InputState | HenkanState | EscapeState;
 
 export type InputMode = "direct" | HenkanType;
-
-export type AffixType = "prefix" | "suffix";
 
 export type InputState = {
   type: "input";
