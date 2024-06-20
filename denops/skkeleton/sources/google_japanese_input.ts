@@ -19,10 +19,14 @@ export class Dictionary implements BaseDictionary {
   async getHenkanResult(
     word: string,
     _type: HenkanType,
-    _affix?: AffixType,
+    affix?: AffixType,
   ): Promise<string[]> {
-    // It should not work for "okuriari".
-    return _type === "okuriari" ? [] : await this.getMidashis(word);
+    // It should not work for "okuriari" or "affix".
+    return _type === "okuriari"
+      ? []
+      : affix != null
+      ? []
+      : await this.getMidashis(word);
   }
   getCompletionResult(_prefix: string, _feed: string): Promise<CompletionData> {
     // Note: It does not support completions
