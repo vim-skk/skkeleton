@@ -64,6 +64,7 @@ export class LazyCell<T> {
 
   setInitializer(initializer: () => Promise<T>) {
     this.lazyInitializer = initializer;
+    this.initialized = false;
   }
 }
 
