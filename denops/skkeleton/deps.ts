@@ -1,7 +1,7 @@
-export * as autocmd from "https://deno.land/x/denops_std@v6.5.1/autocmd/mod.ts";
-export * as fn from "https://deno.land/x/denops_std@v6.5.1/function/mod.ts";
-export { batch } from "https://deno.land/x/denops_std@v6.5.1/batch/mod.ts";
-export type { Denops } from "https://deno.land/x/denops_std@v6.5.1/mod.ts";
-export * as mapping from "https://deno.land/x/denops_std@v6.5.1/mapping/mod.ts";
-export * as vars from "https://deno.land/x/denops_std@v6.5.1/variable/mod.ts";
-export * as op from "https://deno.land/x/denops_std@v6.5.1/option/mod.ts";
+export * as autocmd from "jsr:@denops/std@7.0.0/autocmd";
+export * as fn from "jsr:@denops/std@7.0.0/function";
+export { batch } from "jsr:@denops/std@7.0.0/batch";
+export type { Denops, Entrypoint } from "jsr:@denops/std@7.0.0";
+export * as mapping from "jsr:@denops/std@7.0.0/mapping";
+export * as vars from "jsr:@denops/std@7.0.0/variable";
+export * as op from "jsr:@denops/std@7.0.0/option";

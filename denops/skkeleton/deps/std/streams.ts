@@ -1,1 +1,1 @@
-export { TextLineStream } from "jsr:@std/streams@0.224.5";
+export { TextLineStream } from "jsr:@std/streams@1.0.0";
