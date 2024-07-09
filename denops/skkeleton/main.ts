@@ -1,5 +1,5 @@
 import { config, setConfig } from "./config.ts";
-import { autocmd, Denops, fn, vars } from "./deps.ts";
+import { autocmd, Denops, Entrypoint, fn, vars } from "./deps.ts";
 import { is, u } from "./deps/unknownutil.ts";
 import { functions, modeFunctions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
@@ -64,7 +64,7 @@ async function init(denops: Denops) {
   } catch (e) {
     console.log(e);
   }
-  currentContext.get().denops = denops;
+  currentContext.init().denops = denops;
 
   currentLibrary.setInitializer(async () =>
     loadDictionary(
@@ -251,9 +251,7 @@ function buildResult(result: string): HandleResult {
   };
 }
 
-export async function main(denops: Denops) {
-  // Note: pending initialize for reload plugin
-  initialized = false;
+export const main: Entrypoint = async (denops) => {
   if (await vars.g.get(denops, "skkeleton#debug", false)) {
     config.debug = true;
   }
@@ -372,4 +370,13 @@ export async function main(denops: Denops) {
   if (config.debug) {
     await denops.cmd(`echomsg "loaded skkeleton"`);
   }
-}
+  return {
+    [Symbol.asyncDispose]: async () => {
+      initialized = false;
+      currentLibrary.init(); // TODO: dispose loaded dictionaries
+      await autocmd.group(denops, "skkeleton-internal-denops", (helper) => {
+        helper.remove("*");
+      });
+    },
+  };
+};
