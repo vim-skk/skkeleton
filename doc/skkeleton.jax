@@ -553,6 +553,9 @@ skkeletonは|:lmap|を使用しなくなりました。カーソルの色を動�
 ==============================================================================
 COMPATIBILITY                                        *skkeleton-compatibility*
 
+2024-07-27~
+- denops v7を前提とするように
+
 2024-01-11~
 - "globalJisyo" オプションと "globalJisyoEncoding" オプションの削除
 - "userJisyo" オプションは "userDictionary" オプションに変更

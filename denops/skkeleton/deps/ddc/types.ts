@@ -1,1 +1,1 @@
-export * from "https://deno.land/x/ddc_vim@v5.0.1/types.ts";
+export * from "jsr:@shougo/ddc-vim@6.0.0-pre9/types";
