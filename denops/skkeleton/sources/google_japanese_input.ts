@@ -5,7 +5,7 @@ import {
   Source as BaseSource,
 } from "../dictionary.ts";
 import type { CompletionData } from "../types.ts";
-import { deadline, DeadlineError } from "../deps/std/async.ts";
+import { deadline } from "../deps/std/async.ts";
 
 export class Source implements BaseSource {
   getDictionaries(): Promise<BaseDictionary[]> {
@@ -44,7 +44,7 @@ export class Dictionary implements BaseDictionary {
       const respJson = await resp.json();
       return respJson[0][1];
     } catch (e) {
-      if (e instanceof DeadlineError) {
+      if (e instanceof DOMException) {
         // Ignore timeout error
       } else if (config.debug) {
         console.log(e);

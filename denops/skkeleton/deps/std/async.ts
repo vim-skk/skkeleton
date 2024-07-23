@@ -1,1 +1,1 @@
-export * from "jsr:@std/async@0.224.2";
+export * from "jsr:@std/async@1.0.0";
