@@ -1,1 +1,1 @@
-export * from "jsr:@std/collections@0.224.2";
+export * from "jsr:@std/collections@1.0.5";
