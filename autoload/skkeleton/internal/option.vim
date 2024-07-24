@@ -15,7 +15,7 @@ function skkeleton#internal#option#save_and_set()
   " 不意に改行が発生してバッファが壊れるため 'textwidth' を無効化
   setlocal textwidth=0
   " 末尾で送りあり変換をした際にバッファが壊れるため、一時的に 'virtualedit' を使う
-  setlocal virtualedit=all
+  setlocal virtualedit=onemore
 endfunction
 
 function skkeleton#internal#option#restore()
