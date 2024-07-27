@@ -8,6 +8,10 @@ export class Filter extends BaseFilter<Params> {
   async filter(
     args: FilterArguments<Params>,
   ): Promise<Item<CompletionMetadata>[]> {
+    await args.denops.cmd("echomsg msg", {
+      msg:
+        "skkeleton ddc filter is deprecated. Because filtering by source itself.",
+    });
     const items = args.items as Item<CompletionMetadata>[];
     const prefix =
       (await args.denops.dispatch("skkeleton", "getPrefix")) as string;
