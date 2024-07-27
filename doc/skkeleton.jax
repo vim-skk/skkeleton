@@ -555,6 +555,7 @@ COMPATIBILITY                                        *skkeleton-compatibility*
 
 2024-07-27~
 - denops v7を前提とするように
+- ddcのfilterを廃止(sourceでフィルタリングしているため)
 
 2024-01-11~
 - "globalJisyo" オプションと "globalJisyoEncoding" オプションの削除
