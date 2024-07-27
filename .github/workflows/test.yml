@@ -35,11 +35,11 @@ jobs:
           # - macos-latest
           - ubuntu-latest
         version:
-          - "1.42.0"
+          - "1.45.0"
           - "1.x"
         host_version:
-          - vim: "v9.0.2189"
-            nvim: "v0.9.4"
+          - vim: "v9.1.0488"
+            nvim: "v0.10.0"
     runs-on: ${{ matrix.runner }}
     steps:
       - run: git config --global init.defaultBranch main
