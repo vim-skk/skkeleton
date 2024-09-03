@@ -55,7 +55,9 @@ const validators: Validators = {
   globalDictionaries: (x): (string | [string, string])[] => {
     if (
       !is.ArrayOf(
-        is.OneOf([is.String, is.TupleOf([is.String, is.String])] as const),
+        is.UnionOf(
+          [is.String, is.TupleOf([is.String, is.String])] as const,
+        ),
       )(x)
     ) {
       throw TypeError("'globalDictionaries' must be array of two string tuple");
@@ -65,7 +67,9 @@ const validators: Validators = {
   globalKanaTableFiles: (x): (string | [string, string])[] => {
     if (
       !is.ArrayOf(
-        is.OneOf([is.String, is.TupleOf([is.String, is.String])] as const),
+        is.UnionOf(
+          [is.String, is.TupleOf([is.String, is.String])] as const,
+        ),
       )(x)
     ) {
       throw TypeError(
