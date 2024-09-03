@@ -1,2 +1,2 @@
-export * as u from "jsr:@core/unknownutil@3.18.1";
-export { is } from "jsr:@core/unknownutil@3.18.1";
+export * as u from "jsr:@core/unknownutil@~4.3.0";
+export { is } from "jsr:@core/unknownutil@~4.3.0/is";

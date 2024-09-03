@@ -1,6 +1,9 @@
-import { CompletionMetadata } from "../@ddc-sources/skkeleton.ts";
-import { BaseFilter, FilterArguments } from "../skkeleton/deps/ddc/filter.ts";
-import { Item } from "../skkeleton/deps/ddc/types.ts";
+import { type CompletionMetadata } from "../@ddc-sources/skkeleton.ts";
+import {
+  BaseFilter,
+  type FilterArguments,
+} from "../skkeleton/deps/ddc/filter.ts";
+import { type Item } from "../skkeleton/deps/ddc/types.ts";
 
 type Params = Record<string, never>;
 

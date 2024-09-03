@@ -1,11 +1,11 @@
 import {
   BaseSource,
-  GatherArguments,
-  GetCompletePositionArguments,
-  GetPreviewerArguments,
-  OnCompleteDoneArguments,
+  type GatherArguments,
+  type GetCompletePositionArguments,
+  type GetPreviewerArguments,
+  type OnCompleteDoneArguments,
 } from "../skkeleton/deps/ddc/source.ts";
-import { DdcGatherItems, Previewer } from "../skkeleton/deps/ddc/types.ts";
+import { type DdcGatherItems, Previewer } from "../skkeleton/deps/ddc/types.ts";
 import { fn } from "../skkeleton/deps.ts";
 import type { CompletionData, RankData } from "../skkeleton/types.ts";
 
