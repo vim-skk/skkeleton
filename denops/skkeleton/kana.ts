@@ -1,11 +1,12 @@
 import { config } from "./config.ts";
-import { distinctBy } from "./deps/std/collections.ts";
 import { is, u } from "./deps/unknownutil.ts";
 import { functions } from "./function.ts";
 import { romToHira } from "./kana/rom_hira.ts";
 import { romToZen } from "./kana/rom_zen.ts";
 import type { KanaResult, KanaTable } from "./kana/type.ts";
 import { Cell, readFileWithEncoding } from "./util.ts";
+
+import { distinctBy } from "jsr:@std/collections@~1.0.5/distinct-by";
 
 type PartialKanaTable = [string, KanaResult | null][];
 
