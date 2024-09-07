@@ -1,9 +1,10 @@
 import { config } from "./config.ts";
-import { toFileUrl } from "./deps/std/path.ts";
 import { JpNum } from "./deps/japanese_numeral.ts";
 import { RomanNum } from "./deps/roman.ts";
 import { zip } from "./deps/std/collections.ts";
 import type { CompletionData, RankData } from "./types.ts";
+
+import { toFileUrl } from "jsr:@std/path@~1.0.3/to-file-url";
 
 export const okuriAriMarker = ";; okuri-ari entries.";
 export const okuriNasiMarker = ";; okuri-nasi entries.";

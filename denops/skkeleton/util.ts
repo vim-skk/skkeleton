@@ -1,6 +1,8 @@
 import { Denops, fn, op } from "./deps.ts";
-import { basename, parse } from "./deps/std/path.ts";
 import { encoding } from "./deps/encoding_japanese.ts";
+
+import { basename } from "jsr:@std/path@~1.0.3/basename";
+import { parse } from "jsr:@std/path@~1.0.3/parse";
 
 export class Cell<T> {
   initialized = false;
