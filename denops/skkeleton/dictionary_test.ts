@@ -1,9 +1,9 @@
-import { assertEquals } from "./deps/std/assert.ts";
 import { Dictionary, Library, wrapDictionary } from "./dictionary.ts";
 import { Dictionary as SkkDictionary } from "./sources/skk_dictionary.ts";
 import { Dictionary as DenoKvDictionary } from "./sources/deno_kv.ts";
 import { Dictionary as UserDictionary } from "./sources/user_dictionary.ts";
 
+import { assertEquals } from "jsr:@std/assert@~1.0.3/equals";
 import { dirname } from "jsr:@std/path@~1.0.3/dirname";
 import { fromFileUrl } from "jsr:@std/path@~1.0.3/from-file-url";
 import { join } from "jsr:@std/path@~1.0.3/join";

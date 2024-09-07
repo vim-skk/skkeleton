@@ -1,10 +1,11 @@
 import { Denops } from "../deps.ts";
-import { assertEquals } from "../deps/std/assert.ts";
 import { currentKanaTable, getKanaTable } from "../kana.ts";
 import { HenkanState } from "../state.ts";
 import { currentContext } from "../store.ts";
 import { test } from "../testutil.ts";
 import { registerWord } from "./dictionary.ts";
+
+import { assertEquals } from "jsr:@std/assert@~1.0.3/equals";
 
 test({
   mode: "all",

@@ -1,5 +1,6 @@
-import { assertEquals } from "./deps/std/assert.ts";
 import { PreEdit } from "./preedit.ts";
+
+import { assertEquals } from "jsr:@std/assert@~1.0.3/equals";
 
 Deno.test({
   name: "preedit test",
