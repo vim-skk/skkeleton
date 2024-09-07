@@ -2,13 +2,14 @@ import { config } from "../config.ts";
 import { encoding } from "../deps/encoding_japanese.ts";
 import { Encode } from "../types.ts";
 import { getKanaTable } from "../kana.ts";
-import { TextLineStream } from "../deps/std/streams.ts";
 import {
   Dictionary as BaseDictionary,
   HenkanType,
   Source as BaseSource,
 } from "../dictionary.ts";
 import type { CompletionData, Encoding, SkkServerOptions } from "../types.ts";
+
+import { TextLineStream } from "jsr:@std/streams@~1.0.3/text-line-stream";
 
 type Server = {
   conn: Deno.Conn;
