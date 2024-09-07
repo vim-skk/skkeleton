@@ -1,5 +1,7 @@
 import type { Denops } from "./deps.ts";
-import { is, u } from "./deps/unknownutil.ts";
+
+import { is } from "jsr:@core/unknownutil@~4.3.0/is";
+import { assert } from "jsr:@core/unknownutil@~4.3.0/assert";
 
 let received = false;
 export let notationToKey: Record<string, string> = {};
@@ -10,10 +12,10 @@ export async function receiveNotation(denops: Denops) {
     return;
   }
   const n2k = await denops.eval("g:skkeleton#notation#notation_to_key");
-  u.assert(n2k, is.RecordOf(is.String));
+  assert(n2k, is.RecordOf(is.String));
   notationToKey = n2k;
   const k2n = await denops.eval("g:skkeleton#notation#key_to_notation");
-  u.assert(k2n, is.RecordOf(is.String));
+  assert(k2n, is.RecordOf(is.String));
   keyToNotation = k2n;
   received = true;
 }

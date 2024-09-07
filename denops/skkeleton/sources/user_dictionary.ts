@@ -11,7 +11,9 @@ import {
   UserDictionaryPath,
 } from "../dictionary.ts";
 import { wrap } from "../deps/iterator_helpers.ts";
-import { is, u } from "../deps/unknownutil.ts";
+
+import { is } from "jsr:@core/unknownutil@~4.3.0/is";
+import { assert } from "jsr:@core/unknownutil@~4.3.0/assert";
 
 export class Source implements BaseSource {
   async getDictionaries(): Promise<BaseDictionary[]> {
@@ -166,7 +168,7 @@ export class Dictionary implements UserDictionary {
       return;
     }
     const rankData = JSON.parse(await Deno.readTextFile(rankPath));
-    u.assert(rankData, is.ArrayOf(is.String));
+    assert(rankData, is.ArrayOf(is.String));
     this.#rank = new Map(rankData.map((c, i) => [c, i]));
   }
 
