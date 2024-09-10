@@ -1,5 +1,5 @@
 import { Denops, fn, op } from "./deps.ts";
-import { encoding } from "./deps/encoding_japanese.ts";
+import * as encoding from "npm:encoding-japanese@2.2.0";
 
 import { basename } from "jsr:@std/path@~1.0.3/basename";
 import { parse } from "jsr:@std/path@~1.0.3/parse";
