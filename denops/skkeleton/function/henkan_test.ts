@@ -1,7 +1,8 @@
 import { Context } from "../context.ts";
-import { assertEquals } from "../deps/std/assert.ts";
 import { currentLibrary } from "../store.ts";
 import { dispatch } from "./testutil.ts";
+
+import { assertEquals } from "jsr:@std/assert@~1.0.3/equals";
 
 const l = await currentLibrary.get();
 await l.registerHenkanResult("okurinasi", "へんかん", "返還");

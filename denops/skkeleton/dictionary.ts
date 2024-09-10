@@ -1,9 +1,10 @@
 import { config } from "./config.ts";
-import { toFileUrl } from "./deps/std/path.ts";
-import { JpNum } from "./deps/japanese_numeral.ts";
-import { RomanNum } from "./deps/roman.ts";
-import { zip } from "./deps/std/collections.ts";
 import type { CompletionData, RankData } from "./types.ts";
+import { number2kanji } from "npm:@geolonia/japanese-numeral@1.0.2";
+import { convertNumberToRoman } from "npm:cr-numeral@1.1.3";
+
+import { toFileUrl } from "jsr:@std/path@~1.0.3/to-file-url";
+import { zip } from "jsr:@std/collections@~1.0.5/zip";
 
 export const okuriAriMarker = ";; okuri-ari entries.";
 export const okuriNasiMarker = ";; okuri-nasi entries.";
@@ -54,8 +55,8 @@ function toKanjiModern(n: number): string {
     return kanjiNumbers[parseInt(c)];
   });
 }
-const toRoman: (n: number) => string = RomanNum.convertNumberToRoman;
-const toKanjiClassic: (n: number) => string = JpNum.number2kanji;
+const toRoman: (n: number) => string = convertNumberToRoman;
+const toKanjiClassic: (n: number) => string = number2kanji;
 
 function toDaiji(n: number): string {
   return toKanjiClassic(n)

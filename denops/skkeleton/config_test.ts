@@ -1,12 +1,13 @@
 import { config } from "./config.ts";
 import { Context } from "./context.ts";
 import { Denops } from "./deps.ts";
-import { assertEquals } from "./deps/std/assert.ts";
 import { disable } from "./function/disable.ts";
 import { katakana } from "./function/mode.ts";
 import { dispatch } from "./function/testutil.ts";
 import { currentContext, currentLibrary, variables } from "./store.ts";
 import { test } from "./testutil.ts";
+
+import { assertEquals } from "jsr:@std/assert@~1.0.3/equals";
 
 const defaultConfig = { ...config };
 

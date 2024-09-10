@@ -1,8 +1,10 @@
 import { Denops } from "./deps.ts";
-import { is, u } from "./deps/unknownutil.ts";
 import { getKanaTable, loadKanaTableFiles } from "./kana.ts";
 import { ConfigOptions, Encode, Encoding } from "./types.ts";
 import { homeExpand } from "./util.ts";
+
+import { is } from "jsr:@core/unknownutil@~4.3.0/is";
+import { ensure } from "jsr:@core/unknownutil@~4.3.0/ensure";
 
 export const config: Omit<ConfigOptions, "globalDictionaries"> & {
   globalDictionaries: [string, string][];
@@ -47,11 +49,11 @@ function ensureEncoding(x: unknown): Encoding {
 }
 
 const validators: Validators = {
-  acceptIllegalResult: (x) => u.ensure(x, is.Boolean),
-  completionRankFile: (x) => u.ensure(x, is.String),
-  databasePath: (x) => u.ensure(x, is.String),
-  debug: (x) => u.ensure(x, is.Boolean),
-  eggLikeNewline: (x) => u.ensure(x, is.Boolean),
+  acceptIllegalResult: (x) => ensure(x, is.Boolean),
+  completionRankFile: (x) => ensure(x, is.String),
+  databasePath: (x) => ensure(x, is.String),
+  debug: (x) => ensure(x, is.Boolean),
+  eggLikeNewline: (x) => ensure(x, is.Boolean),
   globalDictionaries: (x): (string | [string, string])[] => {
     if (
       !is.ArrayOf(
@@ -78,11 +80,11 @@ const validators: Validators = {
     }
     return x;
   },
-  immediatelyCancel: (x) => u.ensure(x, is.Boolean),
-  immediatelyDictionaryRW: (x) => u.ensure(x, is.Boolean),
-  immediatelyOkuriConvert: (x) => u.ensure(x, is.Boolean),
+  immediatelyCancel: (x) => ensure(x, is.Boolean),
+  immediatelyDictionaryRW: (x) => ensure(x, is.Boolean),
+  immediatelyOkuriConvert: (x) => ensure(x, is.Boolean),
   kanaTable: (x): string => {
-    const name = u.ensure(x, is.String);
+    const name = ensure(x, is.String);
     try {
       getKanaTable(name);
     } catch {
@@ -90,33 +92,33 @@ const validators: Validators = {
     }
     return name;
   },
-  keepMode: (x) => u.ensure(x, is.Boolean),
-  keepState: (x) => u.ensure(x, is.Boolean),
-  markerHenkan: (x) => u.ensure(x, is.String),
-  markerHenkanSelect: (x) => u.ensure(x, is.String),
-  registerConvertResult: (x) => u.ensure(x, is.Boolean),
+  keepMode: (x) => ensure(x, is.Boolean),
+  keepState: (x) => ensure(x, is.Boolean),
+  markerHenkan: (x) => ensure(x, is.String),
+  markerHenkanSelect: (x) => ensure(x, is.String),
+  registerConvertResult: (x) => ensure(x, is.Boolean),
   selectCandidateKeys: (x) => {
-    const keys = u.ensure(x, is.String);
+    const keys = ensure(x, is.String);
     if (keys.length !== 7) {
       throw TypeError("selectCandidateKeys.length !== 7");
     }
     return keys;
   },
-  setUndoPoint: (x) => u.ensure(x, is.Boolean),
-  showCandidatesCount: (x) => u.ensure(x, is.Number),
-  skkServerHost: (x) => u.ensure(x, is.String),
-  skkServerPort: (x) => u.ensure(x, is.Number),
+  setUndoPoint: (x) => ensure(x, is.Boolean),
+  showCandidatesCount: (x) => ensure(x, is.Number),
+  skkServerHost: (x) => ensure(x, is.String),
+  skkServerPort: (x) => ensure(x, is.Number),
   skkServerReqEnc: ensureEncoding,
   skkServerResEnc: ensureEncoding,
-  sources: (x) => u.ensure(x, is.ArrayOf(is.String)),
+  sources: (x) => ensure(x, is.ArrayOf(is.String)),
   useGoogleJapaneseInput: () => {
     throw '`useGoogleJapaneseInput` is removed. Please use `sources` with "google_japanese_input"';
   },
-  usePopup: (x) => u.ensure(x, is.Boolean),
+  usePopup: (x) => ensure(x, is.Boolean),
   useSkkServer: () => {
     throw '`useSkkServer` is removed. Please use `sources` with "skk_server"';
   },
-  userDictionary: (x) => u.ensure(x, is.String),
+  userDictionary: (x) => ensure(x, is.String),
 };
 
 async function normalize(

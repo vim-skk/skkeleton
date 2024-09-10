@@ -1,5 +1,6 @@
-import { assertEquals } from "./deps/std/assert.ts";
 import { LazyCell } from "./util.ts";
+
+import { assertEquals } from "jsr:@std/assert@~1.0.3/equals";
 
 Deno.test({
   name: "LazyCell",

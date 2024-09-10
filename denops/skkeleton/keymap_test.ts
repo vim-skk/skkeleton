@@ -1,12 +1,14 @@
+import { Denops } from "./deps.ts";
 import { test } from "./testutil.ts";
-import { assertEquals } from "./deps/std/assert.ts";
 import { currentLibrary } from "./store.ts";
 import { currentContext } from "./store.ts";
+
+import { assertEquals } from "jsr:@std/assert@~1.0.3/equals";
 
 test({
   mode: "nvim", // can input mode test only in nvim
   name: "registerKeyMap",
-  async fn(denops) {
+  async fn(denops: Denops) {
     const lib = await currentLibrary.get();
     lib.registerHenkanResult("okurinasi", "あ", "亜");
     await denops.cmd('call skkeleton#register_keymap("henkan", "x", "")');

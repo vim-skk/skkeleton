@@ -1,10 +1,11 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
-import { assertEquals } from "../deps/std/assert.ts";
 import { currentLibrary } from "../store.ts";
 import { cancel, kakutei, kakuteiKey } from "./common.ts";
 import { katakana } from "./mode.ts";
 import { dispatch } from "./testutil.ts";
+
+import { assertEquals } from "jsr:@std/assert@~1.0.3/equals";
 
 const lib = await currentLibrary.get();
 

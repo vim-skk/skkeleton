@@ -1,8 +1,9 @@
 import { Denops } from "../deps.ts";
-import { assertEquals } from "../deps/std/assert.ts";
 import { currentContext } from "../store.ts";
 import { test } from "../testutil.ts";
 import { dispatch } from "./testutil.ts";
+
+import { assertEquals } from "jsr:@std/assert@~1.0.3/equals";
 
 // deno-lint-ignore no-explicit-any
 async function getResult(x: Promise<any>): Promise<string> {

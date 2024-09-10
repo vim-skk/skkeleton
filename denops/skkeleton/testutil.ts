@@ -1,11 +1,13 @@
 import { autocmd, Denops } from "./deps.ts";
 import * as DenopsTest from "./deps/denops_test.ts";
-import * as path from "./deps/std/path.ts";
 import { main } from "./main.ts";
 import { currentContext } from "./store.ts";
 
-const runtimepath = path.resolve(
-  path.fromFileUrl(new URL("../..", import.meta.url)),
+import { fromFileUrl } from "jsr:@std/path@~1.0.3/from-file-url";
+import { resolve } from "jsr:@std/path@~1.0.3/resolve";
+
+const runtimepath = resolve(
+  fromFileUrl(new URL("../..", import.meta.url)),
 );
 
 // It is inspired from https://github.com/lambdalisue/gin.vim/blob/e737a4b59a9d391c49aaa07f7c4d91e4a29ae09c/denops/gin/util/testutil.ts

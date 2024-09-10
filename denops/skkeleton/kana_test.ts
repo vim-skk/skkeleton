@@ -1,10 +1,12 @@
+import { Denops } from "./deps.ts";
 import { config } from "./config.ts";
 import { Context } from "./context.ts";
-import { assertEquals } from "./deps/std/assert.ts";
 import { dispatch } from "./function/testutil.ts";
 import { registerKanaTable } from "./kana.ts";
 import { currentContext } from "./store.ts";
 import { test } from "./testutil.ts";
+
+import { assertEquals } from "jsr:@std/assert@~1.0.3/equals";
 
 Deno.test({
   name: "customize kanatable",
@@ -34,7 +36,7 @@ Deno.test({
 test({
   mode: "all",
   name: "create kanatable",
-  async fn(denops) {
+  async fn(denops: Denops) {
     registerKanaTable("test", {
       a: ["hoge", ""],
     }, true);
