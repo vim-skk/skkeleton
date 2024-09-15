@@ -1,4 +1,6 @@
 import { Denops, fn, op } from "./deps.ts";
+
+// NOTE: import * as encoding does not work!
 import encoding from "npm:encoding-japanese@2.2.0";
 
 import { basename } from "jsr:@std/path@~1.0.3/basename";

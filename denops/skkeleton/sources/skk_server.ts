@@ -7,7 +7,9 @@ import {
 import { getKanaTable } from "../kana.ts";
 import { Encode } from "../types.ts";
 import type { CompletionData, Encoding, SkkServerOptions } from "../types.ts";
-import * as encoding from "npm:encoding-japanese@2.2.0";
+
+// NOTE: import * as encoding does not work!
+import encoding from "npm:encoding-japanese@2.2.0";
 
 import { TextLineStream } from "jsr:@std/streams@~1.0.3/text-line-stream";
 
