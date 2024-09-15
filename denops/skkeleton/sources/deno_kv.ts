@@ -238,7 +238,7 @@ export class Dictionary implements BaseDictionary {
 
   private async loadMsgpack() {
     const data = await Deno.readFile(this.#path);
-    const jisyo = msgpackDecode(data) as Jisyo;
+    const jisyo = (msgpackDecode(data) as unknown) as Jisyo;
     const validator = new jsonschema.Validator();
     const result = validator.validate(jisyo, jisyoschema);
     if (!result.valid) {
