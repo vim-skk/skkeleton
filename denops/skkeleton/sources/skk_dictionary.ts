@@ -158,7 +158,7 @@ export class Dictionary implements BaseDictionary {
   }
 
   private loadMsgpack(data: Uint8Array) {
-    const jisyo = (msgpackDecode(data) as unknown) as Jisyo;
+    const jisyo = msgpackDecode(data) as unknown as Jisyo;
     const validator = new jsonschema.Validator();
     const result = validator.validate(jisyo, jisyoschema);
     if (!result.valid) {
