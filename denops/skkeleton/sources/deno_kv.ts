@@ -10,7 +10,8 @@ import {
   Source as BaseSource,
   wrapDictionary,
 } from "../dictionary.ts";
-import { jisyoschema, jsonschema, msgpack, yaml } from "../deps/dictionary.ts";
+import { jisyoschema, jsonschema, yaml } from "../deps/dictionary.ts";
+import { decode as msgpackDecode } from "jsr:@std/msgpack@~1.0.2/decode";
 
 interface Jisyo {
   okuri_ari: Record<string, string[]>;
@@ -235,7 +236,7 @@ export class Dictionary implements BaseDictionary {
 
   private async loadMsgpack() {
     const data = await Deno.readFile(this.#path);
-    const jisyo = msgpack.decode(data) as Jisyo;
+    const jisyo = msgpackDecode(data) as Jisyo;
     const validator = new jsonschema.Validator();
     const result = validator.validate(jisyo, jisyoschema);
     if (!result.valid) {
