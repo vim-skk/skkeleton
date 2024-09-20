@@ -10,7 +10,6 @@ import {
   UserDictionary,
   UserDictionaryPath,
 } from "../dictionary.ts";
-import { wrap } from "../deps/iterator_helpers.ts";
 
 import { is } from "jsr:@core/unknownutil@~4.3.0/is";
 import { assert } from "jsr:@core/unknownutil@~4.3.0/assert";
@@ -108,9 +107,8 @@ export class Dictionary implements UserDictionary {
     for (const [, cs] of this.#cachedCandidates) {
       cs.forEach(adder);
     }
-    return wrap(this.#rank.entries())
-      .filter((e) => set.has(e[0]))
-      .toArray();
+    return [...this.#rank.entries()]
+      .filter((e) => set.has(e[0]));
   }
 
   registerHenkanResult(type: HenkanType, word: string, candidate: string) {
