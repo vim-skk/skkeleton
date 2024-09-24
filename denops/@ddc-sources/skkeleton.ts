@@ -18,7 +18,7 @@ export type CompletionMetadata = {
 type Params = Record<string, never>;
 
 export class Source extends BaseSource<Params> {
-  async getCompletePosition(
+  override async getCompletePosition(
     args: GetCompletePositionArguments<Record<string, never>>,
   ): Promise<number> {
     const inputLength = args.context.input.length;
@@ -27,7 +27,7 @@ export class Source extends BaseSource<Params> {
     return inputLength - preEditLength;
   }
 
-  async gather(
+  override async gather(
     args: GatherArguments<Params>,
   ): Promise<DdcGatherItems> {
     const candidates = (await args.denops.dispatch(
@@ -70,11 +70,11 @@ export class Source extends BaseSource<Params> {
     };
   }
 
-  params() {
+  override params() {
     return {};
   }
 
-  getPreviewer(
+  override getPreviewer(
     args: GetPreviewerArguments<Params, unknown>,
   ): Promise<Previewer> {
     if (!args.item.info || args.item.info.length === 0) {
@@ -89,7 +89,7 @@ export class Source extends BaseSource<Params> {
     });
   }
 
-  async onCompleteDone(
+  override async onCompleteDone(
     args: OnCompleteDoneArguments<Params, CompletionMetadata>,
   ) {
     await args.denops.dispatch(
