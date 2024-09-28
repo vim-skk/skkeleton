@@ -8,7 +8,7 @@ import { type Item } from "../skkeleton/deps/ddc/types.ts";
 type Params = Record<string, never>;
 
 export class Filter extends BaseFilter<Params> {
-  async filter(
+  override async filter(
     args: FilterArguments<Params>,
   ): Promise<Item<CompletionMetadata>[]> {
     await args.denops.cmd("echomsg msg", {
