@@ -33,6 +33,7 @@ export type ConfigOptions = {
   completionRankFile: string;
   databasePath: string;
   debug: boolean;
+  downcaseMap: Record<string, string>;
   eggLikeNewline: boolean;
   globalDictionaries: (string | [string, string])[];
   globalKanaTableFiles: (string | [string, string])[];

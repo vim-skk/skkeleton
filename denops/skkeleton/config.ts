@@ -13,6 +13,7 @@ export const config: Omit<ConfigOptions, "globalDictionaries"> & {
   completionRankFile: "",
   databasePath: "",
   debug: false,
+  downcaseMap: {},
   eggLikeNewline: false,
   globalDictionaries: [],
   globalKanaTableFiles: [],
@@ -53,6 +54,7 @@ const validators: Validators = {
   completionRankFile: (x) => ensure(x, is.String),
   databasePath: (x) => ensure(x, is.String),
   debug: (x) => ensure(x, is.Boolean),
+  downcaseMap: (x) => ensure(x, is.RecordOf(is.String)),
   eggLikeNewline: (x) => ensure(x, is.Boolean),
   globalDictionaries: (x): (string | [string, string])[] => {
     if (
