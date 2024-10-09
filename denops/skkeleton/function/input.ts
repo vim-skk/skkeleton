@@ -88,7 +88,7 @@ export async function kanaInput(context: Context, char: string) {
   context.state.type = "input";
   const state = context.state as InputState;
 
-  const lower = char.toLowerCase();
+  const lower = config.downcaseMap[char] ?? char.toLowerCase();
   if (!state.directInput && char !== lower) {
     const withShift = `<s-${lower}>`;
     if (state.table.some((e) => e[0].startsWith(state.feed + withShift))) {
