@@ -90,6 +90,16 @@ Deno.test({
 });
 
 Deno.test({
+  name: "upper case input with lowercaseMap",
+  async fn() {
+    config.lowercaseMap = { "+": "a" };
+    const context = new Context();
+    await dispatch(context, "+");
+    assertEquals(context.toString(), "▽あ");
+  },
+});
+
+Deno.test({
   name: "delete char",
   async fn() {
     const context = new Context();

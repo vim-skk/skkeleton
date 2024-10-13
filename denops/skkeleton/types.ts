@@ -42,6 +42,7 @@ export type ConfigOptions = {
   kanaTable: string;
   keepMode: boolean;
   keepState: boolean;
+  lowercaseMap: Record<string, string>;
   markerHenkan: string;
   markerHenkanSelect: string;
   registerConvertResult: boolean;
