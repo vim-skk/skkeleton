@@ -90,9 +90,9 @@ Deno.test({
 });
 
 Deno.test({
-  name: "upper case input with downcaseMap",
+  name: "upper case input with lowercaseMap",
   async fn() {
-    config.downcaseMap = { "+": "a" };
+    config.lowercaseMap = { "+": "a" };
     const context = new Context();
     await dispatch(context, "+");
     assertEquals(context.toString(), "▽あ");

@@ -218,20 +218,6 @@ debug                                                 *skkeleton-config-debug*
         (デフォルト v:false, g:skkeleton#debug が真の場合は v:true)
         このオプションを有効にするとデバッグログが出力されるようになります。
 
-downcaseMap                                     *skkeleton-config-downcaseMap*
-        (デフォルト {})
-        仮名入力時に大文字を打つと、通常は対応する小文字に変換した上で変換ポイ
-        ントと同時に入力しますが、仮名テーブルをカスタマイズし、記号と被せてい
-        る場合、変換が上手く行きません。その場合、このオプションを指定すること
-        で変換規則を指定できます。
->
-    値の例: {
-            \ '+': ';',
-            \ ':': ';',
-            \ }
-    これは AZIK で「っ」を打つための JIS 及び US キーボード用の設定です
-<
-
 eggLikeNewline                               *skkeleton-config-eggLikeNewline*
         (デフォルト v:false)
         このオプションを有効にすると
@@ -298,6 +284,20 @@ keepState                                         *skkeleton-config-keepState*
         (デフォルト v:false)
         このオプションを有効にすると
         Insertモードを抜けても前回の状態を保持するようになります。
+
+lowercaseMap                                   *skkeleton-config-lowercaseMap*
+        (デフォルト {})
+        仮名入力時に大文字を打つと、通常は対応する小文字に変換した上で変換ポイ
+        ントと同時に入力しますが、仮名テーブルをカスタマイズし、記号と被せてい
+        る場合、変換が上手く行きません。その場合、このオプションを指定すること
+        で変換規則を指定できます。
+>
+    値の例: {
+            \ '+': ';',
+            \ ':': ';',
+            \ }
+    これは AZIK で「っ」を打つための JIS 及び US キーボード用の設定です
+<
 
 markerHenkan                                   *skkeleton-config-markerHenkan*
         (デフォルト "▽")

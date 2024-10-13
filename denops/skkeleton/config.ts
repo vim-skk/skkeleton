@@ -13,7 +13,6 @@ export const config: Omit<ConfigOptions, "globalDictionaries"> & {
   completionRankFile: "",
   databasePath: "",
   debug: false,
-  downcaseMap: {},
   eggLikeNewline: false,
   globalDictionaries: [],
   globalKanaTableFiles: [],
@@ -23,6 +22,7 @@ export const config: Omit<ConfigOptions, "globalDictionaries"> & {
   kanaTable: "rom",
   keepMode: false,
   keepState: false,
+  lowercaseMap: {},
   markerHenkan: "▽",
   markerHenkanSelect: "▼",
   registerConvertResult: false,
@@ -54,7 +54,6 @@ const validators: Validators = {
   completionRankFile: (x) => ensure(x, is.String),
   databasePath: (x) => ensure(x, is.String),
   debug: (x) => ensure(x, is.Boolean),
-  downcaseMap: (x) => ensure(x, is.RecordOf(is.String)),
   eggLikeNewline: (x) => ensure(x, is.Boolean),
   globalDictionaries: (x): (string | [string, string])[] => {
     if (
@@ -96,6 +95,7 @@ const validators: Validators = {
   },
   keepMode: (x) => ensure(x, is.Boolean),
   keepState: (x) => ensure(x, is.Boolean),
+  lowercaseMap: (x) => ensure(x, is.RecordOf(is.String)),
   markerHenkan: (x) => ensure(x, is.String),
   markerHenkanSelect: (x) => ensure(x, is.String),
   registerConvertResult: (x) => ensure(x, is.Boolean),
