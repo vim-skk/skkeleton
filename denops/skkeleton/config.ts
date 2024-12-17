@@ -34,7 +34,6 @@ export const config: Omit<ConfigOptions, "globalDictionaries"> & {
   skkServerReqEnc: "euc-jp",
   skkServerResEnc: "euc-jp",
   sources: ["skk_dictionary"],
-  usePopup: true,
   userDictionary: "~/.skkeleton",
 };
 
@@ -116,7 +115,6 @@ const validators: Validators = {
   useGoogleJapaneseInput: () => {
     throw '`useGoogleJapaneseInput` is removed. Please use `sources` with "google_japanese_input"';
   },
-  usePopup: (x) => ensure(x, is.Boolean),
   useSkkServer: () => {
     throw '`useSkkServer` is removed. Please use `sources` with "skk_server"';
   },

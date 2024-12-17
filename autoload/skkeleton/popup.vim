@@ -5,7 +5,37 @@ function! skkeleton#popup#open(candidates) abort
   autocmd skkeleton-internal User skkeleton-handled ++once call s:open(s:candidates)
 endfunction
 
+function! s:open_cmdline(candidates)
+  let top = &lines + 1 - max([1, &cmdheight]) - len(a:candidates)
+  if has('nvim')
+    let buf = nvim_create_buf(v:false, v:true)
+    call nvim_buf_set_lines(buf, 0, -1, v:true, a:candidates)
+    let opts = {
+          \ 'relative': 'editor',
+          \ 'width': max(map(copy(a:candidates), 'strwidth(v:val)')),
+          \ 'height': len(a:candidates),
+          \ 'col': getcmdscreenpos(),
+          \ 'row': top,
+          \ 'style': 'minimal'
+          \ }
+    let win = nvim_open_win(buf, 0, opts)
+    redraw
+    call add(s:windows, win)
+  else
+    let id = popup_create(a:candidates, {
+    \ 'line': top,  
+    \ 'col': getcmdscreenpos(),  
+    \ })
+    call add(s:windows, id)
+  endif
+endfunction
+
 function! s:open(candidates) abort
+  autocmd skkeleton-internal User skkeleton-handled ++once call skkeleton#popup#close()
+  if mode() == 'c'
+    call s:open_cmdline(a:candidates)
+    return
+  endif
   let spos = screenpos(0, line('.'), col('.'))
   " Note: Neovimではecho areaにfloatwinを被せるのが許可されておらず、ずれるため
   "       offset付けることで弾く
@@ -33,7 +63,6 @@ function! s:open(candidates) abort
           \ })
     call add(s:windows, id)
   endif
-  autocmd skkeleton-internal User skkeleton-handled ++once call skkeleton#popup#close()
 endfunction
 
 function! skkeleton#popup#close() abort

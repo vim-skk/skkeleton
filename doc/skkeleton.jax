@@ -368,10 +368,6 @@ sources                                             *skkeleton-config-sources*
         Note: ネットワーク接続環境が必要です。
         Note: パフォーマンスの問題により補完には対応しません。
 
-usePopup                                           *skkeleton-config-usePopup*
-        (デフォルト v:true)
-        このオプションを有効にすると、変換候補がポップアップ表示されます。
-
 useSkkServer                                   *skkeleton-config-useSkkServer*
         (デフォルト v:false)
         辞書サーバー機能を有効にします。
@@ -566,6 +562,9 @@ skkeletonは|:lmap|を使用しなくなりました。カーソルの色を動�
 
 ==============================================================================
 COMPATIBILITY                                        *skkeleton-compatibility*
+
+2024-12-17~
+- "usePopup" オプションを廃止し、cmdline含め常にpopupを表示するようにした
 
 2024-07-27~
 - denops v7を前提とするように

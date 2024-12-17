@@ -6,7 +6,7 @@ import { currentLibrary } from "../store.ts";
 import { handleKey } from "../keymap.ts";
 import { keyToNotation } from "../notation.ts";
 import { getOkuriStr } from "../okuri.ts";
-import { HenkanState, initializeState } from "../state.ts";
+import { HenkanState } from "../state.ts";
 import { kakutei } from "./common.ts";
 import { acceptResult, henkanPoint, kakuteiFeed } from "./input.ts";
 import { registerWord } from "./dictionary.ts";
@@ -76,11 +76,7 @@ export async function henkanForward(context: Context) {
     }
   }
   if (state.candidateIndex >= config.showCandidatesCount) {
-    if (config.usePopup && context.vimMode === "i") {
-      await showCandidates(context.denops!, state);
-    } else {
-      await selectCandidates(context);
-    }
+    await showCandidates(context.denops!, state);
   }
 }
 
@@ -104,61 +100,6 @@ export async function henkanBackward(context: Context) {
   if (state.candidateIndex >= config.showCandidatesCount) {
     await showCandidates(context.denops!, state);
   }
-}
-
-async function selectCandidates(context: Context) {
-  const state = context.state as HenkanState;
-  const denops = context.denops!;
-  const count = config.showCandidatesCount;
-  const keys = config.selectCandidateKeys;
-  let index = 0;
-  while (index >= 0) {
-    const start = count + index * keys.length;
-    if (start >= state.candidates.length) {
-      if (await registerWord(context)) {
-        return;
-      }
-    }
-    const candidates = state.candidates.slice(start, start + keys.length);
-    const msg = candidates.map((c, i) =>
-      `${keys[i]}: ${modifyCandidate(c, state.affix)}`
-    ).join(" ");
-    let keyCode: number;
-    try {
-      keyCode = await denops.call("skkeleton#getchar", msg) as number;
-    } catch (e: unknown) {
-      // Note: Ctrl-C is interrupt
-      //       Manually convert to key code
-      if (String(e).match(/[Ii]nterrput/)) {
-        keyCode = 3;
-      } else {
-        throw e;
-      }
-    }
-    // Cancel select by <C-c> or <C-g> or <Esc>
-    if (keyCode == 3 || keyCode == 7 || keyCode == 27) {
-      if (config.immediatelyCancel) {
-        initializeState(context.state);
-      }
-      return;
-    }
-    const key = String.fromCharCode(keyCode);
-    if (key === " ") {
-      index += 1;
-    } else if (key === "x") {
-      index -= 1;
-    } else {
-      const candIndex = keys.indexOf(key);
-      if (candIndex !== -1) {
-        if (start + candIndex < state.candidates.length) {
-          state.candidateIndex = start + candIndex;
-          await kakutei(context);
-          return;
-        }
-      }
-    }
-  }
-  state.candidateIndex = config.showCandidatesCount - 1;
 }
 
 async function showCandidates(denops: Denops, state: HenkanState) {
