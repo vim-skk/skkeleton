@@ -31,7 +31,7 @@ skkeleton-initialize-pre                            *skkeleton-initialize-pre*
         |denops.vim|のランタイムはVimと独立して再起動する場合があり、設定も
         消えてしまいますが、その場合はもう一度このフックも実行されるので
         こちらのフックを利用して設定を行うことをおすすめします。
->
+>vim
     " 例
     function! s:skkeleton_init() abort
       call skkeleton#config({
@@ -71,7 +71,7 @@ skkeleton-mode-changed                                *skkeleton-mode-changed*
         モードが切り替わった際に呼び出されます。
         呼び出しの際は `g:skkeleton#mode` に |skkeleton#mode()| の結果と
         同じ物が代入されます。
->
+>vim
     " 例
     augroup skkeleton-mode-changed
       autocmd!
@@ -90,7 +90,7 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
 
 <Plug>(skkeleton-enable) (ic)                       *<Plug>(skkeleton-enable)*
 
-        skkeletonを有効化します。  >
+        skkeletonを有効化します。  >vim
 
     " 例
     imap <C-j> <Plug>(skkeleton-enable)
@@ -100,7 +100,7 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
 
 <Plug>(skkeleton-disable) (ic)                     *<Plug>(skkeleton-disable)*
 
-        skkeletonを無効化します。  >
+        skkeletonを無効化します。  >vim
 
     " 例
     imap <C-j> <Plug>(skkeleton-disable)
@@ -110,7 +110,7 @@ KEYMAPPINGS                                            *skkeleton-keymappings*
 
 <Plug>(skkeleton-toggle) (ic)                       *<Plug>(skkeleton-toggle)*
 
-        skkeletonの有効、無効を切り替えます。  >
+        skkeletonの有効、無効を切り替えます。  >vim
 
     " 例
     imap <C-j> <Plug>(skkeleton-toggle)
@@ -188,7 +188,7 @@ skkeleton#config(dict)                                    *skkeleton#config()*
         一部の設定(現時点では辞書関係)は初回起動前に渡す必要があります。
         パスに関しては、ホームディレクトリを示す `~` のみVimの|expand()|と
         同じ方法で展開されます。
->
+>vim
     " 例
     call skkeleton#config({
       \ 'eggLikeNewline': v:true
@@ -399,7 +399,7 @@ skkeleton#register_kanatable({tableName}, {table} [, {create}])
                         (ttで「っ」を入力する際などに使用されます)
                 |falsy| な値:
                         テーブルから割り当てを削除します。
->
+>vim
     " 例
     call skkeleton#register_kanatable('rom', {
           \ 'hh': ['お', 'h'],
@@ -441,7 +441,7 @@ skkeleton#register_keymap({state}, {key}, {funcName})
         {state}は以下の物が指定できます:
                 input
                 henkan
->
+>vim
     " 例: 変換モードでxを<BS>に移動します
     call skkeleton#register_keymap('henkan', "\<BS>", 'henkanBackward')
     call skkeleton#register_keymap('henkan', "x", '')
@@ -452,7 +452,7 @@ g:skkeleton#mapped_keys
         (デフォルト `skkeleton#get_default_mapped_keys()`の返値)
         skkeletonにマッピングするキーの配列です。ここにキーを追加すると
         |skkeleton#register_keymap()|で指定できるようになります。
->
+>vim
     " 例: <C-l>で全角モードに入れるようにします
     call add(g:skkeleton#mapped_keys, '<C-l>')
     call skkeleton#register_keymap('input', '<C-l>', 'zenkaku')
@@ -469,7 +469,7 @@ COMPLETION                                              *skkeleton-completion*
     しています。
     また、1文字だけ入力した際に、完全一致する候補だけを表示する機能を用意して
     いるので、|ddc-source-option-minAutoCompleteLength|を1に変更しています。
->
+>vim
     " 例
     call ddc#custom#patch_global('sources', ['skkeleton'])
     call ddc#custom#patch_global('sourceOptions', {
@@ -517,7 +517,7 @@ SKKではデフォルトで変換ポイントとして逆三角形を使いま�
 
 skkeletonを有効化、無効化する際にフックが使えますので
 プラグイン側で一時的に機能を無効化するという方法があります。
->
+>vim
     " coc.nvimの例
     augroup skkeleton-coc
       autocmd!
@@ -533,7 +533,7 @@ sticky keyの挙動をeskk.vimに合わせる~
 入力しないといけなくなっています。以下の設定を記述すると挙動を前者に寄せられ
 ます。
 
->
+>vim
     call skkeleton#register_keymap('input', ';', 'henkanPoint')
 <
 新辞書形式 (JISYO) について~
@@ -549,7 +549,7 @@ skkeleton有効時にカーソルの色がlCursorにならない~
 skkeletonは|:lmap|を使用しなくなりました。カーソルの色を動的に変更したい場合は
 以下のような設定をする必要があります。
 
->
+>vim
     augroup skkeleton-cursor
       autocmd!
       autocmd User skkeleton-enable-pre
