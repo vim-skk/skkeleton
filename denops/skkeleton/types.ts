@@ -55,7 +55,6 @@ export type ConfigOptions = {
   skkServerResEnc: Encoding;
   sources: string[];
   useGoogleJapaneseInput?: never;
-  usePopup: boolean;
   useSkkServer?: never;
   userDictionary: string;
 };
