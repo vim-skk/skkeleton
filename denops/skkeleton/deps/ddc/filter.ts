@@ -1,1 +1,1 @@
-export * from "jsr:@shougo/ddc-vim@~7.0.0/filter";
+export * from "jsr:@shougo/ddc-vim@~9.1.0/filter";
