@@ -38,6 +38,11 @@ export class Source implements BaseSource {
   }
 }
 
+// FIXME: 一旦送りありエントリブロックを無視する
+function filter(candidates: string[]) {
+  return candidates.filter((c) => c[0] != "[");
+}
+
 export class Dictionary implements UserDictionary {
   #okuriAri: Map<string, string[]>;
   #okuriNasi: Map<string, string[]>;
@@ -63,7 +68,7 @@ export class Dictionary implements UserDictionary {
 
   getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
     const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
-    return Promise.resolve(target.get(word) ?? []);
+    return Promise.resolve(filter(target.get(word) ?? []));
   }
 
   private cacheCandidates(prefix: string, feed: string) {
@@ -78,7 +83,7 @@ export class Dictionary implements UserDictionary {
           const feedPrefix = prefix + (kanas as string[])[0];
           for (const entry of this.#okuriNasi) {
             if (entry[0].startsWith(feedPrefix)) {
-              candidates.push(entry);
+              candidates.push([entry[0], filter(entry[1])]);
             }
           }
         }
@@ -157,7 +162,9 @@ export class Dictionary implements UserDictionary {
       if (mode == -1) continue;
       const pos = line.indexOf(" ");
       if (pos !== -1) {
-        a[mode].set(line.substring(0, pos), line.slice(pos + 2, -1).split("/"));
+        const m = line.substring(pos + 1).matchAll(/\[[^\]]+\]|[^/]+/g);
+        const mm = [...m].flat();
+        a[mode].set(line.substring(0, pos), mm);
       }
     }
 
