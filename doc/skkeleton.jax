@@ -28,7 +28,7 @@ Vimのautocmd機能によるフック機能を提供しています。
 skkeleton-initialize-pre                            *skkeleton-initialize-pre*
 
         skkeletonが最初に有効化された際に実行されます。
-        |denops.vim|のランタイムはVimと独立して再起動する場合があり、設定も
+        |denops.vim| のランタイムはVimと独立して再起動する場合があり、設定も
         消えてしまいますが、その場合はもう一度このフックも実行されるので
         こちらのフックを利用して設定を行うことをおすすめします。
 >vim
@@ -81,7 +81,7 @@ skkeleton-mode-changed                                *skkeleton-mode-changed*
 skkeleton-handled                                          *skkeleton-handled*
 
         入力がハンドリングされた後に呼び出されます。
-        呼び出しの前に|g:skkeleton#state|に状態が代入されます。
+        呼び出しの前に |g:skkeleton#state| に状態が代入されます。
 
 ------------------------------------------------------------------------------
 KEYMAPPINGS                                            *skkeleton-keymappings*
@@ -171,7 +171,7 @@ g:skkeleton#state                                          *g:skkeleton#state*
                     "henkan"           変換
                     "escape"           escapeした際
 
-						*skkeleton#update_database()*
+                                                 *skkeleton#update_database()*
 skkeleton#update_database({path} [, {encoding} [, {force}]])
 
 	データベースを手動で更新します。
@@ -447,7 +447,7 @@ skkeleton#register_keymap({state}, {key}, {funcName})
 g:skkeleton#mapped_keys
         (デフォルト `skkeleton#get_default_mapped_keys()`の返値)
         skkeletonにマッピングするキーの配列です。ここにキーを追加すると
-        |skkeleton#register_keymap()|で指定できるようになります。
+        |skkeleton#register_keymap()| で指定できるようになります。
 >vim
     " 例: <C-l>で全角モードに入れるようにします
     call add(g:skkeleton#mapped_keys, '<C-l>')
@@ -456,15 +456,15 @@ g:skkeleton#mapped_keys
 ==============================================================================
 COMPLETION                                              *skkeleton-completion*
 
-    |ddc|と連携した補完環境を提供します。
+    |ddc| と連携した補完環境を提供します。
     送りなし変換の仮名入力時に動作し、入力された仮名で始まる候補を表示します。
-    候補の順番は|skkeleton-config-completionRankFile|で指定したファイルに
+    候補の順番は |skkeleton-config-completionRankFile| で指定したファイルに
     保存できます。
-    ソース側で計算を行う特殊な仕様になっているため|ddc-source-option-matchers|
-    等を空にした上で|ddc-source-option-isVolatile|を指定し毎回計算が走るように
-    しています。
+    ソース側で計算を行う特殊な仕様になっているため
+    |ddc-source-option-matchers|等を空にした上で
+    |ddc-source-option-isVolatile| を指定し毎回計算が走るようにしています。
     また、1文字だけ入力した際に、完全一致する候補だけを表示する機能を用意して
-    いるので、|ddc-source-option-minAutoCompleteLength|を1に変更しています。
+    いるので、 |ddc-source-option-minAutoCompleteLength| を1に変更しています。
 >vim
     " 例
     call ddc#custom#patch_global('sources', ['skkeleton'])
@@ -492,8 +492,8 @@ FAQ                                                            *skkeleton-faq*
 変換を行うにはSKK用の辞書のダウンロード及びパスの設定が必要になります。
 https://skk-dev.github.io/dict/ で管理されているL辞書をダウンロードして
 展開するのをおすすめします。
-展開後は|skkeleton-config-globalDictionaries|に展開したパスの指定をしてくださ
-い。
+展開後は |skkeleton-config-globalDictionaries| に展開したパスの指定をしてくだ
+さい。
 
 skkeleton のロード処理が遅い~
 
@@ -503,10 +503,10 @@ skkeleton のロード処理が遅い~
 変換ポイントの描画が乱れる~
 
 SKKではデフォルトで変換ポイントとして逆三角形を使いますが、この文字は
-'ambiwidth'の対象になっています。
-そのためVimとターミナルやフォントの設定がずれていると描画が乱れます。
-'ambiwidth'の設定を変更するか|skkeleton-config-markerHenkan|及び
-|skkeleton-config-markerHenkanSelect|を'ambiwidth'の対象外に
+'ambiwidth' の対象になっています。
+そのため Vim とターミナルやフォントの設定がずれていると描画が乱れます。
+'ambiwidth' の設定を変更するか |skkeleton-config-markerHenkan| 及び
+|skkeleton-config-markerHenkanSelect| を 'ambiwidth' の対象外に
 変更してみてください。
 
 プラグインと干渉する~
@@ -523,7 +523,7 @@ skkeletonを有効化、無効化する際にフックが使えますので
 <
 sticky keyの挙動をeskk.vimに合わせる~
 
-|eskk.vim|ではsticky keyを使用している際に「察し」を「;sass;i」で入力できま
+|eskk.vim| ではsticky keyを使用している際に「察し」を「;sass;i」で入力できま
 す。
 しかしskkeletonではsticky keyを仮名テーブルに配置しているため「;sass;si」と
 入力しないといけなくなっています。以下の設定を記述すると挙動を前者に寄せられ
