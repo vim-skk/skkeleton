@@ -18,11 +18,12 @@ Deno.test({
 });
 
 Deno.test({
-  name: "preedit with emoji",
+  name: "preedit with grapheme",
   fn() {
     const preEdit = new PreEdit();
     assertEquals(preEdit.output("💩"), "💩");
     assertEquals(preEdit.output("🚽"), "\b🚽");
+    assertEquals(preEdit.output("☀️"), "\b☀️"); // U+2600 U+FE0Fの合成文字
     assertEquals(preEdit.output("🍦"), "\b🍦");
   },
 });

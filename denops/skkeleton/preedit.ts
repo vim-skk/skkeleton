@@ -1,3 +1,5 @@
+const segmenter = new Intl.Segmenter("ja");
+
 // 現在の文字列の状態を覚えておいて削除命令を発行することで擬似的にVimでIMEのPreEditを実現する
 export class PreEdit {
   #current = "";
@@ -13,7 +15,8 @@ export class PreEdit {
     if (!this.#kakutei && next.startsWith(this.#current)) {
       ret = next.slice(this.#current.length);
     } else {
-      ret = "\b".repeat([...this.#current].length) + this.#kakutei + next;
+      ret = "\b".repeat([...segmenter.segment(this.#current)].length) +
+        this.#kakutei + next;
     }
     this.#current = next;
     this.#kakutei = "";
