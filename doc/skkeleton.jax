@@ -368,10 +368,6 @@ sources                                             *skkeleton-config-sources*
         Note: ネットワーク接続環境が必要です。
         Note: パフォーマンスの問題により補完には対応しません。
 
-useSkkServer                                   *skkeleton-config-useSkkServer*
-        (デフォルト v:false)
-        辞書サーバー機能を有効にします。
-
 userDictionary                               *skkeleton-config-userDictionary*
         (デフォルト "~/.skkeleton")
         ユーザー辞書のパス
