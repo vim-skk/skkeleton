@@ -79,6 +79,10 @@ function s:init() abort
   for n in keys(n2k)
      let k2n[n2k[n]] = n
   endfor
+  " remove unneeded conversion e.g. A -> <s-a>
+  for k in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'->split('\zs')
+    unlet k2n[k]
+  endfor
   let g:skkeleton#notation#key_to_notation = k2n
 endfunction
 

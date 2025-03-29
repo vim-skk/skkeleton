@@ -11,15 +11,7 @@ import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { currentContext, currentLibrary, variables } from "./store.ts";
 import { globpath } from "./util.ts";
 import type { CompletionData, RankData } from "./types.ts";
-
-import { is } from "jsr:@core/unknownutil@~4.3.0/is";
-import { assert, AssertError } from "jsr:@core/unknownutil@~4.3.0/assert";
-
-type Opts = {
-  key: string | string[];
-  function?: string;
-  expr?: boolean;
-};
+import { as, assert, is } from "jsr:@core/unknownutil@~4.3.0";
 
 type CompleteInfo = {
   pum_visible: boolean;
@@ -40,16 +32,10 @@ type HandleResult = {
   result: string;
 };
 
-// deno-lint-ignore no-explicit-any
-function isOpts(x: any): x is Opts {
-  return is.String(x?.key) || is.ArrayOf(is.String)(x?.key);
-}
-
-function assertOpts(x: unknown): asserts x is Opts {
-  if (!isOpts(x)) {
-    throw new AssertError("value must be Opts");
-  }
-}
+const isOpts = is.ObjectOf({
+  function: as.Optional(is.String),
+  key: is.ArrayOf(is.String),
+});
 
 let initialized = false;
 
@@ -179,8 +165,10 @@ async function handle(
   opts: unknown,
   vimStatus: unknown,
 ): Promise<string> {
-  assertOpts(opts);
-  const keyList = is.String(opts.key) ? [opts.key] : opts.key;
+  assert(opts, isOpts);
+  const keyList = opts.key.map((key) => {
+    return keyToNotation[notationToKey[key]] ?? key;
+  });
   const { prevInput, completeInfo, completeType, mode } =
     vimStatus as VimStatus;
   const context = currentContext.get();
@@ -189,9 +177,7 @@ async function handle(
     if (config.debug) {
       console.log("input after complete");
     }
-    const notation = keyList.map((key) => {
-      return keyToNotation[notationToKey[key]] || key;
-    }).join("");
+    const notation = keyList.join("");
     if (config.debug) {
       console.log({
         completeType,

@@ -131,7 +131,16 @@ function! skkeleton#vim_status() abort
 endfunction
 
 function! skkeleton#handle(func, opts) abort
-  let ret = skkeleton#request('handle', [a:func, a:opts, skkeleton#vim_status()])
+  " normalize opts.key and convert key to notation
+  let opts = a:opts->deepcopy()
+  let key = opts->get('key')
+  if type(key) == v:t_string
+    let key = [key]
+  endif
+  if type(key) == v:t_list
+    let opts.key = map(key, 'get(g:skkeleton#notation#key_to_notation, v:val, v:val)')
+  endif
+  let ret = skkeleton#request('handle', [a:func, opts, skkeleton#vim_status()])
 
   let g:skkeleton#state = ret.state
 
@@ -188,14 +197,9 @@ function! skkeleton#map() abort
 
   call skkeleton#internal#map#save(mode)
 
+  " <CR>と<Esc>はマッピングを壊すのでエスケープする
   for c in g:skkeleton#mapped_keys
-    " notation to lower
-    if len(c) > 1 && c[0] ==# '<' && c !=? '<bar>'
-      let k = g:skkeleton#notation#key_to_notation[eval('"\' .. c .. '"')]
-      let k = '<lt>' .. tolower(k[1:])
-    else
-      let k = c
-    endif
+    let k = c =~? '<\(cr\|enter\|esc\|return\)>' ? '<lt>' .. tolower(c[1:]) : c
     let func = 'handleKey'
     for m in modes
       let match = matchlist(maparg(c, m), '<Plug>(skkeleton-\(\a\+\))')
