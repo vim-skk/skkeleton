@@ -197,9 +197,14 @@ function! skkeleton#map() abort
 
   call skkeleton#internal#map#save(mode)
 
-  " <CR>と<Esc>はマッピングを壊すのでエスケープする
   for c in g:skkeleton#mapped_keys
-    let k = c =~? '<\(cr\|enter\|esc\|return\)>' ? '<lt>' .. tolower(c[1:]) : c
+    " notation to lower
+    if len(c) > 1 && c[0] ==# '<' && c !=? '<bar>'
+      let k = g:skkeleton#notation#key_to_notation[eval('"\' .. c .. '"')]
+      let k = '<lt>' .. tolower(k[1:])
+    else
+      let k = c
+    endif
     let func = 'handleKey'
     for m in modes
       let match = matchlist(maparg(c, m), '<Plug>(skkeleton-\(\a\+\))')
