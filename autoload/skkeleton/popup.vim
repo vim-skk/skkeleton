@@ -11,12 +11,13 @@ function! s:open_cmdline(candidates)
     let buf = nvim_create_buf(v:false, v:true)
     call nvim_buf_set_lines(buf, 0, -1, v:true, a:candidates)
     let opts = {
+          \ 'border': 'none',
           \ 'relative': 'editor',
           \ 'width': max(map(copy(a:candidates), 'strwidth(v:val)')),
           \ 'height': len(a:candidates),
           \ 'col': getcmdscreenpos(),
           \ 'row': top,
-          \ 'style': 'minimal'
+          \ 'style': 'minimal',
           \ }
     let win = nvim_open_win(buf, 0, opts)
     redraw
@@ -45,13 +46,14 @@ function! s:open(candidates) abort
     let buf = nvim_create_buf(v:false, v:true)
     call nvim_buf_set_lines(buf, 0, -1, v:true, a:candidates)
     let opts = {
+          \ 'border': 'none',
           \ 'relative': 'cursor',
           \ 'width': max(map(copy(a:candidates), 'strwidth(v:val)')),
           \ 'height': len(a:candidates),
           \ 'col': 0,
           \ 'row': linvert ? 0 : 1,
           \ 'anchor': linvert ? 'SW' : 'NW',
-          \ 'style': 'minimal'
+          \ 'style': 'minimal',
           \ }
     let win = nvim_open_win(buf, 0, opts)
     call add(s:windows, win)
