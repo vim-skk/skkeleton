@@ -24,8 +24,8 @@ function! s:open_cmdline(candidates)
     call add(s:windows, win)
   else
     let id = popup_create(a:candidates, {
-    \ 'line': top,  
-    \ 'col': getcmdscreenpos(),  
+    \ 'line': top,
+    \ 'col': getcmdscreenpos(),
     \ })
     call add(s:windows, id)
   endif
