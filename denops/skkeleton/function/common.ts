@@ -51,6 +51,7 @@ export async function kakutei(context: Context) {
   await initializeStateWithAbbrev(context, ["converter", "table"]);
 }
 
+// 確定キーの処理には強制的にひらがな入力に戻す物があるが、内部的な確定では必要ないため分けておく
 export async function kakuteiKey(context: Context) {
   const { state } = context;
   // 確定する物が無い状態で確定しようとした際にモードを解除する

@@ -1,7 +1,12 @@
 import { config } from "./config.ts";
 import type { Context } from "./context.ts";
 import { Func, functions } from "./function.ts";
-import { cancel, kakutei, newline, purgeCandidate } from "./function/common.ts";
+import {
+  cancel,
+  kakuteiKey,
+  newline,
+  purgeCandidate,
+} from "./function/common.ts";
 import { escape } from "./function/disable.ts";
 import {
   henkanBackward,
@@ -26,7 +31,7 @@ const input: KeyMap = {
     "<c-h>": deleteChar,
     "<cr>": newline,
     "<esc>": escape,
-    "<nl>": kakutei,
+    "<nl>": kakuteiKey,
     "<c-q>": hankatakana,
     ">": prefix,
   },
@@ -37,7 +42,7 @@ const henkan: KeyMap = {
   map: {
     "<c-g>": cancel,
     "<cr>": newline,
-    "<nl>": kakutei,
+    "<nl>": kakuteiKey,
     "<space>": henkanForward,
     "x": henkanBackward,
     "X": purgeCandidate,
