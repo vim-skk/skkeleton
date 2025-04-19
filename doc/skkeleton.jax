@@ -179,6 +179,26 @@ skkeleton#update_database({path} [, {encoding} [, {force}]])
 	- {encoding} 辞書のエンコード。省略するか空文字列だと自動で判別します
 	- {force} 辞書に更新がなくても強制的にデータベースを更新します
 
+                                                          *skkeleton#handle()*
+skkeleton#handle({func}, {opts})
+        ハンドリングを行い、変更結果をバッファに書き込みます。
+        {func}には以下の物が指定できます:
+                handleKey
+                enable
+                disable
+                toggle
+        下3つについては |<Plug>(skkeleton-enable)| 等と同じです。
+                                                *skkeleton#handle()-handleKey*
+        handleKeyの場合、optsに以下の要素を渡せます:
+
+        function:
+                |skkeleton-functions| を表す文字列です。
+                通常キーは |skkeleton#register_keymap()| で示されるキーマップ
+                に従って解釈されますが、functionを指定すると常に指定した
+                functionが強制されます。
+        key:
+                単一のキーを表す文字列あるいはそのリストです。
+
 ------------------------------------------------------------------------------
 CONFIG                                                      *skkeleton-config*
 
