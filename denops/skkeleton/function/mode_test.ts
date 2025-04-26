@@ -14,12 +14,16 @@ test({
   mode: "all",
   name: "Can get skkeleton mode",
   async fn(d: Denops) {
+    const vimStatus = {
+      mode: "",
+      prevInput: "",
+    };
     assertEquals(await d.call("skkeleton#mode"), "");
-    await d.dispatch("skkeleton", "handle", "enable");
+    await d.dispatch("skkeleton", "handle", "enable", {}, vimStatus);
     assertEquals(await d.call("skkeleton#mode"), "hira");
-    await d.dispatch("skkeleton", "handle", "disable");
+    await d.dispatch("skkeleton", "handle", "disable", {}, vimStatus);
     assertEquals(await d.call("skkeleton#mode"), "");
-    await d.dispatch("skkeleton", "handle", "enable");
+    await d.dispatch("skkeleton", "handle", "enable", {}, vimStatus);
     await katakana(currentContext.get());
     assertEquals(await d.call("skkeleton#mode"), "kata");
     await katakana(currentContext.get());

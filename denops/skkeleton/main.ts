@@ -90,7 +90,7 @@ async function init(denops: Denops) {
   initialized = true;
 }
 
-async function enable(opts?: unknown, vimStatus?: unknown): Promise<string> {
+async function enable(opts: unknown, vimStatus: unknown): Promise<string> {
   const oldContext = currentContext.get();
   const oldState = oldContext.state;
   const denops = oldContext.denops!;
@@ -98,10 +98,7 @@ async function enable(opts?: unknown, vimStatus?: unknown): Promise<string> {
     console.log("skkeleton doesn't allowed in replace mode");
     return "";
   }
-  if (
-    (oldState.type !== "input" || oldState.mode !== "direct") && isOpts(opts) &&
-    vimStatus
-  ) {
+  if ((oldState.type !== "input" || oldState.mode !== "direct") && vimStatus) {
     return handle(opts, vimStatus);
   }
   // Note: must set before context initialization
@@ -128,13 +125,10 @@ async function enable(opts?: unknown, vimStatus?: unknown): Promise<string> {
   return "";
 }
 
-async function disable(opts?: unknown, vimStatus?: unknown): Promise<string> {
+async function disable(opts: unknown, vimStatus: unknown): Promise<string> {
   const context = currentContext.get();
   const state = currentContext.get().state;
-  if (
-    (state.type !== "input" || state.mode !== "direct") && isOpts(opts) &&
-    vimStatus
-  ) {
+  if ((state.type !== "input" || state.mode !== "direct") && vimStatus) {
     return handle(opts, vimStatus);
   }
   await disableFunc(context);
@@ -169,8 +163,7 @@ async function handle(
   const keyList = opts.key.map((key) => {
     return keyToNotation[notationToKey[key]] ?? key;
   });
-  const { prevInput, completeInfo, completeType, mode } =
-    vimStatus as VimStatus;
+  const { completeInfo, completeType, mode } = vimStatus as VimStatus;
   const context = currentContext.get();
   context.vimMode = mode;
   if (completeInfo.pum_visible) {
@@ -194,11 +187,6 @@ async function handle(
       context.preEdit.output("");
       return handled;
     }
-  }
-  // 補完の後などpreEditとバッファが不一致している状態の時にリセットする
-  if (mode !== "t" && !prevInput.endsWith(context.toString())) {
-    await initializeStateWithAbbrev(context, ["converter"]);
-    context.preEdit.output("");
   }
   const before = context.mode;
   if (opts.function) {
@@ -266,6 +254,13 @@ export const main: Entrypoint = async (denops) => {
       vimStatus: unknown,
     ): Promise<HandleResult> {
       await init(denops);
+      const { mode, prevInput } = vimStatus as VimStatus;
+      const context = currentContext.get();
+      // 補完の後などpreEditとバッファが不一致している状態の時にリセットする
+      if (mode !== "t" && !prevInput.endsWith(context.toString())) {
+        await initializeStateWithAbbrev(context, ["converter"]);
+        context.preEdit.output("");
+      }
       if (func === "handleKey") {
         return buildResult(await handle(opts, vimStatus));
       } else if (func === "setState") {
