@@ -44,7 +44,6 @@ export const modeFunctions = new Cell<Record<string, Func>>(() => ({
 export const functions = new Cell<Record<string, Func>>(() => ({
   // common
   kakutei: kakuteiKey,
-  kakuteiInput: henkanInput,
   newline,
   cancel,
   purgeCandidate,

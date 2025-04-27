@@ -112,10 +112,8 @@ async function showCandidates(denops: Denops, state: HenkanState) {
 }
 
 export async function henkanInput(context: Context, key: string) {
-  const state = context.state;
-  if (
-    state.type == "henkan" && state.candidateIndex >= config.showCandidatesCount
-  ) {
+  const state = context.state as HenkanState;
+  if (state.candidateIndex >= config.showCandidatesCount) {
     const candIdx = config.selectCandidateKeys.indexOf(key);
     if (candIdx !== -1) {
       if (state.candidateIndex + candIdx < state.candidates.length) {

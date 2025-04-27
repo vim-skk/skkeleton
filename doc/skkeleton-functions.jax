@@ -52,17 +52,14 @@ purgeCandidate                             *skkeleton-function-purgeCandidate*
         (補完で確定した候補を消す際などに便利です)
         削除が行われた場合は入力状態が解除されます。
 
+henkanInput                                  *skkeleton-functions-henkanInput*
+        (henkan)!
+        変換候補を確定して文字を入力します。
+
 kakuteiFeed                                  *skkeleton-functions-kakuteiFeed*
         (input)
         直接入力時に入力が確定できる場合、確定します。
         (ローマ字入力で「n」が入力されている場合など)
-
-henkanInput                                  *skkeleton-functions-henkanInput*
-kakuteiInput                                *skkeleton-functions-kakuteiInput*
-        (input, henkan)!
-        現在入力されている物を確定し後に文字を入力します。
-        変換候補が出力されている時に |skkeleton-config-selectCandidateKeys| に
-        指定されているキーが押されている場合、その候補が選択されます。
 
 henkanPoint                                  *skkeleton-functions-henkanPoint*
         (input)
