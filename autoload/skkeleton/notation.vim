@@ -86,4 +86,19 @@ function s:init() abort
   let g:skkeleton#notation#key_to_notation = k2n
 endfunction
 
+function skkeleton#notation#normalize(key)
+  let key = a:key
+  if 1 < strlen(key) && key[0] ==# '<'
+    let key = eval('"\' .. key .. '"')
+  endif
+  if key !~# '^[A-Z]$'
+    let key = get(g:skkeleton#notation#key_to_notation, key, key)
+  endif
+
+  if len(key) != 1
+    let key = tolower(key)
+  endif
+  return key
+endfunction
+
 call s:init()
