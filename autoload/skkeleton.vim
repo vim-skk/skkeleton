@@ -198,7 +198,14 @@ else
     throw 'todo'
   endfunction
 
-  function skkeleton#register_kanatable(name, table, create)
-    call skkeleton#vim#kana#register(a:name, a:table, a:create)
+  function skkeleton#register_kanatable(name, table, ...) abort
+    let create = get(a:000, 0, v:false)
+    call skkeleton#vim#kana#register(a:name, a:table, create)
+  endfunction
+
+  function skkeleton#register_keymap(state, key, func_name) abort
+    " normalize notation
+    let key = skkeleton#notation#normalize(a:key)
+    call skkeleton#vim#keymap#register(a:state, key, a:func_name)
   endfunction
 endif

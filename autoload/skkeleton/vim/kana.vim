@@ -271,12 +271,12 @@ function skkeleton#vim#kana#register(name, table, create) abort
     endif
   endif
   let table = s:tables[a:name]
-  for kana, result in items(a:table)
+  for [kana, result] in items(a:table)
     if result is v:false
       silent! unlet table[kana]
     else
       let table[kana] = result
     endif
   endfor
-  unlet! s:sorted_tables[a:name]
+  silent! unlet s:sorted_tables[a:name]
 endfunction
