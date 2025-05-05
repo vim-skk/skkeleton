@@ -114,7 +114,6 @@ async function enable(opts: unknown, vimStatus: unknown): Promise<string> {
 
   await denops.call("skkeleton#internal#option#save_and_set");
   await denops.call("skkeleton#map");
-  await vars.b.set(denops, "keymap_name", "skkeleton");
   await vars.g.set(denops, "skkeleton#enabled", true);
   await modeFunctions.get()[variables.lastMode]?.(context, "");
   try {
