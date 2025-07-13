@@ -474,7 +474,7 @@ COMPLETION                                              *skkeleton-completion*
         \     'sorters': ['sorter_rank']
         \   },
         \   'skkeleton': {
-        \     'mark': 'SKK'
+        \     'mark': 'SKK',
         \     'matchers': [],
         \     'sorters': [],
         \     'converters': [],
@@ -482,7 +482,7 @@ COMPLETION                                              *skkeleton-completion*
         \     'minAutoCompleteLength': 1,
         \   },
         \   'skkeleton_okuri': {
-        \     'mark': 'SKK*'
+        \     'mark': 'SKK*',
         \     'matchers': [],
         \     'sorters': [],
         \     'converters': [],
