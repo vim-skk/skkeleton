@@ -2,7 +2,7 @@ import { config, setConfig } from "./config.ts";
 import { autocmd, Denops, Entrypoint, fn, vars } from "./deps.ts";
 import { functions, modeFunctions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
-import { load as loadDictionary } from "./dictionary.ts";
+import { isHenkanType, load as loadDictionary } from "./dictionary.ts";
 import { Dictionary as DenoKvDictionary } from "./sources/deno_kv.ts";
 import { currentKanaTable, registerKanaTable } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
@@ -295,6 +295,12 @@ export const main: Entrypoint = async (denops) => {
       }
       return Promise.resolve(state.henkanFeed);
     },
+    async getCandidates(kana: unknown, type: unknown = "okurinasi") {
+      assert(kana, is.String);
+      assert(type, isHenkanType);
+      const lib = await currentLibrary.get();
+      return await lib.getHenkanResult(type, kana);
+    },
     async getCompletionResult(): Promise<CompletionData> {
       const state = currentContext.get().state;
       if (state.type !== "input") {
@@ -311,19 +317,24 @@ export const main: Entrypoint = async (denops) => {
       const lib = await currentLibrary.get();
       return Promise.resolve(lib.getRanks(state.henkanFeed));
     },
-    async registerHenkanResult(kana: unknown, word: unknown) {
+    async registerHenkanResult(midasi: unknown, word: unknown) {
       // Note: This method is compatible to completion source
-      await denops.dispatcher.completeCallback(kana, word);
+      await denops.dispatcher.completeCallback(midasi, word);
     },
-    async completeCallback(kana: unknown, word: unknown) {
-      assert(kana, is.String);
+    async completeCallback(
+      midasi: unknown,
+      word: unknown,
+      type: unknown = "okurinasi",
+    ) {
+      assert(midasi, is.String);
       assert(word, is.String);
+      assert(type, isHenkanType);
       const lib = await currentLibrary.get();
-      await lib.registerHenkanResult("okurinasi", kana, word);
+      await lib.registerHenkanResult(type, midasi, word);
       const context = currentContext.get();
       context.lastCandidate = {
-        type: "okurinasi",
-        word: kana,
+        type,
+        word: midasi,
         candidate: word,
       };
     },

@@ -3,8 +3,9 @@ import type { CompletionData, RankData } from "./types.ts";
 import { number2kanji } from "npm:@geolonia/japanese-numeral@1.0.2";
 import { convertNumberToRoman } from "npm:cr-numeral@1.1.3";
 
-import { toFileUrl } from "jsr:@std/path@~1.0.3/to-file-url";
+import { is, Predicate } from "jsr:@core/unknownutil@~4.3.0";
 import { zip } from "jsr:@std/collections@~1.0.5/zip";
+import { toFileUrl } from "jsr:@std/path@~1.0.3/to-file-url";
 
 export const okuriAriMarker = ";; okuri-ari entries.";
 export const okuriNasiMarker = ";; okuri-nasi entries.";
@@ -182,6 +183,10 @@ export function wrapDictionary(dict: Dictionary): Dictionary {
 }
 
 export type HenkanType = "okuriari" | "okurinasi";
+
+export const isHenkanType = is.LiteralOneOf(
+  ["okurinasi", "okuriari"] as const,
+) satisfies Predicate<HenkanType>;
 
 function gatherCandidates(
   collector: Map<string, Set<string>>,
