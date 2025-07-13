@@ -453,29 +453,40 @@ g:skkeleton#mapped_keys
 COMPLETION                                              *skkeleton-completion*
 
     |ddc| と連携した補完環境を提供します。
-    送りなし変換の仮名入力時に動作し、入力された仮名で始まる候補を表示します。
+    送りなし変換の仮名入力時に動作し、入力された仮名(見出し)で始まる候補を
+    直接変換する `skkeleton` ソース及び、見出しの一部を送り仮名に見立てて
+    送りあり変換する(「あたり」の場合、「あた+り」=>「辺り」や
+    「あ*たり」=>「当たり」など) `skkeleton_okuri` ソースを用意しています。
     候補の順番は |skkeleton-config-completionRankFile| で指定したファイルに
     保存できます。
     ソース側で計算を行う特殊な仕様になっているため
-    |ddc-source-option-matchers|等を空にした上で
+    |ddc-source-option-matchers| 等を空にした上で
     |ddc-source-option-isVolatile| を指定し毎回計算が走るようにしています。
-    また、1文字だけ入力した際に、完全一致する候補だけを表示する機能を用意して
-    いるので、 |ddc-source-option-minAutoCompleteLength| を1に変更しています。
+    また、`skkeleton` ソースには1文字だけ入力した際に、完全一致する候補だけを
+    表示する機能を用意しているので、|ddc-source-option-minAutoCompleteLength|
+    を1に変更しています。
 >vim
     " 例
-    call ddc#custom#patch_global('sources', ['skkeleton'])
+    call ddc#custom#patch_global('sources', ['skkeleton', 'skkeleton_okuri'])
     call ddc#custom#patch_global('sourceOptions', {
         \   '_': {
         \     'matchers': ['matcher_head'],
         \     'sorters': ['sorter_rank']
         \   },
         \   'skkeleton': {
-        \     'mark': 'skkeleton',
+        \     'mark': 'SKK'
         \     'matchers': [],
         \     'sorters': [],
         \     'converters': [],
         \     'isVolatile': v:true,
         \     'minAutoCompleteLength': 1,
+        \   },
+        \   'skkeleton_okuri': {
+        \     'mark': 'SKK*'
+        \     'matchers': [],
+        \     'sorters': [],
+        \     'converters': [],
+        \     'isVolatile': v:true,
         \   },
         \ })
     call skkeleton#config({'completionRankFile': '~/.skkeleton/rank.json'})

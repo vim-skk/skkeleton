@@ -295,6 +295,12 @@ export const main: Entrypoint = async (denops) => {
       }
       return Promise.resolve(state.henkanFeed);
     },
+    async getCandidates(kana: unknown, type: unknown = "okurinasi") {
+      assert(kana, is.String);
+      assert(type, isHenkanType);
+      const lib = await currentLibrary.get();
+      return await lib.getHenkanResult(type, kana);
+    },
     async getCompletionResult(): Promise<CompletionData> {
       const state = currentContext.get().state;
       if (state.type !== "input") {
