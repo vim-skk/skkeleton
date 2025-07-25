@@ -1,24 +1,24 @@
 *skkeleton-functions.txt* skkeletonの機能定義
 
 マッピングで使える機能( *skkeleton-functions* )の一覧です。
-括弧内は機能が使えるモードです、!が付いている物はマッピング先のキーに
-一部の挙動が依存します。
+括弧内は機能が使えるモードとデフォルトのマッピングです。!が付いている物はマッ
+ピング先のキーに一部の挙動が依存します。
 
 kakutei                                          *skkeleton-functions-kakutei*
-        (input, henkan)
+        (input: <NL>, henkan: <NL>)
         入力中や変換中の文字列を確定します。
         何も入力されていない場合、カナ入力などのモードを解除します。
 
 newline                                          *skkeleton-functions-newline*
-        (input, henkan)
+        (input: <CR>, henkan: <CR>)
         現在の入力を確定し改行します。
-        確定後に改行が入るかどうかを|skkeleton-config-eggLikeNewline|により
+        確定後に改行が入るかどうかを |skkeleton-config-eggLikeNewline| により
         カスタマイズすることもできます。
 
 cancel                                            *skkeleton-functions-cancel*
-        (input, henkan)
+        (input: <C-g>, henkan: <C-g>)
         現在の入力をキャンセルします。
-        どこまで戻るかを|skkeleton-config-immediatelyCancel|により
+        どこまで戻るかを |skkeleton-config-immediatelyCancel| により
         変更できます。
 
 disable                                          *skkeleton-functions-disable*
@@ -26,9 +26,9 @@ disable                                          *skkeleton-functions-disable*
         skkeletonを無効化します。
 
 escape                                            *skkeleton-functions-escape*
-        (input, henkan)
+        (input: <Esc>, henkan: <Esc>)
         挿入モードもしくはコマンドラインモードから抜けます。
-        |skkeleton-config-keepState|が有効になっている場合は
+        |skkeleton-config-keepState| が有効になっている場合は
         再びモードに入った際にskkeletonが有効化されます。
 
 henkanFirst                                  *skkeleton-functions-henkanFirst*
@@ -37,11 +37,11 @@ henkanFirst                                  *skkeleton-functions-henkanFirst*
         直接入力モードの場合は何もマッピングされていないように振る舞います。
 
 henkanForward                              *skkeleton-functions-henkanForward*
-        (henkan)
+        (henkan: <Space>)
         変換候補を次に進めます。
 
 henkanBackward                             *skkeleton-function-henkanBackward*
-        (henkan)
+        (henkan: x)
         変換候補を前に戻します。
         戻りきった際は入力ステートに戻ります。
 
@@ -66,7 +66,7 @@ henkanPoint                                  *skkeleton-functions-henkanPoint*
         変換ポイントを設定します。いわゆるsticky-keyです。
 
 deleteChar                                    *skkeleton-functions-deleteChar*
-        (input)
+        (input: <BS>)
         入力を1文字削除します。変換ポイントに差し掛かると解除します。
 
 katakana                                        *skkeleton-functions-katakana*
@@ -75,7 +75,7 @@ katakana                                        *skkeleton-functions-katakana*
         変換ポイントが設定されている場合はカタカナに変換します。
 
 hankatakana                                  *skkeleton-functions-hankatakana*
-        (input)
+        (input: <C-q>)
         半角カタカナモードに入ります。
         変換ポイントが設定されている場合は半角カタカナに変換します。
 
@@ -88,12 +88,12 @@ abbrev                                            *skkeleton-functions-abbrev*
         abbrevモードに入ります。
 
 prefix                                            *skkeleton-functions-prefix*
-        (input)
+        (input: >)
         接頭辞の入力を開始します。
         開始できない場合はマッピングしたキーに従ってかな入力します。
 
 suffix                                            *skkeleton-functions-suffix*
-        (input)
+        (henkan: >)
         接尾辞の入力を開始します。
 
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
