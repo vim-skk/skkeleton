@@ -1,10 +1,16 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
-import { autocmd, batch, fn, mapping, op, vars } from "../deps.ts";
 import { currentContext } from "../store.ts";
 import { HenkanState } from "../state.ts";
 import { kakutei } from "./common.ts";
 import { modeChange } from "../mode.ts";
+
+import * as autocmd from "jsr:@denops/std@^7.6.0/autocmd";
+import { batch } from "jsr:@denops/std@^7.6.0/batch";
+import * as fn from "jsr:@denops/std@^7.6.0/function";
+import * as mapping from "jsr:@denops/std@^7.6.0/mapping";
+import * as op from "jsr:@denops/std@^7.6.0/option";
+import * as vars from "jsr:@denops/std@^7.6.0/variable";
 
 const cmapKeys = ["<Esc>", "<C-g>"];
 

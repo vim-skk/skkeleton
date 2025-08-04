@@ -1,7 +1,6 @@
 import { modifyCandidate } from "../candidate.ts";
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
-import type { Denops } from "../deps.ts";
 import { currentLibrary } from "../store.ts";
 import { handleKey } from "../keymap.ts";
 import { keyToNotation } from "../notation.ts";
@@ -10,6 +9,8 @@ import { HenkanState } from "../state.ts";
 import { kakutei } from "./common.ts";
 import { acceptResult, henkanPoint, kakuteiFeed } from "./input.ts";
 import { registerWord } from "./dictionary.ts";
+
+import type { Denops } from "jsr:@denops/std@^7.6.0";
 
 export async function henkanFirst(context: Context, key: string) {
   if (context.state.type !== "input") {

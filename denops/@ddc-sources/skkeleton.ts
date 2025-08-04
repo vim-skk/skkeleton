@@ -5,9 +5,13 @@ import {
   type GetPreviewerArguments,
   type OnCompleteDoneArguments,
 } from "../skkeleton/deps/ddc/source.ts";
-import { type DdcGatherItems, Previewer } from "../skkeleton/deps/ddc/types.ts";
-import { fn } from "../skkeleton/deps.ts";
 import type { CompletionData, RankData } from "../skkeleton/types.ts";
+
+import * as fn from "jsr:@denops/std@^7.6.0/function";
+import {
+  type DdcGatherItems,
+  Previewer,
+} from "jsr:@shougo/ddc-vim@~9.1.0/types";
 
 export type CompletionMetadata = {
   kana: string;

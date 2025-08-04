@@ -1,8 +1,9 @@
 import { config } from "./config.ts";
-import type { Denops } from "./deps.ts";
 import { HenkanType } from "./dictionary.ts";
 import { PreEdit } from "./preedit.ts";
 import { initializeState, State, toString } from "./state.ts";
+
+import type { Denops } from "jsr:@denops/std@^7.6.0";
 
 type CandidateResult = {
   type: HenkanType;
