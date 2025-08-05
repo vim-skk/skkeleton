@@ -1,7 +1,4 @@
 import { config } from "../config.ts";
-import { getKanaTable } from "../kana.ts";
-import { readFileWithEncoding } from "../util.ts";
-import type { CompletionData } from "../types.ts";
 import {
   Dictionary as BaseDictionary,
   HenkanType,
@@ -10,7 +7,12 @@ import {
   Source as BaseSource,
   wrapDictionary,
 } from "../dictionary.ts";
-import { jisyoschema, jsonschema } from "../deps/dictionary.ts";
+import { getKanaTable } from "../kana.ts";
+import type { CompletionData } from "../types.ts";
+import { readFileWithEncoding } from "../util.ts";
+import jisyoschema from "https://cdn.jsdelivr.net/gh/skk-dict/jisyo/schema/jisyo.schema.v0.0.0.json" with { type: "json" };
+
+import jsonschema from "npm:jsonschema@1.4.1";
 
 import { decode as msgpackDecode } from "jsr:@std/msgpack@~1.0.2/decode";
 import { parse as yamlParse } from "jsr:@std/yaml@~1.0.5/parse";

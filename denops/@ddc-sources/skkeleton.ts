@@ -1,13 +1,13 @@
+import type { CompletionData, RankData } from "../skkeleton/types.ts";
+
+import * as fn from "jsr:@denops/std@^7.6.0/function";
 import {
   BaseSource,
   type GatherArguments,
   type GetCompletePositionArguments,
   type GetPreviewerArguments,
   type OnCompleteDoneArguments,
-} from "../skkeleton/deps/ddc/source.ts";
-import type { CompletionData, RankData } from "../skkeleton/types.ts";
-
-import * as fn from "jsr:@denops/std@^7.6.0/function";
+} from "jsr:@shougo/ddc-vim@~9.1.0/source";
 import {
   type DdcGatherItems,
   Previewer,
