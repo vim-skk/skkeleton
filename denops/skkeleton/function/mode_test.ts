@@ -7,10 +7,10 @@ import { deleteChar, kanaInput } from "./input.ts";
 import { abbrev, hankatakana, katakana, zenkaku } from "./mode.ts";
 import { dispatch } from "./testutil.ts";
 
-import { Denops } from "jsr:@denops/std@^7.6.0";
-import * as autocmd from "jsr:@denops/std@^7.6.0/autocmd";
-import * as vars from "jsr:@denops/std@^7.6.0/variable";
-import { assertEquals } from "jsr:@std/assert@~1.0.3/equals";
+import { Denops } from "@denops/std";
+import * as autocmd from "@denops/std/autocmd";
+import * as vars from "@denops/std/variable";
+import { assertEquals } from "@std/assert/equals";
 
 test({
   mode: "all",

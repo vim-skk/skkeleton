@@ -1,11 +1,12 @@
 import { config } from "./config.ts";
 import type { CompletionData, RankData } from "./types.ts";
-import { number2kanji } from "npm:@geolonia/japanese-numeral@1.0.2";
-import { convertNumberToRoman } from "npm:cr-numeral@1.1.3";
 
-import { is, Predicate } from "jsr:@core/unknownutil@~4.3.0";
-import { zip } from "jsr:@std/collections@~1.0.5/zip";
-import { toFileUrl } from "jsr:@std/path@~1.0.3/to-file-url";
+import { number2kanji } from "@geolonia/japanese-numeral";
+import { convertNumberToRoman } from "cr-numeral";
+
+import { is, Predicate } from "@core/unknownutil";
+import { zip } from "@std/collections/zip";
+import { toFileUrl } from "@std/path/to-file-url";
 
 export const okuriAriMarker = ";; okuri-ari entries.";
 export const okuriNasiMarker = ";; okuri-nasi entries.";

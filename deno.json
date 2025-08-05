@@ -1,10 +1,15 @@
 {
   "lock": false,
-  "unstable": ["kv"],
   "tasks": {
+    "check": "deno task fmt-check && deno task lint && deno task test",
     "fmt-check": "deno fmt --check denops",
     "lint": "deno lint",
-    "test": "deno test -A",
-    "check": "deno task fmt-check && deno task lint && deno task test"
-  }
+    "test": "deno test -A"
+  },
+  "unstable": [
+    "kv"
+  ],
+  "workspace": [
+    "./denops/skkeleton"
+  ]
 }

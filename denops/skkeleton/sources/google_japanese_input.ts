@@ -6,7 +6,7 @@ import {
 } from "../dictionary.ts";
 import type { CompletionData } from "../types.ts";
 
-import { deadline } from "jsr:@std/async@~1.0.4/deadline";
+import { deadline } from "@std/async/deadline";
 
 export class Source implements BaseSource {
   getDictionaries(): Promise<BaseDictionary[]> {

@@ -5,12 +5,12 @@ import { HenkanState } from "../state.ts";
 import { kakutei } from "./common.ts";
 import { modeChange } from "../mode.ts";
 
-import * as autocmd from "jsr:@denops/std@^7.6.0/autocmd";
-import { batch } from "jsr:@denops/std@^7.6.0/batch";
-import * as fn from "jsr:@denops/std@^7.6.0/function";
-import * as mapping from "jsr:@denops/std@^7.6.0/mapping";
-import * as op from "jsr:@denops/std@^7.6.0/option";
-import * as vars from "jsr:@denops/std@^7.6.0/variable";
+import * as autocmd from "@denops/std/autocmd";
+import { batch } from "@denops/std/batch";
+import * as fn from "@denops/std/function";
+import * as mapping from "@denops/std/mapping";
+import * as op from "@denops/std/option";
+import * as vars from "@denops/std/variable";
 
 const cmapKeys = ["<Esc>", "<C-g>"];
 

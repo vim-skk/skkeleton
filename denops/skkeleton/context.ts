@@ -3,7 +3,7 @@ import { HenkanType } from "./dictionary.ts";
 import { PreEdit } from "./preedit.ts";
 import { initializeState, State, toString } from "./state.ts";
 
-import type { Denops } from "jsr:@denops/std@^7.6.0";
+import type { Denops } from "@denops/std";
 
 type CandidateResult = {
   type: HenkanType;

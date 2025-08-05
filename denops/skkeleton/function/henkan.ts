@@ -10,7 +10,7 @@ import { kakutei } from "./common.ts";
 import { acceptResult, henkanPoint, kakuteiFeed } from "./input.ts";
 import { registerWord } from "./dictionary.ts";
 
-import type { Denops } from "jsr:@denops/std@^7.6.0";
+import type { Denops } from "@denops/std";
 
 export async function henkanFirst(context: Context, key: string) {
   if (context.state.type !== "input") {

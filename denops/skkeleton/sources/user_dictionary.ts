@@ -11,8 +11,8 @@ import {
   UserDictionaryPath,
 } from "../dictionary.ts";
 
-import { is } from "jsr:@core/unknownutil@~4.3.0/is";
-import { assert } from "jsr:@core/unknownutil@~4.3.0/assert";
+import { is } from "@core/unknownutil/is";
+import { assert } from "@core/unknownutil/assert";
 
 export class Source implements BaseSource {
   async getDictionaries(): Promise<BaseDictionary[]> {

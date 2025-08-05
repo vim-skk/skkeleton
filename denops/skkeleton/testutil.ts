@@ -1,11 +1,11 @@
 import { main } from "./main.ts";
 import { currentContext } from "./store.ts";
 
-import { Denops } from "jsr:@denops/std@^7.6.0";
-import * as autocmd from "jsr:@denops/std@^7.6.0/autocmd";
-import * as DenopsTest from "jsr:@denops/test@^3.0.4";
-import { resolve } from "jsr:@std/path@~1.0.3/resolve";
-import { fromFileUrl } from "jsr:@std/path@~1.0.3/from-file-url";
+import { Denops } from "@denops/std";
+import * as autocmd from "@denops/std/autocmd";
+import * as DenopsTest from "@denops/test";
+import { resolve } from "@std/path/resolve";
+import { fromFileUrl } from "@std/path/from-file-url";
 
 const runtimepath = resolve(
   fromFileUrl(new URL("../..", import.meta.url)),

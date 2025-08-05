@@ -11,11 +11,11 @@ import { currentContext, currentLibrary, variables } from "./store.ts";
 import { globpath } from "./util.ts";
 import type { CompletionData, RankData } from "./types.ts";
 
-import { as, assert, is } from "jsr:@core/unknownutil@~4.3.0";
-import type { Denops, Entrypoint } from "jsr:@denops/std@^7.6.0";
-import * as autocmd from "jsr:@denops/std@^7.6.0/autocmd";
-import * as fn from "jsr:@denops/std@^7.6.0/function";
-import * as vars from "jsr:@denops/std@^7.6.0/variable";
+import { as, assert, is } from "@core/unknownutil";
+import type { Denops, Entrypoint } from "@denops/std";
+import * as autocmd from "@denops/std/autocmd";
+import * as fn from "@denops/std/function";
+import * as vars from "@denops/std/variable";
 
 type CompleteInfo = {
   pum_visible: boolean;
