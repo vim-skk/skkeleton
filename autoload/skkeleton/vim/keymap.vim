@@ -11,7 +11,7 @@ endfunction
 
 function skkeleton#vim#keymap#register(state, key, func) abort
   let keymap = s:keymaps[a:state]
-  if !func
+  if !a:func
     silent! unlet keymap[a:key]
     return
   endif
