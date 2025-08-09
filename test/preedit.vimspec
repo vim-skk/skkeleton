@@ -1,0 +1,12 @@
+Describe preedit
+  It output
+    call skkeleton#register_keymap("henkan", "x", "")
+    let preedit = skkeleton#vim#preedit#mkdefault()
+    Assert Equals(skkeleton#vim#preedit#output(preedit, 'foo'), 'foo')
+    Assert Equals(skkeleton#vim#preedit#output(preedit, 'hoge'), "\<BS>\<BS>\<BS>hoge")
+    Assert Equals(skkeleton#vim#preedit#output(preedit, 'piyo'), "\<BS>\<BS>\<BS>\<BS>piyo")
+    " assertEquals(preEdit.output("foo"), "foo");
+    " assertEquals(preEdit.output("hoge"), "\b\b\bhoge");
+    " assertEquals(preEdit.output("piyo"), "\b\b\b\bpiyo");
+  End
+End

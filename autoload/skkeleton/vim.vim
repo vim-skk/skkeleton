@@ -56,7 +56,9 @@ function s:handler.handleKey(opts) abort
       call skkeleton#vim#keymap#handle(context, k)
     endfor
   endif
-  return ''
+  " TODO: contextというかstateのtostring実装する
+  let state_string = skkeleton#vim#state#to_string(context.state)
+  return skkeleton#vim#preedit#output(context.preedit, state_string)
 endfunction
 
 function skkeleton#vim#handle(func, opts) abort

@@ -9,6 +9,7 @@ else
 endif
 
 nnoremap ' :
+nnoremap Q <Cmd>cquit 42<CR>
 
 let g:skkeleton#use_denops = v:false
 execute 'set rtp+=' .. expand('<script>:p:h')
