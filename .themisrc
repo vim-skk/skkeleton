@@ -1,0 +1,1 @@
+let g:skkeleton#use_denops = v:false
