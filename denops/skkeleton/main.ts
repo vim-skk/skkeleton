@@ -8,7 +8,6 @@ import { handleKey, registerKeyMap } from "./keymap.ts";
 import { initializeStateWithAbbrev } from "./mode.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { currentContext, currentLibrary, variables } from "./store.ts";
-import { globpath } from "./util.ts";
 import type { CompletionData, RankData } from "./types.ts";
 
 import { as, assert, is } from "@core/unknownutil";
@@ -58,12 +57,9 @@ async function init(denops: Denops) {
   }
   currentContext.init().denops = denops;
 
-  currentLibrary.setInitializer(async () =>
+  currentLibrary.setInitializer(() =>
     loadDictionary(
-      await globpath(
-        denops,
-        "denops/skkeleton/sources",
-      ),
+      config.sources,
     )
   );
 
