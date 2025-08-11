@@ -1,0 +1,14 @@
+Describe かなテーブル
+  It register kanatable
+    call skkeleton#register_kanatable('rom', {
+    \   "jj": "newline",
+    \   "z,": ["―", ""],
+    \   "z.": ["―"],
+    \   "!": ["!!"],
+    \ })
+    " can delete kana with falsy value
+    call skkeleton#register_kanatable('rom', {
+    \   "jj": v:false,
+    \ })
+  End
+End

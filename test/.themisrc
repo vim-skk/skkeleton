@@ -1,0 +1,1 @@
+call themis#helper('command').with(themis#helper('assert'))

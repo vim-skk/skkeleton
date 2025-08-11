@@ -1,0 +1,5 @@
+Describe keymap
+  It registerKeymap
+    call skkeleton#register_keymap("henkan", "x", "")
+  End
+End
