@@ -10,7 +10,9 @@ import {
 import { getKanaTable } from "../kana.ts";
 import type { CompletionData } from "../types.ts";
 import { readFileWithEncoding } from "../util.ts";
-import jisyoschema from "https://cdn.jsdelivr.net/gh/skk-dict/jisyo/schema/jisyo.schema.v0.0.0.json" with { type: "json" };
+import jisyoschema from "https://cdn.jsdelivr.net/gh/skk-dict/jisyo/schema/jisyo.schema.v0.0.0.json" with {
+  type: "json",
+};
 
 import jsonschema from "npm:jsonschema@1.4.1";
 
