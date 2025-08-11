@@ -131,7 +131,11 @@ async function enable(opts: unknown, vimStatus: unknown): Promise<string> {
 async function disable(opts: unknown, vimStatus: unknown): Promise<string> {
   const context = currentContext.get();
   const state = currentContext.get().state;
-  if ((state.type !== "input" || state.mode !== "direct") && vimStatus) {
+  // Note: plugin/skkeleton.vimで定義している物はoptsが空なのでこっちは呼ばない
+  if (
+    (state.type !== "input" || state.mode !== "direct") && isOpts(opts) &&
+    vimStatus
+  ) {
     return handle(opts, vimStatus);
   }
   await disableFunc(context);
