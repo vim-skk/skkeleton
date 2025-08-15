@@ -46,10 +46,8 @@ let g:skkeleton#mapped_keys = extend(get(g:, 'skkeleton#mapped_keys', []), skkel
 
 function! skkeleton#map() abort
   if mode() ==# 'n'
-    let modes = ['i', 'c']
     let mode = 'i'
   else
-    let modes = [mode()]
     let mode = mode()
   endif
 
@@ -64,12 +62,10 @@ function! skkeleton#map() abort
       let k = c
     endif
     let func = 'handleKey'
-    for m in modes
-      let match = matchlist(maparg(c, m), '<Plug>(skkeleton-\(\a\+\))')
-      if !empty(match)
-        let func = match[1]
-      endif
-    endfor
+    let match = matchlist(maparg(c, mode), '<Plug>(skkeleton-\(\a\+\))')
+    if !empty(match)
+      let func = match[1]
+    endif
     execute printf('%snoremap <buffer> <nowait> %s <Cmd>call skkeleton#handle(%s, {"key": %s})<CR>',
           \ mode,
           \ c, string(func), string(k))
