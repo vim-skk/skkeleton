@@ -268,7 +268,7 @@ export const main: Entrypoint = async (denops) => {
       assert(tableName, is.String);
       assert(path, is.String);
       assert(encoding, is.String);
-      await loadKanaTableFile(tableName, path, encoding, create);
+      await loadKanaTableFile(tableName, path, encoding, !!create);
       return Promise.resolve();
     },
     async handle(
