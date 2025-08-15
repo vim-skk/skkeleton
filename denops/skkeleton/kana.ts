@@ -87,6 +87,30 @@ export async function loadKanaTableFiles(
   injectKanaTable("rom", table);
 }
 
+export async function loadKanaTableFile(
+  tableName: string,
+  path: string,
+  encoding: string,
+  create: boolean,
+): Promise<void> {
+  const table: KanaTable = [];
+
+  const file = await readFileWithEncoding(path, encoding);
+  const lines = file.split("\n");
+  for (const line of lines) {
+    if (line.startsWith("#")) {
+      continue;
+    }
+    if (line.trim() === "") {
+      continue;
+    }
+    const [from, result] = line.split(",");
+    table.push([from, [result, ""]]);
+  }
+
+  injectKanaTable(tableName, table, create);
+}
+
 /*
  * Concat given kanaTable to the table named `name`.
  * When the table is not found, create if create=true; otherwise throws `table ${name} is not found`.

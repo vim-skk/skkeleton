@@ -447,6 +447,15 @@ skkeleton#register_kanatable({tableName}, {table} [, {create}])
           \   'lyo': ['ょ'],
           \ })
 <
+
+                                         *skkeleton#register_kanatable_file()*
+skkeleton#register_kanatable_file({tableName}, {path} [, {encoding}[, {create}]])
+        仮名入力のテーブルを登録できます。
+        {tableName}で指定したテーブルに{path}で指定した辞書の定義が登録されま
+        す。{create}が指定されていない場合は存在しないテーブル名を指定すると
+        エラーになります。
+        {encoding}を指定しない場合は自動判定されます。
+
                                                  *skkeleton#register_keymap()*
 skkeleton#register_keymap({state}, {key}, {funcName})
         ステート単位のキーマップを定義します。

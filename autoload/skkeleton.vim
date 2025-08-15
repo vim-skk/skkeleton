@@ -138,9 +138,12 @@ function! skkeleton#register_keymap(state, key, func_name)
   call skkeleton#request_async('registerKeyMap', [a:state, key, a:func_name])
 endfunction
 
-function! skkeleton#register_kanatable(table_name, table, ...) abort
-  let create = get(a:000, 0, v:false)
-  call skkeleton#request_async('registerKanaTable', [a:table_name, a:table, create])
+function! skkeleton#register_kanatable(table_name, table, create=v:false) abort
+  call skkeleton#request_async('registerKanaTable', [a:table_name, a:table, a:create])
+endfunction
+
+function! skkeleton#register_kanatable_file(table_name, path, encoding='', create=v:false) abort
+  call skkeleton#request_async('registerKanaTableFile', [a:table_name, a:path, a:encoding, a:create])
 endfunction
 
 " return [complete_type, complete_info]
