@@ -3,7 +3,7 @@ import { functions, modeFunctions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { isHenkanType, load as loadDictionary } from "./dictionary.ts";
 import { Dictionary as DenoKvDictionary } from "./sources/deno_kv.ts";
-import { currentKanaTable, registerKanaTable } from "./kana.ts";
+import { currentKanaTable, registerKanaTable, loadKanaTableFile } from "./kana.ts";
 import { handleKey, registerKeyMap } from "./keymap.ts";
 import { initializeStateWithAbbrev } from "./mode.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
@@ -253,6 +253,13 @@ export const main: Entrypoint = async (denops) => {
     registerKanaTable(tableName: unknown, table: unknown, create: unknown) {
       assert(tableName, is.String);
       registerKanaTable(tableName, table, !!create);
+      return Promise.resolve();
+    },
+    async registerKanaTableFile(tableName: unknown, path: unknown, encoding: unknown, create: unknown) {
+      assert(tableName, is.String);
+      assert(path, is.String);
+      assert(encoding, is.String);
+      await loadKanaTableFile(tableName, path, encoding, create);
       return Promise.resolve();
     },
     async handle(
