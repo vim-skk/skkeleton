@@ -5,9 +5,15 @@ import { currentLibrary } from "../store.ts";
 import { handleKey } from "../keymap.ts";
 import { keyToNotation } from "../notation.ts";
 import { getOkuriStr } from "../okuri.ts";
-import { HenkanState } from "../state.ts";
+import { HenkanState, InputState } from "../state.ts";
 import { kakutei } from "./common.ts";
-import { acceptResult, henkanPoint, kakuteiFeed } from "./input.ts";
+import {
+  acceptResult,
+  henkanPoint,
+  kakuteiFeed,
+  kakuteiKana,
+  kanaInput,
+} from "./input.ts";
 import { registerWord } from "./dictionary.ts";
 
 import type { Denops } from "jsr:@denops/std@^7.6.0";
@@ -17,12 +23,50 @@ export async function henkanFirst(context: Context, key: string) {
     return;
   }
 
-  kakuteiFeed(context);
-
   if (context.state.mode === "direct") {
-    context.kakutei(key);
+    // To prevent the infinite recursive call when henkanFirst itself is registered in rom_kana table.
+    const char = config.lowercaseMap[key] ?? key.toLowerCase();
+    const state = context.state as InputState;
+
+    const next = state.feed + char;
+    const found_next = state.table.filter((e) => e[0].startsWith(next));
+
+    if (
+      found_next.length === 1 && found_next[0][0] === next &&
+      found_next[0][1] === henkanFirst
+    ) {
+      context.kakutei(next);
+      return;
+    } else if (found_next.length === 0 && state.feed) {
+      const current = state.table.find((e) => e[0] === state.feed);
+      const found_char = state.table.filter((e) => e[0] === char);
+      if (current && current[1] === henkanFirst) {
+        context.kakutei(current[0]);
+        state.feed = "";
+      }
+      if (
+        found_char.length === 1 && found_char[0][0] === char &&
+        found_char[0][1] === henkanFirst
+      ) {
+        if (current) {
+          if (current[1] !== henkanFirst) {
+            await acceptResult(context, current[1], next);
+          }
+        } else if (config.acceptIllegalResult) {
+          kakuteiKana(state, context.preEdit, state.feed, "");
+        } else {
+          state.feed = "";
+        }
+        context.kakutei(char);
+        return;
+      }
+    }
+
+    kanaInput(context, key);
     return;
   }
+
+  kakuteiFeed(context);
 
   if (context.state.henkanFeed === "") {
     return;
