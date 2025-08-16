@@ -59,7 +59,7 @@ export function registerKanaTable(
     .map(([kana, result]) => {
       const lower = kana.toLowerCase();
       if (kana !== lower) {
-        kana = `<s-${lower}>`
+        kana = `<s-${lower}>`;
       }
       return [kana, asKanaResult(result)];
     });
