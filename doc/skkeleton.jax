@@ -129,6 +129,7 @@ input:
         <CR>      : |skkeleton-functions-newline|
         <Esc>     : |skkeleton-functions-escape|
         <NL>      : |skkeleton-functions-kakutei|
+        <Space>   : |skkeleton-functions-henkanFirst|
 henkan:
         <C-g>     : |skkeleton-functions-cancel|
         <CR>      : |skkeleton-functions-newline|
