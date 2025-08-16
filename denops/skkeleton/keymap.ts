@@ -10,6 +10,7 @@ import {
 import { escape } from "./function/disable.ts";
 import {
   henkanBackward,
+  henkanFirst,
   henkanForward,
   henkanInput,
   suffix,
@@ -32,6 +33,7 @@ const input: KeyMap = {
     "<cr>": newline,
     "<esc>": escape,
     "<nl>": kakuteiKey,
+    "<space>": henkanFirst,
     "<c-q>": hankatakana,
     ">": prefix,
   },
