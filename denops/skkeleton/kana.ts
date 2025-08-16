@@ -57,6 +57,10 @@ export function registerKanaTable(
   assert(rawTable, is.Record);
   const table: PartialKanaTable = Object.entries(rawTable)
     .map(([kana, result]) => {
+      const lower = kana.toLowerCase();
+      if (kana !== lower) {
+        kana = `<s-${lower}>`;
+      }
       return [kana, asKanaResult(result)];
     });
   injectKanaTable(name, table, create);
