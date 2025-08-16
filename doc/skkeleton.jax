@@ -605,7 +605,7 @@ skkeletonは|:lmap|を使用しなくなりました。カーソルの色を動�
 skkeleton側では |g:skkeleton#mapped_keys| に応じて
 >vim
     inoremap <buffer> <nowait> a
-          \ <Cmd>call skkeleton#handle("handleKey", {"key": "a"})<CR>
+          \ <Cmd>call skkeleton#handle('handleKey', #{ key: 'a' })<CR>
 <
 のように |skkeleton#handle()| を使ったマッピングが行われます。
 その後に |skkeleton-enable-post| のフックが実行されます。このタイミングでマッ
@@ -614,20 +614,18 @@ skkeleton側では |g:skkeleton#mapped_keys| に応じて
 すが、次のような設定を行うと再現が可能です。
 
 >vim
-    " ddc.vimとの連携を想定している
-    " ネイティブの補完かpum.vimのウィンドウが出ている場合に補完候補を挿入する
-    function s:handle() abort
-      if pumvisible()
-        call feedkeys("\<C-n>", 'nt')
-      elseif pum#visible()
-        call pum#map#insert_relative(1)
+    " NOTE: ddc.vimとの連携を想定している
+    function s:skkeleton_handle_dot() abort
+      if ddc#map#can_complete()
+        call feedkeys(ddc#map#insert_item(0), 'nt')
       else
-        call skkeleton#handle('handleKey', {'key': '.'})
+        call skkeleton#handle('handleKey', #{ key: '.' })
       endif
     endfunction
 
     autocmd User skkeleton-enable-post
-          \ inoremap <buffer> <nowait> . <Cmd>call <SID>handle()<CR>
+          \ inoremap <buffer> <nowait> .
+          \ <Cmd>call <SID>skkeleton_handle_dot()<CR>
 <
 
 ==============================================================================
