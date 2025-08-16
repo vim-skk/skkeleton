@@ -77,14 +77,15 @@ async function init(denops: Denops) {
     helper.remove("*");
     // Note: 使い終わったステートを初期化する
     //       CmdlineEnterにしてしまうと辞書登録時の呼び出しで壊れる
+    //       挿入モードの`<C-o>`(niI)などで解除されると困るのでModeChangedの:nにしておく
     helper.define(
-      ["InsertLeave", "CmdlineLeave"],
-      "*",
+      ["ModeChanged"],
+      "*:n",
       `call denops#request('${denops.name}', 'reset', [])`,
     );
     helper.define(
-      ["InsertLeave", "CmdlineLeave"],
-      "*",
+      ["ModeChanged"],
+      "*:n",
       `call skkeleton#disable()`,
     );
   });
