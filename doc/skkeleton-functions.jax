@@ -34,7 +34,9 @@ escape                                            *skkeleton-functions-escape*
 henkanFirst                                  *skkeleton-functions-henkanFirst*
         (input)!
         変換を開始します。
-        直接入力モードの場合は何もマッピングされていないように振る舞います。
+        直接入力モードの場合は仮名テーブルの処理を行います。
+        該当のテーブルに `henkanFirst` が割り当てられている場合は何もマッピング
+        されていないように振る舞います。
 
 henkanForward                              *skkeleton-functions-henkanForward*
         (henkan: <Space>)
