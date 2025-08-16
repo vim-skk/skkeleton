@@ -1,4 +1,5 @@
 import { Context } from "../context.ts";
+import { InputState } from "../state.ts";
 import { currentLibrary } from "../store.ts";
 import { dispatch } from "./testutil.ts";
 
@@ -62,5 +63,22 @@ Deno.test({
     const context = new Context();
     await dispatch(context, ";henkan x");
     assertEquals(context.toString(), "▽へんかん");
+  },
+});
+
+Deno.test({
+  name: "fallback to kanaInput in henkanFirst",
+  async fn() {
+    const context = new Context();
+    (context.state as InputState).table = [[" ", ["", "space"]]];
+    await dispatch(context, " ");
+    assertEquals(context.toString(), "space");
+    // avoid infinite recursion
+    // output key string when result is function
+    (context.state as InputState).table = [[" ", () => {
+      throw "don't call this";
+    }]];
+    await dispatch(context, " ");
+    assertEquals(context.preEdit.output(""), " ");
   },
 });

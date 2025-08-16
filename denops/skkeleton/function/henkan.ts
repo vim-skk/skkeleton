@@ -1,14 +1,14 @@
 import { modifyCandidate } from "../candidate.ts";
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
-import { currentLibrary } from "../store.ts";
 import { handleKey } from "../keymap.ts";
 import { keyToNotation } from "../notation.ts";
 import { getOkuriStr } from "../okuri.ts";
 import { HenkanState } from "../state.ts";
+import { currentLibrary } from "../store.ts";
 import { kakutei } from "./common.ts";
-import { acceptResult, henkanPoint, kakuteiFeed } from "./input.ts";
 import { registerWord } from "./dictionary.ts";
+import { acceptResult, henkanPoint, kakuteiFeed, kanaInput } from "./input.ts";
 
 import type { Denops } from "jsr:@denops/std@^7.6.0";
 
@@ -20,7 +20,13 @@ export async function henkanFirst(context: Context, key: string) {
   kakuteiFeed(context);
 
   if (context.state.mode === "direct") {
-    context.kakutei(key);
+    // Note: ユーザーがhenkanFirst振ってると無限ループ起こすので単キーにfunctionが振られてる時はkanaInputに通さない
+    const keyResult = context.state.table.find((e) => e[0] == key);
+    if (keyResult != null && typeof keyResult[1] == "function") {
+      context.kakutei(key);
+    } else {
+      await kanaInput(context, key);
+    }
     return;
   }
 
