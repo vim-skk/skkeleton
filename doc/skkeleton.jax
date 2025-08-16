@@ -174,10 +174,10 @@ g:skkeleton#state                                          *g:skkeleton#state*
                                                  *skkeleton#update_database()*
 skkeleton#update_database({path} [, {encoding} [, {force}]])
 
-	データベースを手動で更新します。
-	- {path} 辞書のパス
-	- {encoding} 辞書のエンコード。省略するか空文字列だと自動で判別します
-	- {force} 辞書に更新がなくても強制的にデータベースを更新します
+        データベースを手動で更新します。
+        - {path} 辞書のパス
+        - {encoding} 辞書のエンコード。省略するか空文字列だと自動で判別します
+        - {force} 辞書に更新がなくても強制的にデータベースを更新します
 
                                                           *skkeleton#handle()*
 skkeleton#handle({func}, {opts})
