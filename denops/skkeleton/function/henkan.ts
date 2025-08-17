@@ -1,16 +1,19 @@
 import { modifyCandidate } from "../candidate.ts";
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
-import { currentLibrary } from "../store.ts";
 import { handleKey } from "../keymap.ts";
 import { keyToNotation } from "../notation.ts";
 import { getOkuriStr } from "../okuri.ts";
 import { HenkanState } from "../state.ts";
+import { currentLibrary } from "../store.ts";
 import { kakutei } from "./common.ts";
-import { acceptResult, henkanPoint, kakuteiFeed } from "./input.ts";
 import { registerWord } from "./dictionary.ts";
+import { acceptResult, henkanPoint, kakuteiFeed, kanaInput } from "./input.ts";
 
 import type { Denops } from "jsr:@denops/std@^7.6.0";
+import { Mutex } from "jsr:@core/asyncutil@^1.2.0/mutex";
+
+const mutex = new Mutex();
 
 export async function henkanFirst(context: Context, key: string) {
   if (context.state.type !== "input") {
@@ -20,7 +23,14 @@ export async function henkanFirst(context: Context, key: string) {
   kakuteiFeed(context);
 
   if (context.state.mode === "direct") {
-    context.kakutei(key);
+    // Note: ユーザーがkey単体にhenkanFirst振ってると無限ループ起こすので
+    //       繰り返し呼ばれた場合は直接入力にフォールバックする
+    if (mutex.locked) {
+      context.kakutei(key);
+    } else {
+      using _lock = await mutex.acquire();
+      await kanaInput(context, key);
+    }
     return;
   }
 
