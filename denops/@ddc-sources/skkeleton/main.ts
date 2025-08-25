@@ -1,17 +1,14 @@
-import type { CompletionData, RankData } from "../skkeleton/types.ts";
+import type { CompletionData, RankData } from "../../skkeleton/types.ts";
 
-import * as fn from "jsr:@denops/std@^7.6.0/function";
+import * as fn from "@denops/std/function";
 import {
   BaseSource,
   type GatherArguments,
   type GetCompletePositionArguments,
   type GetPreviewerArguments,
   type OnCompleteDoneArguments,
-} from "jsr:@shougo/ddc-vim@~9.1.0/source";
-import {
-  type DdcGatherItems,
-  Previewer,
-} from "jsr:@shougo/ddc-vim@~9.1.0/types";
+} from "@shougo/ddc-vim/source";
+import { type DdcGatherItems, Previewer } from "@shougo/ddc-vim/types";
 
 export type CompletionMetadata = {
   kana: string;

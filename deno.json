@@ -10,6 +10,8 @@
     "kv"
   ],
   "workspace": [
+    "./denops/@ddc-sources/skkeleton",
+    "./denops/@ddc-sources/skkeleton_okuri",
     "./denops/skkeleton"
   ]
 }
