@@ -1,11 +1,16 @@
 import { config } from "./config.ts";
 import type { CompletionData, RankData } from "./types.ts";
-import { number2kanji } from "npm:@geolonia/japanese-numeral@1.0.2";
-import { convertNumberToRoman } from "npm:cr-numeral@1.1.3";
 
-import { is, Predicate } from "jsr:@core/unknownutil@~4.3.0";
-import { zip } from "jsr:@std/collections@~1.0.5/zip";
-import { toFileUrl } from "jsr:@std/path@~1.0.3/to-file-url";
+import { number2kanji } from "@geolonia/japanese-numeral";
+import { convertNumberToRoman } from "cr-numeral";
+
+import { is, Predicate } from "@core/unknownutil";
+import {
+  ImportMapImporter,
+  loadImportMap,
+} from "@lambdalisue/import-map-importer";
+import { zip } from "@std/collections/zip";
+import { fromFileUrl } from "@std/path/from-file-url";
 
 export const okuriAriMarker = ";; okuri-ari entries.";
 export const okuriNasiMarker = ";; okuri-nasi entries.";
@@ -310,27 +315,35 @@ export class Library {
   }
 }
 
-export async function load(paths: Record<string, string>): Promise<Library> {
-  const userMod = await import(
-    toFileUrl(paths["sources/user_dictionary"]).href
+export async function load(sources: string[]): Promise<Library> {
+  const importMap = await loadImportMap(
+    fromFileUrl(import.meta.resolve("./deno.json")),
+  );
+  const importer = new ImportMapImporter(importMap);
+  // deno-lint-ignore no-explicit-any
+  const userMod = await importer.import<any>(
+    import.meta.resolve("./sources/user_dictionary.ts"),
   );
   const userDictionary = await (new userMod.Source()).getUserDictionary();
 
   const dictionaries: Dictionary[] = [];
-  for (const source of config.sources) {
-    const key = `sources/${source}`;
-    const path = paths[key];
+  for (const source of sources) {
+    try {
+      // deno-lint-ignore no-explicit-any
+      const mod = await importer.import<any>(
+        import.meta.resolve(`./sources/${source}.ts`),
+      );
 
-    if (!path) {
+      dictionaries.push(
+        ...await (new mod.Source().getDictionaries()),
+      );
+    } catch (e) {
       console.error(`Invalid source name: ${source}`);
+      if (config.debug) {
+        console.error(e);
+      }
       continue;
     }
-
-    const mod = await import(toFileUrl(path).href);
-
-    dictionaries.push(
-      ...await (new mod.Source().getDictionaries()),
-    );
   }
 
   return new Library(dictionaries, userDictionary);

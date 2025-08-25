@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "@shougo/ddc-vim": "jsr:@shougo/ddc-vim@^10.0.0",
+    "@std/assert": "jsr:@std/assert@^1.0.14"
+  }
+}

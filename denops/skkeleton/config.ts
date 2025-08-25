@@ -2,9 +2,9 @@ import { getKanaTable, loadKanaTableFiles } from "./kana.ts";
 import { ConfigOptions, Encode, Encoding } from "./types.ts";
 import { homeExpand } from "./util.ts";
 
-import { ensure } from "jsr:@core/unknownutil@~4.3.0/ensure";
-import { is } from "jsr:@core/unknownutil@~4.3.0/is";
-import { Denops } from "jsr:@denops/std@^7.6.0";
+import { ensure } from "@core/unknownutil/ensure";
+import { is } from "@core/unknownutil/is";
+import { Denops } from "@denops/std";
 
 export const config: Omit<ConfigOptions, "globalDictionaries"> & {
   globalDictionaries: [string, string][];

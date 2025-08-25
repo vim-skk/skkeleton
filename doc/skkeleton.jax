@@ -11,7 +11,7 @@ INTRODUCTION                                          *skkeleton-introduction*
 REQUIRED                                                  *skkeleton-required*
 
 基本的に作者が最新のVimを利用しているため古いバージョンのVimでの動作は
-保証しませんが、テストはVim v9.0.0449 Neovim 0.8.0 以降で動かしているので
+保証しませんが、テストはVim v9.1.1646 Neovim 0.11.3 以降で動かしているので
 それ以降であれば動くと思います。
 他の条件は|denops.vim|に準拠します。
 
@@ -630,6 +630,13 @@ skkeleton側では |g:skkeleton#mapped_keys| に応じて
 
 ==============================================================================
 COMPATIBILITY                                        *skkeleton-compatibility*
+
+2024-12-17~
+- denops.vimのv8で追加された仕様に追従
+  - v7以前のdenops.vimで使いたい方はdenopsv7ブランチを使用してください
+
+2024-12-17~
+- "usePopup" オプションを廃止し、cmdline含め常にpopupを表示するようにした
 
 2024-12-17~
 - "usePopup" オプションを廃止し、cmdline含め常にpopupを表示するようにした

@@ -6,9 +6,9 @@ import { deleteChar, henkanPoint } from "./input.ts";
 import { hankatakana, katakana } from "./mode.ts";
 import { dispatch } from "./testutil.ts";
 
-import { Denops } from "jsr:@denops/std@^7.6.0";
-import * as op from "jsr:@denops/std@^7.6.0/option";
-import { assertEquals } from "jsr:@std/assert@~1.0.3/equals";
+import { Denops } from "@denops/std";
+import * as op from "@denops/std/option";
+import { assertEquals } from "@std/assert/equals";
 
 Deno.test({
   name: "kana input",
