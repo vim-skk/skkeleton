@@ -3,8 +3,8 @@
   "tasks": {
     "check": "deno task fmt-check && deno task lint && deno task test",
     "fmt-check": "deno fmt --check denops",
-    "lint": "deno lint",
-    "test": "deno test -A"
+    "lint": "deno lint denops",
+    "test": "deno test -A denops"
   },
   "unstable": [
     "kv"

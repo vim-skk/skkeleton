@@ -35,24 +35,24 @@ jobs:
           # - macos-latest
           - ubuntu-latest
         version:
-          - "1.45.0"
-          - "1.x"
+          - "2.3.0"
+          - "2.x"
         host_version:
-          - vim: "v9.1.0488"
-            nvim: "v0.10.0"
+          - vim: "v9.1.1646"
+            nvim: "v0.11.3"
     runs-on: ${{ matrix.runner }}
     steps:
       - run: git config --global init.defaultBranch main
       - run: git config --global core.autocrlf false
         if: runner.os == 'Windows'
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           path: "./repo"
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: "vim-denops/denops.vim"
           path: "./denops.vim"
-      - uses: denoland/setup-deno@v1
+      - uses: denoland/setup-deno@v2
         with:
           deno-version: "${{ matrix.version }}"
       - uses: actions/cache@v4
@@ -69,7 +69,7 @@ jobs:
       - name: Format check
         working-directory: ./repo
         run: deno task fmt-check
-      - uses: thinca/action-setup-vim@v1
+      - uses: thinca/action-setup-vim@v2
         id: vim
         with:
           vim_type: "Vim"
@@ -81,7 +81,7 @@ jobs:
           ${DENOPS_TEST_VIM} --version
         env:
           DENOPS_TEST_VIM: ${{ steps.vim.outputs.executable_path }}
-      - uses: thinca/action-setup-vim@v1
+      - uses: thinca/action-setup-vim@v2
         id: nvim
         with:
           vim_type: "Neovim"
