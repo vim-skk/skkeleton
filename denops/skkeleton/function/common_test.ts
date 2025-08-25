@@ -5,7 +5,7 @@ import { cancel, kakutei, kakuteiKey } from "./common.ts";
 import { katakana } from "./mode.ts";
 import { dispatch } from "./testutil.ts";
 
-import { assertEquals } from "jsr:@std/assert@~1.0.3/equals";
+import { assertEquals } from "@std/assert/equals";
 
 const lib = await currentLibrary.get();
 

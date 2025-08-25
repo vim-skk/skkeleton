@@ -4,8 +4,8 @@ import { currentContext } from "../store.ts";
 import { test } from "../testutil.ts";
 import { registerWord } from "./dictionary.ts";
 
-import type { Denops } from "jsr:@denops/std@^7.6.0";
-import { assertEquals } from "jsr:@std/assert@~1.0.3/equals";
+import type { Denops } from "@denops/std";
+import { assertEquals } from "@std/assert/equals";
 
 test({
   mode: "all",

@@ -14,10 +14,10 @@ import jisyoschema from "https://cdn.jsdelivr.net/gh/skk-dict/jisyo/schema/jisyo
   type: "json",
 };
 
-import jsonschema from "npm:jsonschema@1.4.1";
+import jsonschema from "jsonschema";
 
-import { decode as msgpackDecode } from "jsr:@std/msgpack@~1.0.2/decode";
-import { parse as yamlParse } from "jsr:@std/yaml@~1.0.5/parse";
+import { decode as msgpackDecode } from "@std/msgpack/decode";
+import { parse as yamlParse } from "@std/yaml/parse";
 
 interface Jisyo {
   okuri_ari: Record<string, string[]>;

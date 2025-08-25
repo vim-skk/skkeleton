@@ -10,8 +10,8 @@ import { kakutei } from "./common.ts";
 import { registerWord } from "./dictionary.ts";
 import { acceptResult, henkanPoint, kakuteiFeed, kanaInput } from "./input.ts";
 
-import type { Denops } from "jsr:@denops/std@^7.6.0";
-import { Mutex } from "jsr:@core/asyncutil@^1.2.0/mutex";
+import { Mutex } from "@core/asyncutil/mutex";
+import type { Denops } from "@denops/std";
 
 const mutex = new Mutex();
 

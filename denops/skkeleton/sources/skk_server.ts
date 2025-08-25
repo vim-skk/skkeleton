@@ -9,9 +9,9 @@ import { Encode } from "../types.ts";
 import type { CompletionData, Encoding, SkkServerOptions } from "../types.ts";
 
 // NOTE: import * as encoding does not work!
-import encoding from "npm:encoding-japanese@2.2.0";
+import encoding from "encoding-japanese";
 
-import { TextLineStream } from "jsr:@std/streams@~1.0.3/text-line-stream";
+import { TextLineStream } from "@std/streams/text-line-stream";
 
 type Server = {
   conn: Deno.Conn;

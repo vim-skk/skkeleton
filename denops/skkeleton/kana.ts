@@ -5,9 +5,9 @@ import { romToZen } from "./kana/rom_zen.ts";
 import type { KanaResult, KanaTable } from "./kana/type.ts";
 import { Cell, readFileWithEncoding } from "./util.ts";
 
-import { distinctBy } from "jsr:@std/collections@~1.0.5/distinct-by";
-import { is } from "jsr:@core/unknownutil@~4.3.0/is";
-import { assert } from "jsr:@core/unknownutil@~4.3.0/assert";
+import { distinctBy } from "@std/collections/distinct-by";
+import { is } from "@core/unknownutil/is";
+import { assert } from "@core/unknownutil/assert";
 
 type PartialKanaTable = [string, KanaResult | null][];
 
