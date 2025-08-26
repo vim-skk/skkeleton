@@ -74,15 +74,17 @@ async function init(denops: Denops) {
     // Note: 使い終わったステートを初期化する
     //       CmdlineEnterにしてしまうと辞書登録時の呼び出しで壊れる
     //       挿入モードの`<C-o>`(niI)などで解除されると困るのでModeChangedの:nにしておく
+    //       SafeStateトランポリンをしているのはプラグインによるModeChangedの呼び出しで解除されるのを防ぐため
+    //       このイベントはユーザーの操作を受け付けるタイミングで呼ばれるので、そこでNormalなら改めて処理を行う
     helper.define(
       ["ModeChanged"],
       "*:n",
-      `call denops#request('${denops.name}', 'reset', [])`,
-    );
-    helper.define(
-      ["ModeChanged"],
-      "*:n",
-      `call skkeleton#disable()`,
+      "autocmd SafeState * ++once " + [
+        "if mode() == 'n'",
+        `call denops#request('${denops.name}', 'reset', [])`,
+        `call skkeleton#disable()`,
+        "endif",
+      ].join("|"),
     );
   });
 
