@@ -183,10 +183,11 @@ function! skkeleton#handle(func, opts) abort
   let opts = a:opts->deepcopy()
   let key = opts->get('key')
   if type(key) == v:t_string
-    let key = [key]
-  endif
-  if type(key) == v:t_list
+    let opts.key = [get(g:skkeleton#notation#key_to_notation, key, key)]
+  elseif type(key) == v:t_list
     let opts.key = map(key, 'get(g:skkeleton#notation#key_to_notation, v:val, v:val)')
+  else
+    let opts.key = []
   endif
   let ret = skkeleton#request('handle', [a:func, opts, skkeleton#vim_status()])
 
