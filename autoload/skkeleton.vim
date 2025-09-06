@@ -187,7 +187,7 @@ function! skkeleton#handle(func, opts) abort
   elseif type(key) == v:t_list
     let opts.key = map(key, 'get(g:skkeleton#notation#key_to_notation, v:val, v:val)')
   else
-    let opts.key = []
+    let opts.key = ['']
   endif
   let ret = skkeleton#request('handle', [a:func, opts, skkeleton#vim_status()])
 
