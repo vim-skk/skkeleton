@@ -65,6 +65,13 @@ skkeleton-enable-pre                                    *skkeleton-enable-pre*
 skkeleton-enable-post                                  *skkeleton-enable-post*
 
         skkeletonが有効化された後に毎回実行されます。
+        有効化のタイミングでバッファローカルのマッピングを保存し、無効化時に
+        復元しているので、自前でマッピングを行う場合は上書き以外でも、この
+        タイミングで行う事をおすすめします。
+        また |skkeleton#dangerously_clear_buffer_local_mappings()| の判定に
+        `skkeleton` の文字列を使用しているため、関数呼び出しをマッピングする
+        などする場合は関数名に含めるか、NeovimのLua関数の場合はdescに含めるこ
+        とをおすすめします。
 
 skkeleton-mode-changed                                *skkeleton-mode-changed*
 
@@ -202,6 +209,13 @@ skkeleton#handle({func}, {opts})
 Note: この関数は先行入力を操作するため、1つのマッピング単位
 (例えば `<Cmd>...<CR>` のような括り)の中で二度呼ぶとバッファを破壊します。
 複数回の処理をしたい場合は `key` にリストを渡してください。
+
+                         *skkeleton#dangerously_clear_buffer_local_mappings()*
+skkeleton#dangerously_clear_buffer_local_mappings()
+        カレントバッファのskkeletonのマッピングを強制的に削除します。
+        判定条件はマッピングの展開結果もしくは(Neovimの場合)descにskkeletonと
+        いう文字列が含まれているかになります。
+        何かしらの要因でマッピングが残ったしまった際に使ってください。
 
 ------------------------------------------------------------------------------
 CONFIG                                                      *skkeleton-config*

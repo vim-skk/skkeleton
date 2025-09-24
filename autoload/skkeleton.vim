@@ -72,6 +72,21 @@ function! skkeleton#map() abort
   endfor
 endfunction
 
+function! skkeleton#dangerously_clear_buffer_local_mappings() abort
+  let maps = maplist()
+  \ ->filter('v:val.buffer && (stridx(get(v:val, "rhs"), "skkeleton") != -1 || stridx(get(v:val, "desc"), "skkeleton") != -1)')
+  for m in l:maps
+    let lhs = m.lhs->substitute('|', '<Bar>', 'g')
+    try
+      execute printf('%sunmap <buffer> %s', m.mode, lhs)
+    catch
+      echohl ErrorMsg
+      echo printf('[skkeleton#dangerously_clear_buffer_local_mappings] failed: %sunmap <buffer> %s', m.mode, lhs)
+      echohl None
+    endtry
+  endfor
+endfunction
+
 function! skkeleton#doautocmd() abort
   call timer_start(1, {->execute('doautocmd <nomodeline> User skkeleton-handled', '')})
 endfunction
