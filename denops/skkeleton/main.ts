@@ -76,16 +76,27 @@ async function init(denops: Denops) {
     //       挿入モードの`<C-o>`(niI)などで解除されると困るのでModeChangedの:nにしておく
     //       SafeStateトランポリンをしているのはプラグインによるModeChangedの呼び出しで解除されるのを防ぐため
     //       このイベントはユーザーの操作を受け付けるタイミングで呼ばれるので、そこでNormalなら改めて処理を行う
+    const commands = [
+      `call denops#request('${denops.name}', 'reset', [])`,
+      `call skkeleton#disable()`,
+    ];
     helper.define(
       ["ModeChanged"],
       "*:n",
       "autocmd SafeState * ++once " + [
         "if mode() == 'n'",
-        `call denops#request('${denops.name}', 'reset', [])`,
-        `call skkeleton#disable()`,
+        ...commands,
         "endif",
       ].join("|"),
     );
+    // insertのままwindow切り替えをすると残るのでWinLeaveでも消す
+    for (const cmd of commands) {
+      helper.define(
+        ["WinLeave"],
+        "*",
+        cmd,
+      );
+    }
   });
 
   try {
