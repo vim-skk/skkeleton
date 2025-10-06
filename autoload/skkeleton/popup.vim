@@ -13,7 +13,7 @@ function! s:open_cmdline(candidates)
     let opts = {
           \ 'border': 'none',
           \ 'relative': 'editor',
-          \ 'width': max(map(copy(a:candidates), 'strwidth(v:val)')),
+          \ 'width': max(mapnew(a:candidates, { _, val -> strwidth(v:val) })),
           \ 'height': len(a:candidates),
           \ 'col': getcmdscreenpos(),
           \ 'row': top,
@@ -48,7 +48,7 @@ function! s:open(candidates) abort
     let opts = {
           \ 'border': 'none',
           \ 'relative': 'cursor',
-          \ 'width': max(map(copy(a:candidates), 'strwidth(v:val)')),
+          \ 'width': max(mapnew(a:candidates, { _, val -> strwidth(v:val) })),
           \ 'height': len(a:candidates),
           \ 'col': 0,
           \ 'row': linvert ? 0 : 1,
