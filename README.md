@@ -1,6 +1,6 @@
 # Skkeleton
 
-skkeleton is a Vim/Neovim plugin that provides japanese input environment called
+skkeleton is a Vim/Neovim plugin that provides Japanese input environment called
 SKK.
 
 It's heavily inspired from [ddskk](https://github.com/skk-dev/ddskk) and
