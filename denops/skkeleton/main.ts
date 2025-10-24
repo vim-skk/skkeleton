@@ -12,6 +12,7 @@ import { handleKey, registerKeyMap } from "./keymap.ts";
 import { initializeStateWithAbbrev } from "./mode.ts";
 import { keyToNotation, notationToKey, receiveNotation } from "./notation.ts";
 import { currentContext, currentLibrary, variables } from "./store.ts";
+import { InputState } from "./state.ts";
 import type { CompletionData, RankData } from "./types.ts";
 
 import { as, assert, is } from "@core/unknownutil";
@@ -34,6 +35,7 @@ type VimStatus = {
 
 type HandleResult = {
   state: {
+    henkanFeed: string;
     phase: string;
   };
   result: string;
@@ -242,6 +244,7 @@ function buildResult(result: string): HandleResult {
   }
   return {
     state: {
+      henkanFeed: (state as InputState)?.henkanFeed ?? "",
       phase,
     },
     result,
