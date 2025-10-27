@@ -476,6 +476,9 @@ skkeleton#register_keymap({state}, {key}, {funcName})
         {state}で指定したステートの{key}に{funcName}で指定した機能が
         |skkeleton-functions| より割り当てられます。
         {funcName}に |falsy| な値を指定するとマッピングを削除します。
+        干渉防止のために(Ctrl系は特に)必要最低限しかskkeletonのマッピング対象
+        として割り振っていないため、効かない場合は |g:skkeleton#mapped_keys| に
+        対象のキーを追加してください。
 
         {state}は以下の物が指定できます:
                 input
