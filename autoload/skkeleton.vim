@@ -164,12 +164,12 @@ endfunction
 " return [complete_type, complete_info]
 function! s:complete_info() abort
   if exists('*pum#visible') && pum#visible()
-    return ['pum.vim', pum#complete_info()]
+    return ['pum.vim', pum#complete_info(['pum_visible', 'selected'])]
   elseif has('nvim') && luaeval('select(2, pcall(function() return package.loaded["cmp"].visible() end)) == true')
     let selected = luaeval('require("cmp").get_active_entry() ~= nil')
     return ['cmp', {'pum_visible': v:true, 'selected': selected ? 1 : -1}]
   else
-    return ['native', complete_info()]
+    return ['native', complete_info(['pum_visible', 'selected'])]
   endif
 endfunction
 
