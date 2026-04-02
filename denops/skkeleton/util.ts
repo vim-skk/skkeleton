@@ -105,6 +105,17 @@ export async function readFileWithEncoding(
     ? encodingName
     : encodingNames[String(encoding.detect(uint))];
 
+  const norm = (fileEncoding ?? "").toLowerCase();
+
+  // For EUC-JP, use "encoding-japanese" to avoid platform-dependent
+  // TextDecoder differences (e.g. wave dash U+301C -> fullwidth tilde U+FF5E).
+  if (norm === "euc-jp" || norm === "eucjp") {
+    // encoding.convert(input, to, from) -> returns numeric array
+    const unicodeArray = encoding.convert(uint, "UNICODE", "EUCJP");
+    // Convert numeric array to JS string preserving characters correctly.
+    return encoding.codeToString(unicodeArray);
+  }
+
   const decoder = new TextDecoder(fileEncoding);
   return decoder.decode(uint);
 }
