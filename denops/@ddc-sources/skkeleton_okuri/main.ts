@@ -43,16 +43,23 @@ export class Source extends BaseSource<Never> {
     );
 
     const chunks = okuriSplits(kana ?? "");
+    if (chunks.length === 0) {
+      return [];
+    }
+    const midashis = chunks.map(([word, okuri]) => getOkuriStr(word, okuri));
+    const results = await args.denops.dispatch(
+      "skkeleton",
+      "getCandidatesBatch",
+      midashis,
+      "okuriari",
+    ) as Record<string, string[]>;
+
     const candidates: Item<CompletionMetadata>[] = [];
-    for (const [word, okuri] of chunks) {
-      const midasi = getOkuriStr(word, okuri);
-      const cands = await args.denops.dispatch(
-        "skkeleton",
-        "getCandidates",
-        midasi,
-        "okuriari",
-      ) as string[] | undefined;
-      if (cands == null) {
+    for (let idx = 0; idx < chunks.length; idx++) {
+      const [, okuri] = chunks[idx];
+      const midasi = midashis[idx];
+      const cands = results[midasi];
+      if (!cands) {
         continue;
       }
       for (const cand of cands) {

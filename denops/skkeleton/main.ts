@@ -338,6 +338,16 @@ export const main: Entrypoint = async (denops) => {
       const lib = await currentLibrary.get();
       return await lib.getHenkanResult(type, kana);
     },
+    async getCandidatesBatch(midashis: unknown, type: unknown = "okuriari") {
+      assert(midashis, is.ArrayOf(is.String));
+      assert(type, isHenkanType);
+      const lib = await currentLibrary.get();
+      const results: Record<string, string[]> = {};
+      for (const midashi of midashis) {
+        results[midashi] = await lib.getHenkanResult(type, midashi);
+      }
+      return results;
+    },
     async getCompletionResult(): Promise<CompletionData> {
       const state = currentContext.get().state;
       if (state.type !== "input") {
@@ -345,6 +355,21 @@ export const main: Entrypoint = async (denops) => {
       }
       const lib = await currentLibrary.get();
       return lib.getCompletionResult(state.henkanFeed, state.feed);
+    },
+    async getCompletionResultWithRanks(): Promise<
+      { candidates: CompletionData; ranks: RankData }
+    > {
+      const state = currentContext.get().state;
+      if (state.type !== "input") {
+        return { candidates: [], ranks: [] };
+      }
+      const lib = await currentLibrary.get();
+      const candidates = await lib.getCompletionResult(
+        state.henkanFeed,
+        state.feed,
+      );
+      const ranks = lib.getRanks(state.henkanFeed);
+      return { candidates, ranks };
     },
     async getRanks(): Promise<RankData> {
       const state = currentContext.get().state;

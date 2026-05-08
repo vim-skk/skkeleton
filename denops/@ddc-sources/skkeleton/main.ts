@@ -31,15 +31,11 @@ export class Source extends BaseSource<Params> {
   override async gather(
     args: GatherArguments<Params>,
   ): Promise<DdcGatherItems> {
-    const candidates = (await args.denops.dispatch(
+    const { candidates, ranks: ranksArray } = (await args.denops.dispatch(
       "skkeleton",
-      "getCompletionResult",
-    )) as CompletionData;
-    const ranks = new Map(
-      (await args.denops
-        .dispatch("skkeleton", "getRanks")) as RankData,
-    );
-    candidates.sort((a, b) => a[0].localeCompare(b[0]));
+      "getCompletionResultWithRanks",
+    )) as { candidates: CompletionData; ranks: RankData };
+    const ranks = new Map(ranksArray);
 
     // グローバル辞書由来の候補はユーザー辞書の末尾より配置する
     // 辞書順に並べるため先頭から順に負の方向にランクを振っていく
