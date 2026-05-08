@@ -342,6 +342,9 @@ export const main: Entrypoint = async (denops) => {
       assert(midashis, is.ArrayOf(is.String));
       assert(type, isHenkanType);
       const lib = await currentLibrary.get();
+      // Note: Sequential lookup preserves compatibility with skk_server,
+      // which uses a single-slot readCallback on a serial TCP connection.
+      // The primary gain here is reducing N Denops RPC round trips to 1.
       const results: Record<string, string[]> = {};
       for (const midashi of midashis) {
         results[midashi] = await lib.getHenkanResult(type, midashi);

@@ -107,12 +107,16 @@ export class Dictionary implements UserDictionary {
 
   getRanks(prefix: string): RankData {
     this.cacheCandidates(prefix, "");
+    const seen = new Set<string>();
     const result: RankData = [];
     for (const [, cs] of this.#cachedCandidates) {
       for (const c of cs) {
-        const rank = this.#rank.get(c);
-        if (rank !== undefined) {
-          result.push([c, rank]);
+        if (!seen.has(c)) {
+          seen.add(c);
+          const rank = this.#rank.get(c);
+          if (rank !== undefined) {
+            result.push([c, rank]);
+          }
         }
       }
     }
