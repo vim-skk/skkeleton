@@ -547,6 +547,16 @@ COMPLETION                                              *skkeleton-completion*
         \ })
     call skkeleton#config({'completionRankFile': '~/.skkeleton/rank.json'})
 <
+
+    Vim/Neovim の native completefunc でも同等の補完を利用できます。
+    ddc.vim と異なり completefunc は複数 source を扱わないため、
+    `skkeleton` と `skkeleton_okuri` 相当の候補をまとめて返します。
+    既存の補完設定との衝突を避けるため、自動では設定されません。
+>vim
+    autocmd User skkeleton-enable-post setlocal completefunc=skkeleton#completefunc
+
+    " 挿入モードで <C-x><C-u> を押すと補完します
+<
 ==============================================================================
 FAQ                                                            *skkeleton-faq*
 

@@ -15,3 +15,8 @@ tnoremap <Plug>(skkeleton-toggle)  <Cmd>call skkeleton#handle('toggle', {})<CR>
 " (enable action was failed)
 " so makes dummy mapping
 lnoremap <Plug>(skkeleton-dummy) :
+
+augroup skkeleton-completefunc
+  autocmd!
+  autocmd CompleteDone * call skkeleton#complete_done()
+augroup END

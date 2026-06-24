@@ -228,6 +228,51 @@ function! skkeleton#get_config() abort
   return denops#request('skkeleton', 'getConfig', [])
 endfunction
 
+function! skkeleton#completefunc(findstart, base) abort
+  if a:findstart
+    let preedit = skkeleton#request('getPreEdit', [])
+    if preedit ==# ''
+      return -3
+    endif
+    return col('.') - strlen(preedit) - 1
+  endif
+
+  return skkeleton#request('getCompleteItems', [])
+endfunction
+
+function! skkeleton#complete_done() abort
+  if !exists('v:completed_item') || type(v:completed_item) != v:t_dict
+    return
+  endif
+
+  let user_data = get(v:completed_item, 'user_data', '')
+  if type(user_data) != v:t_string || user_data !~# '^\s*{'
+    return
+  endif
+
+  try
+    let metadata = json_decode(user_data)
+  catch
+    return
+  endtry
+
+  if type(metadata) != v:t_dict || get(metadata, 'tag', '') !=# 'skkeleton'
+    return
+  endif
+
+  let midasi = get(metadata, 'midasi', 0)
+  let word = get(metadata, 'word', 0)
+  let henkan_type = get(metadata, 'type', 0)
+  if type(midasi) != v:t_string || type(word) != v:t_string || type(henkan_type) != v:t_string
+    return
+  endif
+  if henkan_type !=# 'okurinasi' && henkan_type !=# 'okuriari'
+    return
+  endif
+
+  call skkeleton#request_async('completeCallback', [midasi, word, henkan_type])
+endfunction
+
 function! skkeleton#initialize() abort
   call skkeleton#notify_async('initialize', [])
 endfunction
