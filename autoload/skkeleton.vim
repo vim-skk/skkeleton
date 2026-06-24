@@ -237,7 +237,12 @@ function! skkeleton#completefunc(findstart, base) abort
     return col('.') - strlen(preedit) - 1
   endif
 
-  return skkeleton#request('getCompleteItems', [])
+  let items = skkeleton#request('getCompleteItems', [])
+
+  return {
+  \ 'words': items,
+  \ 'refresh': 'always',
+  \ }
 endfunction
 
 function! skkeleton#complete_done() abort
