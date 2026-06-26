@@ -280,7 +280,32 @@ function! skkeleton#complete_done() abort
     return
   endif
 
+  call s:remove_marker_henkan()
+
   call skkeleton#request_async('completeCallback', [midasi, word, henkan_type])
+endfunction
+
+function! s:remove_marker_henkan() abort
+  let marker = skkeleton#get_config().markerHenkan
+  if marker ==# ''
+    return
+  endif
+  let inserted = get(v:completed_item, 'word', '')
+  if type(inserted) != v:t_string
+    return
+  endif
+  let marker_len = strlen(marker)
+  let inserted_len = strlen(inserted)
+  let line = getline('.')
+  let cursor_col = col('.')
+  let marker_start = cursor_col - 1 - inserted_len - marker_len
+  if marker_start < 0 || strpart(line, marker_start, marker_len + inserted_len) !=# marker .. inserted
+    return
+  endif
+  let newline = strpart(line, 0, marker_start) .. strpart(line, marker_start + marker_len)
+  silent! undojoin
+  call setline('.', newline)
+  call cursor(line('.'), cursor_col - marker_len)
 endfunction
 
 function! skkeleton#initialize() abort
