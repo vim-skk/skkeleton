@@ -7,6 +7,7 @@ export type CompleteItem = {
   word: string;
   abbr: string;
   info: string;
+  equal: 1;
   user_data: string;
 };
 
@@ -50,6 +51,7 @@ export function buildOkurinasiCompleteItems(
       word: stripAnnotation(word),
       abbr: stripAnnotation(word),
       info: annotation(word),
+      equal: 1,
       user_data: userData({
         tag: "skkeleton",
         midasi: kana,
@@ -81,6 +83,7 @@ export async function buildOkuriariCompleteItems(
         word: stripAnnotation(candidate) + okuri,
         abbr: stripAnnotation(candidate) + okuri,
         info: annotation(candidate),
+        equal: 1,
         user_data: userData({
           tag: "skkeleton",
           midasi,
