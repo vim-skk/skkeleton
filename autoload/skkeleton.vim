@@ -234,7 +234,12 @@ function! skkeleton#completefunc(findstart, base) abort
     if preedit ==# ''
       return -3
     endif
-    return col('.') - strlen(preedit) - 1
+    let start = col('.') - strlen(preedit) - 1
+    let marker = skkeleton#get_config().markerHenkan
+    if marker !=# '' && stridx(preedit, marker) == 0
+      let start += strlen(marker)
+    endif
+    return start
   endif
 
   let items = skkeleton#request('getCompleteItems', [])
