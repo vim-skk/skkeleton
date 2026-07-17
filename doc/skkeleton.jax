@@ -381,6 +381,12 @@ skkServerResEnc                             *skkeleton-config-skkServerResEnc*
         （デフォルト "euc-jp"）
         辞書サーバーから受け取る文字列のエンコード形式を指定します。
 
+skkServerTimeout                           *skkeleton-config-skkServerTimeout*
+        (デフォルト 5000)
+        辞書サーバーとの 1 回の送受信を待つ制限時間をミリ秒で指定します。この時
+        間を超えると応答を諦めてコネクションを切断します。ネットワーク越しの遅
+        い辞書サーバーを使う場合など、既定値では短いときに大きくします。
+
 sources                                             *skkeleton-config-sources*
         (デフォルト ["skk_dictionary"])
         使用する SKK 入力 source とその優先順位を指定します。ユーザー辞書はこ

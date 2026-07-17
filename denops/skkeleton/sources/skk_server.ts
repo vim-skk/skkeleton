@@ -26,6 +26,7 @@ export class Source implements BaseSource {
       port: config.skkServerPort,
       requestEnc: config.skkServerReqEnc,
       responseEnc: config.skkServerResEnc,
+      timeout: config.skkServerTimeout,
     });
 
     try {
@@ -41,20 +42,20 @@ export class Source implements BaseSource {
   }
 }
 
-// 1 回のリクエスト/レスポンスの往復にこの時間だけ猶予を与え、超えたら諦めて空で解決
-// する。応答が 1 つ失われても、下の直列化したキューがデッドロックしないようにするため。
-// skkserv の応答は通常ほぼ即座に返るが、ネットワーク上の skkserv が遅い辞書引きへ
-// フォールバックする場合が現実的な最悪ケース。
-const REQUEST_TIMEOUT_MS = 5000;
-
 export class Dictionary implements BaseDictionary {
   #server: Server | undefined;
-  // ソケットの往復を直列化する。この接続は多重化を一切しておらず、`readCallback` の
-  // 置き場所が 1 つしかないため、2 つのリクエストが同時に処理中になると互いを上書きし、
-  // レスポンスが誤ったリクエストに紐付いてしまう（補完の問い合わせが変換の候補を受け取る、
-  // など）。すべての往復をこの promise に繋ぐことで、同時に送信中の往復を常に 1 つだけに
-  // 保つ。
+  // Serializes socket round-trips. This connection is not multiplexed and has
+  // only one slot for `readCallback`, so two in-flight requests overwrite each
+  // other and a response gets tied to the wrong request (e.g. a completion
+  // query receiving conversion candidates). Chaining every round-trip onto this
+  // Promise keeps at most one round-trip in flight at a time.
   #queue: Promise<unknown> = Promise.resolve();
+  // Grace period for a single request/response round-trip. On timeout we give
+  // up and drop the connection so a single lost response can't deadlock the
+  // serialized queue above. skkserv normally replies almost instantly, but a
+  // networked skkserv falling back to a slow dictionary lookup is the realistic
+  // worst case, so this is configurable via `skkServerTimeout`.
+  #timeout: number;
   responseEncoding: Encoding;
   requestEncoding: Encoding;
   connectOptions: Deno.ConnectOptions;
@@ -62,32 +63,41 @@ export class Dictionary implements BaseDictionary {
   constructor(opts: SkkServerOptions) {
     this.requestEncoding = opts.requestEnc;
     this.responseEncoding = opts.responseEnc;
+    this.#timeout = opts.timeout;
     this.connectOptions = {
       hostname: opts.hostname,
       port: opts.port,
     };
   }
 
-  /** 先にキューへ入れた処理がすべて完了してから `task` を実行する。 */
+  /** Runs `task` only after everything already queued has settled. */
   #enqueue<T>(task: () => Promise<T>): Promise<T> {
     const run = this.#queue.then(task, task);
-    // task が成功しても失敗しても鎖を継続し、ここで結果を握り潰すことで、処理されなかった
-    // 失敗がキューの末尾から漏れないようにする。
+    // Continue the chain whether task fulfills or rejects, and swallow the
+    // result here so an unhandled rejection can't leak from the tail of the
+    // queue.
     this.#queue = run.then(() => {}, () => {});
     return run;
   }
 
   /**
-   * 1 つのコマンドを送り、その（1 行の）レスポンスで解決する。共有の `readCallback` が
-   * 競合しないよう、必ず #enqueue の内側からのみ呼ぶこと。接続の失敗やタイムアウト時は
-   * "" で解決する。
+   * Sends one command and resolves with its (single-line) response. Must be
+   * called only from within #enqueue so the shared `readCallback` never races.
+   * Resolves with "" on connection failure or timeout.
    */
   async #request(command: string): Promise<string> {
     await this.connect();
     if (!this.#server) return "";
 
     const { promise, resolve } = Promise.withResolvers<string>();
-    const timer = setTimeout(() => resolve(""), REQUEST_TIMEOUT_MS);
+    const timer = setTimeout(() => {
+      // The server may still send this response later; on a shared socket it
+      // would be misattributed to the next request and reintroduce the desync
+      // this queue prevents. Drop the connection so the in-flight response is
+      // discarded, and connect() re-establishes it on the next round-trip.
+      this.#discard();
+      resolve("");
+    }, this.#timeout);
     this.#server.readCallback = (response: string) => {
       clearTimeout(timer);
       resolve(response);
@@ -95,6 +105,15 @@ export class Dictionary implements BaseDictionary {
 
     await this.write(command);
     return await promise;
+  }
+
+  // Tears the connection down synchronously so that, by the time the next
+  // request calls connect(), `#server` is already gone and a fresh socket is
+  // opened. Any response still in flight on the old socket is dropped instead
+  // of leaking into the next request's `readCallback`.
+  #discard() {
+    this.#server?.conn.close();
+    this.#server = undefined;
   }
 
   async connect(close = false) {
@@ -114,7 +133,12 @@ export class Dictionary implements BaseDictionary {
             this.#server?.readCallback(response);
           },
         }),
-      ).finally(() => {
+      ).catch(() => {
+        // Closing the socket (e.g. from #discard() on timeout) interrupts the
+        // pending read and rejects this pipe with "operation canceled". That is
+        // expected teardown, so swallow it instead of leaking an unhandled
+        // rejection.
+      }).finally(() => {
         this.#server = undefined;
       });
     const writer = conn.writable.getWriter();
@@ -170,8 +194,7 @@ export class Dictionary implements BaseDictionary {
 
   async close() {
     await this.write("0");
-    this.#server?.conn.close();
-    this.#server = undefined;
+    this.#discard();
   }
 
   private async write(str: string) {

@@ -33,6 +33,7 @@ export const config: Omit<ConfigOptions, "globalDictionaries"> & {
   skkServerPort: 1178,
   skkServerReqEnc: "euc-jp",
   skkServerResEnc: "euc-jp",
+  skkServerTimeout: 5000,
   sources: ["skk_dictionary"],
   userDictionary: "~/.skkeleton",
 };
@@ -111,6 +112,7 @@ const validators: Validators = {
   skkServerPort: (x) => ensure(x, is.Number),
   skkServerReqEnc: ensureEncoding,
   skkServerResEnc: ensureEncoding,
+  skkServerTimeout: (x) => ensure(x, is.Number),
   sources: (x) => ensure(x, is.ArrayOf(is.String)),
   useGoogleJapaneseInput: () => {
     throw '`useGoogleJapaneseInput` is removed. Please use `sources` with "google_japanese_input"';
