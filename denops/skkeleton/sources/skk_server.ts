@@ -26,6 +26,7 @@ export class Source implements BaseSource {
       port: config.skkServerPort,
       requestEnc: config.skkServerReqEnc,
       responseEnc: config.skkServerResEnc,
+      timeout: config.skkServerTimeout,
     });
 
     try {
@@ -43,6 +44,18 @@ export class Source implements BaseSource {
 
 export class Dictionary implements BaseDictionary {
   #server: Server | undefined;
+  // Serializes socket round-trips. This connection is not multiplexed and has
+  // only one slot for `readCallback`, so two in-flight requests overwrite each
+  // other and a response gets tied to the wrong request (e.g. a completion
+  // query receiving conversion candidates). Chaining every round-trip onto this
+  // Promise keeps at most one round-trip in flight at a time.
+  #queue: Promise<unknown> = Promise.resolve();
+  // Grace period for a single request/response round-trip. On timeout we give
+  // up and drop the connection so a single lost response can't deadlock the
+  // serialized queue above. skkserv normally replies almost instantly, but a
+  // networked skkserv falling back to a slow dictionary lookup is the realistic
+  // worst case, so this is configurable via `skkServerTimeout`.
+  #timeout: number;
   responseEncoding: Encoding;
   requestEncoding: Encoding;
   connectOptions: Deno.ConnectOptions;
@@ -50,10 +63,57 @@ export class Dictionary implements BaseDictionary {
   constructor(opts: SkkServerOptions) {
     this.requestEncoding = opts.requestEnc;
     this.responseEncoding = opts.responseEnc;
+    this.#timeout = opts.timeout;
     this.connectOptions = {
       hostname: opts.hostname,
       port: opts.port,
     };
+  }
+
+  /** Runs `task` only after everything already queued has settled. */
+  #enqueue<T>(task: () => Promise<T>): Promise<T> {
+    const run = this.#queue.then(task, task);
+    // Continue the chain whether task fulfills or rejects, and swallow the
+    // result here so an unhandled rejection can't leak from the tail of the
+    // queue.
+    this.#queue = run.then(() => {}, () => {});
+    return run;
+  }
+
+  /**
+   * Sends one command and resolves with its (single-line) response. Must be
+   * called only from within #enqueue so the shared `readCallback` never races.
+   * Resolves with "" on connection failure or timeout.
+   */
+  async #request(command: string): Promise<string> {
+    await this.connect();
+    if (!this.#server) return "";
+
+    const { promise, resolve } = Promise.withResolvers<string>();
+    const timer = setTimeout(() => {
+      // The server may still send this response later; on a shared socket it
+      // would be misattributed to the next request and reintroduce the desync
+      // this queue prevents. Drop the connection so the in-flight response is
+      // discarded, and connect() re-establishes it on the next round-trip.
+      this.#discard();
+      resolve("");
+    }, this.#timeout);
+    this.#server.readCallback = (response: string) => {
+      clearTimeout(timer);
+      resolve(response);
+    };
+
+    await this.write(command);
+    return await promise;
+  }
+
+  // Tears the connection down synchronously so that, by the time the next
+  // request calls connect(), `#server` is already gone and a fresh socket is
+  // opened. Any response still in flight on the old socket is dropped instead
+  // of leaking into the next request's `readCallback`.
+  #discard() {
+    this.#server?.conn.close();
+    this.#server = undefined;
   }
 
   async connect(close = false) {
@@ -73,7 +133,12 @@ export class Dictionary implements BaseDictionary {
             this.#server?.readCallback(response);
           },
         }),
-      ).finally(() => {
+      ).catch(() => {
+        // Closing the socket (e.g. from #discard() on timeout) interrupts the
+        // pending read and rejects this pipe with "operation canceled". That is
+        // expected teardown, so swallow it instead of leaking an unhandled
+        // rejection.
+      }).finally(() => {
         this.#server = undefined;
       });
     const writer = conn.writable.getWriter();
@@ -84,20 +149,11 @@ export class Dictionary implements BaseDictionary {
     };
   }
 
-  async getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
-    await this.connect();
-
-    if (this.#server == null) return [];
-    const { promise, resolve } = Promise.withResolvers<string>();
-    this.#server.readCallback = resolve;
-
-    await this.write(`1${word} `);
-    const response = await promise;
-    const result = response.at(0) === "1"
-      ? response.split("/").slice(1, -1)
-      : [];
-
-    return result;
+  getHenkanResult(_type: HenkanType, word: string): Promise<string[]> {
+    return this.#enqueue(async () => {
+      const response = await this.#request(`1${word} `);
+      return response.at(0) === "1" ? response.split("/").slice(1, -1) : [];
+    });
   }
 
   async getCompletionResult(
@@ -128,29 +184,17 @@ export class Dictionary implements BaseDictionary {
     return candidates;
   }
 
-  private async getMidashis(prefix: string): Promise<string[]> {
+  private getMidashis(prefix: string): Promise<string[]> {
     // Get midashis from prefix
-    await this.connect();
-
-    if (!this.#server) return [];
-
-    if (this.#server == null) return [];
-    const { promise, resolve } = Promise.withResolvers<string>();
-    this.#server.readCallback = resolve;
-
-    await this.write(`4${prefix} `);
-    const response = await promise;
-    const result = response.at(0) === "1"
-      ? response.split(/\/|\s/).slice(1, -1)
-      : [];
-
-    return result;
+    return this.#enqueue(async () => {
+      const response = await this.#request(`4${prefix} `);
+      return response.at(0) === "1" ? response.split(/\/|\s/).slice(1, -1) : [];
+    });
   }
 
   async close() {
     await this.write("0");
-    this.#server?.conn.close();
-    this.#server = undefined;
+    this.#discard();
   }
 
   private async write(str: string) {
