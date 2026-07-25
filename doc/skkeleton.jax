@@ -572,12 +572,11 @@ COMPLETION                                              *skkeleton-completion*
     set completeopt+=noinsert
 <
     'completeopt' に `longest` は指定しないでください。候補を選ばずにテキスト
-    だけが挿入され、Neovim ではその後 |CompleteDone| が発生しないため、変換
-    マーカー (▽) がバッファに残ります。
+    だけが挿入され、変換マーカー (▽) がバッファに残ります。
 
-    'complete' の `F` フラグに指定すれば |i_CTRL-N| からも使えます。この場合も
-    有効化時に `setlocal complete=Fskkeleton#completefunc` とし、無効化時に元の
-    値へ戻してください。
+    'complete' の `F` フラグに指定すれば |i_CTRL-N| や 'autocomplete' からも
+    使えます。この場合も有効化時に `setlocal complete=Fskkeleton#completefunc`
+    とし、無効化時に元の値へ戻してください。
 
 ==============================================================================
 FAQ                                                            *skkeleton-faq*

@@ -266,7 +266,6 @@ function! skkeleton#completefunc(findstart, base) abort
       \   lnum: line('.'),
       \   marker_start: start,
       \   marker: marker,
-      \   rest: strpart(preedit, strlen(marker)),
       \ }
       let start += strlen(marker)
     endif
@@ -284,14 +283,14 @@ function! skkeleton#complete_done() abort
   let s:completing = {}
 
   let metadata = s:completed_item_metadata()
+  " Note: 候補未確定のCompleteDoneは補完の中断でも発生する
+  " ('autocomplete'ではpre-editを書き直すバックスペースごとに起きる)。
+  " マーカーはまだskkeletonのpre-editの一部なのでここで消してはいけない
   if empty(metadata)
-    " Note: 候補を選ばずに挿入された場合 ('completeopt' の longest など) は
-    " マーカーを消す担い手が他に居ないためここで取り除く
-    call s:remove_marker_henkan(completing, v:true)
     return
   endif
 
-  call s:remove_marker_henkan(completing, v:false)
+  call s:remove_marker_henkan(completing)
 
   call skkeleton#request_async('completeCallback',
   \ [metadata.midasi, metadata.word, metadata.type])
@@ -336,7 +335,7 @@ function! s:completed_item_metadata() abort
   return #{midasi: midasi, word: word, type: henkan_type}
 endfunction
 
-function! s:remove_marker_henkan(completing, only_if_replaced) abort
+function! s:remove_marker_henkan(completing) abort
   if empty(a:completing) || a:completing.bufnr != bufnr('%')
   \    || a:completing.lnum != line('.')
     return
@@ -345,12 +344,6 @@ function! s:remove_marker_henkan(completing, only_if_replaced) abort
   let marker_start = a:completing.marker_start
   let marker_len = strlen(a:completing.marker)
   if strpart(line, marker_start, marker_len) !=# a:completing.marker
-    return
-  endif
-  " Note: <C-e>などでpre-editがそのまま戻された場合、マーカーはskkeletonの
-  " 状態の一部として必要なため残す
-  if a:only_if_replaced &&
-  \    strpart(line, marker_start + marker_len, strlen(a:completing.rest)) ==# a:completing.rest
     return
   endif
   let cursor_col = col('.')

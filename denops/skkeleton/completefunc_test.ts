@@ -82,7 +82,7 @@ test({
 
 test({
   mode: "all",
-  name: "complete_done removes markerHenkan without a selected candidate",
+  name: "complete_done keeps markerHenkan when the pre-edit is being rewritten",
   async fn(denops: Denops) {
     const lib = await currentLibrary.get();
     lib.registerHenkanResult("okurinasi", "あ", "亜");
@@ -92,12 +92,13 @@ test({
     await denops.call("cursor", 1, 9);
     assertEquals(await denops.call("skkeleton#completefunc", 1, ""), 5);
 
-    // 'completeopt' の longest などで候補を選ばずに挿入された状態
-    await denops.call("setline", 1, "ab▽亜cd");
+    // 'autocomplete' でpre-editの書き直しが補完を中断した状態
+    await denops.call("setline", 1, "ab▽cd");
+    await denops.call("cursor", 1, 6);
     await denops.cmd("let v:completed_item = {}");
     await denops.cmd("call skkeleton#complete_done()");
 
-    assertEquals(await denops.call("getline", 1), "ab亜cd");
+    assertEquals(await denops.call("getline", 1), "ab▽cd");
   },
 });
 
