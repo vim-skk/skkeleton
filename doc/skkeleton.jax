@@ -552,11 +552,33 @@ COMPLETION                                              *skkeleton-completion*
     ddc.vim と異なり completefunc は複数 source を扱わないため、
     `skkeleton` と `skkeleton_okuri` 相当の候補をまとめて返します。
     既存の補完設定との衝突を避けるため、自動では設定されません。
+    元の 'completefunc' を壊さないよう、無効化時に復元してください。
 >vim
-    autocmd User skkeleton-enable-post setlocal completefunc=skkeleton#completefunc
+    augroup my-skkeleton-completefunc
+      autocmd!
+      autocmd User skkeleton-enable-post
+            \ let b:my_completefunc = &l:completefunc |
+            \ setlocal completefunc=skkeleton#completefunc
+      autocmd User skkeleton-disable-post
+            \ let &l:completefunc = get(b:, 'my_completefunc', '')
+    augroup END
 
     " 挿入モードで <C-x><C-u> を押すと補完します
 <
+    'completeopt' に `noinsert` が無い場合、候補一覧を開いただけで先頭の候補が
+    挿入され、そのまま入力を続けると選んでいない候補がユーザー辞書に登録され
+    ます。意図しない学習を避けるには `noinsert` を指定してください。
+>vim
+    set completeopt+=noinsert
+<
+    'completeopt' に `longest` は指定しないでください。候補を選ばずにテキスト
+    だけが挿入され、Neovim ではその後 |CompleteDone| が発生しないため、変換
+    マーカー (▽) がバッファに残ります。
+
+    'complete' の `F` フラグに指定すれば |i_CTRL-N| からも使えます。この場合も
+    有効化時に `setlocal complete=Fskkeleton#completefunc` とし、無効化時に元の
+    値へ戻してください。
+
 ==============================================================================
 FAQ                                                            *skkeleton-faq*
 
