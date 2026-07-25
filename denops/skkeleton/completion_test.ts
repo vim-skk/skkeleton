@@ -38,6 +38,40 @@ Deno.test({
 });
 
 Deno.test({
+  name: "buildOkurinasiCompleteItems splits annotation at the first ';'",
+  fn() {
+    const items = buildOkurinasiCompleteItems(
+      [["あ", ["亜;アジアの亜", "愛;love;愛情", ";注釈だけ"]]],
+      [],
+    );
+
+    assertEquals(
+      items.map((item) => [item.word, item.abbr, item.info]),
+      [
+        ["亜", "亜", "アジアの亜"],
+        ["愛", "愛", "love;愛情"],
+        ["", "", "注釈だけ"],
+      ],
+    );
+  },
+});
+
+Deno.test({
+  name: "buildOkurinasiCompleteItems keeps candidates sharing a word",
+  fn() {
+    const items = buildOkurinasiCompleteItems(
+      [["ほん", ["本;book", "本;origin"]]],
+      [],
+    );
+
+    assertEquals(items.map((item) => [item.word, item.info, item.dup]), [
+      ["本", "book", 1],
+      ["本", "origin", 1],
+    ]);
+  },
+});
+
+Deno.test({
   name: "buildOkuriariCompleteItems",
   async fn() {
     const items = await buildOkuriariCompleteItems("あた", (midasi) => {

@@ -8,6 +8,11 @@ export type CompleteItem = {
   abbr: string;
   info: string;
   equal: 1;
+  // NOTE: 送り仮名の分割違いや注釈違いで表記が重なる候補があるため、
+  // Vimに重複候補を捨てさせない
+  dup: 1;
+  // NOTE: 注釈のみのエントリは表記が空になり、既定では候補から落とされる
+  empty: 1;
   user_data: string;
 };
 
@@ -22,12 +27,13 @@ type RankedCompleteItem = CompleteItem & {
   rank: number;
 };
 
-function stripAnnotation(word: string): string {
-  return word.replace(/;.*$/, "");
-}
-
-function annotation(word: string): string {
-  return word.indexOf(";") > 1 ? word.replace(/.*;/, "") : "";
+// 最初の`;`以降が注釈
+function splitAnnotation(word: string): [string, string] {
+  const index = word.indexOf(";");
+  if (index < 0) {
+    return [word, ""];
+  }
+  return [word.slice(0, index), word.slice(index + 1)];
 }
 
 function userData(metadata: CompleteItemMetadata): string {
@@ -47,19 +53,24 @@ export function buildOkurinasiCompleteItems(
   const items: RankedCompleteItem[] = sortedCandidates.flatMap((
     [kana, words],
   ) =>
-    words.map((word) => ({
-      word: stripAnnotation(word),
-      abbr: stripAnnotation(word),
-      info: annotation(word),
-      equal: 1,
-      user_data: userData({
-        tag: "skkeleton",
-        midasi: kana,
-        word,
-        type: "okurinasi",
-      }),
-      rank: ranks.get(word) ?? globalRank--,
-    }))
+    words.map((word): RankedCompleteItem => {
+      const [candidate, note] = splitAnnotation(word);
+      return {
+        word: candidate,
+        abbr: candidate,
+        info: note,
+        equal: 1,
+        dup: 1,
+        empty: 1,
+        user_data: userData({
+          tag: "skkeleton",
+          midasi: kana,
+          word,
+          type: "okurinasi",
+        }),
+        rank: ranks.get(word) ?? globalRank--,
+      };
+    })
   );
 
   return items
@@ -79,11 +90,14 @@ export async function buildOkuriariCompleteItems(
       continue;
     }
     for (const candidate of candidates) {
+      const [stripped, note] = splitAnnotation(candidate);
       items.push({
-        word: stripAnnotation(candidate) + okuri,
-        abbr: stripAnnotation(candidate) + okuri,
-        info: annotation(candidate),
+        word: stripped + okuri,
+        abbr: stripped + okuri,
+        info: note,
         equal: 1,
+        dup: 1,
+        empty: 1,
         user_data: userData({
           tag: "skkeleton",
           midasi,
