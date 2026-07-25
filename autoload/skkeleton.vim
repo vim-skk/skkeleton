@@ -228,84 +228,138 @@ function! skkeleton#get_config() abort
   return denops#request('skkeleton', 'getConfig', [])
 endfunction
 
+let s:complete_items = []
+" 補完範囲から外したmarkerHenkanをCompleteDoneで取り除くための記録
+let s:completing = {}
+
 function! skkeleton#completefunc(findstart, base) abort
   if a:findstart
-    let preedit = skkeleton#request('getPreEdit', [])
-    if preedit ==# ''
+    " Note: skkeleton#requestのs:wait()はdenopsが起動するまで戻らないため、
+    " 起動していない場合は待たずに補完を諦める
+    if !denops#plugin#is_loaded('skkeleton')
       return -3
     endif
+    let preedit = skkeleton#request('getPreEdit', [])
     let start = col('.') - strlen(preedit) - 1
+    " Note: 補完で確定した直後などpre-editとバッファがずれている状態では、
+    " 開始位置が無関係なテキストを指してしまい補完がそれを消してしまう
+    if preedit ==# '' || start < 0 ||
+    \    strpart(getline('.'), start, strlen(preedit)) !=# preedit
+      return -3
+    endif
+    " Note: 候補が空のまま開始位置を返すとVimが'Pattern not found'を出すため、
+    " 候補はここで取得して無ければ補完自体を取り消す
+    let s:complete_items = skkeleton#request('getCompleteItems', [])
+    if empty(s:complete_items)
+      return -3
+    endif
     let marker = skkeleton#get_config().markerHenkan
+    " Note: 'refresh'が'always'のとき補完で挿入された直後にもfindstartが呼ばれる。
+    " そこで-3を返す前にs:completingを捨てるとCompleteDoneがマーカーを消せなく
+    " なるため、補完を始められた場合だけ更新する
+    let s:completing = {}
+    " Note: 'complete'のFフラグ経由の補完はVimが決めた単語境界に候補を挿入する
+    " ため、単語文字ではないマーカーまで補完範囲に含めると候補の先頭文字が落ちる
     if marker !=# '' && stridx(preedit, marker) == 0
+      let s:completing = #{
+      \   bufnr: bufnr('%'),
+      \   lnum: line('.'),
+      \   marker_start: start,
+      \   marker: marker,
+      \   rest: strpart(preedit, strlen(marker)),
+      \ }
       let start += strlen(marker)
     endif
     return start
   endif
 
-  let items = skkeleton#request('getCompleteItems', [])
-
   return {
-  \ 'words': items,
+  \ 'words': s:complete_items,
   \ 'refresh': 'always',
   \ }
 endfunction
 
 function! skkeleton#complete_done() abort
-  if !exists('v:completed_item') || type(v:completed_item) != v:t_dict
+  let completing = s:completing
+  let s:completing = {}
+
+  let metadata = s:completed_item_metadata()
+  if empty(metadata)
+    " Note: 候補を選ばずに挿入された場合 ('completeopt' の longest など) は
+    " マーカーを消す担い手が他に居ないためここで取り除く
+    call s:remove_marker_henkan(completing, v:true)
     return
+  endif
+
+  call s:remove_marker_henkan(completing, v:false)
+
+  call skkeleton#request_async('completeCallback',
+  \ [metadata.midasi, metadata.word, metadata.type])
+endfunction
+
+function! s:completed_item_metadata() abort
+  if !exists('v:completed_item') || type(v:completed_item) != v:t_dict
+    return {}
   endif
 
   let user_data = get(v:completed_item, 'user_data', '')
   if type(user_data) != v:t_string || user_data !~# '^\s*{'
-    return
+    return {}
   endif
 
   try
     let metadata = json_decode(user_data)
   catch
-    return
+    return {}
   endtry
 
-  if type(metadata) != v:t_dict || get(metadata, 'tag', '') !=# 'skkeleton'
-    return
+  if type(metadata) != v:t_dict
+    return {}
+  endif
+  " Note: 他プラグインのuser_dataも流れてくるため、文字列以外のtagと`!=#`で
+  " 比較するとE735/E691/E892で落ちる
+  let tag = get(metadata, 'tag', 0)
+  if type(tag) != v:t_string || tag !=# 'skkeleton'
+    return {}
   endif
 
   let midasi = get(metadata, 'midasi', 0)
   let word = get(metadata, 'word', 0)
   let henkan_type = get(metadata, 'type', 0)
   if type(midasi) != v:t_string || type(word) != v:t_string || type(henkan_type) != v:t_string
-    return
+    return {}
   endif
   if henkan_type !=# 'okurinasi' && henkan_type !=# 'okuriari'
-    return
+    return {}
   endif
 
-  call s:remove_marker_henkan()
-
-  call skkeleton#request_async('completeCallback', [midasi, word, henkan_type])
+  return #{midasi: midasi, word: word, type: henkan_type}
 endfunction
 
-function! s:remove_marker_henkan() abort
-  let marker = skkeleton#get_config().markerHenkan
-  if marker ==# ''
+function! s:remove_marker_henkan(completing, only_if_replaced) abort
+  if empty(a:completing) || a:completing.bufnr != bufnr('%')
+  \    || a:completing.lnum != line('.')
     return
   endif
-  let inserted = get(v:completed_item, 'word', '')
-  if type(inserted) != v:t_string
-    return
-  endif
-  let marker_len = strlen(marker)
-  let inserted_len = strlen(inserted)
   let line = getline('.')
-  let cursor_col = col('.')
-  let marker_start = cursor_col - 1 - inserted_len - marker_len
-  if marker_start < 0 || strpart(line, marker_start, marker_len + inserted_len) !=# marker .. inserted
+  let marker_start = a:completing.marker_start
+  let marker_len = strlen(a:completing.marker)
+  if strpart(line, marker_start, marker_len) !=# a:completing.marker
     return
   endif
-  let newline = strpart(line, 0, marker_start) .. strpart(line, marker_start + marker_len)
+  " Note: <C-e>などでpre-editがそのまま戻された場合、マーカーはskkeletonの
+  " 状態の一部として必要なため残す
+  if a:only_if_replaced &&
+  \    strpart(line, marker_start + marker_len, strlen(a:completing.rest)) ==# a:completing.rest
+    return
+  endif
+  let cursor_col = col('.')
   silent! undojoin
-  call setline('.', newline)
-  call cursor(line('.'), cursor_col - marker_len)
+  call setline('.',
+  \ strpart(line, 0, marker_start) .. strpart(line, marker_start + marker_len))
+  if cursor_col > marker_start
+    call cursor(line('.'), cursor_col - marker_len)
+  endif
 endfunction
 
 function! skkeleton#initialize() abort
