@@ -571,12 +571,33 @@ COMPLETION                                              *skkeleton-completion*
 >vim
     set completeopt+=noinsert
 <
-    'completeopt' に `longest` は指定しないでください。候補を選ばずにテキスト
-    だけが挿入され、変換マーカー (▽) がバッファに残ります。
+    'completeopt' に `longest` は指定しないでください。SKKの候補は読みと共通の
+    接頭辞を持たないため、候補を選んでいないのに読みの方が消えてしまい、変換
+    マーカー (▽) だけがバッファに残ります。
+
+    'completeopt' の `preinsert` も指定しないでください。`noinsert` を併せて
+    指定しても先頭の候補が挿入され、skkeletonのpre-editとバッファがずれます。
+    'autocomplete' と併用する場合は `noselect` を明示すると防げます。
+
+    'completeopt' には `preview` ではなく `popup` を使ってください。preview
+    ウィンドウが開くと |WinLeave| によってskkeletonが無効化されます。
 
     'complete' の `F` フラグに指定すれば |i_CTRL-N| や 'autocomplete' からも
     使えます。この場合も有効化時に `setlocal complete=Fskkeleton#completefunc`
     とし、無効化時に元の値へ戻してください。
+
+    ただし 'complete' 経由の補完には以下の制限があります。
+
+    - 送りの開始に大文字を使ったpre-edit (`▽おく*r` など) では候補が壊れます。
+      Vim/Neovimは 'complete' 経由のとき、completefuncが返した開始位置を候補の
+      挿入位置には使わずカーソル直前の単語境界に挿入するため、単語文字ではない
+      `*` より前が取り残された上に候補の先頭も欠けます。
+      送りの開始に大文字を使わず、読みを最後までひらがなで入力してから
+      (`▽おくり`) 補完してください。送りありの候補も候補一覧に含まれます。
+    - 他の補完ソースと併用すると、skkeleton以外の候補を確定したときに ▽ が
+      バッファに残ります。
+    - 候補が無いときに `Pattern not found` が表示されます。抑制するには
+      'shortmess' に `c` を追加してください。
 
 ==============================================================================
 FAQ                                                            *skkeleton-faq*
