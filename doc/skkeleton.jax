@@ -553,6 +553,9 @@ COMPLETION                                              *skkeleton-completion*
     `skkeleton` と `skkeleton_okuri` 相当の候補をまとめて返します。
     既存の補完設定との衝突を避けるため、自動では設定されません。
     元の 'completefunc' を壊さないよう、無効化時に復元してください。
+    また |CompleteDone| で候補確定時の後処理を行うためこちらも設定して
+    ください。以下は単純に skkeleton の有効・無効に関わらず |CompleteDone|
+    を設定する例です。
 >vim
     augroup my-skkeleton-completefunc
       autocmd!
@@ -561,6 +564,7 @@ COMPLETION                                              *skkeleton-completion*
             \ setlocal completefunc=skkeleton#completefunc
       autocmd User skkeleton-disable-post
             \ let &l:completefunc = get(b:, 'my_completefunc', '')
+      autocmd CompleteDone * call skkeleton#complete_done()
     augroup END
 
     " 挿入モードで <C-x><C-u> を押すと補完します
