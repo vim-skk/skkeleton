@@ -10,6 +10,7 @@ export const config: Omit<ConfigOptions, "globalDictionaries"> & {
   globalDictionaries: [string, string][];
 } = {
   acceptIllegalResult: false,
+  completionBackend: "native",
   completionRankFile: "",
   databasePath: "",
   debug: false,
@@ -51,6 +52,7 @@ function ensureEncoding(x: unknown): Encoding {
 
 const validators: Validators = {
   acceptIllegalResult: (x) => ensure(x, is.Boolean),
+  completionBackend: (x) => ensure(x, is.String),
   completionRankFile: (x) => ensure(x, is.String),
   databasePath: (x) => ensure(x, is.String),
   debug: (x) => ensure(x, is.Boolean),
