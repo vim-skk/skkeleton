@@ -32,6 +32,11 @@ function! s:open_cmdline(candidates)
 endfunction
 
 function! s:open(candidates) abort
+  " Note: do nothing when skkeleton has been disabled before this opens, or it
+  "       would be left open (e.g. when insert mode is left with `<C-c>`)
+  if !g:skkeleton#enabled
+    return
+  endif
   autocmd skkeleton-internal User skkeleton-handled ++once call skkeleton#popup#close()
   if mode() == 'c'
     call s:open_cmdline(a:candidates)
