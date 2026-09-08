@@ -131,7 +131,7 @@ test({
     await d.call("skkeleton#config", { completionBackend: "late-engine" });
     await d.cmd("messages clear");
 
-    // 最初のキー処理では未登録なのでnativeに落ちる
+    // falls back to native because it is not registered on the first key
     assertEquals((await vimStatus(d)).completeType, "native");
 
     await d.cmd("doautocmd <nomodeline> User skkeleton-enable-pre");
