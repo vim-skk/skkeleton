@@ -1,4 +1,5 @@
 import { config, setConfig } from "./config.ts";
+import { buildCompleteItems } from "./completion.ts";
 import { functions, modeFunctions } from "./function.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { isHenkanType, load as loadDictionary } from "./dictionary.ts";
@@ -353,6 +354,19 @@ export const main: Entrypoint = async (denops) => {
       }
       const lib = await currentLibrary.get();
       return Promise.resolve(lib.getRanks(state.henkanFeed));
+    },
+    async getCompleteItems() {
+      const state = currentContext.get().state;
+      if (state.type !== "input") {
+        return [];
+      }
+      const lib = await currentLibrary.get();
+      return await buildCompleteItems(
+        await lib.getCompletionResult(state.henkanFeed, state.feed),
+        lib.getRanks(state.henkanFeed),
+        state.henkanFeed,
+        (midasi) => lib.getHenkanResult("okuriari", midasi),
+      );
     },
     async registerHenkanResult(midasi: unknown, word: unknown) {
       // Note: This method is compatible to completion source

@@ -1,4 +1,4 @@
-import { okuriSplits } from "./okurisplits.ts";
+import { okuriSplits } from "./okuri.ts";
 
 import { assertEquals } from "@std/assert/equals";
 
