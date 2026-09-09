@@ -235,6 +235,9 @@ endfunction
 function! skkeleton#disable()
   if g:skkeleton#enabled
     doautocmd <nomodeline> User skkeleton-disable-pre
+    " the candidate popup is closed on `User skkeleton-handled`, which no
+    " longer fires once disabled
+    call skkeleton#popup#close()
     call skkeleton#internal#map#restore()
     call skkeleton#internal#option#restore()
     let g:skkeleton#mode = ''
