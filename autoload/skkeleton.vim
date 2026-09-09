@@ -173,26 +173,8 @@ let s:completion_backends = {}
 let s:completion_backend = 'native'
 let s:warned_backends = {}
 
-let s:no_completion = #{ pum_visible: v:false, selected: -1 }
-
 function! s:native_complete_info() abort
   return complete_info(['pum_visible', 'selected'])
-endfunction
-
-function! s:nvim_cmp_complete_info() abort
-  if !has('nvim')
-        \ || !luaeval('select(2, pcall(function() return package.loaded["cmp"].visible() end)) == v:true')
-    return s:no_completion
-  endif
-  let selected = luaeval('require("cmp").get_active_entry() ~= nil')
-  return #{ pum_visible: v:true, selected: selected ? 1 : -1 }
-endfunction
-
-function! s:pum_complete_info() abort
-  if !exists('*pum#visible') || !pum#visible()
-    return s:no_completion
-  endif
-  return pum#complete_info(['pum_visible', 'selected'])
 endfunction
 
 function! skkeleton#register_completion_backend(name, backend) abort
@@ -208,17 +190,11 @@ function! skkeleton#register_completion_backend(name, backend) abort
   let s:completion_backends[a:name] = a:backend
 endfunction
 
+" Note: the built-in completion is the only one skkeleton knows by itself
+"       every other engine registers its own backend
 call skkeleton#register_completion_backend('native', #{
 \   complete_info: function('s:native_complete_info'),
 \   confirm_key: "\<C-y>",
-\ })
-call skkeleton#register_completion_backend('nvim-cmp', #{
-\   complete_info: function('s:nvim_cmp_complete_info'),
-\   confirm_key: "<Cmd>lua require('cmp').confirm({select = true})",
-\ })
-call skkeleton#register_completion_backend('pum.vim', #{
-\   complete_info: function('s:pum_complete_info'),
-\   confirm_key: '<Cmd>call pum#map#confirm()',
 \ })
 
 " return [backend_name, complete_info, confirm_key]

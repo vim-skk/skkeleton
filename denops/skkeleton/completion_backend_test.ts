@@ -35,20 +35,6 @@ test({
 
 test({
   mode: "all",
-  name: "built-in completion backends are selectable",
-  async fn(d: Denops) {
-    Object.assign(config, defaultConfig);
-    await d.call("skkeleton#config", { completionBackend: "pum.vim" });
-    const status = await vimStatus(d);
-    assertEquals(status.completeType, "pum.vim");
-    assertEquals(status.completeConfirmKey, "<Cmd>call pum#map#confirm()");
-    // pum.vim is not loaded, so it reports that nothing is showing
-    assertEquals(status.completeInfo.selected, notSelected);
-  },
-});
-
-test({
-  mode: "all",
   name: "registered completion backend is selectable",
   async fn(d: Denops) {
     Object.assign(config, defaultConfig);
