@@ -29,8 +29,18 @@ export async function initializeStateWithAbbrev(
   ignore: string[] = [],
 ) {
   if (context.mode === "abbrev") {
-    await modeChange(context, "hira");
     ignore = ignore.filter((key) => key !== "converter" && key !== "table");
+    initializeState(context.state, ignore);
+    if (context.onAbbrevDone) {
+      // onAbbrevDoneがある場合はmodeChange("hira")をスキップし
+      // コールバックに後処理を委ねる（例: disable）
+      const callback = context.onAbbrevDone;
+      context.onAbbrevDone = undefined;
+      await callback();
+    } else {
+      await modeChange(context, "hira");
+    }
+    return;
   }
   initializeState(context.state, ignore);
 }

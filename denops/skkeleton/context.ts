@@ -24,6 +24,8 @@ export class Context {
     word: "",
     candidate: "",
   };
+  // abbrevFromDirect用: abbrevセッション完了時に呼ばれるコールバック
+  onAbbrevDone?: () => Promise<void>;
 
   kakutei(str: string) {
     this.preEdit.doKakutei(str);

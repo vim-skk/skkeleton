@@ -135,8 +135,13 @@ export async function henkanInput(context: Context, key: string) {
     }
   }
 
+  const wasAbbrevSession = context.onAbbrevDone !== undefined;
   await kakutei(context);
-  await handleKey(context, keyToNotation[key] ?? key);
+  if (wasAbbrevSession) {
+    context.kakutei(key);
+  } else {
+    await handleKey(context, keyToNotation[key] ?? key);
+  }
 }
 
 export async function suffix(context: Context) {
