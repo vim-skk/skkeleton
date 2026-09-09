@@ -122,3 +122,21 @@ test({
     assertEquals(await vars.g.get(d, "skkeleton#mode_actual"), "hira");
   },
 });
+
+test({
+  mode: "all",
+  name: "can enable from escape state in terminal mode",
+  async fn(d: Denops) {
+    currentContext.get().state = { type: "escape" };
+
+    await d.dispatch("skkeleton", "handle", "enable", {}, {
+      mode: "t",
+      prevInput: "",
+      completeInfo: { pum_visible: false, selected: -1 },
+      completeType: "native",
+    });
+
+    assertEquals(await vars.g.get(d, "skkeleton#enabled"), true);
+    await d.call("skkeleton#disable");
+  },
+});

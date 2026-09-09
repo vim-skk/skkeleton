@@ -118,7 +118,11 @@ async function enable(opts: unknown, vimStatus: unknown): Promise<string> {
     console.log("skkeleton doesn't allowed in replace mode");
     return "";
   }
-  if ((oldState.type !== "input" || oldState.mode !== "direct") && vimStatus) {
+  if (
+    oldState.type !== "escape" &&
+    (oldState.type !== "input" || oldState.mode !== "direct") &&
+    vimStatus
+  ) {
     return handle(opts, vimStatus);
   }
   // Note: must set before context initialization
