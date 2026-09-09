@@ -2,7 +2,10 @@ export function okuriSplits(text: string): [string, string][] {
   if (text === "") {
     return [];
   }
-  const a = [...text];
-  const r = Array.from(Array(a.length - 1), (_, i) => a.length - 1 - i);
-  return r.map((i) => [a.slice(0, i).join(""), a.slice(i).join("")]);
+  const chars = [...text];
+  const result: [string, string][] = [];
+  for (let i = chars.length - 1; i >= 1; i--) {
+    result.push([chars.slice(0, i).join(""), chars.slice(i).join("")]);
+  }
+  return result;
 }

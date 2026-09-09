@@ -106,14 +106,21 @@ export class Dictionary implements UserDictionary {
   }
 
   getRanks(prefix: string): RankData {
-    const set = new Set();
-    const adder = set.add.bind(set);
     this.cacheCandidates(prefix, "");
+    const seen = new Set<string>();
+    const result: RankData = [];
     for (const [, cs] of this.#cachedCandidates) {
-      cs.forEach(adder);
+      for (const c of cs) {
+        if (!seen.has(c)) {
+          seen.add(c);
+          const rank = this.#rank.get(c);
+          if (rank !== undefined) {
+            result.push([c, rank]);
+          }
+        }
+      }
     }
-    return [...this.#rank.entries()]
-      .filter((e) => set.has(e[0]));
+    return result;
   }
 
   registerHenkanResult(type: HenkanType, word: string, candidate: string) {
