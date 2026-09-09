@@ -237,6 +237,18 @@ acceptIllegalResult                     *skkeleton-config-acceptIllegalResult*
         このオプションを有効にすると、Microsoft IME等と同様に
         入力に失敗したローマ字がバッファに残るようになります。
 
+completionBackend                         *skkeleton-config-completionBackend*
+        (デフォルト "native")
+        補完エンジンとの連携に使うバックエンドの名前です。
+        |skkeleton-config-eggLikeNewline| による確定の際に、補完メニューが
+        表示されているかの判定と候補の確定をこのバックエンドに委譲します。
+        内蔵しているのはVim/Neovimの組み込み補完(|ins-completion|)を扱う
+        "native" だけです。他の補完エンジンを使う場合は
+        |skkeleton#register_completion_backend()| で登録された名前を
+        指定します。
+        Note: 使用中の補完エンジンの自動判定は行いません。組み込み補完以外を
+        使う場合は必ず設定してください。(|skkeleton-compatibility|)
+
 completionRankFile                       *skkeleton-config-completionRankFile*
         (デフォルト "")
         パスを指定すると補完候補の順番を記録するようになります。
@@ -418,6 +430,45 @@ userDictionary                               *skkeleton-config-userDictionary*
         JavaScriptの制約によりエンコーディングはUTF-8限定になります。
 
 ------------------------------------------------------------------------------
+                                    *skkeleton#register_completion_backend()*
+skkeleton#register_completion_backend({name}, {backend})
+        補完エンジンとの連携方法を登録します。登録した{name}は
+        |skkeleton-config-completionBackend| に指定できるようになります。
+        同じ{name}が既に登録されている場合は上書きされます。
+        {backend}には以下のキーを持つ辞書を指定します:
+                complete_info
+                        補完の表示状態を返す |Funcref| です。 `pum_visible` と
+                        `selected` をキーに持つ辞書を返してください。
+                        `selected` は候補が選択されていない場合に負数を返しま
+                        す。
+                confirm_key
+                        選択中の候補を確定するキーの文字列です。 `<Cmd>` で始
+                        まる場合はコマンドとして実行されます(終端の `<CR>` は
+                        不要です)。
+        ユーザーが直接呼ぶこともできますが、補完ソースを提供するプラグイン側で
+        呼ぶことを想定しています。 |skkeleton-enable-pre| までに呼ばれていれば
+        間に合います。
+>lua
+    -- 例: blink.cmp
+    vim.fn["skkeleton#register_completion_backend"]("blink.cmp", {
+      complete_info = function()
+        local blink = require("blink.cmp")
+        if not blink.is_menu_visible() then
+          return { pum_visible = false, selected = -1 }
+        end
+        return {
+          pum_visible = true,
+          selected = blink.get_selected_item() ~= nil and 1 or -1,
+        }
+      end,
+      confirm_key = "<Cmd>lua require('blink.cmp').select_and_accept()",
+    })
+<
+>vim
+    " 登録した名前を選択する (こちらはユーザーが行う)
+    call skkeleton#config(#{ completionBackend: 'blink.cmp' })
+<
+------------------------------------------------------------------------------
                                               *skkeleton#register_kanatable()*
 skkeleton#register_kanatable({tableName}, {table} [, {create}])
         仮名入力のテーブルを登録できます。
@@ -547,6 +598,16 @@ COMPLETION                                              *skkeleton-completion*
         \ })
     call skkeleton#config({'completionRankFile': '~/.skkeleton/rank.json'})
 <
+                                                *skkeleton-completion-backend*
+    補完エンジンが表示している候補を |skkeleton-config-eggLikeNewline| による
+    改行キーで確定するには、使用している補完エンジンを
+    |skkeleton-config-completionBackend| で指定する必要があります。
+>vim
+    call skkeleton#config(#{ completionBackend: 'blink.cmp' })
+<
+    組み込み補完("native")以外のバックエンドは、補完エンジン側から
+    |skkeleton#register_completion_backend()| で登録されている必要があります。
+
 ==============================================================================
 FAQ                                                            *skkeleton-faq*
 
@@ -675,6 +736,14 @@ skkeleton側では |g:skkeleton#mapped_keys| に応じて
 
 ==============================================================================
 COMPATIBILITY                                        *skkeleton-compatibility*
+
+2026-08-08~
+- 補完エンジンの自動判定を廃止
+  - |skkeleton-config-completionBackend| による明示的な指定が必要になりました
+  - 組み込み補完("native")以外を使っている場合は設定を追加してください
+  - "native" 以外のバックエンドは補完エンジン側が
+    |skkeleton#register_completion_backend()| で登録します。まだ対応していない
+    補完エンジンについてはユーザーが自分で登録することもできます
 
 2024-12-17~
 - denops.vimのv8で追加された仕様に追従
