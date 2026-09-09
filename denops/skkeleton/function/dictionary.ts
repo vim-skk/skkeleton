@@ -38,6 +38,7 @@ export async function registerWord(context: Context): Promise<boolean> {
       once: true,
     });
     const input = await fn.input(denops, base + okuri + ": ");
+    currentContext.set(context);
     if (input === "" || input.includes("__skkeleton_return__")) {
       await denops.cmd("echo '' | redraw");
       return false;
