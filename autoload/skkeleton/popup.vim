@@ -7,6 +7,7 @@ endfunction
 
 function! s:open_cmdline(candidates)
   let top = &lines + 1 - max([1, &cmdheight]) - len(a:candidates)
+  let prompt_width = [getcmdprompt()->strwidth(), 1]->max()
   if has('nvim')
     let buf = nvim_create_buf(v:false, v:true)
     call nvim_buf_set_lines(buf, 0, -1, v:true, a:candidates)
@@ -15,18 +16,22 @@ function! s:open_cmdline(candidates)
           \ 'relative': 'editor',
           \ 'width': max(mapnew(a:candidates, { _, val -> strwidth(v:val) })),
           \ 'height': len(a:candidates),
-          \ 'col': getcmdscreenpos(),
+          \ 'col': prompt_width,
           \ 'row': top,
           \ 'style': 'minimal',
           \ }
-    let win = nvim_open_win(buf, 0, opts)
+    let win = nvim_open_win(buf, v:false, opts)
     redraw
     call add(s:windows, win)
   else
     let id = popup_create(a:candidates, {
     \ 'line': top,
-    \ 'col': getcmdscreenpos(),
+    \ 'col': prompt_width + 1,
     \ })
+
+    " Note: :redraw is needed
+    redraw
+
     call add(s:windows, id)
   endif
 endfunction
@@ -76,6 +81,9 @@ function! skkeleton#popup#close() abort
     for i in s:windows
       call popup_close(i)
     endfor
+
+    " Note: :redraw is needed
+    redraw
   endif
   let s:windows = []
 endfunction
