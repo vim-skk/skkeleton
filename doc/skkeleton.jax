@@ -737,7 +737,7 @@ skkeleton側では |g:skkeleton#mapped_keys| に応じて
 ==============================================================================
 COMPATIBILITY                                        *skkeleton-compatibility*
 
-2026-08-08~
+2026-09-10~
 - 補完エンジンの自動判定を廃止
   - |skkeleton-config-completionBackend| による明示的な指定が必要になりました
   - 組み込み補完("native")以外を使っている場合は設定を追加してください
