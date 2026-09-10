@@ -48,17 +48,25 @@ export class Source extends BaseSource<Params> {
       ? " "
       : "";
     const ddcCandidates = candidates.flatMap((e) => {
-      return e[1].map((word) => ({
-        word: word.replace(/;.*$/, ""),
-        // NOTE: add space for workaround of neovim draw screen bug
-        abbr: abbrPrefix + word.replace(/;.*$/, ""),
-        info: word.indexOf(";") > 1 ? word.replace(/.*;/, "") : "",
-        user_data: {
-          kana: e[0],
-          word,
-          rank: ranks.get(word) ?? globalRank--,
-        },
-      }));
+      return e[1].map((word) => {
+        const separator = word.indexOf(";");
+        const displayWord = separator === -1
+          ? word
+          : word.slice(0, separator);
+        const info = separator > 1 ? word.slice(separator + 1) : "";
+
+        return {
+          word: displayWord,
+          // NOTE: add space for workaround of neovim draw screen bug
+          abbr: abbrPrefix + displayWord,
+          info,
+          user_data: {
+            kana: e[0],
+            word,
+            rank: ranks.get(word) ?? globalRank--,
+          },
+        };
+      });
     });
     ddcCandidates.sort((a, b) => b.user_data.rank - a.user_data.rank);
     return {
