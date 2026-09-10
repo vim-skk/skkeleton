@@ -144,6 +144,14 @@ function! s:notify_later(funcname, args) abort
 endfunction
 
 function! skkeleton#config(config) abort
+  " Note: keep a copy here because the Vim side looks the selected backend up
+  "       on every key press
+  if has_key(a:config, 'completionBackend')
+    if type(a:config.completionBackend) != v:t_string
+      throw '[skkeleton] completionBackend must be a string'
+    endif
+    let s:completion_backend = a:config.completionBackend
+  endif
   call skkeleton#request_async('config', [a:config])
 endfunction
 
@@ -161,20 +169,64 @@ function! skkeleton#register_kanatable_file(table_name, path, encoding='', creat
   call skkeleton#request_async('registerKanaTableFile', [a:table_name, a:path, a:encoding, a:create])
 endfunction
 
-" return [complete_type, complete_info]
-function! s:complete_info() abort
-  if exists('*pum#visible') && pum#visible()
-    return ['pum.vim', pum#complete_info(['pum_visible', 'selected'])]
-  elseif has('nvim') && luaeval('select(2, pcall(function() return package.loaded["cmp"].visible() end)) == true')
-    let selected = luaeval('require("cmp").get_active_entry() ~= nil')
-    return ['cmp', {'pum_visible': v:true, 'selected': selected ? 1 : -1}]
-  else
-    return ['native', complete_info(['pum_visible', 'selected'])]
-  endif
+let s:completion_backends = {}
+let s:completion_backend = 'native'
+let s:warned_backends = {}
+
+function! s:native_complete_info() abort
+  return complete_info(['pum_visible', 'selected'])
 endfunction
 
+function! skkeleton#register_completion_backend(name, backend) abort
+  if type(a:name) != v:t_string
+    throw '[skkeleton] completion backend name must be a string'
+  endif
+  if type(a:backend) != v:t_dict
+        \ || type(get(a:backend, 'complete_info')) != v:t_func
+        \ || type(get(a:backend, 'confirm_key')) != v:t_string
+    throw '[skkeleton] completion backend must be ' ..
+          \ '{complete_info: funcref, confirm_key: string}'
+  endif
+  let s:completion_backends[a:name] = a:backend
+endfunction
+
+" Note: the built-in completion is the only one skkeleton knows by itself
+"       every other engine registers its own backend
+call skkeleton#register_completion_backend('native', #{
+\   complete_info: function('s:native_complete_info'),
+\   confirm_key: "\<C-y>",
+\ })
+
+" return [backend_name, complete_info, confirm_key]
+function! s:complete_info() abort
+  let name = s:completion_backend
+  if !has_key(s:completion_backends, name)
+    " Note: a backend registered from `skkeleton-enable-pre` is still missing on
+    "       the first key press, and no completion menu can be open yet either
+    let name = 'native'
+  endif
+  let backend = s:completion_backends[name]
+  return [name, backend.complete_info(), backend.confirm_key]
+endfunction
+
+function! s:check_completion_backend() abort
+  let name = s:completion_backend
+  if has_key(s:completion_backends, name) || has_key(s:warned_backends, name)
+    return
+  endif
+  let s:warned_backends[name] = v:true
+  echohl WarningMsg
+  echomsg printf('[skkeleton] unknown completionBackend: %s (fallback to "native")', name)
+  echohl None
+endfunction
+
+augroup skkeleton-completion-backend
+  autocmd!
+  autocmd User skkeleton-enable-post call s:check_completion_backend()
+augroup END
+
 function! skkeleton#vim_status() abort
-  let [complete_type, complete_info] = s:complete_info()
+  let [complete_type, complete_info, complete_confirm_key] = s:complete_info()
   let m = mode()
   if m ==# 'i'
     let prev_input = getline('.')[:col('.')-2]
@@ -189,6 +241,7 @@ function! skkeleton#vim_status() abort
   \ 'prevInput': prev_input,
   \ 'completeInfo': complete_info,
   \ 'completeType': complete_type,
+  \ 'completeConfirmKey': complete_confirm_key,
   \ 'mode': m,
   \ }
 endfunction
