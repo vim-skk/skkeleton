@@ -56,6 +56,9 @@ const keyMaps: Record<string, KeyMap> = {
 };
 
 export async function handleKey(context: Context, key: string) {
+  if (context.state.type === "escape") {
+    return;
+  }
   const keyMap = keyMaps[context.state.type];
   if (!keyMap) {
     throw new Error("Illegal State: " + context.state.type);

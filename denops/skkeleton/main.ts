@@ -31,6 +31,7 @@ type VimStatus = {
   prevInput: string;
   completeInfo: CompleteInfo;
   completeType: string;
+  completeConfirmKey: string;
   mode: string;
 };
 
@@ -119,7 +120,11 @@ async function enable(opts: unknown, vimStatus: unknown): Promise<string> {
     console.log("skkeleton doesn't allowed in replace mode");
     return "";
   }
-  if ((oldState.type !== "input" || oldState.mode !== "direct") && vimStatus) {
+  if (
+    oldState.type !== "escape" &&
+    (oldState.type !== "input" || oldState.mode !== "direct") &&
+    vimStatus
+  ) {
     return handle(opts, vimStatus);
   }
   // Note: must set before context initialization
@@ -159,21 +164,16 @@ async function disable(opts: unknown, vimStatus: unknown): Promise<string> {
   return context.preEdit.output(context.toString());
 }
 
+// Note: the confirm key comes from the Vim side as part of the completion
+//       backend definition (|skkeleton#register_completion_backend()|)
 function handleCompleteKey(
   completed: boolean,
-  completeType: string,
+  confirmKey: string,
   notation: string,
 ): string | null {
   if (notation === "<cr>") {
-    if (completed && config.eggLikeNewline) {
-      switch (completeType) {
-        case "native":
-          return notationToKey["<c-y>"];
-        case "pum.vim":
-          return "<Cmd>call pum#map#confirm()";
-        case "cmp":
-          return "<Cmd>lua require('cmp').confirm({select = true})";
-      }
+    if (completed && config.eggLikeNewline && confirmKey !== "") {
+      return confirmKey;
     }
   }
   return null;
@@ -187,7 +187,8 @@ async function handle(
   const keyList = opts.key.map((key) => {
     return keyToNotation[notationToKey[key]] ?? key;
   });
-  const { completeInfo, completeType, mode } = vimStatus as VimStatus;
+  const { completeInfo, completeType, completeConfirmKey, mode } =
+    vimStatus as VimStatus;
   const context = currentContext.get();
   context.vimMode = mode;
   if (completeInfo.pum_visible) {
@@ -203,7 +204,7 @@ async function handle(
     }
     const handled = handleCompleteKey(
       completeInfo.selected >= 0,
-      completeType,
+      completeConfirmKey ?? "",
       notation,
     );
     if (is.String(handled)) {
