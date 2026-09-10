@@ -259,9 +259,7 @@ export class Library {
       }
     } else {
       const results = await Promise.all(
-        this.#dictionaries.map((dic) =>
-          dic.getCompletionResult(prefix, feed)
-        ),
+        this.#dictionaries.map((dic) => dic.getCompletionResult(prefix, feed)),
       );
       for (const candidates of results) {
         gatherCandidates(collector, candidates);
