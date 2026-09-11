@@ -2,9 +2,11 @@ import { modifyCandidate } from "../candidate.ts";
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
 import { HenkanType } from "../dictionary.ts";
-import { initializeStateWithAbbrev } from "../mode.ts";
+import { initializeStateWithAbbrev, modeChange } from "../mode.ts";
+import { graphemeLength } from "../preedit.ts";
 import { initializeState } from "../state.ts";
 import { currentLibrary } from "../store.ts";
+import { showCandidates } from "./henkan.ts";
 import { kakuteiFeed } from "./input.ts";
 import { hirakana } from "./mode.ts";
 
@@ -12,6 +14,7 @@ export async function kakutei(context: Context) {
   const state = context.state;
   switch (state.type) {
     case "henkan": {
+      const snapshot = { ...state };
       const candidate = state.candidates[state.candidateIndex];
       const candidateMod = modifyCandidate(candidate, state.affix);
       if (candidate) {
@@ -32,6 +35,8 @@ export async function kakutei(context: Context) {
         : state.okuriFeed;
       const ret = (candidateMod ?? "error") + okuriStr;
       context.kakuteiWithUndoPoint(ret);
+      // Note: remember what is needed to take this kakutei back
+      context.recordKakutei(ret, snapshot);
       break;
     }
     case "input": {
@@ -49,6 +54,34 @@ export async function kakutei(context: Context) {
       );
   }
   await initializeStateWithAbbrev(context, ["converter", "table"]);
+}
+
+// take the last kakutei back into the candidate selection state
+export async function kakuteiUndo(context: Context) {
+  const state = context.state;
+  // Note: takeBackableKakutei() makes sure that the confirmed string is still
+  //       right before the cursor: this deletes it from the buffer
+  const last = context.takeBackableKakutei();
+  if (
+    !last ||
+    state.type !== "input" ||
+    state.mode !== "direct" ||
+    state.feed !== ""
+  ) {
+    return;
+  }
+  context.kakutei("\b".repeat(graphemeLength(last.kakutei)));
+  const restored = { ...last.state };
+  context.state = restored;
+  context.invalidateKakutei();
+  if (context.mode !== last.mode) {
+    await modeChange(context, last.mode);
+  }
+  // show the candidate list again when it was shown at the kakutei
+  // (the popup is closed on every key press)
+  if (context.denops && restored.candidateIndex >= config.showCandidatesCount) {
+    await showCandidates(context.denops, restored);
+  }
 }
 
 // 確定キーの処理には強制的にひらがな入力に戻す物があるが、内部的な確定では必要ないため分けておく
@@ -123,5 +156,8 @@ export async function purgeCandidate(context: Context) {
     lib.purgeCandidate(type, word, candidate);
     initializeState(state);
     context.lastCandidate.word = "";
+    // taking the kakutei back would restore a henkan state with the purged
+    // candidate selected, so it must not be undoable anymore
+    context.invalidateKakutei();
   }
 }

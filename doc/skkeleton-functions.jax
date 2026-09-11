@@ -9,6 +9,17 @@ kakutei                                          *skkeleton-functions-kakutei*
         入力中や変換中の文字列を確定します。
         何も入力されていない場合、カナ入力などのモードを解除します。
 
+kakuteiUndo                                  *skkeleton-functions-kakuteiUndo*
+        (input)
+        直前に確定した変換を取り消し、変換候補を選択している状態に戻します。
+        いわゆる確定アンドゥです。
+        確定した文字列が、確定した場所でカーソルの直前に残っている場合のみ
+        動作します。続けて入力した文字を消してカーソルが戻った場合も動作
+        しますが、別の行やバッファに移った後は何もしません。
+        |skkeleton-function-purgeCandidate| で候補を削除した後と、辞書登録
+        による確定も取り消せません。skkeletonを無効化した場合も忘れます。
+        ユーザー辞書への学習は取り消されません。
+
 newline                                          *skkeleton-functions-newline*
         (input: <CR>, henkan: <CR>)
         現在の入力を確定し改行します。

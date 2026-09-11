@@ -239,6 +239,8 @@ function! skkeleton#vim_status() abort
   endif
   return {
   \ 'prevInput': prev_input,
+  \ 'bufnr': bufnr('%'),
+  \ 'lnum': line('.'),
   \ 'completeInfo': complete_info,
   \ 'completeType': complete_type,
   \ 'completeConfirmKey': complete_confirm_key,
