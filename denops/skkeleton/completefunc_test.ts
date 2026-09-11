@@ -77,6 +77,9 @@ test({
     await denops.cmd("call skkeleton#complete_done()");
 
     assertEquals(await denops.call("getline", 1), "ab亜cd");
+    // what the completion has written to the buffer is remembered, hence
+    // |skkeleton-functions-kakuteiUndo| can take it back
+    assertEquals(currentContext.get().pendingKakutei?.kakutei, "亜");
   },
 });
 

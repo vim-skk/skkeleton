@@ -14,6 +14,7 @@ type CompletionMetadata = {
   skkeleton: {
     midasi: string;
     word: string;
+    okuri: string;
   };
 };
 
@@ -69,6 +70,7 @@ export class Source extends BaseSource<Never> {
             skkeleton: {
               midasi,
               word: cand,
+              okuri,
             },
           },
         });
@@ -80,12 +82,16 @@ export class Source extends BaseSource<Never> {
   override async onCompleteDone(
     args: OnCompleteDoneArguments<Never, CompletionMetadata>,
   ) {
+    const { midasi, word, okuri } = args.userData.skkeleton;
     await args.denops.dispatch(
       "skkeleton",
       "completeCallback",
-      args.userData.skkeleton.midasi,
-      args.userData.skkeleton.word,
+      midasi,
+      word,
       "okuriari",
+      // Note: the same string as the word of the item, which is what has been
+      //       inserted into the buffer
+      word.replace(/;.*$/, "") + okuri,
     );
   }
 

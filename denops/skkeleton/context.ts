@@ -11,8 +11,14 @@ type CandidateResult = {
   candidate: string;
 };
 
+// how the kakutei has been done
+// "henkan" is one from the candidate selection, "completion" is one which a
+// completion engine has done without ever entering that state
+type KakuteiType = "henkan" | "completion";
+
 // what |skkeleton-functions-kakuteiUndo| needs to take the last kakutei back
 type KakuteiResult = {
+  type: KakuteiType;
   // the string the kakutei has inserted into the buffer
   kakutei: string;
   // the henkan state just before the kakutei
@@ -32,8 +38,8 @@ type KakuteiResult = {
 
 // a kakutei whose bufferText is not known yet
 // the pre-edit is written to the buffer after the key handling has returned,
-// so where the cursor ends up is only learned from the prevInput of the next
-// key handling
+// and a completion engine writes to the buffer by itself, so where the cursor
+// ends up is only learned from the prevInput of the next key handling
 type PendingKakuteiResult = Omit<KakuteiResult, "bufferText">;
 
 export class Context {
@@ -61,9 +67,10 @@ export class Context {
   // back
   // the buffer is only written after this key handling has returned, hence the
   // recording is completed at the next one
-  recordKakutei(kakutei: string, state: HenkanState) {
+  recordKakutei(type: KakuteiType, kakutei: string, state: HenkanState) {
     this.lastKakutei = void 0;
     this.pendingKakutei = {
+      type,
       kakutei,
       state,
       mode: this.mode,

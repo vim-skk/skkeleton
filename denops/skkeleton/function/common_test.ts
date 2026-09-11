@@ -1,10 +1,13 @@
 import { config } from "../config.ts";
 import { Context } from "../context.ts";
+import { HenkanType } from "../dictionary.ts";
+import { initializeStateWithAbbrev } from "../mode.ts";
 import { HenkanState } from "../state.ts";
 import { currentContext, currentLibrary } from "../store.ts";
 import { test } from "../testutil.ts";
 import {
   cancel,
+  completionKakutei,
   kakutei,
   kakuteiKey,
   kakuteiUndo,
@@ -31,6 +34,9 @@ await lib.registerHenkanResult("okurinasi", "かんじ", "幹事");
 await lib.registerHenkanResult("okurinasi", "かんじ", "感じ");
 await lib.registerHenkanResult("okurinasi", "かんじ", "漢字");
 await lib.registerHenkanResult("okuriari", "かんじr", "感じ");
+await lib.registerHenkanResult("okurinasi", "ほかん", "補間");
+await lib.registerHenkanResult("okurinasi", "ほかん", "補完");
+await lib.registerHenkanResult("okuriari", "おぎなw", "補");
 await lib.registerHenkanResult("okurinasi", "しょうきょ", "消去");
 await lib.registerHenkanResult("okuriari", "みt", "見");
 await lib.registerHenkanResult("okuriari", "みt", "満");
@@ -76,6 +82,30 @@ class Buffer {
     this.#context.resolvePendingKakutei();
     return keys;
   }
+}
+
+// mimics a completion engine confirming an item: it replaces the pre-edit in
+// the buffer by itself, which skkeleton notices at the next key handling only
+async function completeItem(
+  context: Context,
+  buffer: Buffer,
+  type: HenkanType,
+  midasi: string,
+  word: string,
+  inserted: string,
+  // what the source reports having inserted: an old source reports nothing
+  reported = inserted,
+) {
+  const preEdit = context.toString();
+  buffer.text = buffer.text.slice(0, buffer.text.length - preEdit.length) +
+    inserted;
+  await completionKakutei(context, type, midasi, word, reported);
+  // the next key handling: prevInput tells where the completion has left the
+  // cursor and the state is reset because it no longer matches the buffer
+  context.prevInput = buffer.text;
+  context.resolvePendingKakutei();
+  await initializeStateWithAbbrev(context, ["converter"]);
+  context.preEdit.output("");
 }
 
 Deno.test({
@@ -381,6 +411,106 @@ Deno.test({
   },
 });
 
+Deno.test({
+  name: "kakutei undo after a completion",
+  async fn() {
+    const context = new Context();
+    const buffer = new Buffer(context, "これは");
+    await dispatch(context, ";ho");
+    buffer.flush();
+    assertEquals(buffer.text, "これは▽ほ");
+
+    // the completion confirms a candidate of a reading longer than the typed
+    await completeItem(context, buffer, "okurinasi", "ほかん", "補完", "補完");
+    assertEquals(buffer.text, "これは補完");
+
+    // the confirmed string is deleted and the candidate selection comes back
+    await kakuteiUndo(context);
+    assertEquals(context.toString(), "▼補完");
+    assertEquals(buffer.flush(), "\b\b▼補完");
+    assertEquals(buffer.text, "これは▼補完");
+
+    // another candidate of the same reading can be picked now
+    await dispatch(context, " ");
+    buffer.flush();
+    assertEquals(buffer.text, "これは▼補間");
+
+    // and the completed reading comes back, not the one which has been typed
+    await dispatch(context, "xx");
+    buffer.flush();
+    assertEquals(buffer.text, "これは▽ほかん");
+  },
+});
+
+Deno.test({
+  name: "kakutei undo after a completion with okuriari",
+  async fn() {
+    const context = new Context();
+    const buffer = new Buffer(context);
+    await dispatch(context, ";oginaware");
+    buffer.flush();
+    assertEquals(buffer.text, "▽おぎなわれ");
+
+    // the okuri source inserts the candidate followed by the okurigana
+    await completeItem(context, buffer, "okuriari", "おぎなw", "補", "補われ");
+    assertEquals(buffer.text, "補われ");
+
+    await kakuteiUndo(context);
+    assertEquals(context.toString(), "▼補われ");
+    assertEquals(buffer.flush(), "\b\b\b▼補われ");
+
+    // the okurigana is kept when going back to the input state
+    await dispatch(context, "x");
+    buffer.flush();
+    assertEquals(buffer.text, "▽おぎな*われ");
+  },
+});
+
+Deno.test({
+  name: "kakutei undo does nothing after a completion of unknown length",
+  async fn() {
+    const context = new Context();
+    const buffer = new Buffer(context, "これは");
+    await dispatch(context, ";ho");
+    buffer.flush();
+
+    // a completion source which does not tell what it has inserted
+    await completeItem(
+      context,
+      buffer,
+      "okurinasi",
+      "ほかん",
+      "補完",
+      "補完",
+      "",
+    );
+    assertEquals(buffer.text, "これは補完");
+
+    await kakuteiUndo(context);
+    assertEquals(context.state.type, "input");
+    assertEquals(buffer.flush(), "");
+  },
+});
+
+Deno.test({
+  name: "kakutei undo does nothing when buffer is changed after a completion",
+  async fn() {
+    const context = new Context();
+    const buffer = new Buffer(context, "これは");
+    await dispatch(context, ";ho");
+    buffer.flush();
+    await completeItem(context, buffer, "okurinasi", "ほかん", "補完", "補完");
+
+    // simulate the buffer being changed on the Vim side
+    context.kakutei("です");
+    buffer.flush();
+
+    await kakuteiUndo(context);
+    assertEquals(context.state.type, "input");
+    assertEquals(buffer.flush(), "");
+  },
+});
+
 test({
   mode: "nvim", // can input mode test only in nvim
   name: "kakutei undo in a buffer",
@@ -442,6 +572,47 @@ test({
     await denops.cmd('call skkeleton#handle("handleKey", {"key": "<c-u>"})');
     assertEquals(currentContext.get().toString(), "▼テスト");
     assertEquals(await fn.getline(denops, "."), "▼テスト");
+  },
+});
+
+test({
+  mode: "nvim", // can input mode test only in nvim
+  name: "kakutei undo after a completion in a buffer",
+  async fn(denops: Denops) {
+    const l = await currentLibrary.get();
+    await l.registerHenkanResult("okurinasi", "ほかん", "補間");
+    await l.registerHenkanResult("okurinasi", "ほかん", "補完");
+    await denops.cmd(
+      'call skkeleton#register_keymap("input", "<C-u>", "kakuteiUndo")',
+    );
+    await denops.cmd("startinsert");
+
+    for (const key of ["H", "o"]) {
+      await denops.cmd(`call skkeleton#handle("handleKey", {"key": "${key}"})`);
+    }
+    assertEquals(await fn.getline(denops, "."), "▽ほ");
+
+    // mimics a completion engine replacing the pre-edit with the item it
+    // confirms and reporting it back through the completion source
+    await denops.cmd("set virtualedit=onemore");
+    await denops.cmd("call setline('.', '補完')");
+    await denops.cmd("call cursor(1, len(getline('.')) + 1)");
+    await denops.dispatcher.completeCallback(
+      "ほかん",
+      "補完",
+      "okurinasi",
+      "補完",
+    );
+    assertEquals(await fn.getline(denops, "."), "補完");
+
+    // the completion is taken back into the candidate selection state
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "<c-u>"})');
+    assertEquals(currentContext.get().toString(), "▼補完");
+    assertEquals(await fn.getline(denops, "."), "▼補完");
+
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "<space>"})');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "<nl>"})');
+    assertEquals(await fn.getline(denops, "."), "補間");
   },
 });
 

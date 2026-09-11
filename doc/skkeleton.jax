@@ -664,6 +664,15 @@ COMPLETION                                              *skkeleton-completion*
     組み込み補完("native")以外のバックエンドは、補完エンジン側から
     |skkeleton#register_completion_backend()| で登録されている必要があります。
 
+    補完による確定は変換を経ずに候補が入力されますが、
+    |skkeleton-functions-kakuteiUndo| で取り消して変換候補を選択している
+    状態に戻せます。同梱以外の補完ソースを使う場合、確定時に呼ぶ
+    `completeCallback` にバッファへ挿入した文字列を渡す必要があります。
+>typescript
+    // 例
+    denops.dispatch("skkeleton", "completeCallback",
+      midasi, word, "okurinasi", inserted);
+<
 ==============================================================================
 FAQ                                                            *skkeleton-faq*
 
