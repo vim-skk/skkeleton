@@ -1,5 +1,4 @@
-import { getOkuriStr } from "../../skkeleton/okuri.ts";
-import { okuriSplits } from "./okurisplits.ts";
+import { getOkuriStr, okuriSplits } from "../../skkeleton/okuri.ts";
 
 import {
   BaseSource,
