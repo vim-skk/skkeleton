@@ -246,18 +246,23 @@ export class Library {
     if (prefix.length == 0) {
       return [];
     } else if (prefix.length == 1) {
-      for (const dic of this.#dictionaries) {
+      const results = await Promise.all(
+        this.#dictionaries.map((dic) =>
+          dic.getHenkanResult("okurinasi", prefix)
+        ),
+      );
+      for (const candidates of results) {
         gatherCandidates(collector, [[
           prefix,
-          await dic.getHenkanResult("okurinasi", prefix),
+          candidates,
         ]]);
       }
     } else {
-      for (const dic of this.#dictionaries) {
-        gatherCandidates(
-          collector,
-          await dic.getCompletionResult(prefix, feed),
-        );
+      const results = await Promise.all(
+        this.#dictionaries.map((dic) => dic.getCompletionResult(prefix, feed)),
+      );
+      for (const candidates of results) {
+        gatherCandidates(collector, candidates);
       }
     }
     return Array.from(collector.entries())
