@@ -113,7 +113,7 @@ export async function henkanBackward(context: Context) {
   }
 }
 
-async function showCandidates(denops: Denops, state: HenkanState) {
+export async function showCandidates(denops: Denops, state: HenkanState) {
   const idx = state.candidateIndex;
   const candidates = state.candidates.slice(idx, idx + 7);
   const list = candidates.map((c, i) =>

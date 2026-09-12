@@ -239,6 +239,8 @@ function! skkeleton#vim_status() abort
   endif
   return {
   \ 'prevInput': prev_input,
+  \ 'bufnr': bufnr('%'),
+  \ 'lnum': line('.'),
   \ 'completeInfo': complete_info,
   \ 'completeType': complete_type,
   \ 'completeConfirmKey': complete_confirm_key,
@@ -346,7 +348,7 @@ function! skkeleton#complete_done() abort
   call s:remove_marker_henkan(completing)
 
   call skkeleton#request_async('completeCallback',
-  \ [metadata.midasi, metadata.word, metadata.type])
+  \ [metadata.midasi, metadata.word, metadata.type, metadata.inserted])
 endfunction
 
 function! s:completed_item_metadata() abort
@@ -385,7 +387,14 @@ function! s:completed_item_metadata() abort
     return {}
   endif
 
-  return #{midasi: midasi, word: word, type: henkan_type}
+  " Note: 補完がバッファに書いた文字列 (注釈を除いた候補、送りありなら送り仮名
+  " 込み)。|skkeleton-functions-kakuteiUndo| で取り消すのに要る
+  let inserted = get(v:completed_item, 'word', '')
+  if type(inserted) != v:t_string
+    let inserted = ''
+  endif
+
+  return #{midasi: midasi, word: word, type: henkan_type, inserted: inserted}
 endfunction
 
 function! s:remove_marker_henkan(completing) abort

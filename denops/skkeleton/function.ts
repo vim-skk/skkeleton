@@ -2,6 +2,7 @@ import { Context } from "./context.ts";
 import {
   cancel,
   kakuteiKey,
+  kakuteiUndo,
   newline,
   purgeCandidate,
 } from "./function/common.ts";
@@ -44,6 +45,7 @@ export const modeFunctions = new Cell<Record<string, Func>>(() => ({
 export const functions = new Cell<Record<string, Func>>(() => ({
   // common
   kakutei: kakuteiKey,
+  kakuteiUndo,
   newline,
   cancel,
   purgeCandidate,
