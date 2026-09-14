@@ -1,6 +1,7 @@
 import { config, setConfig } from "./config.ts";
 import { buildCompleteItems } from "./completion.ts";
 import { functions, modeFunctions } from "./function.ts";
+import { completionKakutei } from "./function/common.ts";
 import { disable as disableFunc } from "./function/disable.ts";
 import { isHenkanType, load as loadDictionary } from "./dictionary.ts";
 import { Dictionary as DenoKvDictionary } from "./sources/deno_kv.ts";
@@ -29,6 +30,8 @@ type CompleteInfo = {
 
 type VimStatus = {
   prevInput: string;
+  bufnr: number;
+  lnum: number;
   completeInfo: CompleteInfo;
   completeType: string;
   completeConfirmKey: string;
@@ -187,10 +190,9 @@ async function handle(
   const keyList = opts.key.map((key) => {
     return keyToNotation[notationToKey[key]] ?? key;
   });
-  const { completeInfo, completeType, completeConfirmKey, mode } =
+  const { completeInfo, completeType, completeConfirmKey } =
     vimStatus as VimStatus;
   const context = currentContext.get();
-  context.vimMode = mode;
   if (completeInfo.pum_visible) {
     if (config.debug) {
       console.log("input after complete");
@@ -292,10 +294,23 @@ export const main: Entrypoint = async (denops) => {
       vimStatus: unknown,
     ): Promise<HandleResult> {
       await init(denops);
-      const { mode, prevInput } = vimStatus as VimStatus;
+      const { mode, prevInput, bufnr, lnum } = vimStatus as VimStatus;
       const context = currentContext.get();
+      // receive where Vim is at this key handling
+      context.vimMode = mode;
+      context.prevInput = prevInput;
+      context.bufnr = bufnr;
+      context.lnum = lnum;
+      // only now is it known where a kakutei has been written to the buffer
+      const resolved = context.resolvePendingKakutei();
       // 補完の後などpreEditとバッファが不一致している状態の時にリセットする
       if (mode !== "t" && !prevInput.endsWith(context.toString())) {
+        // no kakutei explains this mismatch, hence the buffer has been
+        // rewritten by something else and the recorded kakutei is not to be
+        // trusted either
+        if (!resolved) {
+          context.invalidateKakutei();
+        }
         await initializeStateWithAbbrev(context, ["converter"]);
         context.preEdit.output("");
       }
@@ -401,14 +416,19 @@ export const main: Entrypoint = async (denops) => {
       // Note: This method is compatible to completion source
       await denops.dispatcher.completeCallback(midasi, word);
     },
+    // Note: {inserted} is what the completion engine has written to the
+    //       buffer. It is optional for compatibility, but a source that omits
+    //       it cannot be taken back by |skkeleton-functions-kakuteiUndo|
     async completeCallback(
       midasi: unknown,
       word: unknown,
       type: unknown = "okurinasi",
+      inserted: unknown = "",
     ) {
       assert(midasi, is.String);
       assert(word, is.String);
       assert(type, isHenkanType);
+      assert(inserted, is.String);
       const lib = await currentLibrary.get();
       await lib.registerHenkanResult(type, midasi, word);
       const context = currentContext.get();
@@ -417,6 +437,7 @@ export const main: Entrypoint = async (denops) => {
         word: midasi,
         candidate: word,
       };
+      await completionKakutei(context, type, midasi, word, inserted);
     },
     // deno-lint-ignore require-await
     async getConfig() {

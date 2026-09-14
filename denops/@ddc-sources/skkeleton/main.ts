@@ -100,6 +100,10 @@ export class Source extends BaseSource<Params> {
       "completeCallback",
       args.userData.kana,
       args.userData.word,
+      "okurinasi",
+      // Note: the same string as the word of the item, which is what has been
+      //       inserted into the buffer
+      args.userData.word.replace(/;.*$/, ""),
     );
   }
 }

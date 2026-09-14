@@ -45,6 +45,9 @@ export async function registerWord(context: Context): Promise<boolean> {
     state.candidates = [input];
     state.candidateIndex = 0;
     await kakutei(context);
+    // a kakutei from the dictionary registration is not worth taking back: it
+    // would only restore a henkan state holding the candidate just registered
+    context.invalidateKakutei();
     return true;
   } catch (e) {
     if (config.debug) {
