@@ -16,6 +16,11 @@ export class PreEdit {
     return this.#kakutei !== "";
   }
 
+  // the pre-edit which is in the buffer now
+  get current(): string {
+    return this.#current;
+  }
+
   doKakutei(str: string) {
     this.#kakutei += str;
   }
