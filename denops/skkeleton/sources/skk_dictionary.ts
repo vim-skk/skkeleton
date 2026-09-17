@@ -23,9 +23,11 @@ interface Jisyo {
 }
 
 export class Source implements BaseSource {
-  async getDictionaries(): Promise<BaseDictionary[]> {
-    return config.globalDictionaries.map(([path, encodingName]) =>
-      wrapDictionary(Dictionary.fromFile(path, encodingName))
+  getDictionaries(): Promise<BaseDictionary[]> {
+    return Promise.resolve(
+      config.globalDictionaries.map(([path, encodingName]) =>
+        wrapDictionary(Dictionary.fromFile(path, encodingName))
+      ),
     );
   }
 }
