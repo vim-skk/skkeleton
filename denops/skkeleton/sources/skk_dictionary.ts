@@ -23,32 +23,12 @@ interface Jisyo {
 }
 
 export class Source implements BaseSource {
-  async getDictionaries(): Promise<BaseDictionary[]> {
-    const globalDictionaries = await Promise.all(
-      config.globalDictionaries.map(async ([path, encodingName]) => {
-        try {
-          const dict = new Dictionary();
-          await dict.load(path, encodingName);
-          return dict;
-        } catch (e) {
-          console.error("globalDictionary loading failed");
-          console.error(`at ${path}`);
-          if (config.debug) {
-            console.error(e);
-          }
-          return undefined;
-        }
-      }),
+  getDictionaries(): Promise<BaseDictionary[]> {
+    return Promise.resolve(
+      config.globalDictionaries.map(([path, encodingName]) =>
+        wrapDictionary(Dictionary.fromFile(path, encodingName))
+      ),
     );
-
-    const dictionaries: BaseDictionary[] = [];
-    for (const d of globalDictionaries) {
-      if (d) {
-        dictionaries.push(wrapDictionary(d));
-      }
-    }
-
-    return dictionaries;
   }
 }
 
@@ -57,22 +37,38 @@ export class Dictionary implements BaseDictionary {
   #okuriNasi: Map<string, string[]>;
 
   #cachedCandidates: Map<string, CompletionData>;
+  #path: string | undefined;
+  #encoding: string;
+  #loadPromise: Promise<void> | undefined;
 
   constructor(
     okuriAri?: Map<string, string[]>,
     okuriNasi?: Map<string, string[]>,
+    path?: string,
+    encoding = "",
   ) {
     this.#okuriAri = okuriAri ?? new Map();
     this.#okuriNasi = okuriNasi ?? new Map();
     this.#cachedCandidates = new Map();
+    this.#path = path;
+    this.#encoding = encoding;
   }
 
-  getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
+  static fromFile(path: string, encoding: string): Dictionary {
+    return new Dictionary(undefined, undefined, path, encoding);
+  }
+
+  async getHenkanResult(type: HenkanType, word: string): Promise<string[]> {
+    await this.ensureLoaded();
     const target = type === "okuriari" ? this.#okuriAri : this.#okuriNasi;
-    return Promise.resolve(target.get(word) ?? []);
+    return target.get(word) ?? [];
   }
 
-  getCompletionResult(prefix: string, feed: string): Promise<CompletionData> {
+  async getCompletionResult(
+    prefix: string,
+    feed: string,
+  ): Promise<CompletionData> {
+    await this.ensureLoaded();
     const candidates: CompletionData = [];
     if (feed != "") {
       const table = getKanaTable();
@@ -95,7 +91,7 @@ export class Dictionary implements BaseDictionary {
     }
 
     candidates.sort((a, b) => a[0].localeCompare(b[0]));
-    return Promise.resolve(candidates);
+    return candidates;
   }
 
   private getCachedCandidates(prefix: string): CompletionData {
@@ -115,22 +111,37 @@ export class Dictionary implements BaseDictionary {
     return candidates;
   }
 
-  async load(path: string, encoding: string) {
-    if (path.endsWith(".yaml") || path.endsWith(".yml")) {
-      const file = await Deno.readTextFile(path);
-      this.loadYaml(file);
-    } else if (path.endsWith(".json")) {
-      const file = await Deno.readTextFile(path);
-      this.loadJson(file);
-    } else if (path.endsWith(".mpk")) {
-      const file = await Deno.readFile(path);
-      this.loadMsgpack(file);
-    } else {
-      const file = await readFileWithEncoding(path, encoding);
-      this.loadString(file);
+  async load(path?: string, encoding?: string) {
+    if (path !== undefined) {
+      this.#path = path;
+      this.#encoding = encoding ?? "";
+      this.#loadPromise = undefined;
     }
-
+    await this.ensureLoaded();
     return this;
+  }
+
+  private async ensureLoaded(): Promise<void> {
+    if (!this.#path || this.#loadPromise === undefined) {
+      if (!this.#path) {
+        return;
+      }
+      this.#loadPromise = this.readFile();
+    }
+    await this.#loadPromise;
+  }
+
+  private async readFile(): Promise<void> {
+    const path = this.#path!;
+    if (path.endsWith(".yaml") || path.endsWith(".yml")) {
+      this.loadYaml(await Deno.readTextFile(path));
+    } else if (path.endsWith(".json")) {
+      this.loadJson(await Deno.readTextFile(path));
+    } else if (path.endsWith(".mpk")) {
+      this.loadMsgpack(await Deno.readFile(path));
+    } else {
+      this.loadString(await readFileWithEncoding(path, this.#encoding));
+    }
   }
 
   private loadJson(data: string) {

@@ -1,9 +1,15 @@
-import { Dictionary, Library, wrapDictionary } from "./dictionary.ts";
+import {
+  Dictionary,
+  Library,
+  okuriNasiMarker,
+  wrapDictionary,
+} from "./dictionary.ts";
 import { Dictionary as SkkDictionary } from "./sources/skk_dictionary.ts";
 import { Dictionary as DenoKvDictionary } from "./sources/deno_kv.ts";
 import { Dictionary as UserDictionary } from "./sources/user_dictionary.ts";
 
 import { assertEquals } from "@std/assert/equals";
+import { assertRejects } from "@std/assert/rejects";
 import { dirname } from "@std/path/dirname";
 import { fromFileUrl } from "@std/path/from-file-url";
 import { join } from "@std/path/join";
@@ -104,6 +110,24 @@ Deno.test({
       const nasi = await manager.getHenkanResult("okurinasi", "てすと");
       assertEquals(nasi, ["テスト", "test"]);
     });
+  },
+});
+
+Deno.test({
+  name: "lazy loads global dictionary",
+  async fn() {
+    const tmp = await Deno.makeTempFile();
+    try {
+      await Deno.writeTextFile(
+        tmp,
+        `${okuriNasiMarker}\nあ /あ/\n`,
+      );
+      const dic = SkkDictionary.fromFile(tmp, "utf-8");
+      await Deno.remove(tmp);
+      await assertRejects(() => dic.getHenkanResult("okurinasi", "あ"));
+    } finally {
+      await Deno.remove(tmp).catch(() => {});
+    }
   },
 });
 
