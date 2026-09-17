@@ -40,7 +40,12 @@ type KakuteiResult = {
 // the pre-edit is written to the buffer after the key handling has returned,
 // and a completion engine writes to the buffer by itself, so where the cursor
 // ends up is only learned from the prevInput of the next key handling
-type PendingKakuteiResult = Omit<KakuteiResult, "bufferText">;
+type PendingKakuteiResult = Omit<KakuteiResult, "bufferText"> & {
+  // what has been written after the kakutei within the same key handling
+  // a candidate is confirmed by typing on as well, and then the key which has
+  // confirmed it leaves its own input behind the confirmed string
+  tail: string;
+};
 
 export class Context {
   denops?: Denops;
@@ -77,6 +82,7 @@ export class Context {
       vimMode: this.vimMode,
       bufnr: this.bufnr,
       lnum: this.lnum,
+      tail: "",
     };
   }
 
@@ -97,10 +103,23 @@ export class Context {
       return false;
     }
     this.pendingKakutei = void 0;
-    if (!this.#isAt(pending) || !this.prevInput.endsWith(pending.kakutei)) {
+    if (!this.#isAt(pending)) {
       return false;
     }
-    this.lastKakutei = { ...pending, bufferText: this.prevInput };
+    // Note: what the key handling has left behind the kakutei is not a part of
+    //       it: the input of the key which has confirmed a candidate by typing
+    //       on, and the pre-edit it has started
+    //       it is not stripped when it is not found in the buffer, which is
+    //       the case for a completion: the engine has rewritten the buffer and
+    //       the pre-edit skkeleton remembers is a stale one
+    const tail = pending.tail + this.preEdit.current;
+    const bufferText = tail !== "" && this.prevInput.endsWith(tail)
+      ? this.prevInput.slice(0, -tail.length)
+      : this.prevInput;
+    if (!bufferText.endsWith(pending.kakutei)) {
+      return false;
+    }
+    this.lastKakutei = { ...pending, bufferText };
     return true;
   }
 
@@ -120,12 +139,17 @@ export class Context {
   }
 
   // whether Vim is still where the kakutei has happened
-  #isAt(at: PendingKakuteiResult): boolean {
+  #isAt(at: Pick<KakuteiResult, "vimMode" | "bufnr" | "lnum">): boolean {
     return this.vimMode === at.vimMode && this.bufnr === at.bufnr &&
       this.lnum === at.lnum;
   }
 
   kakutei(str: string) {
+    // remember what the rest of this key handling writes behind a kakutei it
+    // has just recorded
+    if (this.pendingKakutei) {
+      this.pendingKakutei.tail += str;
+    }
     this.preEdit.doKakutei(str);
   }
 

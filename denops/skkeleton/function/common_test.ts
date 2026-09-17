@@ -577,6 +577,36 @@ test({
 
 test({
   mode: "nvim", // can input mode test only in nvim
+  name: "kakutei undo in a buffer after a kakutei by typing on",
+  async fn(denops: Denops) {
+    const l = await currentLibrary.get();
+    await l.registerHenkanResult("okurinasi", "てすと", "手酢戸");
+    await l.registerHenkanResult("okurinasi", "てすと", "テスト");
+    await denops.cmd(
+      'call skkeleton#register_keymap("input", "<C-u>", "kakuteiUndo")',
+    );
+    await denops.cmd("startinsert");
+
+    // no kakutei key is pressed: typing on confirms the candidate and the
+    // same key handling writes the next input after it
+    for (const key of ["T", "e", "s", "u", "t", "o", " ", "s", "u", "r", "u"]) {
+      await denops.cmd(`call skkeleton#handle("handleKey", {"key": "${key}"})`);
+    }
+    assertEquals(await fn.getline(denops, "."), "テストする");
+
+    for (const key of ["<bs>", "<bs>"]) {
+      await denops.cmd(`call skkeleton#handle("handleKey", {"key": "${key}"})`);
+    }
+    assertEquals(await fn.getline(denops, "."), "テスト");
+
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "<c-u>"})');
+    assertEquals(currentContext.get().toString(), "▼テスト");
+    assertEquals(await fn.getline(denops, "."), "▼テスト");
+  },
+});
+
+test({
+  mode: "nvim", // can input mode test only in nvim
   name: "kakutei undo after a completion in a buffer",
   async fn(denops: Denops) {
     const l = await currentLibrary.get();
@@ -613,6 +643,50 @@ test({
     await denops.cmd('call skkeleton#handle("handleKey", {"key": "<space>"})');
     await denops.cmd('call skkeleton#handle("handleKey", {"key": "<nl>"})');
     assertEquals(await fn.getline(denops, "."), "補間");
+  },
+});
+
+test({
+  mode: "nvim", // can input mode test only in nvim
+  name: "kakutei undo after a completion confirmed by typing on in a buffer",
+  async fn(denops: Denops) {
+    const l = await currentLibrary.get();
+    await l.registerHenkanResult("okurinasi", "ほかん", "補間");
+    await l.registerHenkanResult("okurinasi", "ほかん", "補完");
+    await denops.cmd(
+      'call skkeleton#register_keymap("input", "<C-u>", "kakuteiUndo")',
+    );
+    await denops.cmd("startinsert");
+
+    for (const key of ["H", "o"]) {
+      await denops.cmd(`call skkeleton#handle("handleKey", {"key": "${key}"})`);
+    }
+    assertEquals(await fn.getline(denops, "."), "▽ほ");
+
+    // the popup is confirmed by typing on: the key which closes it is handled
+    // first and writes its own pre-edit, and the completion is only reported
+    // after that (CompleteDone)
+    await denops.cmd("set virtualedit=onemore");
+    await denops.cmd("call setline('.', '補完')");
+    await denops.cmd("call cursor(1, len(getline('.')) + 1)");
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "r"})');
+    await denops.dispatcher.completeCallback(
+      "ほかん",
+      "補完",
+      "okurinasi",
+      "補完",
+    );
+    assertEquals(await fn.getline(denops, "."), "補完r");
+
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "u"})');
+    assertEquals(await fn.getline(denops, "."), "補完る");
+
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "<bs>"})');
+    assertEquals(await fn.getline(denops, "."), "補完");
+
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "<c-u>"})');
+    assertEquals(currentContext.get().toString(), "▼補完");
+    assertEquals(await fn.getline(denops, "."), "▼補完");
   },
 });
 
