@@ -215,7 +215,7 @@ skkeleton#dangerously_clear_buffer_local_mappings()
         カレントバッファのskkeletonのマッピングを強制的に削除します。
         判定条件はマッピングの展開結果もしくは(Neovimの場合)descにskkeletonと
         いう文字列が含まれているかになります。
-        何かしらの要因でマッピングが残ったしまった際に使ってください。
+        何かしらの要因でマッピングが残ってしまった際に使ってください。
 
 ------------------------------------------------------------------------------
 CONFIG                                                      *skkeleton-config*
@@ -270,8 +270,8 @@ debug                                                 *skkeleton-config-debug*
 
 eggLikeNewline                               *skkeleton-config-eggLikeNewline*
         (デフォルト v:false)
-        このオプションを有効にすると
-        変換モードで改行キーを押した際に確定のみ行います。
+        このオプションを有効にすると、変換モードまたは仮名入力中に
+        改行キーを押した際に、確定のみ行い改行を挿入しません。
 
 globalDictionaries                       *skkeleton-config-globalDictionaries*
         (デフォルト [])
@@ -541,7 +541,7 @@ skkeleton#register_keymap({state}, {key}, {funcName})
                 input
                 henkan
 >vim
-    " 例: 変換モードでxを<BS>に移動します
+    " 例: 変換モードで<BS>を候補前送りに割り当て、xの割り当てを削除します
     call skkeleton#register_keymap('henkan', "\<BS>", 'henkanBackward')
     call skkeleton#register_keymap('henkan', "x", '')
 <
@@ -813,9 +813,6 @@ COMPATIBILITY                                        *skkeleton-compatibility*
 2024-12-17~
 - denops.vimのv8で追加された仕様に追従
   - v7以前のdenops.vimで使いたい方はdenopsv7ブランチを使用してください
-
-2024-12-17~
-- "usePopup" オプションを廃止し、cmdline含め常にpopupを表示するようにした
 
 2024-12-17~
 - "usePopup" オプションを廃止し、cmdline含め常にpopupを表示するようにした
