@@ -101,6 +101,11 @@ hankatakana                                  *skkeleton-functions-hankatakana*
         半角カタカナモードに入ります。
         変換ポイントが設定されている場合は半角カタカナに変換します。
 
+hirakana                                        *skkeleton-functions-hirakana*
+        (input)
+        ひらがなモードに入ります。
+        変換ポイントが設定されている場合はひらがなに変換します。
+
 zenkaku                                          *skkeleton-functions-zenkaku*
         (input)
         全角英数モードに入ります。
