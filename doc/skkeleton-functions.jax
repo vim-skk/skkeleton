@@ -25,7 +25,7 @@ kakuteiUndo                                  *skkeleton-functions-kakuteiUndo*
         選び直した候補を確定すると、カーソルは確定アンドゥを実行した位置に
         戻ります。選び直した候補の長さが元と違う場合は、その差だけずれた位置
         になります。
-        |skkeleton-function-purgeCandidate| で候補を削除した後と、辞書登録
+        |skkeleton-functions-purgeCandidate| で候補を削除した後と、辞書登録
         による確定も取り消せません。skkeletonを無効化した場合も忘れます。
         ユーザー辞書への学習は取り消されません。
 
@@ -62,12 +62,12 @@ henkanForward                              *skkeleton-functions-henkanForward*
         (henkan: <Space>)
         変換候補を次に進めます。
 
-henkanBackward                             *skkeleton-function-henkanBackward*
+henkanBackward                            *skkeleton-functions-henkanBackward*
         (henkan: x)
         変換候補を前に戻します。
         戻りきった際は入力ステートに戻ります。
 
-purgeCandidate                             *skkeleton-function-purgeCandidate*
+purgeCandidate                            *skkeleton-functions-purgeCandidate*
         (input, henkan)
         現在選択している変換候補をユーザー辞書から削除します。
         変換中以外は直前に確定した候補が対象になります。

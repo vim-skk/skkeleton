@@ -141,8 +141,8 @@ henkan:
         <CR>      : |skkeleton-functions-newline|
         <NL>      : |skkeleton-functions-kakutei|
         <Space>   : |skkeleton-functions-henkanForward|
-        X         : |skkeleton-function-purgeCandidate|
-        x         : |skkeleton-function-henkanBackward|
+        X         : |skkeleton-functions-purgeCandidate|
+        x         : |skkeleton-functions-henkanBackward|
 
 ------------------------------------------------------------------------------
 API                                                            *skkeleton-api*
