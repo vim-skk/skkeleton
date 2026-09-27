@@ -93,7 +93,7 @@ skkeleton-handled                                          *skkeleton-handled*
 ------------------------------------------------------------------------------
 KEYMAPPINGS                                            *skkeleton-keymappings*
 
-各マッピングはskkeleton有効時は直接入力モードでのみ使用できます。
+skkeleton有効時の入力マッピングは、直接入力モードと変換モードで使用できます。
 
 <Plug>(skkeleton-enable) (ic)                       *<Plug>(skkeleton-enable)*
 
@@ -295,7 +295,7 @@ globalKanaTableFiles                   *skkeleton-config-globalKanaTableFiles*
         パスとエンコーディングからなるタプルの配列になります。
         エンコーディングを指定しない場合は自動判定されます。
 >
-    値の例: [["/usr/share/skk/azik_us.rule, "euc-jp"]]
+    値の例: [["/usr/share/skk/azik_us.rule", "euc-jp"]]
 <
 immediatelyCancel                         *skkeleton-config-immediatelyCancel*
         (デフォルト v:true)
