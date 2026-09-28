@@ -48,11 +48,15 @@ function! s:open(candidates) abort
   if !g:skkeleton#enabled
     return
   endif
+
+  call skkeleton#popup#close()
   autocmd skkeleton-internal User skkeleton-handled ++once call skkeleton#popup#close()
+
   if mode() == 'c'
     call s:open_cmdline(a:candidates)
     return
   endif
+
   let spos = screenpos(0, line('.'), col('.'))
   " Note: Neovimではecho areaにfloatwinを被せるのが許可されておらず、ずれるため
   "       offset付けることで弾く
