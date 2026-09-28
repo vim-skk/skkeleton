@@ -58,6 +58,13 @@ function s:init() abort
   let n2k['<kcomma>'] = "\<kcomma>"
   let n2k['<kequal>'] = "\<kequal>"
   let n2k['<kenter>'] = "\<kenter>"
+  let n2k['<c-@>'] = "\<C-@>"
+  let n2k['<c-[>'] = "\<C-[>"
+  let n2k['<c-\>'] = "\<C-\>"
+  let n2k['<c-/>'] = "\<C-/>"
+  let n2k['<c-]>'] = "\<C-]>"
+  let n2k['<c-^>'] = "\<C-^>"
+  let n2k['<c-_>'] = "\<C-_>"
   for i in range(1, 12)
     execute printf('let n2k["<f%s>"] = "\<f%s>"', i, i)
     execute printf('let n2k["<s-f%s>"] = "\<s-f%s>"', i, i)
@@ -89,7 +96,10 @@ endfunction
 function skkeleton#notation#normalize(key)
   let key = a:key
   if 1 < strlen(key) && key[0] ==# '<'
-    let key = eval('"\' .. key .. '"')
+    let notation = tolower(key)
+    if has_key(g:skkeleton#notation#notation_to_key, notation)
+      let key = g:skkeleton#notation#notation_to_key[notation]
+    endif
   endif
   if key !~# '^[A-Z]$'
     let key = get(g:skkeleton#notation#key_to_notation, key, key)
