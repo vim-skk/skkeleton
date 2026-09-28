@@ -114,7 +114,10 @@ function! skkeleton#request(funcname, args) abort
 endfunction
 
 function! s:send_notify() abort
-  for [funcname, args] in s:pending_notify
+  let pending = get(s:, 'pending_notify', [])
+  let s:pending_notify = []
+
+  for [funcname, args] in pending
     call denops#notify('skkeleton', funcname, args)
   endfor
 endfunction
