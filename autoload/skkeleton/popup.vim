@@ -85,15 +85,15 @@ endfunction
 
 function! skkeleton#popup#close() abort
   if has('nvim')
-    for i in s:windows
-      call nvim_win_close(i, v:true)
+    for win in s:windows
+      if nvim_win_is_valid(win)
+        call nvim_win_close(win, v:true)
+      endif
     endfor
   else
-    for i in s:windows
-      call popup_close(i)
+    for id in s:windows
+      call popup_close(id)
     endfor
-
-    " Note: :redraw is needed
     redraw
   endif
   let s:windows = []
