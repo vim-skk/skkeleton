@@ -476,18 +476,23 @@ function! skkeleton#initialize() abort
 endfunction
 
 function! skkeleton#disable()
-  if g:skkeleton#enabled
-    doautocmd <nomodeline> User skkeleton-disable-pre
-    " the candidate popup is closed on `User skkeleton-handled`, which no
-    " longer fires once disabled
-    call skkeleton#popup#close()
-    call skkeleton#internal#map#restore()
-    call skkeleton#internal#option#restore()
-    let g:skkeleton#mode = ''
-    doautocmd <nomodeline> User skkeleton-mode-changed
-    doautocmd <nomodeline> User skkeleton-disable-post
-    let g:skkeleton#enabled = v:false
+  if !g:skkeleton#enabled
+    return
   endif
+
+  doautocmd <nomodeline> User skkeleton-disable-pre
+  " the candidate popup is closed on `User skkeleton-handled`, which no
+  " longer fires once disabled
+  call skkeleton#popup#close()
+  call skkeleton#internal#map#restore()
+  call skkeleton#internal#option#restore()
+  let g:skkeleton#mode = ''
+  doautocmd <nomodeline> User skkeleton-mode-changed
+  doautocmd <nomodeline> User skkeleton-disable-post
+  augroup skkeleton-popup-open
+    autocmd!
+  augroup END
+  let g:skkeleton#enabled = v:false
 endfunction
 
 function! skkeleton#update_database(path, ...) abort
