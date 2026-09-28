@@ -5,7 +5,10 @@ function! skkeleton#popup#open(candidates) abort
     return
   endif
   let s:candidates = a:candidates
-  autocmd skkeleton-internal User skkeleton-handled ++once call s:open(s:candidates)
+  augroup skkeleton-popup-open
+    autocmd!
+    autocmd User skkeleton-handled ++once call s:open(s:candidates)
+  augroup END
 endfunction
 
 function! s:open_cmdline(candidates)
