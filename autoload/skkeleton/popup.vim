@@ -1,6 +1,9 @@
 let s:windows = []
 
 function! skkeleton#popup#open(candidates) abort
+  if empty(a:candidates)
+    return
+  endif
   let s:candidates = a:candidates
   autocmd skkeleton-internal User skkeleton-handled ++once call s:open(s:candidates)
 endfunction
