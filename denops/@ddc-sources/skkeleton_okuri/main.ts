@@ -42,7 +42,7 @@ export class Source extends BaseSource<Never> {
       ),
     );
 
-    const chunks = okuriSplits(kana ?? "");
+    const chunks = okuriSplits(kana);
     if (chunks.length === 0) {
       return [];
     }
@@ -54,16 +54,27 @@ export class Source extends BaseSource<Never> {
       "okuriari",
     ) as Record<string, string[]>;
 
+    function splitCandidate(candidate: string): [string, string] {
+      const separator = candidate.indexOf(";");
+      if (separator === -1) {
+        return [candidate, ""];
+      }
+      return [
+        candidate.slice(0, separator),
+        candidate.slice(separator + 1),
+      ];
+    }
+
     const candidates: Item<CompletionMetadata>[] = [];
-    for (let idx = 0; idx < chunks.length; idx++) {
-      const [, okuri] = chunks[idx];
-      const midasi = midashis[idx];
+    for (const [word, okuri] of chunks) {
+      const midasi = getOkuriStr(word, okuri);
       const cands = results[midasi];
       if (!cands) {
         continue;
       }
+
       for (const cand of cands) {
-        const candStrip = cand.replace(/;.*$/, "");
+        const [candStrip] = splitCandidate(cand);
         candidates.push({
           word: candStrip + okuri,
           user_data: {

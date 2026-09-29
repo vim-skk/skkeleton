@@ -1,5 +1,14 @@
 let s:vault = {}
 
+augroup skkeleton-internal-map
+  autocmd!
+  autocmd BufWipeout * call skkeleton#internal#map#discard(str2nr(expand('<abuf>')))
+augroup END
+
+function! skkeleton#internal#map#discard(bufnr) abort
+  silent! unlet s:vault[a:bufnr]
+endfunction
+
 function skkeleton#internal#map#save(mode) abort
   let bufnr = bufnr()
   let s:vault[bufnr] = get(s:vault, bufnr, {})

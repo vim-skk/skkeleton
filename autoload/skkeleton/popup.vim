@@ -1,8 +1,14 @@
 let s:windows = []
 
 function! skkeleton#popup#open(candidates) abort
+  if empty(a:candidates)
+    return
+  endif
   let s:candidates = a:candidates
-  autocmd skkeleton-internal User skkeleton-handled ++once call s:open(s:candidates)
+  augroup skkeleton-popup-open
+    autocmd!
+    autocmd User skkeleton-handled ++once call s:open(s:candidates)
+  augroup END
 endfunction
 
 function! s:open_cmdline(candidates)
@@ -42,11 +48,15 @@ function! s:open(candidates) abort
   if !g:skkeleton#enabled
     return
   endif
+
+  call skkeleton#popup#close()
   autocmd skkeleton-internal User skkeleton-handled ++once call skkeleton#popup#close()
+
   if mode() == 'c'
     call s:open_cmdline(a:candidates)
     return
   endif
+
   let spos = screenpos(0, line('.'), col('.'))
   " Note: Neovimではecho areaにfloatwinを被せるのが許可されておらず、ずれるため
   "       offset付けることで弾く
@@ -79,15 +89,15 @@ endfunction
 
 function! skkeleton#popup#close() abort
   if has('nvim')
-    for i in s:windows
-      call nvim_win_close(i, v:true)
+    for win in s:windows
+      if nvim_win_is_valid(win)
+        call nvim_win_close(win, v:true)
+      endif
     endfor
   else
-    for i in s:windows
-      call popup_close(i)
+    for id in s:windows
+      call popup_close(id)
     endfor
-
-    " Note: :redraw is needed
     redraw
   endif
   let s:windows = []

@@ -1,6 +1,20 @@
 let s:textwidth = {}
 let s:virtualedit = {}
 
+augroup skkeleton-internal-option
+  autocmd!
+  autocmd BufWipeout * call skkeleton#internal#option#discard_buffer(str2nr(expand('<abuf>')))
+  autocmd WinClosed * call skkeleton#internal#option#discard_window(str2nr(expand('<afile>')))
+augroup END
+
+function! skkeleton#internal#option#discard_buffer(bufnr) abort
+  silent! unlet s:textwidth[a:bufnr]
+endfunction
+
+function! skkeleton#internal#option#discard_window(winid) abort
+  silent! unlet s:virtualedit[a:winid]
+endfunction
+
 function s:ensure(dict, key, value)
   let a:dict[a:key] = get(a:dict, a:key, a:value)
 endfunction
@@ -19,9 +33,6 @@ function skkeleton#internal#option#save_and_set()
 endfunction
 
 function skkeleton#internal#option#restore()
-  if mode() ==# 'c'
-    return
-  endif
   let bufnr = bufnr()
   let winid = win_getid()
   if has_key(s:textwidth, bufnr)
