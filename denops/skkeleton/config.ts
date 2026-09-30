@@ -103,8 +103,13 @@ const validators: Validators = {
   registerConvertResult: (x) => ensure(x, is.Boolean),
   selectCandidateKeys: (x) => {
     const keys = ensure(x, is.String);
-    if (keys.length !== 7) {
-      throw TypeError("selectCandidateKeys.length !== 7");
+    if (
+      keys.length !== 7 ||
+      new Set(Array.from(keys)).size !== 7
+    ) {
+      throw TypeError(
+        "selectCandidateKeys must contain 7 distinct characters",
+      );
     }
     return keys;
   },
