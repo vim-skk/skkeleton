@@ -44,7 +44,7 @@ type Validators = {
 };
 
 function ensureEncoding(x: unknown): Encoding {
-  if (is.String(x) && x in Encode) {
+  if (is.String(x) && Object.hasOwn(Encode, x)) {
     return x as Encoding;
   }
   throw TypeError(`${x} is invalid encoding`);
@@ -164,12 +164,12 @@ export async function setConfig(
   denops: Denops,
 ) {
   const cfg = config as Record<string, unknown>;
-  const val = validators as Record<string, (x: unknown) => void>;
+  const val = validators as Record<string, (x: unknown) => unknown>;
   if (config.debug) {
     console.log("skkeleton: new config");
     console.log(newConfig);
   }
-  for (const k in newConfig) {
+  for (const k of Object.keys(newConfig)) {
     try {
       if (val[k]) {
         cfg[k] = val[k](newConfig[k]);
