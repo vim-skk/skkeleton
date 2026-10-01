@@ -82,16 +82,41 @@ export async function buildOkuriariCompleteItems(
   kana: string,
   getCandidates: (midasi: string) => Promise<string[] | undefined>,
 ): Promise<CompleteItem[]> {
-  const items: CompleteItem[] = [];
-  for (const [word, okuri] of okuriSplits(kana)) {
-    const midasi = getOkuriStr(word, okuri);
-    const candidates = await getCandidates(midasi);
-    if (candidates == null) {
-      continue;
+  const chunks = okuriSplits(kana);
+
+  const cache = new Map<string, Promise<string[] | undefined>>();
+
+  function getCachedCandidates(
+    midasi: string,
+  ): Promise<string[] | undefined> {
+    let result = cache.get(midasi);
+    if (!result) {
+      result = getCandidates(midasi);
+      cache.set(midasi, result);
     }
-    for (const candidate of candidates) {
+    return result;
+  }
+
+  const results = await Promise.all(
+    chunks.map(async ([word, okuri]) => {
+      const midasi = getOkuriStr(word, okuri);
+      const candidates = await getCachedCandidates(midasi);
+      return {
+        midasi,
+        okuri,
+        candidates,
+      };
+    }),
+  );
+
+  return results.flatMap(({ midasi, okuri, candidates }) => {
+    if (candidates == null) {
+      return [];
+    }
+
+    return candidates.map((candidate) => {
       const [stripped, note] = splitAnnotation(candidate);
-      items.push({
+      return {
         word: stripped + okuri,
         abbr: stripped + okuri,
         info: note,
@@ -104,10 +129,9 @@ export async function buildOkuriariCompleteItems(
           word: candidate,
           type: "okuriari",
         }),
-      });
-    }
-  }
-  return items;
+      };
+    });
+  });
 }
 
 export async function buildCompleteItems(

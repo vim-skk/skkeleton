@@ -44,7 +44,7 @@ type Validators = {
 };
 
 function ensureEncoding(x: unknown): Encoding {
-  if (is.String(x) && x in Encode) {
+  if (is.String(x) && Object.hasOwn(Encode, x)) {
     return x as Encoding;
   }
   throw TypeError(`${x} is invalid encoding`);
@@ -103,8 +103,13 @@ const validators: Validators = {
   registerConvertResult: (x) => ensure(x, is.Boolean),
   selectCandidateKeys: (x) => {
     const keys = ensure(x, is.String);
-    if (keys.length !== 7) {
-      throw TypeError("selectCandidateKeys.length !== 7");
+    if (
+      keys.length !== 7 ||
+      new Set(Array.from(keys)).size !== 7
+    ) {
+      throw TypeError(
+        "selectCandidateKeys must contain 7 distinct characters",
+      );
     }
     return keys;
   },
@@ -159,12 +164,12 @@ export async function setConfig(
   denops: Denops,
 ) {
   const cfg = config as Record<string, unknown>;
-  const val = validators as Record<string, (x: unknown) => void>;
+  const val = validators as Record<string, (x: unknown) => unknown>;
   if (config.debug) {
     console.log("skkeleton: new config");
     console.log(newConfig);
   }
-  for (const k in newConfig) {
+  for (const k of Object.keys(newConfig)) {
     try {
       if (val[k]) {
         cfg[k] = val[k](newConfig[k]);
