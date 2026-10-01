@@ -1,6 +1,10 @@
 import { AffixType } from "./state.ts";
 
-export function modifyCandidate(candidate: string, affix?: AffixType) {
+export function modifyCandidate(candidate?: string, affix?: AffixType) {
+  if (!candidate) {
+    return "";
+  }
+
   const separator = candidate.indexOf(";");
   const candidateStrip = separator === -1
     ? candidate
