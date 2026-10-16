@@ -1,7 +1,6 @@
 import { config } from "../config.ts";
 import type { Context } from "../context.ts";
 import { KanaResult } from "../kana/type.ts";
-import { PreEdit } from "../preedit.ts";
 import { InputState } from "../state.ts";
 import { henkanFirst } from "./henkan.ts";
 import { initializeStateWithAbbrev } from "../mode.ts";
@@ -15,13 +14,13 @@ export function kakuteiFeed(context: Context) {
   const feed = inputState.feed;
   const queueAsKana = inputState.table.find((e) => e[0] === feed)?.[1];
   if (Array.isArray(queueAsKana)) {
-    kakuteiKana(inputState, context.preEdit, queueAsKana[0], "");
+    kakuteiKana(context, inputState, queueAsKana[0], "");
   }
 }
 
 export function kakuteiKana(
+  context: Context,
   state: InputState,
-  preEdit: PreEdit,
   kana: string,
   feed: string,
 ) {
@@ -30,7 +29,10 @@ export function kakuteiKana(
       if (state.converter) {
         kana = state.converter(kana);
       }
-      preEdit.doKakutei(kana);
+      // Note: goes through the context, which counts it as written after a
+      //       kakutei the same key has just done: a vowel confirms a candidate
+      //       and leaves its kana right behind it, with no pre-edit to tell
+      context.kakutei(kana);
       break;
     case "okurinasi":
       state.henkanFeed += kana;
@@ -52,11 +54,11 @@ async function doKakutei(
   kana: string,
   feed: string,
 ) {
-  const { preEdit, state } = context;
+  const { state } = context;
   if (state.type !== "input") {
     return;
   }
-  kakuteiKana(state, preEdit, kana, feed);
+  kakuteiKana(context, state, kana, feed);
   if (state.mode === "okuriari" && feed === "") {
     if (state.okuriFeed.at(-1) === "っ") {
       // immediatelyOkuriConvertが有効になっていない場合
@@ -116,7 +118,7 @@ export async function kanaInput(context: Context, char: string) {
     if (current) {
       await acceptResult(context, current[1], next);
     } else if (config.acceptIllegalResult) {
-      kakuteiKana(state, context.preEdit, state.feed, "");
+      kakuteiKana(context, state, state.feed, "");
     } else {
       state.feed = "";
     }
@@ -124,7 +126,7 @@ export async function kanaInput(context: Context, char: string) {
   } else {
     // feedが無い場合(=テーブルに存在しない文字)
     // そのまま確定してしまう
-    kakuteiKana(state, context.preEdit, char, "");
+    kakuteiKana(context, state, char, "");
   }
 }
 
