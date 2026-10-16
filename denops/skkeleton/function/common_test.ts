@@ -599,6 +599,56 @@ Deno.test({
   },
 });
 
+Deno.test({
+  name: "kakutei undo after a kakutei by typing on a vowel",
+  async fn() {
+    await lib.registerHenkanResult("okurinasi", "ていせい", "訂正");
+    const context = new Context();
+    const buffer = new Buffer(context, "これは");
+    context.denops = locatingDenops(buffer);
+    await dispatch(context, ";teisei ");
+    buffer.flush();
+
+    // no kakutei key is pressed: the vowel confirms the candidate and is
+    // written after it as a kana right away, with no pre-edit left behind
+    await henkanInput(context, "i");
+    buffer.flush();
+    assertEquals(buffer.text, "これは訂正い");
+    await dispatch(context, "u");
+    buffer.flush();
+    assertEquals(buffer.text, "これは訂正いう");
+
+    await kakuteiUndo(context);
+    assertEquals(context.toString(), "▼訂正");
+    assertEquals(buffer.flush(), "\b\b▼訂正");
+    assertEquals(buffer.text, "これは▼訂正");
+    assertEquals(buffer.tail, "いう");
+  },
+});
+
+Deno.test({
+  name: "kakutei undo with okuriari after a kakutei by typing on a vowel",
+  async fn() {
+    await lib.registerHenkanResult("okuriari", "かえt", "帰");
+    const context = new Context();
+    const buffer = new Buffer(context);
+    context.denops = locatingDenops(buffer);
+    await dispatch(context, "KaeTte");
+    buffer.flush();
+    assertEquals(buffer.text, "▼帰って");
+
+    await henkanInput(context, "i");
+    await dispatch(context, "masu");
+    buffer.flush();
+    assertEquals(buffer.text, "帰っています");
+
+    await kakuteiUndo(context);
+    assertEquals(context.toString(), "▼帰って");
+    assertEquals(buffer.flush(), "\b\b\b▼帰って");
+    assertEquals(buffer.tail, "います");
+  },
+});
+
 test({
   mode: "nvim", // can input mode test only in nvim
   name: "kakutei undo in a buffer",
@@ -727,6 +777,40 @@ test({
     await denops.cmd('call skkeleton#handle("handleKey", {"key": "<c-u>"})');
     assertEquals(currentContext.get().toString(), "▼テスト");
     assertEquals(await fn.getline(denops, "."), "▼テスト");
+  },
+});
+
+test({
+  mode: "nvim", // can input mode test only in nvim
+  name: "kakutei undo in a buffer after a kakutei by typing on a vowel",
+  async fn(denops: Denops) {
+    const l = await currentLibrary.get();
+    await l.registerHenkanResult("okuriari", "かえt", "替");
+    await l.registerHenkanResult("okuriari", "かえt", "帰");
+    await denops.cmd(
+      'call skkeleton#register_keymap("input", "<C-u>", "kakuteiUndo")',
+    );
+    await denops.cmd("startinsert");
+
+    for (const key of ["K", "a", "e", "T", "t", "e"]) {
+      await denops.cmd(`call skkeleton#handle("handleKey", {"key": "${key}"})`);
+    }
+    assertEquals(await fn.getline(denops, "."), "▼帰って");
+
+    // the vowel confirms the candidate and is written right after it, leaving
+    // no pre-edit which would tell where the kakutei ends
+    for (const key of ["i", "m", "a", "s", "u"]) {
+      await denops.cmd(`call skkeleton#handle("handleKey", {"key": "${key}"})`);
+    }
+    assertEquals(await fn.getline(denops, "."), "帰っています");
+
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "<c-u>"})');
+    assertEquals(currentContext.get().toString(), "▼帰って");
+    assertEquals(await fn.getline(denops, "."), "▼帰っています");
+
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "<space>"})');
+    await denops.cmd('call skkeleton#handle("handleKey", {"key": "<nl>"})');
+    assertEquals(await fn.getline(denops, "."), "替っています");
   },
 });
 
