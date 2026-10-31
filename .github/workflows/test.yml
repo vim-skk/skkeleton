@@ -48,11 +48,11 @@ jobs:
       - run: git config --global init.defaultBranch main
       - run: git config --global core.autocrlf false
         if: runner.os == 'Windows'
-      - uses: actions/checkout@v5.1.0
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           path: "./repo"
-      - uses: actions/checkout@v5.1.0
+      - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           repository: "vim-denops/denops.vim"
@@ -60,7 +60,7 @@ jobs:
       - uses: denoland/setup-deno@v2.0.5
         with:
           deno-version: "${{ matrix.version }}"
-      - uses: actions/cache@v4.3.0
+      - uses: actions/cache@v6.1.0
         id: cache
         with:
           path: ${{ env.DENO_DIR }}
@@ -74,7 +74,7 @@ jobs:
       - name: Format check
         working-directory: ./repo
         run: deno task fmt-check
-      - uses: thinca/action-setup-vim@v2.1.2
+      - uses: thinca/action-setup-vim@v3.0.3
         id: vim
         with:
           vim_type: "Vim"
@@ -86,7 +86,7 @@ jobs:
           ${DENOPS_TEST_VIM} --version
         env:
           DENOPS_TEST_VIM: ${{ steps.vim.outputs.executable_path }}
-      - uses: thinca/action-setup-vim@v2.1.2
+      - uses: thinca/action-setup-vim@v3.0.3
         id: nvim
         with:
           vim_type: "Neovim"
