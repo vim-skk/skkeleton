@@ -26,6 +26,9 @@ defaults:
   run:
     shell: bash --noprofile --norc -eo pipefail {0}
 
+permissions:
+  contents: read
+
 jobs:
   test:
     strategy:
@@ -47,9 +50,11 @@ jobs:
         if: runner.os == 'Windows'
       - uses: actions/checkout@v5.1.0
         with:
+          persist-credentials: false
           path: "./repo"
       - uses: actions/checkout@v5.1.0
         with:
+          persist-credentials: false
           repository: "vim-denops/denops.vim"
           path: "./denops.vim"
       - uses: denoland/setup-deno@v2.0.5
