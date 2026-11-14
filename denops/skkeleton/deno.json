@@ -14,7 +14,7 @@
     "@std/streams": "jsr:@std/streams@^1.2.0",
     "@std/yaml": "jsr:@std/yaml@^1.3.0",
     "cr-numeral": "npm:cr-numeral@2.1.0",
-    "encoding-japanese": "npm:encoding-japanese@^2.4.0",
+    "encoding-japanese": "npm:encoding-japanese@^2.5.0",
     "jisyo/schema": "https://cdn.jsdelivr.net/gh/skk-dict/jisyo/schema/jisyo.schema.v0.0.0.json",
     "jsonschema": "npm:jsonschema@^1.5.0"
   }
